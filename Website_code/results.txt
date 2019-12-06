@@ -1,0 +1,68 @@
+running a program to find unusual data in our db
+transcripts with 0 exons: 0
+transcripts with 1 exons: 2290
+transcripts with 2 exons: 2598
+transcripts with 3 exons: 3329
+transcripts with 4 exons: 4142
+transcripts with 5 exons: 4153
+transcripts with 6 to 9 exons: 14875
+transcripts with 10 to 15 exons: 15608
+transcripts with 16 to 35 exons: 17196
+transcripts with 36+ exons: 3300
+total: 67491
+**********
+
+genes with 0 transcripts: 0
+genes with 1 transcript: 8401
+genes with 2 transcripts: 3843
+genes with 3 transcripts: 2202
+genes with 4 transcripts: 1573
+genes with 5 transcripts: 1117
+genes with 6 to 15 transcripts: 2930
+genes with 16 to 35 transcripts: 326
+genes with 36+ transcripts: 35
+total: 20427
+**********
+
+domain types with 0 domain events: 0
+domain types with 1 domain events: 3773
+domain types with 2 domain events: 2269
+domain types with 3 domain events: 1455
+domain types with 4 domain events: 1079
+domain types with 5 domain events: 766
+domain types with 6 to 15 domain events: 2987
+domain types with 16 to 35 domain events: 1120
+domain types with 36+ domain events: 719
+total: 14168
+**********
+
+tx length about 3 or less: 0
+cds length about 3 or less: 0
+utr in start is about 3 or less: 2201
+utr in end is about 3 or less: 0
+**********
+
+exons size 0 or less: 0
+exons size 1: 4
+exons size 2: 11
+exons size 3: 37
+exons size 4: 17
+**********
+
+protein size 0 or less: 0
+protein size 1: 0
+protein size 2: 0
+protein size 3: 0
+protein size 4: 0
+protein size 5 to 60: 87
+**********
+
+domain size 0 to 60: 3154
+domain size 61 to 120: 63695
+domain size 121 to 300: 75988
+domain size 301 to 900: 66574
+domain size 901+: 17510
+total: 223767
+**********
+
+finished running!

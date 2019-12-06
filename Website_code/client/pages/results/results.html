@@ -1,0 +1,129 @@
+<html>
+
+<head>
+    <style>
+    </style>
+</head>
+<!-- this page shows different views. we use canvases for graphics. -->
+
+<body ng-app="DoChaP" ng-controller="resultsCtrl">
+    <span ng-show="loadingText" ng-model="loadingText" class="loadingText">
+        LOADING RESULTS...
+    </span>
+    <!-- modal work-->
+    <div id="BlackBackground"
+        style="background-color:rgba(0, 0, 0, 0.233);overflow:auto;height:100%;width:100%; position: fixed;top:0;left:0"
+        ng-show="showWindow">
+        <div class="modal" id="modal">
+            <span ng-click="showWindow=false">&times;</span><br>
+            <span ng-show="showWindow=='gene'">
+                GeneID: {{resultsCtrl.geneInfo.gene_id}}<br>
+                Gene symbol: {{resultsCtrl.geneInfo.gene_symbol}}<br>
+                Chromosome: {{resultsCtrl.geneInfo.chromosome}}<br>
+                Synonyms: {{resultsCtrl.geneInfo.synonyms}}<br>
+                Strand: {{resultsCtrl.geneInfo.strand}}<br>
+                Description: {{resultsCtrl.geneInfo.description}}<br>
+                MGI ID: {{resultsCtrl.geneInfo.MGI_id}} <a href="http://www.informatics.jax.org/" target="_blank">read
+                    more on MGI</a>
+            </span>
+        </div>
+    </div>
+    <!--end of modal work-->
+    <div id="scrollHere"></div>
+    <!--needed for auto-scroll -->
+    <!-- gene introduction -->
+    There Are {{transcripts.length}} Transcripts For the Gene <a href=""><b
+            ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> <br>
+
+    <!-- button options -->
+    <input class="optionButton" type="button" value="compare genomic views" ng-click="checkboxChecked('genomic')" /><br>
+    <input class="optionButton" type="button" value="compare transcript views"
+        ng-click="checkboxChecked('transcript')" /><br>
+    <input class="optionButton" type="button" value="compare protein views" ng-click="checkboxChecked('protein')" /><br>
+    <input class="optionButton" type="button" value="show all views" ng-click="checkboxChecked('all')" /><br>
+
+    <input type="button" class="optionButton" value="Zoom In (+)" ng-click="extendCanvases(400)" style="width: 100px;" /><input
+        type="button" class="optionButton" value="Zoom Out (-)" ng-click="extendCanvases(-400)" style="width: 100px;" /><br>
+    <!-- list of transcripts -->
+    <center>
+        <table class="resultTable">
+            <tr>
+                <th style="width:130px"></th>
+                <th></th>
+                <th  class="betweenVisualizationSpace"></th>
+                <th></th>
+                <th class="beforProteinTextSpace"></th>
+                <th></th>
+            </tr>
+            <tr>
+            <td >
+            </td>
+            <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
+                Genomic Visualization
+                <br>
+                <br>
+            </td>
+            <td></td>
+            <td class="resultTitle">
+                Transcript And Protein Visualization
+                <br>
+                <br>
+            </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td ng-show="viewMode=='all'|| viewMode=='genomic'">
+                    <!-- scale view -->
+                    <canvas id="canvas-scale" height="40" width="{{canvasSize}}">
+                    </canvas>
+
+                    <br>
+                    <br>
+                </td>
+            </tr>
+
+            <tr ng-repeat="transcript in transcripts track by $index" ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]">
+                <td class="resultText"
+                    >
+                    Transcript: {{::transcript.id}} <br>
+                    <input type="button" value="show more" ng-click="showMore($index)" class="optionButton"
+                        style="width: auto;"
+                        ng-show="!(showCanvas.genomicView[$index] && showCanvas.transcriptView[$index] && showCanvas.proteinView[$index])" />
+                    <input type="button" value="show less" ng-click="showLess($index)" class="optionButton"
+                        style="width: auto;"
+                        ng-show="(showCanvas.genomicView[$index] && showCanvas.transcriptView[$index] && showCanvas.proteinView[$index])&&(viewMode!='all')" />
+
+                    <input type="button" value="hide transcript" ng-click="changeTranscriptView($index)"
+                        class="optionButton" style="width: auto;"
+                        ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]" />
+                </td>
+                <td ng-show="showCanvas.genomicView[$index]">
+                    <!-- genomic view -->
+                    <canvas id="canvas-genomic{{$index}}" height="80" width="{{canvasSize}}"
+                        ng-show="showCanvas.genomicView[$index]"></canvas>
+                </td>
+                <td>
+                    <b></b>
+                </td>
+                <td>
+                    <!-- transcript view -->
+                    <canvas id="canvas-transcript{{$index}}" height="30" width="{{canvasSize}}"
+                        ng-show="showCanvas.transcriptView[$index]"></canvas><br>
+                    <!-- protein view -->
+                    <canvas id="canvas-protein{{$index}}" height="65" width="{{canvasSize}}"
+                        ng-show="showCanvas.proteinView[$index]"></canvas>
+                </td>
+                <td ></td>
+                <td>
+                    Protein: {{transcript.proteinId}}
+                </td>
+            </tr>
+
+        </table>
+    </center>
+    <br>
+    </div>
+</body>
+
+</html>

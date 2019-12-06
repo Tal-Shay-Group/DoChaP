@@ -1,0 +1,29 @@
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <canvas id="colorCanvas" height="100" width="1000">
+        <script>
+            var colorArr = ["#B627FC", "#BBABF3", "#DE3D3D", "#FF6262", "#f5b0cb", "#E8A089", "#FFDFD3","#ee9572", "#FD9900",
+                "#deb881", "#e3b04b","#ffb90f","#ffd700", "#FFFC3B", "#FFF599", "#FFFED3", "#D3D6A5", "#ccff00", "#20F876", "#63C37F",
+                "#A6AB75", "#A6B9B4", "#beebe9", "#00ccff", "#7BEAD2", "#180CF5", "#77624A"
+            ];
+            var canvas = document.getElementById("colorCanvas");
+            var context = canvas.getContext("2d");
+            var colorWidth = 1000 / colorArr.length;
+            var colorHeight = 100;
+            for (var i = 0; i < colorArr.length; i++) {
+                context.fillStyle = colorArr[i];
+                context.fillRect(i * colorWidth, 0, colorWidth, colorHeight);
+                context.fillStyle = "black"
+                context.font = "20px Ariel";
+                context.fillText(colorArr[i], i * colorWidth, 50);
+            }
+        </script>
+    </canvas>
+</body>
+
+</html>

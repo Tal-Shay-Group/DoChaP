@@ -1,0 +1,26 @@
+# ignore gbff and gz files
+**/*.gbff
+**/*.gbff.gz
+**/*.gpff.gz
+**/*.gpff
+#Ignore GTF
+**/*.gtf
+#Ignore big tables
+**/*.gz
+#ignore node_modules
+**/node_modules
+# ignore .db files created by gffutils
+**/*.db
+# ignore txt large tables
+**/refGene.txt
+**/kgXref.txt
+**/ncbiRefSeq.txt
+**/knownGene.txt
+**/gene2ensembl.txt
+**/DB_H_sapiens.sqlite
+**/DB_M_musculus.sqlite
+**/DB_M_musculus_small.sqlite
+
+**/*.sqlite
+**/DB_merged.sqlite
+

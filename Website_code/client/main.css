@@ -1,0 +1,110 @@
+body {
+    font-size: 20px;
+    background-color: rgb(255, 255, 255);
+     /*background-color: rgb(196, 221, 217);
+   background-image: url("resources/back.jpg");*/
+    background-size: cover;
+    font-family: "Calibri";
+    font-size: 20px;
+    /*font-weight: bold;*/
+}
+
+.logo{
+    height:150px;
+     width:300px;
+     align-self: center;
+     /*put align*/
+}
+
+.modal{
+    background-color:rgb(226, 249, 251);
+    height:300px;
+    width:270px;
+    border-style: solid;
+    border-width: 3px;
+    position: fixed;
+    text-align: left;
+    font-size: 17px;
+    left: 30%;
+    right: 30%;
+    top: 10%;
+    box-shadow: 18px 6px 28px -1px rgba(0,0,0,0.75);
+    padding: 5px;
+}
+
+.searchButton{
+    background-color:rgb(29, 20, 107);
+    color:white;
+    font-weight: bold;
+    font-size: 30px;
+    height:40px;
+    width:200px;
+    border-radius: 8px;
+    box-shadow: 0 8px 12px 0 rgba(44, 44, 44, 0.191);
+    box-shadow:inset 2px 2px 0px 0px black;
+
+}
+.searchButton:hover{
+    background-color:rgb(32, 44, 214);
+}
+.optionButton{
+    background-color:rgb(29, 20, 107);
+    color:white;
+    font-size: 15px;
+    height:25px;
+    width:200px;
+    border-radius: 8px;
+
+}
+.optionButton:hover{
+    background-color:rgb(32, 44, 214);
+}
+.menu{
+width: 100%;
+background:rgb(57, 66, 190);
+
+
+}
+.nav{
+   
+    box-shadow: inset 0px 1px 2px 0px rgba(255, 255, 255, 0.75);
+    color: aliceblue;
+    background:rgb(57, 66, 190);
+
+}
+.nav:hover{
+    background:rgb(71, 77, 168);
+}
+
+.navA:hover, .navA:visited,.navA:link, .navA:active
+{
+    text-decoration: none;
+    color: aliceblue;
+}
+.navA{
+    font-size:30px;
+    color: aliceblue;
+}
+.searchTextFieldClass{
+    height: 30px;
+    width:300px;
+}
+
+.resultTitle{
+    font-size:25px;
+    text-align: center;
+}
+
+.resultText{
+    width: 140px;
+    height: 160px;
+}
+.betweenVisualizationSpace{
+    width: 100px;
+}
+.beforProteinTextSpace{
+    width: 20px;
+}
+.loadingText{
+    font-size: 30px;
+}

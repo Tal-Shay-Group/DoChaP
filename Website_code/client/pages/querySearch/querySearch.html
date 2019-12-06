@@ -1,0 +1,50 @@
+<html>
+    <head>
+      
+        <style>
+
+        </style> 
+      
+      </head>
+      <!-- css -->
+      
+      
+      
+      <!-- display all categories -->
+    <body ng-app="DoChaP" ng-controller="querySearchCtrl">
+
+        Search:
+        <input class="searchTextFieldClass" id="searchTextField"  style="font-size:28px;height:38px;width:600px;">
+        <input class="searchButton" id="submitSearchButton" value="Analyze" type="button" ng-click="querySearchCtrl.search()" style="font-size:30px;height:40px;width:200px;">
+        <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading"/> <br>
+        <p align="left">
+            <b>what can you search for in DoChaP?</b> <br>
+            -for genes - by their GeneID, name (symbol name), synonyms and will later support different IDs <br>
+            -for transcripts - by their transcript RefSeq ID <br>
+            -for proteins - by their RefSeq ID <br>
+            -if you don't know what to search for try the result example in the navigation bar or by <a href="#!results">clicking here</a><br>
+            <br>
+            <b>what can DoChaP help you with?</b> <br>
+                    -finding domain locations in proteins<br>
+                    -finding exon locations in genes<br>
+                    -comparing transcripts<br>
+                    -understanding about possible outcomes of alternative splicing<br>
+           
+            
+
+        </p>
+     <!--
+        <br>
+        <br>
+        Or Choose File: (currently not supported)
+        <br>
+        <br>
+        <input disabled="disabled" id="chooseButton" type="file">
+        <br>
+        <br> -->
+        
+
+
+    </body>
+
+</html>
