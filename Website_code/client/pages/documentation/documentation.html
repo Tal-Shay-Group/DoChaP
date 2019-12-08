@@ -1,0 +1,111 @@
+<html>
+<!-- home is the default webpage. we didnt yet decide will be shown here. suggestion can be search options/ example/
+        summary on site/updates... 
+-->
+
+<head>
+    <!-- load angular -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.js"></script>
+    <script src="https://code.angularjs.org/1.7.8/angular-route.js"></script>
+
+    <!-- load app -->
+    <script src="app.js"></script>
+
+</head>
+<!-- css -->
+<style>
+</style>
+
+
+<!-- will be commented on when it will be created -->
+
+<body ng-app="DoChaP" ng-controller="documentationCtrl">
+
+    <table class="documentationTable">
+        <tr>
+            <th colspan="2">
+                <img src="/resources/documentationFull.png" />
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <img src="/resources/doc1.png" />
+                <br>
+                	Info-box- the transcript ID shown is the RefSeq ID of the transcript. By clicking on it a small window opens with more information about this transcript. The details shown are different ID's in different databases and details about tx and cds coordinates. In the right side there is another info-box. The transcript_id is the same and by clicking on it you get to the same window as seen before. The protein ID is also the RefSeq ID of the same protein but clicking on it reveals a window with protein details contains different information than the transcript window. 
+                   <br>
+                    information details in the transcript window:
+                    <br>
+                    - RefSeq ID (link to NCBI)
+                    <br>
+                    -exon count
+                    <br>
+                    -UCSC ID (if exists, link to UCSC)
+                    <br>
+                    -Ensembl ID(if exists, link to Ensembl)
+                    <br>
+                    -tx coordinates (start zero based, end one based)
+                    <br>
+                    -CDS coordinates (start zero based, end one based)
+                    <br>
+                    Information details in the protein window:
+                    <br>
+                    -RefSeq ID (link to NCBI)
+                    <br>
+                    -description (if exists)
+                    <br>
+                    -synonyms (if exists)
+                    <br>
+                    -Amino acid lenth
+                    <br>
+                    -UniProt ID (if exists, link to UniProt)
+                    <br>
+                    -Ensembl ID (if exists, link to Ensembl)
+                    
+            </td>
+            <td>
+                    2.	Genomic scala- The scala presents the coordinates which we will show in the genomic views. We would like to maintain one scala and align all transcripts on it so they can be easialy compared. The beginning coordinate is calculated by finding the earliest tx coordinate from any of the transcript. The end of the scala is determined by the latest(biggest) tx coordinate in any of the transcripts. Now, all transcript can be fitted in fully. To help users understand proportions we added small measuring lines. The length between each two lines changes based on the length of the scala. You can understand the length by looking at two coordinates on the line. The measurement is in base units.
+                    <br>
+                    Notice that the first measurement line is the for the first coordinate which is not rounded up! Therefore, the length between the first and second measurement lines are not the same as others. Also, because the length between the first and the second measurements can be very close we will not show the second label but it is the next rounded up number after the first coordinate.
+                    <br>
+                    In Example: if the earliest tx coordinate is 8,999,999 than the first measurement will be in 8,999,949 and the second measurement will be 9,000,000. The third measurement depends on the skips chosen by our algorithm for best aesthetic experience. If the third measurement is 9,001,000 than you can be sure that the skip length from now on is exactly 1000 bases.
+                    
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    3.	Genomic view- this graphic is always in relation to the scala above. Each graphic belongs to only one transcript, which its ID is stated on its left. The graphic presents the exons by colorful rectangles and the measurement lines synchronized with the scala are shown in grey. The exons are shown in their coordinate location so the width of the rectangle captures the exon length. Exon may be fully or partly outside of the CDS interval and we would like to address it in the graphics. For this reason, you may see smaller rectangles or rectangles with smaller ends.
+                    <br>
+                    (Example pictures), Those are parts that do not get to be translated to a protein and for that reason will be left out of the transcript view. The colors are consistent so an exon in different transcripts will have the same color in all views including the genomic view. More information on this view can be found by clicking on the transcript ID in the info-box (left or right).
+                    <br>
+                    Notice that exons tend to be much small than introns so in longer sized transcripts exon are so proportionally small that a rectangle is not big enough that you can see the color clearly. Since this is the case, very small exons are extended so a minimal size configured. If you would like a more realistic size, you can expand the view by clicking on the zoom in (+) button which will expand the graphic but will show a more proportional size for very small exons.
+                    
+            </td>
+            <td>
+                    4.	Protein scala- the scala shows both nucleotide and amino acid lengths where the upper measurement is for amino acids and the lower is for nucleotedes. The scale is selected to fit the longest protein so all proteins found for the gene will be sized accordingly. Notice that the coordinates start with 0 but the first nucleotide will be named as 1 so if the first exon is made of 30 nucleotides (or in other words 10 amino acids), it will be in locations [1,30].
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    5.	Transcript view- this view is used for users to understand the what exon parts built the protein. It is also helpful to understand the "content" of all proteins and their length. The length of the exons attached is always the same length as the protein view graphic below and they are both consistent with the protein scala. You can also see Splicing areas by looking where an exon starts after another exon ends. As you may observe, those locations are also noticeable in the protein graphic below. The colors in this view are consistent with colors in the genomic and the protein views for the same transcript. But also for all of the transcript. More information on this view can be found by clicking on the transcript ID in the info-box (left or right). 
+            </td>
+            <td>
+                    6.	Protein view- this view presents domains found for a protein. The domains are the ellipses and the line is representing the protein. The protein scala is consistent with this view as well. For each domain we would like to show what exons were needed for the domain to function- this can be seen by the exon colors. If more than one exon was needed for this domain than colors will be used in a gradient form. In those kinds of domain a white line represent the splicing area as can be seen in the transcript view above.  More information on this view can be found by clicking on the protein ID in the info-box on the right.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    7.	Costumizing buttons- not all users benefit for all users. We offer different modes for different people. If you would like to see only one view you can use the first 3 buttons. The default is to show all views so this button is only relevant for people who used one of the first three buttons.
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

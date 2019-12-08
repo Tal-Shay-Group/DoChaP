@@ -15,17 +15,19 @@ Logo and navigation bars will be declared here for example.
     </script>
 
     <!-- load app -->
-    <script src="app.js"></script>
+    <script src="dochap/app.js"></script>
 
     <!-- load our graphic files-->
-    <script src="geneCanvasGraphics.js"></script>
-    <script src="GraphicUtils.js"></script>
+    <script src="dochap/geneCanvasGraphics.js"></script>
+    <script src="dochap/GraphicUtils.js"></script>
 
     <!-- load controllers -->
-    <script src="webService.js"></script>
-    <script src="pages/home/homeController.js"></script>
-    <script src="pages/querySearch/querySearchController.js"></script>
-    <script src="pages/results/resultsController.js"></script>
+    <script src="dochap/webService.js"></script>
+    <script src="dochap/pages/home/homeController.js"></script>
+    <script src="dochap/pages/querySearch/querySearchController.js"></script>
+    <script src="dochap/pages/results/resultsController.js"></script>
+    <script src="dochap/pages/underConstruction/underConstructionController.js"></script>
+    <script src="dochap/pages/documentation/documentationController.js"></script>
     <link rel="icon" href="resources/favicon.ico">
 
     <!-- style. will later be in css file -->
@@ -33,14 +35,14 @@ Logo and navigation bars will be declared here for example.
 </head>
 <!-- actual tags that will be visible. currently only links for search/result pages. -->
 <body ng-app="DoChaP" align="center"> <!--    -->
-    <img class="logo" src="resources/logo.jpeg" /><br />
+    <img class="logo" src="dochap/resources/logo.jpeg" /><br />
     <table class="menu">
         <tr >
                     <td class="nav"><a href="#!querySearch"  class="navA"> Search</a></td>
                     <td class="nav"><a href="#!results"  class="navA"> Result Example</a></td>
-                    <td class="nav"> <span  class="navA">Species(Mouse/Human)</span> </td>
-                    <td class="nav"> <span  class="navA">Tool Result Upload</span></td>
-                    <td class="nav"> <span  class="navA">Help & Documentaion</span></td>
+                    <td class="nav"><a href="#!underConstruction"  class="navA">Species(Mouse/Human)</a> </td>
+                    <td class="nav"><a href="#!underConstruction"  class="navA">Tool Result Upload</a></td>
+                    <td class="nav"><a href="#!documentation"  class="navA">Help & Documentaion</a></td>
         </tr>
     </table>
     <br>

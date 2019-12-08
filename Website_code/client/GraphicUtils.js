@@ -5,27 +5,37 @@ as an controller or as an adapter. only 'createGraphicInfoForGene' function will
 other functions as needed.
 
 */
+function runGenesCreation(result){
+    var geneList=[];
+    for(var i=0; i<result.genes.length;i++){
+        geneList.push(createGraphicInfoForGene(result.genes[i]));
+    }
+    return geneList;
+}
 
 //This will receive the gene and create another gene object which can be used by the result controller for further use.
 function createGraphicInfoForGene(gene) {
     var ansGene = new Object();
     ansGene.transcripts = [];
-    ansGene.gene_symbol = gene.gene.gene_symbol; 
-    ansGene.gene_id = gene.gene.gene_id;
-    ansGene.strand= gene.gene.strand; 
-    ansGene.synonyms=gene.gene.synonyms;
-    ansGene.chromosome=gene.gene.chromosome;
-    ansGene.description=gene.gene.description; 
-    ansGene.MGI_id=gene.gene.MGI_id; 
+    ansGene.gene_symbol = gene.gene_symbol; 
+    ansGene.gene_id = gene.gene_id;
+    ansGene.strand= gene.strand; 
+    ansGene.synonyms=gene.synonyms;
+    ansGene.chromosome=gene.chromosome;
+    ansGene.description=gene.description; 
+    ansGene.MGI_id=gene.MGI_id; 
+    ansGene.ensembl_id=gene.ensembl_id; 
+    
+
     
     //var geneColorRand1=Math.floor(Math.random() * 16); currently not in use
-    var geneExons=createGeneExonInfo(gene.geneExons);
+    ansGene.geneExons=createGeneExonInfo(gene.geneExons,gene.transcripts,ansGene);
     //calculate things for each transcript
     var start = findStartCoordinate(gene.transcripts);
     var end = findEndCoordinate(gene.transcripts);
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
     for (var i = 0; i < gene.transcripts.length; i++) {
-        ansGene.transcripts[i] = createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, geneExons);
+        ansGene.transcripts[i] = createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons);
     } 
     //for showing nm before xm
     function compare( a, b ) {
@@ -38,15 +48,23 @@ function createGraphicInfoForGene(gene) {
         return 0;
       }
       ansGene.transcripts.sort(compare);
-    ansGene.scale=createScale(start,end,gene.gene.strand);
+    ansGene.scale=createScale(start,end,gene.strand,gene.chromosome);
+    ansGene.proteinScale=createProteinScale(maxProteinLength);
 
     return ansGene;
 }
-function createScale(start,end,strand){
+function createScale(start,end,strand,chromosomeName){
     var scale=new Object;
-    scale.length=end-start;
+    scale.start=start;
+    scale.end=end;
     scale.strand=strand;
+    scale.chromosomeName=chromosomeName;
     return scale;
+}
+function createProteinScale(length){
+    var proteinScale=new Object;
+    proteinScale.length=length;
+    return proteinScale;
 }
 
 /* this function is a helper function that will focus on each transcript info and calculations.
@@ -57,11 +75,24 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     ansTranscript.id = transcript.transcript_id;
     ansTranscript.proteinId = transcript.protein.protein_id;
     ansTranscript.proteinLength = transcript.protein.length * 3 ;// in base units
+    ansTranscript.proteinLengthInAA=transcript.protein.length;
+    ansTranscript.description=transcript.protein.description;
+    ansTranscript.proteinSynonyms=transcript.protein.synonyms;
+    ansTranscript.proteinEnsemblID=transcript.protein.ensembl_id;
+    ansTranscript.proteinUniprotID=transcript.protein.uniprot_id;
     ansTranscript.exons = [];
     ansTranscript.length = endCoordinate - startCoordinate;
     ansTranscript.maxProteinLength=maxProteinLength;
     var cdsStart=transcript.cds_start;
+    ansTranscript.cds_start=cdsStart;
     var cdsEnd=transcript.cds_end;
+    ansTranscript.cds_end=cdsEnd;
+    ansTranscript.tx_start=transcript.tx_start;
+    ansTranscript.tx_end=transcript.tx_end;
+    ansTranscript.exonCount=transcript.exon_count;
+    ansTranscript.ucsc_id=transcript.ucsc_id;
+    ansTranscript.ensembl_id=transcript.ensembl_ID;
+    ansTranscript.startCoordinate=startCoordinate; 
 
     //calculate things for each transcript
     for (var i = 0; i < transcript.transcriptExons.length; i++) {
@@ -104,9 +135,12 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
         ansTranscript.domains[i].name = domains[i].domainType.name;
         ansTranscript.domains[i].typeID = domains[i].domainType.type_id;
         ansTranscript.domains[i].overlap=false;
+        ansTranscript.domains[i].showText=true;
+
     }
     findOverlaps(ansTranscript.domains);
     orderBySize(ansTranscript.domains);
+    showNameOfDomains(ansTranscript.domains);
 
     return ansTranscript;
 }
@@ -143,11 +177,13 @@ function findmaxProteinLength(transcripts){
     return maxProtein*3; //because we need length in nucleotides
 }
 
-function createGeneExonInfo(geneExons){
+function createGeneExonInfo(geneExons,geneTranscripts,ansGene){
     var exonInfo={};
-    var colorArr= ["#B627FC", "#BBABF3", "#DE3D3D", "#FF6262", "#f5b0cb", "#E8A089", "#FFDFD3","#ee9572", "#FD9900",
-    "#deb881", "#e3b04b","#ffb90f","#ffd700", "#FFFC3B", "#FFF599", "#FFFED3", "#D3D6A5", "#ccff00", "#20F876", "#63C37F",
-    "#A6AB75", "#A6B9B4", "#beebe9", "#00ccff", "#7BEAD2", "#180CF5", "#77624A"
+    var exonForTable=[];
+    var colorArr= ["#DACCFF", "#BBABF3","#B627FC",  "#DE3D3D", "#FF6262", "#f5b0cb", "#ffccd8", "#E8A089",
+                
+    "#deb881", "#c8965d","#FD9900", "#ffb90f", "#ffd700", "#FFFC3B", "#FFF599", "#FFFED3","#d1d797", "#ccff00", "#20F876", "#63C37F",
+     "#beebe9", "#00ccff", "#A6B9B4", "#7BEAD2", "#180CF5"
 ];
     for( var i=0; i<geneExons.length;i++){
         if(exonInfo[geneExons[i].genomic_start_tx]==undefined){
@@ -155,13 +191,20 @@ function createGeneExonInfo(geneExons){
         }
         var chosenColor=getcolorFromList(colorArr);
         if(colorArr.length<2){
-            colorArr= ["#B627FC", "#BBABF3", "#DE3D3D", "#FF6262", "#f5b0cb", "#E8A089", "#FFDFD3","#ee9572", "#FD9900",
-            "#deb881", "#e3b04b","#ffb90f","#ffd700", "#FFFC3B", "#FFF599", "#FFFED3", "#D3D6A5", "#ccff00", "#20F876", "#63C37F",
-            "#A6AB75", "#A6B9B4", "#beebe9", "#00ccff", "#7BEAD2", "#180CF5", "#77624A"
+            colorArr= ["#DACCFF", "#BBABF3","#B627FC",  "#DE3D3D", "#FF6262", "#f5b0cb", "#ffccd8", "#E8A089",
+                
+            "#deb881", "#c8965d","#FD9900", "#ffb90f", "#ffd700", "#FFFC3B", "#FFF599", "#FFFED3","#d1d797", "#ccff00", "#20F876", "#63C37F",
+             "#beebe9", "#00ccff", "#A6B9B4", "#7BEAD2", "#180CF5"
         ];
         }
         exonInfo[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx]={color:chosenColor,name:""};
+        var exonTranscripts=getTranscriptsForExon(geneExons[i].genomic_start_tx,geneExons[i].genomic_end_tx,geneTranscripts);
+        if(exonTranscripts!=""){
+            exonForTable.push({'transcripts':exonTranscripts,'startCoordinate':geneExons[i].genomic_start_tx,'endCoordinate':geneExons[i].genomic_end_tx,'color':chosenColor[0]});
+        }
+        
     }
+    ansGene.exonTable=exonForTable;
     return exonInfo;
 }
 
@@ -207,4 +250,30 @@ function orderBySize(domainArr){
         return 0;
       }
       domainArr.sort(compare);
+}
+
+function showNameOfDomains(domains){
+    for(var i=0;i<domains.length;i++){
+        for(var j=0;j<domains.length;j++){
+            if (domains[i].start<domains[j].start && domains[j].end<domains[i].end ){
+                domains[i].showText=false;
+            }
+        }
+    }
+}
+
+function getTranscriptsForExon(start,end,transcripts){
+    var ans=""
+    for(var i=0; i<transcripts.length;i++){
+        for(var j=0;j<transcripts[i].transcriptExons.length;j++){
+            if(transcripts[i].transcriptExons[j].genomic_start_tx==start &&transcripts[i].transcriptExons[j].genomic_end_tx==end){
+                if(ans==""){
+                    ans=transcripts[i].transcript_id;
+                }else{
+                    ans=ans+", "+transcripts[i].transcript_id;
+                }
+            }
+        }
+    }
+    return ans;
 }

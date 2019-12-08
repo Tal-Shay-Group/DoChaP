@@ -15,16 +15,16 @@ function buildGenomicView(canvasID, transcript) {
     var contextT = canvasT.getContext("2d");
     var canvasHeight = canvasT.height;
     var canvasWidth = canvasT.width;
-    var lineThickness = 4;
+    var lineThickness = 2;
     var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-    var lengthOfGene = transcript.length; // exons[exons.length - 1][1]; //assuming we stop after last exon (ignoring futher introns)
+    var lengthOfGene = transcript.length;
     var beginningEmpty=10; //in pixels
     var endEmpty=5; //in pixels
     var coordinatesWidth = (canvasT.width-beginningEmpty-endEmpty) / lengthOfGene;
-    
+    var startCoordinate=transcript.startCoordinate;
 
     //gridlines
-    createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,true);
+    createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,true);
 
     //line graphics
     createBaseLine(contextT, 0, spacing, canvasWidth, lineThickness);
@@ -113,8 +113,9 @@ function buildProteinView(canvasID, transcript) {
         domainHeight = 45;
         domainX = domainsInProtein[i].start * coordinatesWidth;
         domainY = spacing - domainHeight / 2;
-        overlap = domainsInProtein[i].overlap;
+        overlap = false;//domainsInProtein[i].overlap;
         shapeID=0; //currently its random
+        domainText=domainsInProtein[i].showText;
         if( domainX+domainWidth>=canvasWidth){
             domainWidth=Math.max(1,canvasWidth-domainX-2);
         }
@@ -122,7 +123,7 @@ function buildProteinView(canvasID, transcript) {
         gradient = getGradientForDomain(domainX, domainX + domainWidth, domainsInProtein[i], spacing, exons, contextP);
         
         //domain draw
-        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name,overlap,shapeID);
+        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name,overlap,shapeID,domainText);
     }
  
 }
@@ -134,58 +135,149 @@ function buildScaleView(canvasID, scale) {
     var canvasHeight = canvasS.height;
     var canvasWidth = canvasS.width;
     var lineThickness = 8;
-    var spacing = (canvasHeight - lineThickness);
-    var lengthOfScale = scale.length; 
+    var spacing = 70; //space from top
+    var lengthOfScale = scale.end-scale.start; //both in necluotides
     var beginningEmpty=10; //in pixels
     var endEmpty=5; //in pixels
     var coordinatesWidth = (canvasS.width-beginningEmpty-endEmpty) / lengthOfScale;
     var skip=getSkipSize(lengthOfScale,coordinatesWidth);
     var strand=scale.strand;
+    var chromosomeName=scale.chromosomeName;
   
     //gridlines
-    createGridLines(contextS,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,false);
+    createGridLines(contextS,beginningEmpty,coordinatesWidth,spacing,canvasWidth,lengthOfScale,scale.start,false);
 
     //line graphics
     createBaseLine(contextS, 0, spacing, canvasWidth, lineThickness);
     
+    //scope text
+    contextS.font = "15px Ariel bold";
+    contextS.textAlign = "left";
+    contextS.fillText(chromosomeName+":"+numberToTextWithCommas(scale.start)+"-"+numberToTextWithCommas(scale.end), 1, 14);
     
     //labels for counting
-    for( var i=0; i<lengthOfScale-(skip/2) ; i=i+skip){
-        contextS.fillStyle = "black" 
-        contextS.font = "15px Ariel";
-        contextS.textAlign = "center";
-        contextS.fillText(""+i, coordinatesWidth*i+beginningEmpty,  spacing-5);
-
-    }
-
+    createNumberLabelsForScale(contextS,lengthOfScale,skip,coordinatesWidth,beginningEmpty,spacing,scale.start);
+    
+    
     //draw arrow 
-    drawArrow(contextS,strand,canvasWidth/10,canvasHeight/2-10);
+    drawArrow(contextS,strand,200,(canvasWidth-200)/2,110);
 
 
 }
 
-function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,isinMiddle){
+function buildScaleViewForProtein(canvasID, proteinScale) {
+
+    //calculations
+    var canvasS = document.getElementById(canvasID);
+    var contextS = canvasS.getContext("2d");
+    var canvasHeight = canvasS.height;
+    var canvasWidth = canvasS.width;
+    var lineThickness = 8;
+    var spacing = 70; //space from top
+    var lengthOfScale = proteinScale.length/3; //both in necluotides
+    var coordinatesWidth = (canvasS.width) / lengthOfScale;
+    var skip=100;
+   // var skip=getSkipSize(lengthOfScale,coordinatesWidth);
+  
+    //gridlines
+    createProteinGridLines(contextS,coordinatesWidth,spacing,canvasWidth,skip);
+
+    //line graphics
+    createBaseLine(contextS, 0, spacing, canvasWidth, lineThickness);
+     
+    
+
+}
+
+
+function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,isinMiddle){
     var gridLength=10;
     var startHeight=canvasHeight/2-gridLength;
+    contextT.fillStyle ="#bfbfbf";
     if(!isinMiddle){
-        startHeight=canvasHeight-gridLength-3;//3 because of the heavy baseline
+        gridLength=5;
+        startHeight=canvasHeight-gridLength;
+        contextT.fillStyle ="black";
     }
     
-    var startingCoordinateAfterEmptyStart=beginningEmpty/coordinatesWidth;    
-    for(var i=startingCoordinateAfterEmptyStart; (i*coordinatesWidth+2)<canvasWidth; i=i+1000){
-        contextT.fillStyle ="#bfbfbf";
-        contextT.fillRect(i*coordinatesWidth, startHeight, 2,gridLength);
+    
+    var skip=getSkipSize(lengthOfGene,coordinatesWidth);    
+    contextT.fillRect(beginningEmpty, startHeight, 1,gridLength);
+    var secondCoordinate=skip-(startCoordinate%skip);
+    for(var i=secondCoordinate; (i*coordinatesWidth+2)<canvasWidth; i=i+skip){
+        contextT.fillRect(i*coordinatesWidth+beginningEmpty, startHeight, 1,gridLength);
     }
     
 }
+function createProteinGridLines(context,coordinatesWidth,startHeight,canvasWidth,skip){
+    var gridLength=30;
+    var lineheight= startHeight-(gridLength-8)/2;
+    for(var i=0; (i*coordinatesWidth+2)<canvasWidth; i=i+skip){
+        context.fillRect(i*coordinatesWidth, lineheight, 1,gridLength);
+        
+    }
+ 
+    //draw number
+    context.font = "15px Ariel";
+    context.fillText("nucleotide",10,30);
+    context.fillText("amino acid",10,125);
+     for(var i=0; (i*coordinatesWidth+50)<canvasWidth;i=i+skip){
+       context.save();
+        context.translate(coordinatesWidth*i+3,lineheight-8);
+        context.rotate(-Math.PI/8);
+        context.fillStyle = "black" 
+        context.font = "15px Ariel";
+        context.textAlign = "left";
+        context.fillText(numberToTextWithCommas(i*3), 0, 0);
+        context.restore();  
+        //nekloaid number
+        context.save();
+        context.translate(coordinatesWidth*i+3,lineheight+50);
+        context.rotate(-Math.PI/8);
+        context.fillStyle = "black" 
+        context.font = "15px Ariel";
+        context.textAlign = "left";
+        context.fillText(numberToTextWithCommas(i), 0, 0);
+        context.restore();
+     }
+        
+
+}
 
 
-function getSkipSize(lengthOfScale,coordinatesWidth){
-    var skip=1000;
+function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,beginningEmpty,spacing,scaleStart){
+    //first coordinate
+        context.save();
+        context.translate(beginningEmpty,spacing-8);
+        context.rotate(-Math.PI/8);
+        context.fillStyle = "black" 
+        context.font = "15px Ariel";
+        context.textAlign = "left";
+        context.fillText(numberToTextWithCommas(scaleStart), /*coordinatesWidth*i+beginningEmpty*/0,  /*spacing-8*/0);
+        context.restore();
+    var currLabel=scaleStart-(scaleStart%skip)+skip+skip;// space in the beginning
+    var endEmpty=30/coordinatesWidth;//its 30 pixels in genome units
+    for( var i=(skip+skip-(scaleStart%skip)); i<lengthOfScale-endEmpty ; i=i+skip){
+        context.save();
+        context.translate(coordinatesWidth*i+beginningEmpty,spacing-8);
+        context.rotate(-Math.PI/8);
+        context.fillStyle = "black" 
+        context.font = "15px Ariel";
+        context.textAlign = "left";
+        context.fillText(numberToTextWithCommas(currLabel), /*coordinatesWidth*i+beginningEmpty*/0,  /*spacing-8*/0);
+        context.restore();
+        currLabel=currLabel+skip
+    }
+}
+
+function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, cw is the convertor
+    var skip=1000; //skip is in genomic units
     
-     if (skip*coordinatesWidth<20 ){
-        skip=10000;
+    if (skip*coordinatesWidth<3 ){
+        skip=100000;
     }else if (skip*coordinatesWidth<30 ){
+        skip=10000;
+    }else if (skip*coordinatesWidth<40 ){
         skip=5000;
     }
     else if (skip*coordinatesWidth>120){
@@ -195,30 +287,33 @@ function getSkipSize(lengthOfScale,coordinatesWidth){
     
 }
 
-function drawArrow(context,strand,arrowLength,spacing){
+function drawArrow(context,strand,arrowLength,width,height){ //width and height in which the arrow starts
     var arrowWidthLine=8;
     //baseline
     context.beginPath();
-    context.moveTo(0, spacing);
-    context.lineTo(arrowLength, spacing);
+    context.moveTo(width, height);
+    context.lineTo(width+arrowLength, height);
     context.closePath();
     context.stroke();
     //arrow
     if(strand=='+'){
         context.beginPath();
-        context.moveTo(arrowLength-arrowWidthLine, spacing-arrowWidthLine);
-        context.lineTo(arrowLength, spacing);
-        context.lineTo(arrowLength-arrowWidthLine, spacing+arrowWidthLine);
+        context.moveTo(width+arrowLength-arrowWidthLine, height-arrowWidthLine);
+        context.lineTo(width+arrowLength, height);
+        context.lineTo(width+arrowLength-arrowWidthLine, height+arrowWidthLine);
         context.closePath();
         context.fill();
     }else if(strand=='-'){
         context.beginPath();
-        context.moveTo(arrowWidthLine, spacing-arrowWidthLine);
-        context.lineTo(0,spacing);
-        context.lineTo(arrowWidthLine, spacing+arrowWidthLine);
+        context.moveTo(width+arrowWidthLine, height-arrowWidthLine);
+        context.lineTo(width,height);
+        context.lineTo(width+arrowWidthLine, height+arrowWidthLine);
         context.closePath();
         context.fill();
     }
+    context.font = "20px Ariel";
+    context.textAlign="center";
+    context.fillText("strand "+ strand, width+(arrowLength/2),height-5);
 }
 
 //select a totally random color 
@@ -232,8 +327,16 @@ function getRandomColor() {
 }
 
 function getcolorFromList(colorArr) {
-    var index = Math.floor(Math.random() * colorArr.length);
-    return  colorArr.splice(index, 1);
+    i=colorArr.length%3;
+    if(i==0){
+        i=0;
+    } else if (i==1){
+        i=colorArr.length-1;
+    } else if (i==2){
+        i=(colorArr.length+1)/2;
+    }
+    return  colorArr.splice(i, 1);
+    //return  colorArr.splice(0, 1);
 }
 
 
@@ -247,6 +350,10 @@ function placeRedColor(number) {
     return color;
 }
 
+function numberToTextWithCommas(number){
+    //from internet! what to do with that
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 function placeCorrolationColor(number) {
     var letters = '0123456789ABCDEF';
     var color = '#';//+letters[rand1]+letters[rand1];
@@ -445,7 +552,7 @@ function getCoordinatesWidth(exons, canvasWidth) { //exons is an array of [start
 }
 
 
-function drawDomainInProteinView(context, domainX, domainY, domainHeight, domainWidth, gradient, name,overlap,shapeID) {   
+function drawDomainInProteinView(context, domainX, domainY, domainHeight, domainWidth, gradient, name,overlap,shapeID,domainText) {   
     //background color
     context.beginPath();
     context.fillStyle = gradient;
@@ -482,10 +589,26 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     context.stroke();
 
     //text
-    context.fillStyle = "black"; //for text
+    /*context.fillStyle = "black"; //for text
     context.font = "bold 14px Calibri";
     context.shadowColor = "black";
     context.textBaseline = 'middle';
     context.textAlign = "center";
     context.fillText(name, domainX + domainWidth / 2, domainY + domainHeight+8);
-}
+    */
+
+    if(domainText){
+        context.save();
+    context.translate(domainX,domainY + domainHeight+8);
+    context.rotate(Math.PI/4);
+    context.fillStyle = "black"; //for text
+    context.font = "bold 13px Calibri";
+    context.shadowColor = "black";
+    context.textAlign = "left";
+    context.fillText(name,0,0);
+    context.restore();
+    }
+    
+
+}       
+    
