@@ -13,7 +13,7 @@
     </span>
     <!-- modal work-->
     <div id="BlackBackground"
-        style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;top:0;left:0;"
+        style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
         ng-show="showWindow" ng-click="closeModalFromBackground($event)" >
         <div class="modal" id="modal">
             <span ng-click="showWindow=false" style="font-size: 25px;">&times;</span><br>
@@ -48,7 +48,7 @@
                     UniProt ID: <a href="https://www.uniprot.org/uniprot/{{resultsCtrl.currTranscript.proteinUniprotID}}" target="_blank">{{resultsCtrl.currTranscript.proteinUniprotID}}</a> <br>
                 </span>
                 <span  ng-show="resultsCtrl.currTranscript.proteinUniprotID!=undefined">
-                    Ensembl ID: <a href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.ensembl_id}}" target="_blank">{{resultsCtrl.currTranscript.ensembl_id}}</a><br>
+                    Ensembl ID: <a href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.proteinEnsemblID}}" target="_blank">{{resultsCtrl.currTranscript.proteinEnsemblID}}</a><br>
                 </span> 
         </span>
         </div>
@@ -57,8 +57,8 @@
     <div id="scrollHere"></div>
     <!--needed for auto-scroll -->
     <!-- gene introduction -->
-    There are {{::transcripts.length}} transcripts for the gene <a href=""><b
-            ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> <br><br>
+    {{::transcripts.length}} transcripts found in <a href=""><b
+            ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in {{::resultsCtrl.geneInfo.specie}} <br><br>
 
     <!-- button options -->
     <input class="optionButton" type="button" value="compare genomic views" ng-click="checkboxChecked('genomic')" /><br>
@@ -69,9 +69,11 @@
 
     <input type="button" class="optionButton" value="Zoom In (+)" ng-click="extendCanvases(400)" style="width: 100px;" /><input
         type="button" class="optionButton" value="Zoom Out (-)" ng-click="extendCanvases(-400)" style="width: 100px;" /><br>
-    <!-- list of transcripts -->
+    
+     <br>
+        <!-- list of transcripts -->
     <center>
-        <table class="resultTable">
+        <table class="resultTable"> 
             <tr>
                 <th style="width:130px"></th>
                 <th></th>
@@ -89,7 +91,7 @@
             </td>
             <td></td>
             <td  ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'" class="resultTitle">
-                Transcript And Protein Visualization
+                Transcript and Protein Visualization
 
             </td>
             </tr>
@@ -98,6 +100,8 @@
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                     <!-- scale view for transcripts -->
+                    {{::chromosomeLocation}}
+                    <br>
                     <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                     </canvas>
                     <br>
@@ -132,7 +136,7 @@
                 </td>
                 <td ng-show="showCanvas.genomicView[$index]">
                     <!-- genomic view -->
-                    <canvas id="canvas-genomic{{$index}}" height="80" width="{{canvasSize}}"
+                    <canvas id="canvas-genomic{{$index}}" height="200" width="{{canvasSize}}"
                         ng-show="showCanvas.genomicView[$index]"></canvas>
                 </td>
                 <td>
@@ -155,7 +159,7 @@
             </tr>
 
         </table>
-        <table>
+        <table class="exonColorTable">
             <tr>
                 <th class="exonTableHeader">
                      transcripts

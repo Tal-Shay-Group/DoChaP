@@ -25,6 +25,13 @@ function createGraphicInfoForGene(gene) {
     ansGene.description=gene.description; 
     ansGene.MGI_id=gene.MGI_id; 
     ansGene.ensembl_id=gene.ensembl_id; 
+    ansGene.specie=gene.specie;
+    if(ansGene.specie=="H_sapiens"){
+        ansGene.specie="Human";
+    }
+    else if(ansGene.specie=="M_musculus"){
+        ansGene.specie="Mouse";
+    }
     
 
     

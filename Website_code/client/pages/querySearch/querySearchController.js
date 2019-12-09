@@ -90,4 +90,8 @@ angular.module("DoChaP")
             });
         });
 
+        self.exmaple = function(input){
+            $('#searchTextField').val(input);
+        }
+
     });

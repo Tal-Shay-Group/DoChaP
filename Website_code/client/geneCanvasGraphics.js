@@ -16,7 +16,8 @@ function buildGenomicView(canvasID, transcript) {
     var canvasHeight = canvasT.height;
     var canvasWidth = canvasT.width;
     var lineThickness = 2;
-    var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
+   // var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
+    var spacing = 70;
     var lengthOfGene = transcript.length;
     var beginningEmpty=10; //in pixels
     var endEmpty=5; //in pixels
@@ -151,9 +152,9 @@ function buildScaleView(canvasID, scale) {
     createBaseLine(contextS, 0, spacing, canvasWidth, lineThickness);
     
     //scope text
-    contextS.font = "15px Ariel bold";
-    contextS.textAlign = "left";
-    contextS.fillText(chromosomeName+":"+numberToTextWithCommas(scale.start)+"-"+numberToTextWithCommas(scale.end), 1, 14);
+    //contextS.font = "15px Ariel bold";
+    //contextS.textAlign = "left";
+    //contextS.fillText(chromosomeName+":"+numberToTextWithCommas(scale.start)+"-"+numberToTextWithCommas(scale.end), 1, 14);
     
     //labels for counting
     createNumberLabelsForScale(contextS,lengthOfScale,skip,coordinatesWidth,beginningEmpty,spacing,scale.start);
@@ -176,8 +177,8 @@ function buildScaleViewForProtein(canvasID, proteinScale) {
     var spacing = 70; //space from top
     var lengthOfScale = proteinScale.length/3; //both in necluotides
     var coordinatesWidth = (canvasS.width) / lengthOfScale;
-    var skip=100;
-   // var skip=getSkipSize(lengthOfScale,coordinatesWidth);
+    //var skip=100;
+    var skip=getSkipSize(lengthOfScale,coordinatesWidth);
   
     //gridlines
     createProteinGridLines(contextS,coordinatesWidth,spacing,canvasWidth,skip);
@@ -192,7 +193,7 @@ function buildScaleViewForProtein(canvasID, proteinScale) {
 
 function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,isinMiddle){
     var gridLength=10;
-    var startHeight=canvasHeight/2-gridLength;
+    var startHeight=70-gridLength;
     contextT.fillStyle ="#bfbfbf";
     if(!isinMiddle){
         gridLength=5;
@@ -202,7 +203,7 @@ function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,c
     
     
     var skip=getSkipSize(lengthOfGene,coordinatesWidth);    
-    contextT.fillRect(beginningEmpty, startHeight, 1,gridLength);
+   // contextT.fillRect(beginningEmpty, startHeight, 1,gridLength);
     var secondCoordinate=skip-(startCoordinate%skip);
     for(var i=secondCoordinate; (i*coordinatesWidth+2)<canvasWidth; i=i+skip){
         contextT.fillRect(i*coordinatesWidth+beginningEmpty, startHeight, 1,gridLength);
@@ -247,17 +248,17 @@ function createProteinGridLines(context,coordinatesWidth,startHeight,canvasWidth
 
 function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,beginningEmpty,spacing,scaleStart){
     //first coordinate
-        context.save();
+      /*  context.save();
         context.translate(beginningEmpty,spacing-8);
         context.rotate(-Math.PI/8);
         context.fillStyle = "black" 
         context.font = "15px Ariel";
         context.textAlign = "left";
-        context.fillText(numberToTextWithCommas(scaleStart), /*coordinatesWidth*i+beginningEmpty*/0,  /*spacing-8*/0);
-        context.restore();
+        context.fillText(numberToTextWithCommas(scaleStart), 0,  0);
+        context.restore();*/
     var currLabel=scaleStart-(scaleStart%skip)+skip+skip;// space in the beginning
-    var endEmpty=30/coordinatesWidth;//its 30 pixels in genome units
-    for( var i=(skip+skip-(scaleStart%skip)); i<lengthOfScale-endEmpty ; i=i+skip){
+    var endEmpty=50/coordinatesWidth;//its 30 pixels in genome units
+    for( var i=(skip-(scaleStart%skip)); i<lengthOfScale-endEmpty ; i=i+skip){
         context.save();
         context.translate(coordinatesWidth*i+beginningEmpty,spacing-8);
         context.rotate(-Math.PI/8);
@@ -280,7 +281,13 @@ function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, c
     }else if (skip*coordinatesWidth<40 ){
         skip=5000;
     }
-    else if (skip*coordinatesWidth>120){
+    else if(skip*coordinatesWidth>160){
+        skip=100;
+    } 
+     else if(skip*coordinatesWidth>140){
+        skip=300;
+    }
+     else if (skip*coordinatesWidth>120){
         skip=500;
     }
         return skip;
@@ -600,7 +607,7 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     if(domainText){
         context.save();
     context.translate(domainX,domainY + domainHeight+8);
-    context.rotate(Math.PI/4);
+    context.rotate(Math.PI/8);
     context.fillStyle = "black"; //for text
     context.font = "bold 13px Calibri";
     context.shadowColor = "black";

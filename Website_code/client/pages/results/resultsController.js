@@ -132,6 +132,8 @@ angular.module("DoChaP")
         closeLoadingText();
         updateCanvases();
     });
+
+    $scope.chromosomeLocation=self.geneInfo.chromosome+":"+numberToTextWithCommas(self.geneInfo.scale.start)+"-"+numberToTextWithCommas(self.geneInfo.scale.end);
     
 });
 
