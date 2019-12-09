@@ -67,17 +67,17 @@ background:rgb(57, 66, 190);
 
 
 }
-.nav{
+/*.nav{
    
     box-shadow: inset 0px 1px 2px 0px rgba(255, 255, 255, 0.75);
     color: aliceblue;
     background:rgb(57, 66, 190);
 
-}
+
 .nav:hover{
     background:rgb(71, 77, 168);
 }
-
+}*/
 .navA:hover, .navA:visited,.navA:link, .navA:active
 {
     text-decoration: none;
@@ -145,4 +145,8 @@ padding: 10px;
 }
 .exonColorTable{
     text-align: center;
+}
+.blackButton{
+    background-color:rgb(46, 45, 45);
+    color: white;
 }

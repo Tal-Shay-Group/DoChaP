@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <!-- this is the main html file. It will always load first and will have all of the dependencies.
 It will load all configurations we made and the perminent parts of the site that cannot be dynamically changed.
@@ -6,13 +7,21 @@ Logo and navigation bars will be declared here for example.
 
 <head>
     <title>DoChaP</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <!-- load angular -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.js"></script>
     <script src="https://code.angularjs.org/1.7.8/angular-route.js"></script>
+    <!--
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
-    </script>
+    </script>-->
 
     <!-- load app -->
     <script src="app.js"></script>
@@ -36,6 +45,7 @@ Logo and navigation bars will be declared here for example.
 <!-- actual tags that will be visible. currently only links for search/result pages. -->
 <body ng-app="DoChaP" align="center"> <!--    -->
     <img class="logo" src="resources/logo.jpeg" /><br />
+    <!--
     <table class="menu">
         <tr >
                     <td class="nav"><a href="#!querySearch"  class="navA"> Search</a></td>
@@ -44,10 +54,31 @@ Logo and navigation bars will be declared here for example.
                     <td class="nav"><a href="#!underConstruction"  class="navA">Tool Result Upload</a></td>
                     <td class="nav"><a href="#!documentation"  class="navA">Help & Documentaion</a></td>
         </tr>
-    </table>
-    <br>
-    <br>
-    <div ng-view=""></div>
+    </table>-->
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>                        
+            </button>
+          </div>
+          <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+              <li ><a href="#!querySearch">Search</a></li>
+              <li><a href="#!results">Result Example</a></li>
+              <li><a href="#!underConstruction">Species(Mouse/Human)</a></li>
+              <li><a href="#!underConstruction">Tool Result Upload</a></li>
+              <li><a href="#!documentation">Help & Documentaion</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="#!underConstruction"> <span class="glyphicon glyphicon-envelope"></span>Contact Us</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    <div class="container-fluid" ng-view=""></div>
 </body>
 
 </html>

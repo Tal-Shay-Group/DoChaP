@@ -12,6 +12,10 @@
       
       <!-- display all categories -->
     <body ng-app="DoChaP" ng-controller="querySearchCtrl">
+        <!--<div style="background-image:url('/resources/dna-backround.jpg') ;background-size: cover;height: 400px">-->
+        <div style="background-image: url('/resources/dna1.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+ 
+
         <div class="searchItems">
         Specie:
         <select id="searchBySpecie" class="searchBySpecie">
@@ -19,18 +23,20 @@
             <option value="M_musculus">mouse</option>
         </select>&nbsp;&nbsp;&nbsp;
        <br>
-       <br>
        Search Term:
         <input placeholder="enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass" id="searchTextField" >
-        <input class="searchButton" id="submitSearchButton" value="Search" type="button" ng-click="querySearchCtrl.search()" style="font-size:30px;height:40px;width:200px;">
+        &nbsp;
+        <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
+        <span class="glyphicon glyphicon-search"></span>  Search
+        </button>
         <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading"/>
      </div>
-        <br>
+        
         <input type="checkbox" value="isReviewed"  id="isReviewedCheckBox"  ><span style="font-size: 25pxpx">ignore predicted records</span> <br>
-        <input class="optionButton"  value="Exmaple 1" type="button" ng-click="querySearchCtrl.exmaple('NM_001033537.2')">
-        <input class="optionButton"  value="Exmaple 2" type="button" ng-click="querySearchCtrl.exmaple('Acly')">
-        <input class="optionButton"  value="Exmaple 3" type="button" ng-click="querySearchCtrl.exmaple('a2ml1')">
-        <input class="optionButton"  value="Exmaple 4" type="button" ng-click="querySearchCtrl.exmaple('NP_001230673.1')">
+        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('NM_001033537.2')">exmple 1</button>
+        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('Acly')">Exmaple 2</button>
+        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('a2ml1')">Exmaple 3</button>
+        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('NP_001230673.1')">Exmaple 4</button>
          <p align="left">
             <b>what can you search for in DoChaP?</b> <br>
             -for genes - by their GeneID, name (symbol name), synonyms and will later support different IDs <br>
@@ -57,7 +63,7 @@
         <br>
         <br> -->
         
-
+</div>
 
     </body>
 
