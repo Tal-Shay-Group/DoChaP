@@ -5,7 +5,6 @@ body {
    background-image: url("resources/back.jpg");*/
     background-size: cover;
     font-family: "Calibri";
-    font-size: 20px;
     /*font-weight: bold;*/
 }
 
@@ -101,6 +100,7 @@ background:rgb(57, 66, 190);
 .resultText{
     width: 140px;
     height: 250px;
+    font-size: 16px;
 }
 .betweenVisualizationSpace{
     width: 100px;
@@ -142,6 +142,7 @@ padding: 10px;
     display: table;
     text-align: left;
 
+
 }
 .selectMode{
     margin-right: auto;
@@ -153,6 +154,7 @@ padding: 10px;
 }
 .exonColorTable{
     text-align: center;
+    font-size: 16px;
 }
 .blackButton{
     background-color:rgb(46, 45, 45);
@@ -164,4 +166,11 @@ padding: 10px;
 }
 .blackButton:focus{
     color:white;
+}
+.chromosomeLocation{
+    font-size: 14px;
+    text-align: left;
+}
+.fontChange{
+    font-size: 15px;
 }

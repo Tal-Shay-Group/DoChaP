@@ -2,8 +2,6 @@
 
 <head>
     <script src="twoHandleSlider.js"></script>
-    <style>
-    </style>
 </head>
 <!-- this page shows different views. we use canvases for graphics. -->
 
@@ -116,12 +114,11 @@
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
                     Genomic Visualization
-
+            
                 </td>
                 <td></td>
                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'" class="resultTitle">
                     Transcript and Protein Visualization
-
                 </td>
             </tr>
             <tr>
@@ -129,12 +126,10 @@
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                     <!-- scale view for transcripts -->
-                    {{::chromosomeLocation}}
-                    <br>
                     <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                     </canvas>
                     <br>
-                    <br>
+                         <div class="chromosomeLocation" >{{::chromosomeLocation}}</div>
                 </td>
                 <td>
 
@@ -143,10 +138,9 @@
                     <!-- scale view for proteins -->
                     <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                     </canvas>
-                    <br>
-                    <br>
+                    
                 </td>
-            </tr>
+            </tr>`
 
             <tr ng-repeat="transcript in transcripts track by $index"
                 ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]">
@@ -173,7 +167,7 @@
                         ng-show="showCanvas.proteinView[$index]"></canvas>
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'"></td>
-                <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'">
+                <td class="resultText" ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'">
                     Transcript: <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a><br>
         
                     Protein: <a href="" ng-click="openWindow('protein',$index)">{{::transcript.proteinId}}</a>
