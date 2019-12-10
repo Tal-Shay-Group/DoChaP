@@ -61,7 +61,8 @@ angular.module("DoChaP")
         }
     };
     //show only one view options. runs on the button "show only __"
-    $scope.checkboxChecked=function(type){
+    $scope.checkboxChecked=function(){
+        var type=selectModeComboBox.value;
         for (var i=0; i<$scope.transcripts.length;i++){
             if(type==="genomic"){
                 $scope.viewMode="genomic";

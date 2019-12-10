@@ -17,7 +17,7 @@ function buildGenomicView(canvasID, transcript) {
     var canvasWidth = canvasT.width;
     var lineThickness = 2;
    // var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-    var spacing = 70;
+    var spacing = 50;
     var lengthOfGene = transcript.length;
     var beginningEmpty=10; //in pixels
     var endEmpty=5; //in pixels
@@ -25,7 +25,7 @@ function buildGenomicView(canvasID, transcript) {
     var startCoordinate=transcript.startCoordinate;
 
     //gridlines
-    createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,true);
+    createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,true,spacing);
 
     //line graphics
     createBaseLine(contextT, 0, spacing, canvasWidth, lineThickness);
@@ -97,8 +97,8 @@ function buildProteinView(canvasID, transcript) {
     var canvasWidth = canvasP.width;
     var proteinLength= transcript.proteinLength;
     var lineThickness = 4;
-    var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-
+    // var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
+    var spacing=40;
     //domains
     //calculate places with no non-coding areas
     var domainsInProtein = transcript.domains; //[]
@@ -146,7 +146,7 @@ function buildScaleView(canvasID, scale) {
     var chromosomeName=scale.chromosomeName;
   
     //gridlines
-    createGridLines(contextS,beginningEmpty,coordinatesWidth,spacing,canvasWidth,lengthOfScale,scale.start,false);
+    createGridLines(contextS,beginningEmpty,coordinatesWidth,spacing,canvasWidth,lengthOfScale,scale.start,false,canvasHeight);
 
     //line graphics
     createBaseLine(contextS, 0, spacing, canvasWidth, lineThickness);
@@ -191,9 +191,9 @@ function buildScaleViewForProtein(canvasID, proteinScale) {
 }
 
 
-function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,isinMiddle){
+function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,isinMiddle,spacing){
     var gridLength=10;
-    var startHeight=70-gridLength;
+    var startHeight=spacing-gridLength;
     contextT.fillStyle ="#bfbfbf";
     if(!isinMiddle){
         gridLength=5;

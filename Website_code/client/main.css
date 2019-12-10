@@ -115,6 +115,7 @@ background:rgb(57, 66, 190);
     font-size: 23px;
     text-decoration: underline;
     padding: 10px;
+    text-align: center;
 }
 .documentationTable{
 vertical-align: top;
@@ -131,9 +132,8 @@ margin: 10px;
 padding: 10px;
 }
 .searchBySpecie{
-    height: 45px;
     width: 100px;
-    font-size: 18px;
+
 }
 
 .searchItems{
@@ -143,10 +143,25 @@ padding: 10px;
     text-align: left;
 
 }
+.selectMode{
+    margin-right: auto;
+    margin-left: auto;
+    display: table;
+    width: 210px;
+    align-self: center;
+
+}
 .exonColorTable{
     text-align: center;
 }
 .blackButton{
     background-color:rgb(46, 45, 45);
-    color: white;
+    color: rgb(170, 169, 169);
+    
+}
+.blackButton:hover{
+    color:white;
+}
+.blackButton:focus{
+    color:white;
 }
