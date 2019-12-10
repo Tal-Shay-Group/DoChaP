@@ -174,3 +174,57 @@ padding: 10px;
 .fontChange{
     font-size: 15px;
 }
+
+
+form{
+    margin: 0 auto;
+    width: 500px;
+    padding-top: 10px;
+    color: white;
+    position: relative;
+    
+    
+}
+label, textarea{
+    display: block;	
+}
+ .contactUs{
+    width: 500px;	
+    border: none;
+    border-radius: 20px;
+    outline: none;
+    padding: 10px;
+    color: #676767;
+    transition: border 0.5s;
+    -webkit-transition: border 0.5s;
+    -moz-transition: border 0.5s;
+    -o-transition: border 0.5s;
+    border: solid 3px #98d4f3;	
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+    
+}
+
+textarea{
+    height: 100px;	
+    resize: none; 
+    overflow: auto;
+}
+
+label{
+    font-size: 1.5em;
+    margin-top: 5px;
+    padding-left: 20px;
+}
+.formgroup, .formgroup-active, .formgroup-error{
+    background-repeat: no-repeat;
+    background-position: right bottom;
+    background-size: 10.5%;
+    transition: background-image 0.7s;
+    -webkit-transition: background-image 0.7s;
+    -moz-transition: background-image 0.7s;
+    -o-transition: background-image 0.7s;
+    width: 566px;
+    padding-top: 2px;
+}

@@ -1,0 +1,41 @@
+<html>
+
+<head>
+</head>
+<!-- this page shows different views. we use canvases for graphics. -->
+
+<body ng-app="DoChaP" ng-controller="contactUsCtrl">
+        <div style="background-image: url('/resources/contactUs.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+                <br>
+                <br>
+               <br>
+               <br>
+        
+            <div class="searchItems" style="background-color:rgb(140, 193, 202); padding: 30px;  border-radius: 10px;" >
+            <form id="waterform" action="mailto:someone@example.com" method="post">
+                    <div class="formgroup" id="name-form">
+                        <label for="name">Your name*</label>
+                        <input class="contactUs" type="text" id="name" name="name" />
+                    </div>
+                    
+                    <div class="formgroup" id="email-form">
+                        <label for="email">Your e-mail*</label>
+                        <input class="contactUs" type="email" id="email" name="email" />
+                    </div>
+                    
+                    <div class="formgroup" id="message-form">
+                        <label for="message">Your message</label>
+                        <textarea class="contactUs" id="message" name="message"></textarea>
+                    </div>
+                    <br>
+                    
+                      <input  class="btn blackButton" type="submit" value="Send your message!" />
+                    </form>
+                
+       </div>
+       
+       
+        </div>
+        
+  </body>
+    </html>
