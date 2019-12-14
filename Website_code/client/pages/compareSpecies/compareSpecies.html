@@ -1,0 +1,146 @@
+<html>
+<!-- will be commented on when it will be created -->
+
+<body ng-app="DoChaP" ng-controller="compareSpeciesCtrl">
+        <div class="searchItems">
+    <i>we provide an option to view how proteins are spliced in different species.
+        <br>
+        search for a gene in both <b>human</b> and <b>mouse</b> by its gene symbol.</i>
+    <br>
+    <div  ng-show="genes==undefined">
+    
+ <input placeholder="  enter gene symbol" class="searchTextFieldClass" id="compareGeneSearchTextField">
+    &nbsp;
+    <button class="btn blackButton" id="submitSearchButton" type="button"
+                ng-click="compareSpeciesCtrl.searchByGene()"><span class="glyphicon glyphicon-search"></span> Search
+    </button>
+    <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
+            <br>
+    <span style="color:red">{{alert}}</span>
+
+    </div>
+   </div>
+
+
+
+<!--  taken from results.html we will need to adjust it   -->
+<div ng-show="genes!=undefined">
+
+<table class="resultTable"><tr>
+        <th style="width:130px"></th>
+        <th></th>
+        <th class="betweenVisualizationSpace"></th>
+        <th></th>
+        <th class="beforProteinTextSpace"></th>
+        <th></th>
+    </tr>
+    <tr>
+        <td>
+        </td>
+        <td class="resultTitle">
+            Genomic Visualization
+    
+        </td>
+        <td></td>
+        <td class="resultTitle">
+            Transcript and Protein Visualization
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>
+        </td>
+        <td>
+            <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
+            </canvas>
+          
+                
+        </td>
+        <td>
+
+        </td>
+        <td>
+            <!-- scale view for proteins -->
+            <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
+            </canvas>
+            
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr ng-repeat="transcript in compareSpeciesCtrl.mouseGenes.transcripts track by $index">
+        <td class="resultText">
+            MOUSE<br>
+            Transcript: {{::transcript.id}} <br>
+        </td>
+        <td>
+            <!-- genomic view -->
+            <canvas id="canvas-genomic{{$index}}" height="200" width="{{canvasSize}}"></canvas>
+        </td>
+        <td>
+        </td>
+        <td>
+            <!-- transcript view -->
+            <canvas id="canvas-transcript{{$index}}" height="30" width="{{canvasSize}}"></canvas><br>
+            <!-- protein view -->
+            <canvas id="canvas-protein{{$index}}" height="170" width="{{canvasSize}}"></canvas>
+        </td>
+        <td></td>
+        <td class="resultText">
+            Transcript: {{::transcript.id}}<br>
+
+            Protein: {{::transcript.proteinId}}
+        </td>
+    </tr>
+    <tr>
+            <td>
+            </td>
+            <td>
+                <canvas id="canvas-scaleH" height="130" width="{{canvasSize}}">
+                </canvas>
+              
+                    
+            </td>
+            <td>
+    
+            </td>
+            <td>
+                <!-- scale view for proteins -->
+                <canvas id="canvas-scale-proteinH" height="130" width="{{canvasSize}}">
+                </canvas>
+                
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+    <tr ng-repeat="transcript in compareSpeciesCtrl.humanGenes.transcripts track by $index">
+            <td class="resultText">
+                HUMAN<br>
+                Transcript:{{::transcript.id}} <br>
+            </td>
+            <td>
+                <!-- genomic view -->
+                <canvas id="canvas-genomic{{$index}}H" height="200" width="{{canvasSize}}"></canvas>
+            </td>
+            <td>
+            </td>
+            <td>
+                <!-- transcript view -->
+                <canvas id="canvas-transcript{{$index}}H" height="30" width="{{canvasSize}}"></canvas><br>
+                <!-- protein view -->
+                <canvas id="canvas-protein{{$index}}H" height="170" width="{{canvasSize}}"></canvas>
+            </td>
+            <td></td>
+            <td class="resultText">
+                Transcript:{{::transcript.id}}<br>
+    
+                Protein: {{::transcript.proteinId}}
+            </td>
+        </tr>
+
+</table>
+
+</div>
+</body>
+</html>

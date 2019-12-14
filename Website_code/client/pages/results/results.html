@@ -1,19 +1,16 @@
 <html>
-
-<head>
-    <script src="twoHandleSlider.js"></script>
-</head>
 <!-- this page shows different views. we use canvases for graphics. -->
+<head>
+  
 
+
+</head>
 <body ng-app="DoChaP" ng-controller="resultsCtrl">
-    <span ng-show="loadingText" ng-model="loadingText" class="loadingText">
-        LOADING RESULTS...
-    </span>
-    <!-- modal work-->
-    <div id="BlackBackground"
+    <!-- modal work class="modal"-->
+    <div  id="BlackBackground"
         style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
         ng-show="showWindow" ng-click="closeModalFromBackground($event)">
-        <div class="modal" id="modal">
+        <div class="myModal">
             <span ng-click="showWindow=false" style="font-size: 25px;">&times;</span><br>
             <span ng-if="showWindow=='gene'">
                 GeneID: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_id}}"
@@ -43,7 +40,8 @@
                         href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.ensembl_id}}"
                         target="_blank">{{resultsCtrl.currTranscript.ensembl_id}}</a><br>
                 </span>
-                TX coordinates: {{resultsCtrl.currTranscript.tx_start}}-{{resultsCtrl.currTranscript.tx_end}}<br>
+                transcription start: {{resultsCtrl.currTranscript.tx_start}}<br>
+                transcription end: {{resultsCtrl.currTranscript.tx_end}}<br>
                 CDS coordinates: {{resultsCtrl.currTranscript.cds_start}}-{{resultsCtrl.currTranscript.cds_end}}<br>
             </span>
             <span ng-show="showWindow=='protein'">
@@ -66,11 +64,8 @@
         </div>
     </div>
     <!--end of modal work-->
-    <div id="scrollHere"></div>
-    <!--needed for auto-scroll -->
+
     <!-- gene introduction -->
-    {{::transcripts.length}} transcripts found in <a href=""><b
-            ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in {{::resultsCtrl.geneInfo.specie}} <br>
 
     <!-- button options 
     <input class="optionButton" type="button" value="compare genomic views" ng-click="checkboxChecked('genomic')" /><br>
@@ -81,27 +76,35 @@
 -->
 
 
-    <i>Choose Display:</i>
+    
     <br>
     <div class="searchItems">
+            {{::transcripts.length}} transcripts found for gene <a href=""><b
+                ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in specie {{::resultsCtrl.geneInfo.specie}} <br>
+    
+        <i>Choose Display:</i>
+        <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
             <option value="genomic">Genomic View Only</option>
             <option value="transcript">Transcript View Only</option>
             <option value="protein">Protein View Only</option>
-            </select>
-            <input style="margin: 5px" type="button" class="btn blackButton" value="Zoom In (+)" ng-click="extendCanvases(400)"
+        </select>
+    
+        genomic start: <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.start}}" id="startWanted" /> <br>
+        genomic end: <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.end}}" id="endWanted" /> <br>
+        <input type="button" class="btn blackButton" ng-click="resultsCtrl.zoomInFunction()" value="update views">
+    
+    </div>
+<!--
+
+                <input style="margin: 5px" type="button" class="btn blackButton" value="Zoom In (+)" ng-click="extendCanvases(400)"
                 style="width: 100px;" />&nbsp;&nbsp;
                 <input type="button" class="btn blackButton" value="Zoom Out (-)"
-                ng-click="extendCanvases(-400)" style="width: 100px;" /><br>
-    </div>
-
-    
-
-    <!-- list of transcripts -->
-    <center>
-        <table class="resultTable">
-            <tr>
+                ng-click="extendCanvases(-400)" style="width: 100px;" />
+        --> 
+        <!-- list of transcripts -->
+    <center ><table class="resultTable"><tr>
                 <th style="width:130px"></th>
                 <th></th>
                 <th class="betweenVisualizationSpace"></th>
@@ -120,28 +123,33 @@
                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'" class="resultTitle">
                     Transcript and Protein Visualization
                 </td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
                 <td>
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                     <!-- scale view for transcripts -->
+                    <span class="chromosomeLocation" >{{::chromosomeLocation}}</span>  <br>
                     <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                     </canvas>
                     <br>
-                         <div class="chromosomeLocation" >{{::chromosomeLocation}}</div>
+                           
                 </td>
                 <td>
 
                 </td>
                 <td ng-show="viewMode!='genomic'">
                     <!-- scale view for proteins -->
+                    <br>
                     <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                     </canvas>
                     
                 </td>
-            </tr>`
-
+                <td></td>
+                   <td></td>
+            </tr>
             <tr ng-repeat="transcript in transcripts track by $index"
                 ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]">
                 <td class="resultText">

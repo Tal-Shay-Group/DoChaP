@@ -116,6 +116,7 @@ angular.module("DoChaP")
         }
         buildScaleView("canvas-scale",self.geneInfo.scale);
         buildScaleViewForProtein("canvas-scale-protein",self.geneInfo.proteinScale);
+        //$( '#canvas-scale' ).animate({ "left": "500px" }, "slow" );
     }
     function closeLoadingText(){
         $scope.loadingText=false;
@@ -129,12 +130,25 @@ angular.module("DoChaP")
     //a function which its purpose is to load the canvases' graphics only after the elements finished loading
     
     $(document).ready(function(self) { 
-        document.getElementById('scrollHere').scrollIntoView();
-        closeLoadingText();
+        //closeLoadingText();
         updateCanvases();
     });
 
     $scope.chromosomeLocation=self.geneInfo.chromosome+":"+numberToTextWithCommas(self.geneInfo.scale.start)+"-"+numberToTextWithCommas(self.geneInfo.scale.end);
+    
+    
+    self.zoomInFunction=function(){
+       if(startWanted.value>=endWanted.value){
+           $window.alert("the start coordinate must be before the end coordinate");
+           return;
+       }
+        self.geneInfo=createGraphicInfoForGene(loadedGene.genes[0],{start:startWanted.value,end:endWanted.value})
+        $scope.transcripts=self.geneInfo.transcripts;
+        $scope.geneName=self.geneInfo.gene_symbol;
+        $(document).ready(function(self) { 
+            updateCanvases();
+        });
+    }
     
 });
 

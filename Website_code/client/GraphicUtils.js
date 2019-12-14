@@ -14,7 +14,7 @@ function runGenesCreation(result){
 }
 
 //This will receive the gene and create another gene object which can be used by the result controller for further use.
-function createGraphicInfoForGene(gene) {
+function createGraphicInfoForGene(gene,preferences) {
     var ansGene = new Object();
     ansGene.transcripts = [];
     ansGene.gene_symbol = gene.gene_symbol; 
@@ -34,12 +34,22 @@ function createGraphicInfoForGene(gene) {
     }
     
 
-    
     //var geneColorRand1=Math.floor(Math.random() * 16); currently not in use
     ansGene.geneExons=createGeneExonInfo(gene.geneExons,gene.transcripts,ansGene);
     //calculate things for each transcript
-    var start = findStartCoordinate(gene.transcripts);
-    var end = findEndCoordinate(gene.transcripts);
+    if(preferences!=undefined && preferences.start!=undefined){
+        var start = preferences.start;    
+    }
+    else{
+        var start = findStartCoordinate(gene.transcripts);
+    }
+    if(preferences!=undefined && preferences.end!=undefined){
+        var end = preferences.end;    
+    }
+    else{
+        var end = findEndCoordinate(gene.transcripts);
+    }
+    
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
     for (var i = 0; i < gene.transcripts.length; i++) {
         ansGene.transcripts[i] = createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons);
@@ -261,8 +271,18 @@ function orderBySize(domainArr){
 
 function showNameOfDomains(domains){
     for(var i=0;i<domains.length;i++){
+        
         for(var j=0;j<domains.length;j++){
-            if (domains[i].start<domains[j].start && domains[j].end<domains[i].end ){
+            if(i==j){
+                continue;
+            }
+            if(!(domains[i].showText && domains[j].showText)){ //one of them is not shown
+                continue;
+            }
+            if (domains[i].start<=domains[j].start && domains[j].end<=domains[i].end ){
+                domains[i].showText=false;
+            }
+            else if(domains[i].start<=domains[j].start && domains[i].end<=domains[j].end && domains[j].start<domains[i].end){
                 domains[i].showText=false;
             }
         }
@@ -284,3 +304,4 @@ function getTranscriptsForExon(start,end,transcripts){
     }
     return ans;
 }
+

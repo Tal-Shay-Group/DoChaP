@@ -1,75 +1,58 @@
 <html>
-    <head>
-      
-        <style>
+<!-- display all categories -->
 
-        </style> 
-      
-      </head>
-      <!-- css -->
-      
-      
-      
-      <!-- display all categories -->
-    <body ng-app="DoChaP" ng-controller="querySearchCtrl">
-        <!--<div style="background-image:url('/resources/dna-backround.jpg') ;background-size: cover;height: 400px">-->
-        <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
- 
-
-        <div class="searchItems">
-       <i> Specie:</i>
-        <select id="searchBySpecie" class="form-control searchBySpecie">
-            <option value="H_sapiens">human</option>
-            <option value="M_musculus">mouse</option>
-        </select>
-       <i>Search Term:</i>
-       <br>
-        <input placeholder="enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass" id="searchTextField" >
-        &nbsp;
-        <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
-        <span class="glyphicon glyphicon-search"></span>  Search
-        </button>
-        <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading"/> <br>
-        <input type="checkbox" value="isReviewed"  id="isReviewedCheckBox"  ><i>ignore predicted records</i>
-    </div>
-        
-        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('NM_001033537.2')">Example 1</button>
-        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('Acly')">Exmaple 2</button>
-        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('a2ml1')">Exmaple 3</button>
-        <button class="btn blackButton"   type="button" ng-click="querySearchCtrl.exmaple('NP_001230673.1')">Exmaple 4</button>
-        <br>
-        <br>
-        <div class="searchItems" style="background-color:rgb(235, 235, 235); padding: 30px;  border-radius: 10px;" >
-          
-        <p align="left">
-            <b>what can you search for in DoChaP?</b> <br>
-            -for genes - by their GeneID, name (symbol name), synonyms and will later support different IDs <br>
-            -for transcripts - by their transcript RefSeq ID <br>
-            -for proteins - by their RefSeq ID <br>
-            -if you don't know what to search for try the result example in the navigation bar or by <a href="#!results">clicking here</a><br>
+<body ng-app="DoChaP" ng-controller="querySearchCtrl">
+    <div
+        style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+        <div class="searchItems form-inline">
             <br>
-            <b>what can DoChaP help you with?</b> <br>
-                    -finding domain locations in proteins<br>
-                    -finding exon locations in genes<br>
-                    -comparing transcripts<br>
-                    -understanding about possible outcomes of alternative splicing<br>
-           
-            
-
-        </p>
+            <i> Species:</i>
+            <select id="searchBySpecie" class="form-control searchBySpecie">
+                <option value="H_sapiens">human</option>
+                <option value="M_musculus">mouse</option>
+            </select>
+            <i>Search Term:</i>
+            <input placeholder="  enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass"
+                id="searchTextField">
+            <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
+            &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button"
+                ng-click="querySearchCtrl.search()">
+                <span class="glyphicon glyphicon-search"></span> Search
+            </button>
+            <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
+            <br>
+            <br>
+            Examples:&nbsp;&nbsp;
+            <button class="btn blackButton" type="button" ng-click="querySearchCtrl.exmaple('Acly')">Acly</button>&nbsp;
+            <button class="btn blackButton" type="button"
+                ng-click="querySearchCtrl.exmaple('a2ml1')">a2ml1</button>&nbsp;
+            <button class="btn blackButton" type="button"
+                ng-click="querySearchCtrl.exmaple('NM_001033537.2')">NM_001033537.2</button>&nbsp;
+            <button class="btn blackButton" type="button"
+                ng-click="querySearchCtrl.exmaple('NP_001230673.1')">NP_001230673.1</button>
+            <br>
+            <span style="color:red">{{alert}}</span>
+        </div>
+        <br>
+        <br>
+        <div class="searchItems" style="background-color:rgb(235, 235, 235); padding: 30px;  border-radius: 10px;">
+            <p align="left">
+                <b>what can you search for in DoChaP?</b> <br>
+                -for genes - by their GeneID, name (symbol name), synonyms and will later support different IDs <br>
+                -for transcripts - by their transcript RefSeq ID <br>
+                -for proteins - by their RefSeq ID <br>
+                -if you don't know what to search for try the result example in the navigation bar or by <a
+                    href="#!results">clicking here</a><br>
+                <br>
+                <b>what can DoChaP help you with?</b> <br>
+                -finding domain locations in proteins<br>
+                -finding exon locations in genes<br>
+                -comparing transcripts<br>
+                -understanding about possible outcomes of alternative splicing<br>
+            </p>
+        </div>
     </div>
-     <!--
-        <br>
-        <br>
-        Or Choose File: (currently not supported)
-        <br>
-        <br>
-        <input disabled="disabled" id="chooseButton" type="file">
-        <br>
-        <br> -->
-        
-</div>
 
-    </body>
+</body>
 
 </html>

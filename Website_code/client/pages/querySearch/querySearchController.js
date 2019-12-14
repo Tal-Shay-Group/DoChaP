@@ -7,6 +7,7 @@ angular.module("DoChaP")
         // button click count
         self = this;
         $scope.loading = false;
+        $scope.alert="";
 
 
         //runs on 'analyze' button click. checks for input in text or file and sends the right request for the server.
@@ -20,7 +21,8 @@ angular.module("DoChaP")
                 //} else if (file != undefined) {
                 //    self.fileHandler(file);
             } else {
-                window.alert('Fill One Of The Options');
+                $scope.alert="Fill One Of The Options";
+                //window.alert('Fill One Of The Options');
             }
         }
 
@@ -31,29 +33,32 @@ angular.module("DoChaP")
                 $scope.loading = true;
                 webService.queryHandler(query, specie, isReviewed)
                     .then(function (response) {
-                        // window.alert(JSON.stringify(response));
                         var geneList = response.data.genes[0];
                         if (geneList.transcripts.length == 0) {
                             $scope.loading = false;
                             if (response.data.isExact == true) {
-                                $window.alert("sorry! no reviewed were results found");
+                                $scope.alert="sorry! no reviewed results were found";
+                                //$window.alert("sorry! no reviewed were results found");
                             } else {
-                                $window.alert("sorry! no results were found");
+                                $scope.alert="sorry! no results were found";
+                                //$window.alert("sorry! no results were found");
                             }
 
 
                         } else {
-                            if (response.data.isExact == true) {
+                            if (response.data.isExact == true || response.data.genes.length==1) {
                                 $window.sessionStorage.setItem("currGene", JSON.stringify(response.data));
                                 $window.location = "#!results";
-                            } else {
+                            } 
+                            else {
                                 $scope.loading = false;
                                 message = "";
                                 for (var i = 0; i < response.data.genes.length - 1; i++) {
                                     message = message + response.data.genes[i].gene_symbol + ", ";
                                 }
                                 message=message+response.data.genes[response.data.genes.length - 1].gene_symbol;
-                                $window.alert("we did not find exact results. you can try one of the following:\n"+message);
+                                $scope.alert="we did not find exact results. you can try one of the following:\n"+message;
+                                //$window.alert("we did not find exact results. you can try one of the following:\n"+message);
                             }
 
                         }
@@ -62,14 +67,17 @@ angular.module("DoChaP")
                     .catch(function (response) {
                         $scope.loading = false;
                         if (response.data != undefined) {
-                            window.alert("sorry! no results found");
+                            $scope.alert="sorry! no results were found";
+                            //window.alert("sorry! no results found");
                         } else {
-                            window.alert("error! the server is off");
+                            $scope.alert="error! the server is off";
+                            //window.alert("error! the server is off");
                         }
                     });
 
             } else if (!$scope.loading) {
-                window.alert("Please Fix Your Query");
+                $scope.alert="Please Fix Your Query";
+                //window.alert("Please Fix Your Query");
             }
         }
 
@@ -88,6 +96,7 @@ angular.module("DoChaP")
                     self.search();
                 }
             });
+            document.getElementById("searchTextField").focus();
         });
 
         self.exmaple = function(input){

@@ -16,9 +16,17 @@ angular.module("DoChaP").service("webService", function ($http, $window, $rootSc
 
         var req = {
             method: 'GET',
-            url: 'http://localhost:3000/fileSearch'
+            url: 'https://localhost:3000/fileSearch'
 
         }
         return $http(req)
+    }
+    this.compareGenes =function(geneName){
+        var req = {
+            method: 'GET',
+            url: 'http://localhost:3000/querySearch/' + geneName+"/all/false",
+            
+        };
+        return $http(req);
     }
 })
