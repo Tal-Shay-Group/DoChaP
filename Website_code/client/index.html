@@ -50,6 +50,7 @@ Logo and navigation bars will be declared here for example.
     <script src="pages/documentation/documentationController.js"></script>
     <script src="pages/contactUs/contactUsController.js"></script>
     <script src="pages/compareSpecies/compareSpeciesController.js"></script>
+    <script src="pages/about/aboutController.js"></script>
     <script src="indexController.js"></script>
     <link rel="icon" href="resources/favicon.ico">
 
@@ -59,7 +60,10 @@ Logo and navigation bars will be declared here for example.
 <!-- actual tags that will be visible. currently only links for search/result pages. -->
 <body ng-app="DoChaP" align="left">
   <a href="#!querySearch">
-    <img class="logo" src="resources/logo.jpeg" /></a><a href="#!querySearch"><img style="height: 100px" src="resources/bgu-sig-en.png" /></a>
+    <img class="logo" src="resources/logo.jpeg" /></a><a href="#!querySearch"></a>
+      <!--
+        <img style="height: 100px" src="resources/bgu-sig-en.png" />
+      -->
   
     <br />
     <nav class="navbar navbar-inverse" style="margin: 0;">
@@ -74,7 +78,7 @@ Logo and navigation bars will be declared here for example.
           <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
               <li ><a href="#!querySearch">Home</a></li>
-              <li><a href="#!compareSpecies">Species(Mouse/Human)</a></li>
+              <li><a href="#!compareSpecies"> Compare Species</a></li>
               <!--
               <li><a href="#!results">Result Example</a></li>
               
@@ -94,6 +98,7 @@ Logo and navigation bars will be declared here for example.
                    <span class="glyphicon glyphicon-search"></span></button>
                    <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading"/>
                 </li>
+                <li><a href="#!about">About</a></li>
                 <li><a href="#!documentation">Help</a></li>
               <li><a href="#!contactUs"> <span class="glyphicon glyphicon-envelope"></span> Contact Us</a></li>
             </ul>

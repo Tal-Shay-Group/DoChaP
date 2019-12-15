@@ -6,23 +6,26 @@
         style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
         <div class="searchItems form-inline">
             <br>
-            <i> Species:</i>
+            <h3>Search for exon-domain associations</h3>
+            <br>
+            <i> Species&nbsp;&nbsp;</i>
             <select id="searchBySpecie" class="form-control searchBySpecie">
                 <option value="H_sapiens">human</option>
                 <option value="M_musculus">mouse</option>
-            </select>
-            <i>Search Term:</i>
+            </select>&nbsp;&nbsp;
+            <i>Search Term&nbsp;&nbsp;</i>
             <input placeholder="  enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass"
-                id="searchTextField">
-            <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
-            &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button"
+                id="searchTextField">&nbsp;&nbsp;
+            
+            <button class="btn blackButton" id="submitSearchButton" type="button"
                 ng-click="querySearchCtrl.search()">
                 <span class="glyphicon glyphicon-search"></span> Search
-            </button>
+            </button>&nbsp;
+            <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
             <br>
             <br>
-            Examples:&nbsp;&nbsp;
+            Examples&nbsp;&nbsp;
             <button class="btn blackButton" type="button" ng-click="querySearchCtrl.exmaple('Acly')">Acly</button>&nbsp;
             <button class="btn blackButton" type="button"
                 ng-click="querySearchCtrl.exmaple('a2ml1')">a2ml1</button>&nbsp;
@@ -35,21 +38,20 @@
         </div>
         <br>
         <br>
-        <div class="searchItems" style="background-color:rgb(235, 235, 235); padding: 30px;  border-radius: 10px;">
-            <p align="left">
-                <b>what can you search for in DoChaP?</b> <br>
-                -for genes - by their GeneID, name (symbol name), synonyms and will later support different IDs <br>
-                -for transcripts - by their transcript RefSeq ID <br>
-                -for proteins - by their RefSeq ID <br>
-                -if you don't know what to search for try the result example in the navigation bar or by <a
-                    href="#!results">clicking here</a><br>
-                <br>
-                <b>what can DoChaP help you with?</b> <br>
-                -finding domain locations in proteins<br>
-                -finding exon locations in genes<br>
-                -comparing transcripts<br>
-                -understanding about possible outcomes of alternative splicing<br>
-            </p>
+        <div class="searchItems" style="background-color:rgb(235, 235, 235); padding: 30px;  border-radius: 10px;width: 900px">
+            <p><strong>Overview:</strong></p>
+            <p><strong>The Domain Change Predictor (DoChaP) integrates information about exons and domains from several sources to allow the study of the effect of alternative splicing on protein domains.&nbsp; </strong></p>
+            <p><strong>Search DoChaP:</strong></p>
+            <ul>
+            <li><strong>Choose species from the list: </strong>Human (hg38) or mouse (mm10). To request for another species, contact us!</li>
+            <li><strong>Enter the search term:</strong>
+            <ul>
+            <li>Accepted query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI&rsquo;s Gene id or RefSeq transcript or protein id / ENSEMBL gene, transcript or protein id)</li>
+            <li>See examples or Help page for more info</li>
+            </ul>
+            </li>
+            <li><strong>Ignore predicted genes (shown by default)</strong> &ndash; check box to show or hide predictions</li>
+            </ul>
         </div>
     </div>
 

@@ -35,6 +35,10 @@ app.config(function ($routeProvider) {
             templateUrl: 'pages/compareSpecies/compareSpecies.html',
             controller: 'compareSpeciesController as compareSpeciesCtrl'
         })
+        .when('/about',{
+            templateUrl: 'pages/about/about.html',
+            controller: 'aboutController as aboutCtrl'
+        })
         
         // other
         .otherwise({ redirectTo: '/' }); //todo should be '/' when the site has a homepage

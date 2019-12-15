@@ -60,7 +60,14 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
     buildScaleViewForProtein("canvas-scale-proteinH",self.humanGenes.proteinScale);
 }
 
-
+$(document).ready(function () {
+  document.addEventListener("keypress", function (event) {
+      if (event.code == "Enter") {
+          self.searchByGene();
+      }
+  });
+  document.getElementById("compareGeneSearchTextField").focus();
+});
 
 
 });

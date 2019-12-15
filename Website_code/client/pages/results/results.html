@@ -82,7 +82,7 @@
             {{::transcripts.length}} transcripts found for gene <a href=""><b
                 ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in specie {{::resultsCtrl.geneInfo.specie}} <br>
     
-        <i>Choose Display:</i>
+        <i>Choose Display</i>
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
@@ -91,8 +91,10 @@
             <option value="protein">Protein View Only</option>
         </select>
     
-        genomic start: <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.start}}" id="startWanted" /> <br>
-        genomic end: <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.end}}" id="endWanted" /> <br>
+       <br>
+        genomic start&nbsp;&nbsp; <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.start}}" id="startWanted" /> <br>
+       <br>
+        genomic end&nbsp;&nbsp; <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.end}}" id="endWanted" /> <br>
         <input type="button" class="btn blackButton" ng-click="resultsCtrl.zoomInFunction()" value="update views">
     
     </div>
@@ -186,7 +188,7 @@
         <table class="exonColorTable">
             <tr>
                 <th class="exonTableHeader">
-                    transcripts
+                   color
                 </th>
                 <th class="exonTableHeader">
                     start coordinate
@@ -195,21 +197,22 @@
                     end coordinate
                 </th>
                 <th class="exonTableHeader">
-                    color
+                    transcripts 
                 </th>
             </tr>
             <tr class="exonTable" ng-repeat="exon in resultsCtrl.geneInfo.exonTable">
                 <td style="text-align:left">
-                    {{exon.transcripts}}
+                   <div height="10" width="10" style="background-color:{{exon.color}}">&nbsp;&nbsp;&nbsp;</div>
                 </td>
                 <td>
                     {{exon.startCoordinate}}
                 </td>
                 <td>
                     {{exon.endCoordinate}}
-                </td>
+                </td> 
+               
                 <td>
-                    <div height="10" width="10" style="background-color:{{exon.color}}">&nbsp;&nbsp;&nbsp;</div>
+                     {{exon.transcripts}}
                 </td>
             </tr>
         </table>

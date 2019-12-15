@@ -96,7 +96,7 @@ angular.module("DoChaP")
                     self.search();
                 }
             });
-            document.getElementById("searchTextField").focus();
+
         });
 
         self.exmaple = function(input){
