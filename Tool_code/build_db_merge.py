@@ -10,6 +10,7 @@ import ucscParser
 import ffParser
 #import csv
 import ffDownloader
+import order_domains
 
 
 def create_tables_db():
@@ -105,9 +106,18 @@ def create_tables_db():
                     CREATE TABLE DomainType(
                             type_id INTEGER AUTO INCREMENT NOT NULL PRIMARY KEY UNIQUE,
                             name TEXT,
+                            other_name TEXT,
                             description TEXT,
-                            external_id TEXT,
-                            CDD_id INTEGER
+                            CDD_id INTEGER,
+                            cd TEXT,
+                            cl TEXT,
+                            pfam TEXT,
+                            smart TEXT,
+                            nf TEXT,
+                            cog TEXT,
+                            kog TEXT,
+                            prk TEXT,
+                            tigr TEXT
                             );'''
                             )
         cur.executescript("DROP TABLE IF EXISTS DomainEvent;")
@@ -184,6 +194,8 @@ def fill_in_db(specie, add=True):
     
     db_name = 'DB_merged'
     with lite.connect(db_name + '.sqlite') as con:
+        print("Connected to " + db_name + "...")
+        print("Filling in the tables...")
         cur = con.cursor()        
         geneSet = set()
         if add:
@@ -192,26 +204,30 @@ def fill_in_db(specie, add=True):
             dTypeID = 0
         dTypeDict = {}
         uExon =set()
+        dNames = {}
+        dExt = {}
+        dCDD = {}
         for t, d in refGene.items():
             #print(t)
             #break
-            if t not in g_info.keys():
+            tnov = t.split('.')[0]
+            if tnov not in g_info.keys():
                 #print('continue')
                 continue
-            GeneID = [i.split(':')[-1] for i in g_info[t][2] if i.startswith('GeneID')]
-            
+            GeneID = [i.split(':')[-1] for i in g_info[tnov][2] if i.startswith('GeneID')]
+            pr = gene2pro[tnov]            
             '''insert into transcript table'''
-            values = tuple([t] + d[2:6] + GeneID + [d[6]]+ trans_con.get(t, ['', '']) + [gene2pro[t]])
+            values = tuple([t] + d[2:6] + GeneID + [d[6]]+ trans_con.get(t, ['', '']) + [p_info[pr][0]])
             cur.execute('''INSERT INTO Transcripts 
                         (transcript_id, tx_start, tx_end, cds_start, cds_end, gene_id, exon_count, ensembl_id, ucsc_id, protein_id) 
                         VALUES(?,?,?,?,?,?,?,?,?,?)''',values)
             
             '''insert into Genes table (unique GeneID as primary key)'''
             if GeneID[0] not in geneSet:
-                MGI = [i.split(':')[-1] for i in g_info[t][2] if i.startswith('MGI')]
+                MGI = [i.split(':')[-1] for i in g_info[tnov][2] if i.startswith('MGI')]
                 if len(MGI) == 0:
                     MGI = ['']
-                values = tuple(GeneID) + g_info[t][0:2] + tuple(d[0:2] + MGI + [gene_con.get(GeneID[0], '')]) + tuple([specie],)
+                values = tuple(GeneID) + g_info[tnov][0:2] + tuple(d[0:2] + MGI + [gene_con.get(GeneID[0], '')]) + tuple([specie],)
                 cur.execute(''' INSERT INTO Genes
                             (gene_id, gene_symbol, synonyms, chromosome, strand, MGI_id, ensembl_id, specie)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
@@ -219,8 +235,7 @@ def fill_in_db(specie, add=True):
 
                     
             '''insert into Proteins table'''
-            pr = gene2pro[t]
-            values = tuple([pr]) + p_info[pr][1:4] + tuple(protein_con.get(pr, ['', '']) + GeneID + [t])
+            values = p_info[pr][0:4] + tuple(protein_con.get(p_info[pr][0], ['', '']) + GeneID + [t])
             #print(values)
             cur.execute(''' INSERT INTO Proteins
                             (protein_id, description, length, synonyms, ensembl_id, uniprot_id, gene_id, transcript_id)
@@ -254,15 +269,10 @@ def fill_in_db(specie, add=True):
             
             ''' insert into domain event table'''
             if pr in region_dict.keys():
+                splicin = set()
+                domeve = set()
                 for reg in region_dict[pr]:
-                    if (reg[2], reg[5],) not in dTypeDict.keys():
-                        dTypeID += 1
-                        dTypeDict[(reg[2], reg[5],)] = dTypeID
-                        values = (dTypeID,) + reg[2:]
-                        cur.execute(''' INSERT INTO DomainType
-                                    (type_id, name, description, external_id, CDD_id)
-                                    VALUES (?, ?, ?, ?, ?)''', values) 
-                        
+                    currReg, dTypeDict, dTypeID, dExt, dNames, dCDD = order_domains.order_domains(reg, dTypeDict, dTypeID, dExt, dNames, dCDD)
                     nucStart, nucEnd = ffParser.domain_pos_calc(reg[0], reg[1])
                     #print(nucStart, nucEnd, t)
                     relation, exon_list, length = domain_exon_relationship([nucStart, nucEnd], start_abs, stop_abs)
@@ -273,19 +283,29 @@ def fill_in_db(specie, add=True):
                     if relation == 'splice_junction':
                         splice_junction = 1
                         for i in range(len(exon_list)):
-                            values = (t, exon_list[i], nucStart, dTypeDict[(reg[2], reg[5],)], total_length,
+                            values = (t, exon_list[i], nucStart, currReg, total_length,
                                             length[i], i + 1,)
-                            cur.execute(''' INSERT INTO SpliceInDomains
+                            if values not in splicin:
+                                cur.execute(''' INSERT INTO SpliceInDomains
                                     (transcript_id, exon_order_in_transcript, domain_nuc_start, type_id, total_length, included_len, exon_num_in_domain)
                                     VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
+                                splicin.add(values)
                     elif relation == 'complete_exon':
                         complete = 1
-                    values = (pr, dTypeDict[(reg[2], reg[5],)], reg[0], reg[1], total_length,
+                    ''' insert into domain event table'''
+                    values = (p_info[pr][0], currReg, reg[0], reg[1], total_length,
                                             nucStart, nucEnd, splice_junction, complete,)
-                    cur.execute(''' INSERT INTO DomainEvent
+                    if values not in domeve:
+                        cur.execute(''' INSERT INTO DomainEvent
                                     (protein_id, type_id, AA_start, AA_end, total_length, nuc_start, nuc_end, splice_junction, complete_exon)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-
+                        domeve.add(values)
+            ''' insert into domain type table'''
+        for dom, inf in dTypeDict.items():
+            values = tuple([dom]) + inf
+            cur.execute(''' INSERT INTO DomainType
+            (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
            
             
 if __name__ == "__main__":
@@ -293,14 +313,14 @@ if __name__ == "__main__":
     # files for flatfiles parser
     
     # Redownload
-    #gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
-    #gpff_path = [f[1] for f in gpff_list]
-    #ffDownloader.download_refseq_ensemble_connection()
-    #ffDownloader.download_ucsc_tables(specie)
+    gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
+    gpff_path = [f[1] for f in gpff_list]
+    ffDownloader.download_refseq_ensemble_connection()
+    ffDownloader.download_ucsc_tables(specie)
     
     # Don't rerun - path for mouse
-    gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
-           r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
+    #gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
+     #      r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
     
     # Don't rerun - path for mouse small
     #gpff_path = [r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\Code\data\M_musculus_small\flatfiles\mouse.2.protein.small5.gpff']
@@ -309,7 +329,7 @@ if __name__ == "__main__":
     #dirpath='data/H_sapiens/flatfiles/'
     #dirpath = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\H_sapiens\flatfiles"
     #gpff_path = [dirpath+'\human.2.protein.gpff', dirpath+'\human.1.protein.gpff', dirpath+'\human.7.protein.gpff',
-         #        dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
+    #             dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
     
     #parse
     region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)

@@ -18,11 +18,9 @@ def import_table (specie, table_name):
         return pd.read_sql_query("SELECT * from " + table_name, con)
         
 def parse_gtf(gtf_path):
-    raw_gtf = pd.read_table(r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\example_gft\merged.gtf', 
-                              delimiter='\t', header=None, names=['chr', 'source', 'feature', 
+    raw_gtf = pd.read_table(gtf_path, delimiter='\t', header=None, names=['chr', 'source', 'feature', 
                                                                   'start', 'end', 'score', 
                                                                   'strand', 'frame', 'attribute'])
-    
     data = []
     unused = set()
     for row in range(len(raw_gtf)):
@@ -56,12 +54,27 @@ def parse_gtf(gtf_path):
             attr_dict['oId'] = attr_dict.get('oId', '')
         data.append(attr_dict)
     attr_df = pd.DataFrame(data)
-        
-    #db=gffutils.create_db(r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\example_gft\merged.gtf',
-    #                      dbfn = 'example_gtf.db')
-    #db = gffutils.FeatureDB('example_gtf.db')
-    merged = raw_gtf.merge(attr_df, left_index=True, right_index=True)    
-     
+    merged = raw_gtf.merge(attr_df, left_index=True, right_index=True).drop('attribute', axis=1)
+    return merged
+
+
+def known_transcripts():
+    '''
+    this function runs on the global variables of the sql tables and the arsed_gtf
+    '''
+    #suply info
+
+def unknown_transcript():
+    #calculate info
+    
+
+def domains_detector(gtf_parsed):
+    unique_transcripts = set(list(parsed_gtf.nearest_ref))
+    transcripts = Transcripts[Transcripts['transcript_id'] == unique_transcripts]
+    
+    
+    
+    
 if __name__ == "__main__":
     specie = 'M_musculus'
     Transcripts, Exons, Transcript_Exon, Genes, Proteins, DomainType, DomainEvent, SpliceInDomains = map(import_table, [specie] * 8,
@@ -69,6 +82,7 @@ if __name__ == "__main__":
                                                                                                           'Transcript_Exon', 'Genes',
                                                                                                           'Proteins', 'DomainType', 
                                                                                                           'DomainEvent', 'SpliceInDomains'])
-
-    	
+    gtf = r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\example_gtf\merged.gtf'
+    parsed_gtf = parse_gtf(gtf)
+    parsed_gtf.to_csv("parsed_gtf.csv")
     

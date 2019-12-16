@@ -21,6 +21,8 @@
 **/DB_M_musculus.sqlite
 **/DB_M_musculus_small.sqlite
 
-**/*.sqlite
-**/DB_merged.sqlite
-
+**/*.sqlite 
+**/DB_merged.sqlite 
+example_gtf/*
+**/*.csv
+data/*

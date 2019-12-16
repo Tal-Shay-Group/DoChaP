@@ -47,18 +47,19 @@ def parse_gpff(gpff_path):
     kicked = [] 
     for rec in SeqIO.parse(gpff_path, 'gb'):
         #records.append(rec)
-        ##Changed rec.name to rec.id to add veraion.
+        ##rec.name is without version ; rec.id is with version
         #print(rec.id)
-        if rec.id in p_info.keys():
+        if rec.name in p_info.keys():
             raise('redundancy err ' + rec.name)
-        if rec.id[0:2] == 'NP' or rec.id[0:2] == 'XP': # takes both proteins and predictions! 
+        if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP': # takes both proteins and predictions! 
             info, gene, gene_info = protein_info(rec)
-            p_info[rec.id] = info[1:]
-            g_info[gene] = gene_info
-            pro2gene[rec.id] = gene
-            gene2pro[gene] = rec.id 
+            p_info[rec.name] = info[1:]
+            genekey = gene.split('.')[0]
+            g_info[genekey] = gene_info
+            pro2gene[rec.name] = gene
+            gene2pro[genekey] = rec.name 
             rr, dd, kic = regions_from_record(rec) 
-            region_dict[rec.id] = rr
+            region_dict[rec.name] = rr
             all_domains = all_domains.union(dd)
             kicked = kicked + kic
     return region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked
