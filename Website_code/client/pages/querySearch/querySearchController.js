@@ -48,7 +48,7 @@ angular.module("DoChaP")
                         } else {
                             if (response.data.isExact == true || response.data.genes.length==1) {
                                 $window.sessionStorage.setItem("currGene", JSON.stringify(response.data));
-                                $window.location = "#!results";
+                                $window.location = "#!/results";
                             } 
                             else {
                                 $scope.loading = false;

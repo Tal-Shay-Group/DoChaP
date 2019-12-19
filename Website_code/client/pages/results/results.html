@@ -22,9 +22,12 @@
                 Description: {{::resultsCtrl.geneInfo.description}}<br>
                 MGI ID: <a href="http://www.informatics.jax.org/marker/MGI:{{::resultsCtrl.geneInfo.MGI_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.MGI_id}}</a><br>
-                Ensembl ID: <a
+                Ensembl ID: <!--
+                     <a
                     href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g={{::resultsCtrl.geneInfo.ensembl_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.ensembl_id}}</a>
+                -->
+               {{::resultsCtrl.geneInfo.ensembl_id}}
             </span>
             <span ng-show="showWindow=='transcript'">
                 RefSeq ID: <a href="https://www.ncbi.nlm.nih.gov/nuccore/{{resultsCtrl.currTranscript.id}}"
@@ -36,9 +39,12 @@
                         target="_blank">{{resultsCtrl.currTranscript.ucsc_id}}</a> <br>
                 </span>
                 <span ng-show="resultsCtrl.currTranscript.ensembl_id!=undefined">
-                    Ensembl ID: <a
+                    Ensembl ID: <!--
+                        <a
                         href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.ensembl_id}}"
                         target="_blank">{{resultsCtrl.currTranscript.ensembl_id}}</a><br>
+                    -->
+                    {{resultsCtrl.currTranscript.ensembl_id}}<br>
                 </span>
                 transcription start: {{resultsCtrl.currTranscript.tx_start}}<br>
                 transcription end: {{resultsCtrl.currTranscript.tx_end}}<br>
@@ -56,33 +62,25 @@
                         target="_blank">{{resultsCtrl.currTranscript.proteinUniprotID}}</a> <br>
                 </span>
                 <span ng-show="resultsCtrl.currTranscript.proteinUniprotID!=undefined">
-                    Ensembl ID: <a
+                    Ensembl ID: <!--
+                         <a
                         href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.proteinEnsemblID}}"
-                        target="_blank">{{resultsCtrl.currTranscript.proteinEnsemblID}}</a><br>
+                        target="_blank">{{resultsCtrl.currTranscript.proteinEnsemblID}}</a>
+                    -->
+                   {{resultsCtrl.currTranscript.proteinEnsemblID}}<br>
                 </span>
             </span>
         </div>
     </div>
     <!--end of modal work-->
 
-    <!-- gene introduction -->
-
-    <!-- button options 
-    <input class="optionButton" type="button" value="compare genomic views" ng-click="checkboxChecked('genomic')" /><br>
-    <input class="optionButton" type="button" value="compare transcript views"
-        ng-click="checkboxChecked('transcript')" /><br>
-    <input class="optionButton" type="button" value="compare protein views" ng-click="checkboxChecked('protein')" /><br>
-    <input class="optionButton" type="button" value="show all views" ng-click="checkboxChecked('all')" /><br>
--->
-
-
-    
+    <!-- gene introduction -->    
     <br>
     <div class="searchItems">
             {{::transcripts.length}} transcripts found for gene <a href=""><b
                 ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in specie {{::resultsCtrl.geneInfo.specie}} <br>
     
-        <i>Choose Display</i>
+        Choose Display
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
@@ -90,11 +88,13 @@
             <option value="transcript">Transcript View Only</option>
             <option value="protein">Protein View Only</option>
         </select>
-    
-       <br>
-        genomic start&nbsp;&nbsp; <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.start}}" id="startWanted" /> <br>
-       <br>
-        genomic end&nbsp;&nbsp; <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.end}}" id="endWanted" /> <br>
+        Adjust displayed locus
+        <br>
+        start&nbsp;
+       <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.start}}" id="startWanted" style="width: 100px;"/> 
+       &nbsp;
+        end&nbsp; <input type="text"  class="searchTextFieldClass" value="{{resultsCtrl.geneInfo.scale.end}}" id="endWanted"  style="width: 100px;"/> 
+        &nbsp;
         <input type="button" class="btn blackButton" ng-click="resultsCtrl.zoomInFunction()" value="update views">
     
     </div>
@@ -201,7 +201,7 @@
                 </th>
             </tr>
             <tr class="exonTable" ng-repeat="exon in resultsCtrl.geneInfo.exonTable">
-                <td style="text-align:left">
+                <td>
                    <div height="10" width="10" style="background-color:{{exon.color}}">&nbsp;&nbsp;&nbsp;</div>
                 </td>
                 <td>
@@ -211,7 +211,7 @@
                     {{exon.endCoordinate}}
                 </td> 
                
-                <td>
+                <td style="text-align:left">
                      {{exon.transcripts}}
                 </td>
             </tr>

@@ -113,6 +113,7 @@ angular.module("DoChaP")
             buildGenomicView('canvas-genomic'+i, $scope.transcripts[i]);
             buildTranscriptView('canvas-transcript'+i, $scope.transcripts[i]);
             buildProteinView('canvas-protein'+i, $scope.transcripts[i]);
+            $( '#canvas-protein'+i ).fadeIn("slow");
         }
         buildScaleView("canvas-scale",self.geneInfo.scale);
         buildScaleViewForProtein("canvas-scale-protein",self.geneInfo.proteinScale);

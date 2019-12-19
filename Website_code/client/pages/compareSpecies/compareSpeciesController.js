@@ -14,6 +14,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
         if (geneList.length <=1) {
           $scope.alert = "sorry! no results were found";
         } else {
+          $scope.alert = "";
           $scope.genes = geneList;
           if(geneList[0].specie=='M_musculus'){
             self.mouseGenes=geneList[0];
@@ -31,7 +32,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
       })
       .catch(function (response) {
         $scope.loading = false;
-        $window.alert(JSON.stringify(response));
         if (response.data != undefined) {
           $scope.alert = "sorry! no results were found";
         } else {
