@@ -27,4 +27,4 @@ example_gtf/*
 **/*.csv
 data/*
 # log should be on server and not be updated externally
-log.txt
+Website_code/log.txt
