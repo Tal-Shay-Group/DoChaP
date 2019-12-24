@@ -5,8 +5,12 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
   $scope.genes = undefined;
   self.humanGenes={};
   self.mouseGenes={};
-  $scope.canvasSize=500;
+  $scope.canvasSize=250;
   self.searchByGene = function () {
+    if(specie2ComboBox.value==specie1ComboBox.value){
+      $scope.alert = "choose different species";
+      return;
+    }
     $scope.loading = true;
     webService.compareGenes(compareGeneSearchTextField.value).then(function (response) {
         var geneList = runGenesCreation(response.data);
@@ -26,6 +30,9 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
           }
           $(document).ready(function(self) { 
             //closeLoadingText();
+           // angular.element(document).ready(function(){
+              //updateCanvases();
+            //})
             updateCanvases();
         });
         }

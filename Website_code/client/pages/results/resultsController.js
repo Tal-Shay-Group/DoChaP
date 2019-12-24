@@ -86,6 +86,13 @@ angular.module("DoChaP")
                 $scope.showCanvas.transcriptView[i]=true;
                 $scope.showCanvas.proteinView[i]=true;
             }
+            else if(type==="transcript_protein"){
+                $scope.viewMode="transcript_protein";
+                $scope.showCanvas.genomicView[i]=false;
+                $scope.showCanvas.transcriptView[i]=true;
+                $scope.showCanvas.proteinView[i]=true;
+            }
+            
         }
     }
     $scope.extendCanvases=function(number){
@@ -108,15 +115,19 @@ angular.module("DoChaP")
         }
     }
     function updateCanvases(){
-       
+      //  $( '#testfadein' ).fadeIn(10000);
         for (var i=0; i<$scope.transcripts.length;i++){
             buildGenomicView('canvas-genomic'+i, $scope.transcripts[i]);
             buildTranscriptView('canvas-transcript'+i, $scope.transcripts[i]);
             buildProteinView('canvas-protein'+i, $scope.transcripts[i]);
-            $( '#canvas-protein'+i ).fadeIn("slow");
+            $( '#fadeinDiv'+i ).hide().fadeIn(3000+i*1000); 
+           // $( '#canvas-transcript'+i ).hide().fadeIn(4000+i*1000);
+            //$( '#canvas-protein'+i ).hide().fadeIn(4000+i*1000);
         }
         buildScaleView("canvas-scale",self.geneInfo.scale);
         buildScaleViewForProtein("canvas-scale-protein",self.geneInfo.proteinScale);
+        $( '#canvas-scale' ).hide().fadeIn(3000); 
+        $( '#canvas-scale-protein' ).hide().fadeIn(3000); 
         //$( '#canvas-scale' ).animate({ "left": "500px" }, "slow" );
     }
     function closeLoadingText(){

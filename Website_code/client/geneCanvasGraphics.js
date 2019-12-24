@@ -103,7 +103,7 @@ function buildProteinView(canvasID, transcript) {
     var proteinLength= transcript.proteinLength;
     var lineThickness = 4;
     // var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-    var spacing=40;
+    var spacing=25;
     //domains
     //calculate places with no non-coding areas
     var domainsInProtein = transcript.domains; //[]
