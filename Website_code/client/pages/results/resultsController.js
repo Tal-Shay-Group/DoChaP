@@ -120,7 +120,7 @@ angular.module("DoChaP")
             buildGenomicView('canvas-genomic'+i, $scope.transcripts[i]);
             buildTranscriptView('canvas-transcript'+i, $scope.transcripts[i]);
             buildProteinView('canvas-protein'+i, $scope.transcripts[i]);
-            $( '#fadeinDiv'+i ).hide().fadeIn(3000+i*1000); 
+            $( '#fadeinDiv'+i ).hide().fadeIn(3000+i*100); 
            // $( '#canvas-transcript'+i ).hide().fadeIn(4000+i*1000);
             //$( '#canvas-protein'+i ).hide().fadeIn(4000+i*1000);
         }

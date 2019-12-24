@@ -25,7 +25,7 @@ async function findGene(geneName, specie) {
     if (specie != "all") {
         sqlSpecie = " AND (specie ='" + specie + "')";
     }
-    var queryAns = await sqlQuery("SELECT gene_id , specie FROM Genes WHERE (UPPER(gene_symbol) = '" + geneName.toUpperCase() + "' or gene_id ='" + geneName + "')" + sqlSpecie);
+    var queryAns = await sqlQuery("SELECT gene_id , specie FROM Genes WHERE (UPPER(gene_symbol) = '" + geneName.toUpperCase() + "' or gene_id ='" + geneName + "' or ensembl_id ='" + geneName+ "')" + sqlSpecie);
     if (queryAns.length != 0) {
         return queryAns;
     } else {
@@ -68,10 +68,9 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
     //finding gene
     finalAns.genes = await findGene(req.params.inputGene, req.params.specie);
     if (finalAns.genes == undefined) {
-        if(req.params.inputGene.length>=4 && req.params.inputGene.substring(0,3)=='ENS'){
             closeGene = await emsemblRecords(req.params.inputGene, req.params.specie);
-        }
-        else {
+    
+        if(closeGene.length==0) {
             closeGene = await closeGenes(req.params.inputGene, req.params.specie);
         }
         
@@ -178,15 +177,21 @@ async function emsemblRecords(geneName, specie) {
     }
     var recordNonVersion = geneName.split(".")[0].toUpperCase();
     queryAns1 = await sqlQuery("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Proteins WHERE ensembl_id LIKE '" + recordNonVersion + "%') as tmp1" +
+        "FROM (SELECT gene_id FROM Proteins WHERE UPPER (ensembl_id) LIKE '" + recordNonVersion + "%') as tmp1" +
         ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
     queryAns2 = await sqlQuery("SELECT Genes.gene_id, specie " +
-    "FROM (SELECT gene_id FROM Transcripts WHERE ensembl_ID LIKE '" + recordNonVersion + "%') as tmp1" +
+    "FROM (SELECT gene_id FROM Transcripts WHERE UPPER(ensembl_ID) LIKE '" + recordNonVersion + "%') as tmp1" +
     ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-    if (queryAns1.length>0){
-        return queryAns1;
+    queryAns3 = await sqlQuery("SELECT Genes.gene_id, specie " +
+    "FROM (SELECT gene_id FROM Proteins WHERE UPPER(uniprot_id) LIKE '" + recordNonVersion + "%') as tmp1" +
+    ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
+    if (queryAns2.length>0){
+        return queryAns2;
     }
-    return queryAns2;
+    if(queryAns3.length>0){
+        return queryAns3;
+    }
+    return queryAns1;
 }
 
 
