@@ -13,7 +13,7 @@
         style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
         ng-show="showWindow" ng-click="closeModalFromBackground($event)">
         <div class="myModal">
-            <span ng-click="showWindow=false" style="font-size: 25px;">&times;</span><br>
+            <span width="200" ng-click="showWindow=false" style="font-size: 25px; text-align: right;">&times;</span><br>
             <span ng-if="showWindow=='gene'">
                 GeneID: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_id}}"
                     target="_blank"></a>{{::resultsCtrl.geneInfo.gene_id}}<br>
@@ -97,6 +97,8 @@
           
 
         </select>
+        <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted records</i>
+        <br>
         Adjust displayed locus
         <br>
         start&nbsp;

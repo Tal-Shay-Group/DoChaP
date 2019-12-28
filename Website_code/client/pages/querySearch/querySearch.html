@@ -2,8 +2,7 @@
 <!-- display all categories -->
 
 <body ng-app="DoChaP" ng-controller="querySearchCtrl">
-    <div
-        style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+    <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
         <div class="searchItems form-inline">
             <br>
             <h3>Search for exon-domain associations</h3>
@@ -15,12 +14,15 @@
             <i>Search Term&nbsp;&nbsp;</i>
             <input placeholder="  enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass"
                 id="searchTextField">&nbsp;&nbsp;
-            
-            <button class="btn blackButton" id="submitSearchButton" type="button"
-                ng-click="querySearchCtrl.search()">
+
+            <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
                 <span class="glyphicon glyphicon-search"></span> Search
             </button>&nbsp;
-            <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
+            <!--
+ <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
+
+            -->
+           
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
             <br>
             <br>
@@ -37,20 +39,27 @@
         </div>
         <br>
         <br>
-        <div class="searchItems" style="background-color:rgb(235, 235, 235); padding: 30px;  border-radius: 10px;width: 900px">
+        <div class="searchItems"
+            style="background-color:rgb(235, 235, 235); padding: 30px;  border-radius: 10px;width: 900px">
             <p><strong>Overview:</strong></p>
-            <p><strong>The Domain Change Predictor (DoChaP) integrates information about exons and domains from several sources to allow the study of the effect of alternative splicing on protein domains.&nbsp; </strong></p>
+            <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
+                    sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
+            </p>
             <p><strong>Search DoChaP:</strong></p>
             <ul>
-            <li><strong>Choose species from the list: </strong>Human (hg38) or mouse (mm10). To request for another species, contact us!</li>
-            <li><strong>Enter the search term:</strong>
-            <ul>
-            <li>Accepted query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI&rsquo;s Gene id or RefSeq transcript or protein id / ENSEMBL gene, transcript or protein id)</li>
-            <li>See examples or Help page for more info</li>
+                <li><strong>Choose a species from the list:&nbsp;</strong>Human (hg38) or mouse (mm10). To request
+                    another species, contact us! <a href="mailto:galozs@post.bgu.ac.il" target="_blank">galozs@post.bgu.ac.il</a></li>
+                <li><strong>Enter a search term:</strong>
+                    <ol>
+                        <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene
+                            ID or RefSeq transcript or protein ID / ENSEMBL gene, transcript or protein ID)</li>
+                        <li>See examples or Help page for more info</li>
+                    </ol>
+                </li>
+                <li><strong>Ignore predicted genes (shown by default)</strong> – check box to show or hide predictions
+                </li>
             </ul>
-            </li>
-            <li><strong>Ignore predicted genes (shown by default)</strong> &ndash; check box to show or hide predictions</li>
-            </ul>
+            <p><strong>&nbsp;</strong></p>
         </div>
     </div>
 

@@ -281,9 +281,12 @@ function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,
 
 function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, cw is the convertor
     var skip=1000; //skip is in genomic units
-    if (skip*coordinatesWidth<3 ){
+    if (skip*coordinatesWidth<2 ){
         skip=100000;
-    }else if (skip*coordinatesWidth<30 ){
+    }else if (skip*coordinatesWidth<5 ){
+        skip=50000;
+    }
+    else if (skip*coordinatesWidth<30 ){
         skip=10000;
     }else if (skip*coordinatesWidth<40 ){
         skip=5000;

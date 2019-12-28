@@ -5,16 +5,16 @@ as an controller or as an adapter. only 'createGraphicInfoForGene' function will
 other functions as needed.
 
 */
-function runGenesCreation(result){
+function runGenesCreation(result,ignorePredictions){
     var geneList=[];
     for(var i=0; i<result.genes.length;i++){
-        geneList.push(createGraphicInfoForGene(result.genes[i]));
+        geneList.push(createGraphicInfoForGene(result.genes[i],ignorePredictions));
     }
     return geneList;
 }
 
 //This will receive the gene and create another gene object which can be used by the result controller for further use.
-function createGraphicInfoForGene(gene,preferences) {
+function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     var ansGene = new Object();
     ansGene.transcripts = [];
     ansGene.gene_symbol = gene.gene_symbol; 
@@ -52,7 +52,9 @@ function createGraphicInfoForGene(gene,preferences) {
     
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
     for (var i = 0; i < gene.transcripts.length; i++) {
-        ansGene.transcripts[i] = createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons);
+        if(ignorePredictionsT=="false" || gene.transcripts[i].transcript_id.substring(0,2)=="NM"){
+            ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons));
+       }
     } 
     //for showing nm before xm
     function compare( a, b ) {

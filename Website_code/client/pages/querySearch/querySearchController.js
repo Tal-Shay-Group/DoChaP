@@ -15,7 +15,7 @@ angular.module("DoChaP")
             var query = searchTextField.value;
             //var file = chooseButton.value;
             var specie = searchBySpecie.value;
-            var isReviewed = isReviewedCheckBox.checked;
+            var isReviewed = true;//isReviewedCheckBox.checked;
             if (query != undefined) {
                 self.queryHandler(query, specie, isReviewed);
                 //} else if (file != undefined) {
@@ -48,6 +48,7 @@ angular.module("DoChaP")
                         } else {
                             if (response.data.isExact == true || response.data.genes.length==1) {
                                 $window.sessionStorage.setItem("currGene", JSON.stringify(response.data));
+                                $window.sessionStorage.setItem("ignorePredictions", "false");
                                 $window.location = "#!/results";
                             } 
                             else {
@@ -70,13 +71,13 @@ angular.module("DoChaP")
                             $scope.alert="sorry! no results were found";
                             //window.alert("sorry! no results found");
                         } else {
-                            $scope.alert="error! the server is off";
+                            $scope.alert="error! we ran into a problem.\nIf you keep seeing this error you can contact us for help";
                             //window.alert("error! the server is off");
                         }
                     });
 
             } else if (!$scope.loading) {
-                $scope.alert="Please Fix Your Query";
+                $scope.alert="please fix your query";
                 //window.alert("Please Fix Your Query");
             }
         }

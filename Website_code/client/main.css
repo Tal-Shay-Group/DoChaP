@@ -1,24 +1,27 @@
 body {
     font-size: 20px;
     background-color: rgb(255, 255, 255);
-     /*background-color: rgb(196, 221, 217);
-   background-image: url("resources/back.jpg");*/
-    background-size: cover;
     font-family: "Calibri";
-    /*font-weight: bold;*/
+    /*background-color: rgb(196, 221, 217);*/
+    /* background-image: url("resources/dna100.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-size: cover;
+    
+    font-weight: bold;*/
 }
 
-.logo{
-    height:100px;
-     width:200px;
-     align-self: center;
-     /*put align*/
+.logo {
+    height: 100px;
+    width: 200px;
+    align-self: center;
 }
 
-.myModal{
-    background-color:rgb(226, 249, 251);
-    height:250px;
-    width:320px;
+.myModal {
+    background-color: rgb(226, 249, 251);
+    height: 250px;
+    width: 320px;
 
     border-style: solid;
     border-width: 3px;
@@ -28,48 +31,55 @@ body {
     text-align: left;
     font-size: 16px;
 
-    box-shadow: 18px 6px 28px -1px rgba(0,0,0,0.75);
+    box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
 
-    left: 50%;overflow: auto;padding: 5px;
+    left: 50%;
+    overflow: auto;
+    padding: 5px;
     top: 50%;
     margin: auto;
-    
-    
+
+
 }
 
-.searchButton{
-    background-color:rgb(29, 20, 107);
-    color:white;
+.searchButton {
+    background-color: rgb(29, 20, 107);
+    color: white;
     font-weight: bold;
     font-size: 30px;
-    height:40px;
-    width:200px;
+    height: 40px;
+    width: 200px;
     border-radius: 8px;
     box-shadow: 0 8px 12px 0 rgba(44, 44, 44, 0.191);
-    box-shadow:inset 2px 2px 0px 0px black;
+    box-shadow: inset 2px 2px 0px 0px black;
 
 }
-.searchButton:hover{
-    background-color:rgb(32, 44, 214);
+
+.searchButton:hover {
+    background-color: rgb(32, 44, 214);
 }
-.optionButton{
-    background-color:rgb(29, 20, 107);
-    color:white;
+
+.optionButton {
+    background-color: rgb(29, 20, 107);
+    color: white;
     font-size: 15px;
-    height:25px;
-    width:200px;
+    height: 25px;
+    width: 200px;
     border-radius: 8px;
 
 }
-.optionButton:hover{
-    background-color:rgb(32, 44, 214);
+
+.optionButton:hover {
+    background-color: rgb(32, 44, 214);
 }
-.menu{
-width: 100%;
-background:rgb(57, 66, 190);
+
+.menu {
+    width: 100%;
+    background: rgb(57, 66, 190);
 
 
 }
+
 /*.nav{
    
     box-shadow: inset 0px 1px 2px 0px rgba(255, 255, 255, 0.75);
@@ -81,68 +91,78 @@ background:rgb(57, 66, 190);
     background:rgb(71, 77, 168);
 }
 }*/
-.navA:hover, .navA:visited,.navA:link, .navA:active
-{
+.navA:hover,
+.navA:visited,
+.navA:link,
+.navA:active {
     text-decoration: none;
     color: aliceblue;
 }
-.navA{
-    font-size:30px;
+
+.navA {
+    font-size: 30px;
     color: aliceblue;
 }
-.searchTextFieldClass{
-    font-size:16px;
-    height:35px;
-    width:300px;
+
+.searchTextFieldClass {
+    font-size: 16px;
+    height: 35px;
+    width: 300px;
 }
 
-.resultTitle{
-    font-size:25px;
+.resultTitle {
+    font-size: 25px;
     text-align: center;
 }
 
-.resultText{
+.resultText {
     width: 140px;
     height: 105px;
     font-size: 16px;
 }
-.betweenVisualizationSpace{
+
+.betweenVisualizationSpace {
     width: 100px;
 }
-.beforProteinTextSpace{
+
+.beforProteinTextSpace {
     width: 20px;
 }
-.loadingText{
+
+.loadingText {
     font-size: 30px;
 }
-.exonTableHeader{
+
+.exonTableHeader {
     font-size: 23px;
     text-decoration: underline;
     padding: 10px;
     text-align: center;
 }
-.documentationTable{
-vertical-align: top;
-margin: 10px;
-padding: 10px;
-display: inline-block;
-border-collapse: collapse;
-align-self: center;
-text-align: justify;
+
+.documentationTable {
+    vertical-align: top;
+    margin: 10px;
+    padding: 10px;
+    display: inline-block;
+    border-collapse: collapse;
+    align-self: center;
+    text-align: justify;
 
 }
 
-td{
-vertical-align: top;
-margin: 10px;
-padding: 10px;
+td {
+    vertical-align: top;
+    margin: 10px;
+    padding: 10px;
 }
-.searchBySpecie{
+
+.searchBySpecie {
     width: 100px;
 
 }
 
-.searchItems{
+.searchItems {
     margin-right: auto;
     margin-left: auto;
     display: table;
@@ -150,7 +170,8 @@ padding: 10px;
 
 
 }
-.selectMode{
+
+.selectMode {
     /*margin-right: auto;
     margin-left: auto;
     display: table;
@@ -159,44 +180,53 @@ padding: 10px;
     align-self: left;
 
 }
-.exonColorTable{
+
+.exonColorTable {
     text-align: center;
     font-size: 16px;
 }
-.blackButton{
-    background-color:rgb(46, 45, 45);
+
+.blackButton {
+    background-color: rgb(46, 45, 45);
     color: rgb(170, 169, 169);
-    
+
 }
-.blackButton:hover{
-    color:white;
+
+.blackButton:hover {
+    color: white;
 }
-.blackButton:focus{
-    color:white;
+
+.blackButton:focus {
+    color: white;
 }
-.chromosomeLocation{
+
+.chromosomeLocation {
     font-size: 14px;
     text-align: left;
 }
-.fontChange{
+
+.fontChange {
     font-size: 15px;
 }
 
 
-form{
+form {
     margin: 0 auto;
     width: 500px;
     padding-top: 10px;
     color: white;
     position: relative;
-    
-    
+
+
 }
-label, textarea{
-    display: block;	
+
+label,
+textarea {
+    display: block;
 }
- .contactUs{
-    width: 500px;	
+
+.contactUs {
+    width: 500px;
     border: none;
     border-radius: 20px;
     outline: none;
@@ -206,25 +236,28 @@ label, textarea{
     -webkit-transition: border 0.5s;
     -moz-transition: border 0.5s;
     -o-transition: border 0.5s;
-    border: solid 3px #98d4f3;	
-    -webkit-box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    box-sizing:border-box;
-    
+    border: solid 3px #98d4f3;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
 }
 
-textarea{
-    height: 100px;	
-    resize: none; 
+textarea {
+    height: 100px;
+    resize: none;
     overflow: auto;
 }
 
-label{
+label {
     font-size: 1.5em;
     margin-top: 5px;
     padding-left: 20px;
 }
-.formgroup, .formgroup-active, .formgroup-error{
+
+.formgroup,
+.formgroup-active,
+.formgroup-error {
     background-repeat: no-repeat;
     background-position: right bottom;
     background-size: 10.5%;

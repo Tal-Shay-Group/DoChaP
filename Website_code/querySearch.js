@@ -94,9 +94,10 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
         var gene = await sqlQuery("SELECT * FROM Genes WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
         finalAns.genes[i] = gene[0];
         var sqlReviewed = "";
-        if (req.params.isReviewed == "true") {
-            sqlReviewed = " AND transcript_id LIKE 'NM%' ";
-        }
+        //because of new requirements- get all transcripts and filter on page
+        // if (req.params.isReviewed == "true") {
+        //     sqlReviewed = " AND transcript_id LIKE 'NM%' ";
+        // }
         //get transcripts
         var transcripts = await sqlQuery("SELECT * FROM Transcripts WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'" + sqlReviewed);
         finalAns.genes[i].transcripts = transcripts;
@@ -163,11 +164,16 @@ async function closeProteins(geneName, specie) {
         sqlSpecie = " AND (specie ='" + specie + "')";
     }
     var proteinNonVersion = geneName.split(".")[0].toUpperCase();
-    queryAns = await sqlQuery("SELECT Genes.gene_id, specie " +
+    queryAns1 = await sqlQuery("SELECT Genes.gene_id, specie " +
         "FROM (SELECT gene_id FROM Proteins WHERE protein_id LIKE '" + proteinNonVersion + "%') as tmp1" +
         ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-
-    return queryAns;
+    queryAns2 = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id LIKE '" + proteinNonVersion + "%') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
+    if(queryAns1.length>0){
+        return queryAns1;
+    }
+    return queryAns2;
 }
 
 async function emsemblRecords(geneName, specie) {

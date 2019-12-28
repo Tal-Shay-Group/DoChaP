@@ -42,6 +42,7 @@ Logo and navigation bars will be declared here for example.
 
     <!-- load controllers -->
     <script src="webService.js"></script>
+    <script src="compareSpecies.js"></script>
     <script src="pages/home/homeController.js"></script>
     <script src="pages/querySearch/querySearchController.js"></script>
     <script src="pages/querySearch/querySearchService.js"></script>
@@ -66,8 +67,8 @@ Logo and navigation bars will be declared here for example.
       -->
   
     <br />
-    <nav class="navbar navbar-inverse" style="margin: 0;">
-        <div class="container-fluid"  ng-controller="indexController as indexCtrl">
+    <nav class="navbar navbar-inverse container-fluid" style="margin: 0;" ng-controller="indexController as indexCtrl">
+    
           <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
               <span class="icon-bar"></span>
@@ -103,7 +104,6 @@ Logo and navigation bars will be declared here for example.
              <!-- <li><a href="#!contactUs"> <span class="glyphicon glyphicon-envelope"></span> Contact Us</a></li>-->
             </ul>
           </div>
-        </div>
       </nav>
     <div ng-view=""></div>
 </body>
