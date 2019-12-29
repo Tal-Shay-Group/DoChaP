@@ -13,13 +13,13 @@ import ffDownloader
 import order_domains
 
 
-def create_tables_db():
+def create_tables_db(species):
     """
     Create a transcripts table in the specie database and fills with ucsc transcripts data
 
 
     """
-    db_name = 'DB_merged'
+    db_name = 'DB_'+ species
     print ("Creating database: {}...".format(db_name))
     with lite.connect(db_name + '.sqlite') as con:
         cur = con.cursor()
@@ -108,7 +108,7 @@ def create_tables_db():
                             name TEXT,
                             other_name TEXT,
                             description TEXT,
-                            CDD_id INTEGER,
+                            CDD_id TEXT,
                             cd TEXT,
                             cl TEXT,
                             pfam TEXT,
@@ -117,7 +117,8 @@ def create_tables_db():
                             cog TEXT,
                             kog TEXT,
                             prk TEXT,
-                            tigr TEXT
+                            tigr TEXT,
+                            other TEXT
                             );'''
                             )
         cur.executescript("DROP TABLE IF EXISTS DomainEvent;")
@@ -178,35 +179,40 @@ def domain_exon_relationship(domain_nuc_positions, exon_starts, exon_ends):
     return None, None, None
         
         
-def fill_in_db(specie, add=True):
+def fill_in_db(specie, name, add=True):
     '''
     ...
     ** the function is using global variables:
         - from flatfile parser: region_dict, p_info, g_info, pro2gene, gene2pro, all_domains
         - from the refGene parser: refGene
     '''
-    #parse_files for specie
-    refGene = ucscParser.parse_ncbiRefSeq(specie)
-    kgXref = ucscParser.parse_kgXref(specie)
-    knownGene = ucscParser.parse_knownGene(specie, kgXref)
-    ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
-    gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie, ucsc_acc)
     
-    db_name = 'DB_merged'
+    db_name = 'DB_' + name
     with lite.connect(db_name + '.sqlite') as con:
         print("Connected to " + db_name + "...")
         print("Filling in the tables...")
         cur = con.cursor()        
         geneSet = set()
-        if add:
-            dTypeID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
-        else: 
-            dTypeID = 0
-        dTypeDict = {}
         uExon =set()
+        dTypeDict = {}        
         dNames = {}
         dExt = {}
         dCDD = {}
+        if add:
+            dTypeID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
+            cur.execute('SELECT * FROM DomainType')
+            for ud in cur.fetchall():
+                c_ud = tuple(ud)
+                dTypeDict[c_ud[0]] = c_ud[1:] 
+                dNames[c_ud[1]] = c_ud[0]
+                for u_ext in c_ud[5:]:
+                    if u_ext != '':
+                        dExt[u_ext] = c_ud[0]
+                dCDD[c_ud[4]] = c_ud[0]
+        else: 
+            dTypeID = 0
+
+
         for t, d in refGene.items():
             #print(t)
             #break
@@ -216,8 +222,9 @@ def fill_in_db(specie, add=True):
                 continue
             GeneID = [i.split(':')[-1] for i in g_info[tnov][2] if i.startswith('GeneID')]
             pr = gene2pro[tnov]            
+            ensID = trans_con.get(t, '')
             '''insert into transcript table'''
-            values = tuple([t] + d[2:6] + GeneID + [d[6]]+ trans_con.get(t, ['', '']) + [p_info[pr][0]])
+            values = tuple([t] + d[2:6] + GeneID + [d[6], ensID] + [ucsc_acc.get(ensID, '  ')[1] ,p_info[pr][0]])
             cur.execute('''INSERT INTO Transcripts 
                         (transcript_id, tx_start, tx_end, cds_start, cds_end, gene_id, exon_count, ensembl_id, ucsc_id, protein_id) 
                         VALUES(?,?,?,?,?,?,?,?,?,?)''',values)
@@ -235,7 +242,8 @@ def fill_in_db(specie, add=True):
 
                     
             '''insert into Proteins table'''
-            values = p_info[pr][0:4] + tuple(protein_con.get(p_info[pr][0], ['', '']) + GeneID + [t])
+            ensID = protein_con.get(p_info[pr][0], '')
+            values = p_info[pr][0:4] + tuple([ensID, ucsc_acc.get(ensID, '    ')[3]] + GeneID + [t])
             #print(values)
             cur.execute(''' INSERT INTO Proteins
                             (protein_id, description, length, synonyms, ensembl_id, uniprot_id, gene_id, transcript_id)
@@ -300,41 +308,104 @@ def fill_in_db(specie, add=True):
                                     (protein_id, type_id, AA_start, AA_end, total_length, nuc_start, nuc_end, splice_junction, complete_exon)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
                         domeve.add(values)
-            ''' insert into domain type table'''
+            
+            
+        print('Recreating the table: DomainType and update domains')
+        cur.executescript("DROP TABLE IF EXISTS DomainType;")
+        cur.execute('''
+                    CREATE TABLE DomainType(
+                            type_id INTEGER AUTO INCREMENT NOT NULL PRIMARY KEY UNIQUE,
+                            name TEXT,
+                            other_name TEXT,
+                            description TEXT,
+                            CDD_id TEXT,
+                            cd TEXT,
+                            cl TEXT,
+                            pfam TEXT,
+                            smart TEXT,
+                            nf TEXT,
+                            cog TEXT,
+                            kog TEXT,
+                            prk TEXT,
+                            tigr TEXT,
+                            other TEXT
+                            );'''
+                            )
+        ''' insert into domain type table'''
         for dom, inf in dTypeDict.items():
             values = tuple([dom]) + inf
             cur.execute(''' INSERT INTO DomainType
-            (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
+                            (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr,other)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
            
             
 if __name__ == "__main__":
-    specie = 'M_musculus'#'H_sapiens' #  #'M_musculus_small'
+    #specie = 'R_norvegicus'# 'H_sapiens' #'M_musculus'#  #'M_musculus_small'
     # files for flatfiles parser
     
     # Redownload
-    gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
-    gpff_path = [f[1] for f in gpff_list]
-    ffDownloader.download_refseq_ensemble_connection()
-    ffDownloader.download_ucsc_tables(specie)
+    #gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
+    ##gpff_path = [f[1] for f in gpff_list]
+    #ffDownloader.download_refseq_ensemble_connection()
+    #ffDownloader.download_ucsc_tables(specie)
     
     # Don't rerun - path for mouse
-    #gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
-     #      r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
+    #gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
+     #      r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
     
     # Don't rerun - path for mouse small
     #gpff_path = [r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\Code\data\M_musculus_small\flatfiles\mouse.2.protein.small5.gpff']
     
     # Don't rerun - path for human
     #dirpath='data/H_sapiens/flatfiles/'
-    #dirpath = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\H_sapiens\flatfiles"
+    #dirpath = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\H_sapiens\flatfiles"
     #gpff_path = [dirpath+'\human.2.protein.gpff', dirpath+'\human.1.protein.gpff', dirpath+'\human.7.protein.gpff',
-    #             dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
+     #            dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
     
     #parse
-    region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
+    #region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
+    #parse_files
+    #refGene = ucscParser.parse_ncbiRefSeq(specie)
+    #if specie in ['M_musculus', 'H_sapiens']:
+    #    kgXref = ucscParser.parse_kgXref(specie)
+    #    knownGene = ucscParser.parse_knownGene(specie, kgXref)
+    #    ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
+    #else:
+    #    ucsc_acc = {'': '     '}
+    #gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie)    
     #create_tables_db()
-    fill_in_db(specie)
+    #fill_in_db(specie)
+    
+    species_list = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    create = True
+    for specie in species_list:
+        if create == True:
+            ffDownloader.download_refseq_ensemble_connection()
+            create_tables_db('merged')
+        # Download files
+        gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
+        gpff_path = [f[1] for f in gpff_list]
+        ffDownloader.download_ucsc_tables(specie)
+        # parse data
+        region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
+        refGene = ucscParser.parse_ncbiRefSeq(specie)
+        if specie in ['M_musculus', 'H_sapiens']:
+            kgXref = ucscParser.parse_kgXref(specie)
+            knownGene = ucscParser.parse_knownGene(specie, kgXref)
+            ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
+        else:
+            ucsc_acc = {'': '     '}
+        gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie)  
+        
+        # Fill in database
+        fill_in_db(specie, 'merged', add = not create)
+        create = False
+        
+        #create per species db
+        create_tables_db(specie)
+        fill_in_db(specie, specie, add = False)
+        
+
 
 
 

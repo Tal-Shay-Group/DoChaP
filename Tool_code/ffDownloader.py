@@ -17,11 +17,12 @@ import datetime
 
 
 
-ff_conversion = {'mouse': 'M_musculus', 'm_musculus': 'M_musculus', 'mus_musculus': 'M_musculus', 'mm10': 'M_musculus',
-                 'human':'H_sapiens', 'h_sapiens': 'H_sapiens', }
-ucsc_conversion = {'M_musculus': 'mm10', 'H_sapiens':'hg38'}
+
 
 def validate_specie(specie):
+    ff_conversion = {'mouse': 'M_musculus', 'm_musculus': 'M_musculus', 'mus_musculus': 'M_musculus', 'mm10': 'M_musculus',
+                 'human':'H_sapiens', 'h_sapiens': 'H_sapiens', 'r_norvegicus':'R_norvegicus',
+                 'd_rerio':'D_rerio', 'x_tropicalis':'X_tropicalis'}
     if specie.lower() in ff_conversion.keys():
         return ff_conversion[specie.lower()]
     else:
@@ -64,6 +65,8 @@ def download_flatfiles(specie, username='anonymous',pswd = 'example@post.bgu.ac.
         inp.close()
         with open(file[1] ,'wb') as f_out:
             f_out.write(s)
+        print('removing compressed file...')
+        os.remove(file[1] + '.gz')
     with open(os.path.dirname(file[1]) + '/README.txt', 'w') as readme:
         print('Writing README description...')
         readme.write('# Updated on: ' + str(datetime.datetime.now().date()) + '\n\n')
@@ -107,6 +110,7 @@ def download_refseq_ensemble_connection(username='anonymous',pswd = 'example@pos
     
 def download_ucsc_tables(specie, username='anonymous',pswd = 'example@post.bgu.ac.il'):
     table_key = validate_specie(specie)
+    ucsc_conversion = {'M_musculus': 'mm10', 'H_sapiens':'hg38', 'R_norvegicus':'rn6', 'D_rerio': 'danRer11', 'X_tropicalis':'xenTro9'}
     skey = ucsc_conversion[table_key]
     
     ftp_address = 'hgdownload.soe.ucsc.edu'
@@ -120,7 +124,11 @@ def download_ucsc_tables(specie, username='anonymous',pswd = 'example@post.bgu.a
     print('downloading files to : ' + download_path.format(table_key))            
     os.makedirs(os.path.dirname(download_path.format(table_key)), exist_ok=True)
     tables = ['refGene', 'kgXref', 'knownGene', 'ncbiRefSeq']
+    allTables = ftp.nlst()
     for table in tables:
+        if table + '.txt.gz' not in allTables:
+            print('Table ' + table + ' not exist for species: ' + specie)
+            continue
         table_path = download_path.format(table_key) + table + '.txt'
         print('downloading: ' + table + '.txt.gz..')
         ftp.sendcmd("TYPE i")

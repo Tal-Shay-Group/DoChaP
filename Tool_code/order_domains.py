@@ -8,8 +8,8 @@ import re
  #external ID list is built as: ['cd','cl','pfam','smart','nf','cog','kog','prk','tigr']
  #list inside dTypeDict: (name, other names,  description, CDD_id, 'cd','cl','pfam','smart','nf','cog','kog','prk','tigr')
 def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
-    external = ['cd','cl','pfam','smart','nf','cog','kog','prk','tigr']
-    extIDs = ['', '', '', '', '', '', '', '', '']
+    external = ['cd','cl','pfam','smart','nf','cog','kog','prk','tigr','other']
+    extIDs = ['', '', '', '', '', '', '', '', '', '']
     oname = ''
     cdname = ''
     pref = None
@@ -31,12 +31,12 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
             pref = 7
             break
         else:
-            pref = None
+            pref = 9
     if currExt not in dExt and currExt != '':
         #print('extID not  exist')
         if region[2] not in dNames:
             #print('name exist 1')
-            if region[5] not in dCDD:
+            if region[5] not in dCDD or region[5] == '':
                 dTypeID += 1
                 extIDs[pref] = currExt
                 existExt = extIDs
@@ -49,7 +49,7 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
                 dExt[currExt] = currReg
                 dNames[region[2]] = currReg
                 dCDD[region[5]] = currReg
-            elif region[5] in dCDD:
+            elif region[5] in dCDD and region[5] != '':
                 existExt = list(dTypeDict[dCDD[region[5]]][4:])
                 currReg = dCDD[region[5]]
                 if existExt[pref] == '' or currExt in existExt[pref]:
@@ -67,7 +67,7 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
                     cdname = region[2]
                 elif region[2].lower() not in dTypeDict[currReg][0].lower() and region[2].lower() not in dTypeDict[currReg][1].lower():
                     oname =  dTypeDict[currReg][1] + '; ' + region[2]
-                ncdd = dTypeDict[currReg][3]
+                ncdd = str(dTypeDict[currReg][3])
                 #dTypeDict[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
                 dNames[region[2]] = currReg
                 dExt[currExt] = currReg
@@ -81,10 +81,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
                 existExt[pref] = existExt[pref] + '; ' + currExt
             else:
                 raise ValueError('exernal id not in correct location!')
-            if region[5] not in dTypeDict[currReg][3] and region[5] not in dCDD:
-                ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+            if region[5] not in str(dTypeDict[currReg][3]) and region[5] not in dCDD:
+                ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                 dCDD[region[5]] = currReg
-            else: ncdd = dTypeDict[currReg][3]
+            else: ncdd = str(dTypeDict[currReg][3])
             if region[3] not in dTypeDict[currReg][2]:
                 ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
             else: ndesc = dTypeDict[currReg][2]
@@ -100,10 +100,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
         #print('extID exist')
         currReg = dExt[currExt]
         if region[2].lower() == dTypeDict[currReg][0].lower() or region[2].lower() in dTypeDict[currReg][1].lower():
-            if region[5] not in dTypeDict[currReg][3]:
-               ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+            if region[5] not in str(dTypeDict[currReg][3]):
+               ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                dCDD[region[5]] = currReg
-            else: ncdd = dTypeDict[currReg][3]
+            else: ncdd = str(dTypeDict[currReg][3])
             if region[3] not in dTypeDict[currReg][2]:
                 ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
             else: ndesc = dTypeDict[currReg][2]
@@ -116,10 +116,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
                 oname =  dTypeDict[currReg][1] + '; ' + region[2]
             #dTypeDict[currReg] = (reg[2], ndesc, ncdd,) + extIDs  
         elif re.sub(r'[_ ]\d+$','', region[2]) == re.sub(r'[_ ]\d+$','', dTypeDict[currReg][0]):
-            if region[5] not in dTypeDict[currReg][3]:
-               ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+            if region[5] not in str(dTypeDict[currReg][3]):
+               ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                dCDD[region[5]] = currReg
-            else: ncdd = dTypeDict[currReg][3]
+            else: ncdd = str(dTypeDict[currReg][3])
             if region[3] not in dTypeDict[currReg][2]:
                 ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
             else: ndesc = dTypeDict[currReg][2]
@@ -131,10 +131,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
             #dTypeDict[dExt[currExt]] = (namenonum, ndesc, ncdd,) + extIDs  
         else:
             #print('here 6')
-            if region[5].lower() not in dTypeDict[currReg][3].lower():
-               ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+            if region[5].lower() not in str(dTypeDict[currReg][3]).lower():
+               ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                dCDD[region[5]] = currReg
-            else: ncdd = dTypeDict[currReg][3]
+            else: ncdd = str(dTypeDict[currReg][3])
             if region[3] not in dTypeDict[currReg][2]:
                 ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
             else: ndesc = dTypeDict[currReg][2]
@@ -151,10 +151,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
         if region[2] in dNames: 
             currReg = dNames[region[2]]
             existExt = list(dTypeDict[currReg][4:])
-            if region[5] not in dTypeDict[currReg][3] and region[5] not in dCDD:
-                ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+            if region[5] not in str(dTypeDict[currReg][3]) and region[5] not in dCDD:
+                ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                 dCDD[region[5]] = currReg
-            else: ncdd = dTypeDict[currReg][3]
+            else: ncdd = str(dTypeDict[currReg][3])
             if region[3] not in dTypeDict[currReg][2]:
                 ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
             else: ndesc = dTypeDict[currReg][2]
@@ -179,10 +179,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
                     if region[3] not in dTypeDict[currReg][2]:
                         ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
                     else: ndesc = dTypeDict[currReg][2]
-                    if region[5] not in dTypeDict[currReg][3] and region[5] not in dCDD:
-                        ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+                    if region[5] not in str(dTypeDict[currReg][3]) and region[5] not in dCDD:
+                        ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                         dCDD[region[5]] = currReg
-                    else: ncdd = dTypeDict[currReg][3]
+                    else: ncdd = str(dTypeDict[currReg][3])
                     cdname = re.sub(r'[_ ]\d+$','',dTypeDict[currReg][0])
                     oname = dTypeDict[currReg][1]
                     if region[2].lower() not in dTypeDict[currReg][0].lower() and region[2].lower() not in dTypeDict[currReg][1].lower():
@@ -193,10 +193,10 @@ def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
                     if region[3] not in dTypeDict[currReg][2]:
                         ndesc =  dTypeDict[currReg][2] + '; ' + region[3]
                     else: ndesc = dTypeDict[currReg][2]
-                    if region[5] not in dTypeDict[currReg][3] and region[5] not in dCDD:
-                        ncdd = dTypeDict[currReg][3] + '; ' + region[5]
+                    if region[5] not in str(dTypeDict[currReg][3]) and region[5] not in dCDD:
+                        ncdd = str(dTypeDict[currReg][3]) + '; ' + region[5]
                         dCDD[region[5]] = currReg
-                    else: ncdd = dTypeDict[currReg][3]
+                    else: ncdd = str(dTypeDict[currReg][3])
                     cdname = dTypeDict[currReg][0]
                     oname = dTypeDict[currReg][1]
                     if region[2].lower() not in dTypeDict[currReg][0].lower() and region[2].lower() not in dTypeDict[currReg][1].lower():

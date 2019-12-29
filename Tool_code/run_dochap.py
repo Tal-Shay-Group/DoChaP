@@ -58,19 +58,19 @@ def parse_gtf(gtf_path):
     return merged
 
 
-def known_transcripts():
+#def known_transcripts():
     '''
     this function runs on the global variables of the sql tables and the arsed_gtf
     '''
     #suply info
 
-def unknown_transcript():
+#def unknown_transcript():
     #calculate info
     
 
-def domains_detector(gtf_parsed):
-    unique_transcripts = set(list(parsed_gtf.nearest_ref))
-    transcripts = Transcripts[Transcripts['transcript_id'] == unique_transcripts]
+#def domains_detector(gtf_parsed):
+#    unique_transcripts = set(list(parsed_gtf.nearest_ref))
+#    transcripts = Transcripts[Transcripts['transcript_id'] == unique_transcripts]
     
     
     
@@ -82,7 +82,7 @@ if __name__ == "__main__":
                                                                                                           'Transcript_Exon', 'Genes',
                                                                                                           'Proteins', 'DomainType', 
                                                                                                           'DomainEvent', 'SpliceInDomains'])
-    gtf = r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\example_gtf\merged.gtf'
-    parsed_gtf = parse_gtf(gtf)
-    parsed_gtf.to_csv("parsed_gtf.csv")
+    #gtf = r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\example_gtf\merged.gtf'
+    #parsed_gtf = parse_gtf(gtf)
+    #parsed_gtf.to_csv("parsed_gtf.csv")
     

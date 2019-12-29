@@ -14,14 +14,14 @@ import order_domains
 
 
 
-def create_tables_db(specie):
+def create_tables_db(species):
     """
     Create a transcripts table in the specie database and fills with ucsc transcripts data
 
     Input:
         specie: string of the specie (must be one from conf.py)
     """
-    db_name = 'DB_dsep_' + specie
+    db_name = 'DB_' + species
     print ("Creating database: {}...".format(db_name))
     with lite.connect(db_name + '.sqlite') as con:
         cur = con.cursor()
@@ -118,7 +118,8 @@ def create_tables_db(specie):
                             cog TEXT,
                             kog TEXT,
                             prk TEXT,
-                            tigr TEXT
+                            tigr TEXT,
+                            other TEXT
                             );'''
                             )
         cur.executescript("DROP TABLE IF EXISTS DomainEvent;")
@@ -205,8 +206,9 @@ def fill_in_db(specie):
                 continue
             GeneID = [i.split(':')[-1] for i in g_info[tnov][2] if i.startswith('GeneID')]
             pr = gene2pro[tnov]
+            ensID = trans_con.get(t, '')
             '''insert into transcript table'''
-            values = tuple([t] + d[2:6] + GeneID + [d[6]]+ trans_con.get(t, ['', '']) + [p_info[pr][0]])
+            values = tuple([t] + d[2:6] + GeneID + [d[6], ensID] + [ucsc_acc.get(ensID, '  ')[1] ,p_info[pr][0]])
             cur.execute('''INSERT INTO Transcripts 
                         (transcript_id, tx_start, tx_end, cds_start, cds_end, gene_id, exon_count, ensembl_id, ucsc_id, protein_id) 
                         VALUES(?,?,?,?,?,?,?,?,?,?)''',values)
@@ -224,7 +226,8 @@ def fill_in_db(specie):
 
                     
             '''insert into Proteins table'''
-            values = p_info[pr][0:4] + tuple(protein_con.get(p_info[pr][0], ['', '']) + GeneID + [t])
+            ensID = protein_con.get(p_info[pr][0], '')
+            values = p_info[pr][0:4] + tuple([ensID, ucsc_acc.get(ensID, '    ')[3]] + GeneID + [t])
             #print(values)
             cur.execute(''' INSERT INTO Proteins
                             (protein_id, description, length, synonyms, ensembl_id, uniprot_id, gene_id, transcript_id)
@@ -295,16 +298,17 @@ def fill_in_db(specie):
         for dom, inf in dTypeDict.items():
             values = tuple([dom]) + inf
             cur.execute(''' INSERT INTO DomainType
-            (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
-   
+            (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr,other)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
+
+    
             
 if __name__ == "__main__":
-    specie = 'M_musculus'#'H_sapiens' #  #'M_musculus_small'
+    #specie = 'R_norvegicus' #'M_musculus'#'H_sapiens' #  #'M_musculus_small'
     # files for flatfiles parser
     # Don't rerun - path for mouse
-    gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
-           r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
+    #gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
+     #      r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
     
     # Redownload
     #gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
@@ -322,16 +326,44 @@ if __name__ == "__main__":
     #             dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
     
     #parse
-    region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
+    #region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
     # files for ucsc parser
-    refGene = ucscParser.parse_ncbiRefSeq(specie)
-    kgXref = ucscParser.parse_kgXref(specie)
-    knownGene = ucscParser.parse_knownGene(specie, kgXref)
-    ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
-    gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie, ucsc_acc)
-    create_tables_db(specie)
-    fill_in_db(specie)
+    #refGene = ucscParser.parse_ncbiRefSeq(specie)
+    #if specie in ['M_musculus', 'H_sapiens']:
+    #    kgXref = ucscParser.parse_kgXref(specie)
+    #    knownGene = ucscParser.parse_knownGene(specie, kgXref)
+    #    ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
+    #else:
+    #    ucsc_acc = {'': '     '}
+    #gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie)
+    #create_tables_db(specie)
+    #fill_in_db(specie)
 
 
+    species_list = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    create = True
+    for specie in species_list:
+        if create == True:
+            ffDownloader.download_refseq_ensemble_connection()
+        # Download files
+        gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
+        gpff_path = [f[1] for f in gpff_list]
+        ffDownloader.download_ucsc_tables(specie)
+        # parse data
+        region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
+        refGene = ucscParser.parse_ncbiRefSeq(specie)
+        if specie in ['M_musculus', 'H_sapiens']:
+            kgXref = ucscParser.parse_kgXref(specie)
+            knownGene = ucscParser.parse_knownGene(specie, kgXref)
+            ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
+        else:
+            ucsc_acc = {'': '     '}
+        gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie)  
+        
+        #create db
+        create_tables_db(specie)
+        # Fill in database
+        fill_in_db(specie, add = create)
+        create = False
 
 

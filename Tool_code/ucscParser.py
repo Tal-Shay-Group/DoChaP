@@ -68,14 +68,14 @@ def MatchAcc_ucsc(refseq, ensembl, kgXref):
 
 #ucsc_acc = MatchAcc_ucsc(ncbiRefSeq, knownGene, kgXref)
   
-def gene2ensembl_parser(specie, ucsc_acc, filelocation = os.getcwd() + '/data/'):
+def gene2ensembl_parser(specie, filelocation = os.getcwd() + '/data/'):
     '''
     This function uses the table gene2ensembl from refseq database to create all connections 
     between RefSeq and ENSEMBL for gene, transcript, protein
     Table columns: table columns: 
     taxID;geneID;ENS_GeneID;refseq_transcript;ENS_transcript;refseq_protein;ENS_protein
     '''
-    taxID = {'M_musculus': 10090, 'H_sapiens': 9606}
+    taxID = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio':7955, 'X_tropicalis': 8364}
     #print(taxID[specie])
     tablename = 'gene2ensembl.txt' 
     gene_con = {}
@@ -88,8 +88,8 @@ def gene2ensembl_parser(specie, ucsc_acc, filelocation = os.getcwd() + '/data/')
             if ll[0] == str(taxID[specie]):
                 #print(ll[0])
                 gene_con[ll[1]] = gene_con.get(ll[1], ll[2]) 
-                trans_con[ll[3]] = [ll[4], ucsc_acc.get(ll[4], '    ')[1]]
-                protein_con[ll[5]] = [ll[6], ucsc_acc.get(ll[4], '    ')[3]]
+                trans_con[ll[3]] = ll[4]
+                protein_con[ll[5]] = ll[6]
     return gene_con, trans_con, protein_con
     
 def exons2abs(start_list, stop_list, CDS, strand):
