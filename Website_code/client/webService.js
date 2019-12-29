@@ -21,12 +21,12 @@ angular.module("DoChaP").service("webService", function ($http, $window, $rootSc
         }
         return $http(req)
     }
-    this.compareGenes =function(geneName){
+    this.compareGenes =async function(geneName){
         var req = {
             method: 'GET',
             url: 'http://localhost:3000/querySearch/' + geneName+"/all/false",
             
         };
-        return $http(req);
+        return await $http(req);
     }
 })

@@ -5,10 +5,10 @@ as an controller or as an adapter. only 'createGraphicInfoForGene' function will
 other functions as needed.
 
 */
-function runGenesCreation(result,ignorePredictions){
+function runGenesCreation(result,ignorePredictions,preferences){
     var geneList=[];
     for(var i=0; i<result.genes.length;i++){
-        geneList.push(createGraphicInfoForGene(result.genes[i],ignorePredictions));
+        geneList.push(createGraphicInfoForGene(result.genes[i],ignorePredictions,preferences));
     }
     return geneList;
 }
@@ -26,16 +26,18 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     ansGene.MGI_id=gene.MGI_id; 
     ansGene.ensembl_id=gene.ensembl_id; 
     ansGene.specie=gene.specie;
-    if(ansGene.specie=="H_sapiens"){
+    /*if(ansGene.specie=="H_sapiens"){
         ansGene.specie="Human";
     }
     else if(ansGene.specie=="M_musculus"){
         ansGene.specie="Mouse";
     }
-    
-
-    //var geneColorRand1=Math.floor(Math.random() * 16); currently not in use
-    ansGene.geneExons=createGeneExonInfo(gene.geneExons,gene.transcripts,ansGene);
+    */
+    colorStyleByLength=false;
+    if(preferences!=undefined && preferences.colorByLength!=undefined){
+        colorStyleByLength=true;
+    }
+    ansGene.geneExons=createGeneExonInfo(gene.geneExons,gene.transcripts,ansGene,colorStyleByLength);
     //calculate things for each transcript
     if(preferences!=undefined && preferences.start!=undefined){
         var start = preferences.start;    
@@ -196,7 +198,7 @@ function findmaxProteinLength(transcripts){
     return maxProtein*3; //because we need length in nucleotides
 }
 
-function createGeneExonInfo(geneExons,geneTranscripts,ansGene){
+function createGeneExonInfo(geneExons,geneTranscripts,ansGene,colorByLength){
     var exonInfo={};
     var exonForTable=[];
     var colorArr= ["#DACCFF", "#BBABF3","#B627FC",  "#DE3D3D", "#FF6262", "#f5b0cb", "#ffccd8", "#E8A089",
@@ -208,7 +210,12 @@ function createGeneExonInfo(geneExons,geneTranscripts,ansGene){
         if(exonInfo[geneExons[i].genomic_start_tx]==undefined){
             exonInfo[geneExons[i].genomic_start_tx]=[];
         }
-        var chosenColor=getcolorFromList(colorArr);
+        if(colorByLength){
+            var chosenColor=getcolorByLength(colorArr,geneExons[i].genomic_end_tx-geneExons[i].genomic_start_tx);
+        }else{
+            var chosenColor=getcolorFromList(colorArr);
+        }
+        
         if(colorArr.length<2){
             colorArr= ["#DACCFF", "#BBABF3","#B627FC",  "#DE3D3D", "#FF6262", "#f5b0cb", "#ffccd8", "#E8A089",
                 
@@ -307,3 +314,11 @@ function getTranscriptsForExon(start,end,transcripts){
     return ans;
 }
 
+function runGenesCreationTry2(result,ignorePredictions){
+    var geneList=[];
+
+    for(var i=0; i<result.genes.length;i++){
+        geneList.push(createGraphicInfoForGene(result.genes[i],ignorePredictions));
+    }
+    return geneList;
+}

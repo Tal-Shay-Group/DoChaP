@@ -20,7 +20,7 @@
             <input placeholder="  enter gene symbol" class="searchTextFieldClass" id="compareGeneSearchTextField">
             &nbsp;
             <button class="btn blackButton" id="submitSearchButton" type="button"
-                ng-click="compareSpeciesCtrl.searchByGene()"><span class="glyphicon glyphicon-search"></span> Search
+                ng-click="compareSpeciesCtrl.geneSearch()"><span class="glyphicon glyphicon-search"></span> Search
             </button>
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
             <br>
@@ -30,7 +30,7 @@
     </div>
 
     <!--  taken from results.html we will need to adjust it   -->
-    <div ng-show="genes!=undefined" class="searchItems"  style="background-color:white;">
+    <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined" class="searchItems"  style="background-color:white;">
         <table class="documentationTable">
             <tr>
                 <td>
@@ -61,7 +61,7 @@
                             <td>
                             </td>
                             <td>
-                                <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
+                                <canvas id="canvas-scale1" height="130" width="{{canvasSize}}">
                                 </canvas>
 
 
@@ -71,30 +71,30 @@
                             </td>
                             <td>
                                 <!-- scale view for proteins -->
-                                <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
+                                <canvas id="canvas-scale-protein1" height="130" width="{{canvasSize}}">
                                 </canvas>
 
                             </td>
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr ng-repeat="transcript in compareSpeciesCtrl.mouseGenes.transcripts track by $index">
+                        <tr ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
                             <td class="resultText">
-                                MOUSE<br>
+                                {{compareSpeciesCtrl.specie1Gene.specie}}<br>
                                 Transcript: {{::transcript.id}} <br>
                             </td>
                             <td>
                                 <!-- genomic view -->
-                                <canvas id="canvas-genomic{{$index}}" height="200" width="{{canvasSize}}"></canvas>
+                                <canvas id="canvas-genomic1{{$index}}" height="200" width="{{canvasSize}}"></canvas>
                             </td>
                             <td>
                             </td>
                             <td>
                                 <!-- transcript view -->
-                                <canvas id="canvas-transcript{{$index}}" height="30"
+                                <canvas id="canvas-transcript1{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
                                 <!-- protein view -->
-                                <canvas id="canvas-protein{{$index}}" height="170" width="{{canvasSize}}"></canvas>
+                                <canvas id="canvas-protein1{{$index}}" height="170" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
@@ -133,7 +133,7 @@
                             <td>
                             </td>
                             <td>
-                                <canvas id="canvas-scaleH" height="130" width="{{canvasSize}}">
+                                <canvas id="canvas-scale2" height="130" width="{{canvasSize}}">
                                 </canvas>
 
 
@@ -143,30 +143,30 @@
                             </td>
                             <td>
                                 <!-- scale view for proteins -->
-                                <canvas id="canvas-scale-proteinH" height="130" width="{{canvasSize}}">
+                                <canvas id="canvas-scale-protein2" height="130" width="{{canvasSize}}">
                                 </canvas>
 
                             </td>
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr ng-repeat="transcript in compareSpeciesCtrl.humanGenes.transcripts track by $index">
+                        <tr ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
                             <td class="resultText">
-                                HUMAN<br>
+                                {{compareSpeciesCtrl.specie2Gene.specie}}<br>
                                 Transcript:{{::transcript.id}} <br>
                             </td>
                             <td>
                                 <!-- genomic view -->
-                                <canvas id="canvas-genomic{{$index}}H" height="200" width="{{canvasSize}}"></canvas>
+                                <canvas id="canvas-genomic2{{$index}}" height="200" width="{{canvasSize}}"></canvas>
                             </td>
                             <td>
                             </td>
                             <td>
                                 <!-- transcript view -->
-                                <canvas id="canvas-transcript{{$index}}H" height="30"
+                                <canvas id="canvas-transcript2{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
                                 <!-- protein view -->
-                                <canvas id="canvas-protein{{$index}}H" height="170" width="{{canvasSize}}"></canvas>
+                                <canvas id="canvas-protein2{{$index}}" height="170" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
