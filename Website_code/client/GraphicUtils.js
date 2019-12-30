@@ -54,7 +54,7 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
     for (var i = 0; i < gene.transcripts.length; i++) {
-        if(ignorePredictionsT=="false" || gene.transcripts[i].transcript_id.substring(0,2)=="NM"){
+        if(ignorePredictionsT==false || gene.transcripts[i].transcript_id.substring(0,2)=="NM"){
             ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons));
        }
     } 
