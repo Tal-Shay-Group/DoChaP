@@ -96,12 +96,12 @@ body {
 .navA:link,
 .navA:active {
     text-decoration: none;
-    color: aliceblue;
+    color: white;
 }
 
 .navA {
     font-size: 30px;
-    color: aliceblue;
+    color: white;
 }
 
 .searchTextFieldClass {

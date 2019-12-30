@@ -1,28 +1,26 @@
+<html lang="en">
 <head>
+      <!--Plugin CSS file with desired skin-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
     
-    <style>
-    form  {
-    margin: 60px 0 0 0 !important;
- }
- 
-.ui-slider .ui-btn-inner {
-    padding: 4px 0 0 0 !important;
-}
- 
-.ui-slider-popup {
-    position: absolute !important;
-    width: 64px;
-    height: 64px;
-    text-align: center;
-    font-size: 36px;
-    padding-top: 14px;
-    z-index: 100;
-    opacity: 0.8;
-}
-    </style>
-    </head>
+    <!--jQuery-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     
-    <form>
- 
-    </form>
-      
+    <!--Plugin JavaScript file-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
+</head>
+<body>
+   
+       
+        <script>
+          $(".js-range-slider").ionRangeSlider({
+        type: "double",
+        min: 0,
+        max: 1000,
+        from: 200,
+        to: 500,
+        grid: true
+    });
+        </script>
+</body>
+</html>

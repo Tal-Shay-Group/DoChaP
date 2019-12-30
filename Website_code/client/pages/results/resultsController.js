@@ -587,7 +587,7 @@ angular.module("DoChaP")
         }
 
         //getting gene from results saved in site
-        self.geneInfo = runGenesCreation(loadedGene, "" + ignorePredictions)[0];
+        self.geneInfo = runGenesCreation(loadedGene, ignorePredictions)[0];
         $scope.transcripts = self.geneInfo.transcripts;
         $scope.geneName = self.geneInfo.gene_symbol;
 
@@ -680,6 +680,44 @@ angular.module("DoChaP")
             $('#canvas-scale').hide().fadeIn(500);
             $('#canvas-scale-protein').hide().fadeIn(500);
             //$( '#canvas-scale' ).animate({ "left": "500px" }, "slow" );
+            /*
+            onUpdate: function (data) {
+                    self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
+                        start: data.from,
+                        end: data.to
+                    })
+                    $scope.transcripts = self.geneInfo.transcripts;
+                    $scope.geneName = self.geneInfo.gene_symbol;
+                    $(document).ready(function (self) {
+                        updateCanvases();
+                    });
+                    $scope.apply();
+                }
+            */
+            $(".js-range-slider").ionRangeSlider({
+                type: "double",
+                min: self.geneInfo.scale.start,
+                max: self.geneInfo.scale.end,
+                from: self.geneInfo.scale.start,
+                to: self.geneInfo.scale.end,
+                grid: true,
+                onFinish: function (data) {
+                    self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
+                        start: data.from,
+                        end: data.to
+                    });
+                    $scope.transcripts = self.geneInfo.transcripts;
+                    $scope.geneName = self.geneInfo.gene_symbol;
+                    /*$scope.$apply();*/
+                    $(document).ready(function (self) {
+                        updateCanvases();
+                    });
+                }
+                
+            });
+           
+        
+            
         }
 
         $scope.closeModalFromBackground = function (event) {
@@ -698,7 +736,7 @@ angular.module("DoChaP")
                 $window.alert("the start coordinate must be before the end coordinate");
                 return;
             }
-            self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], "" + isReviewedCheckBox.checked, {
+            self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
                 start: startWanted.value,
                 end: endWanted.value
             })

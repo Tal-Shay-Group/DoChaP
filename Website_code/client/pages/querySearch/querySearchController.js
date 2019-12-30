@@ -102,6 +102,15 @@ angular.module("DoChaP")
 
         self.exmaple = function(input){
             $('#searchTextField').val(input);
+            if(input=="NM_001033537.2"){
+                $('#searchBySpecie').val("M_musculus")
+            }
+            if(input=="NP_001230673.1"){
+                $('#searchBySpecie').val("H_sapiens");
+            }
+            $('#searchTextField').css("font-weight","bold");
+            setTimeout(function(){ $('#searchTextField').css("font-weight",""); }, 500);
+            
         }
 
     });

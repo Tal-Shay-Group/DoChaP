@@ -1,7 +1,7 @@
 var DButils = require('./DButils');
 
 ///main: !!
-runTestsOnDB();
+//runTestsOnDB();
 //end main
 
 
@@ -81,7 +81,32 @@ async function typesOfDomainsCut(){
 }
 
 
-
+function cutIntronsPercent(){
+    /*
+sql
+    drop table if exists tempt1;
+    drop table if exists tempt2;
+    create temporary table tempt1 as
+    select protein_id,length from Proteins limit 1000;
+    create temporary table tempt2 as
+    select protein_id, AA_start, AA_end from DomainEvent;
+    select tempt1.protein_id, AA_start, AA_end, length from tempt1,tempt2 where tempt1.protein_id=tempt2.protein_id
+    
+    in the end used:
+    drop table if exists tempt1;
+    drop table if exists tempt2;
+    create temporary table tempt1 as
+    select protein_id,length from Proteins limit 1000;
+    create temporary table tempt2 as
+    select protein_id, AA_start, AA_end from DomainEvent;
+    select tempt1.protein_id, sum(AA_end)-sum(AA_start) as domainSpace, length from tempt1,tempt2 where tempt1.protein_id=tempt2.protein_id group by tempt1.protein_id 
+    
+    
+    */
+    //var domains=await sqlQuery(
+    //"drop table if exists tempt1;  drop table if exists tempt2;   create temporary table tempt1 as    select protein_id,length from Proteins limit 1000;    create temporary table tempt2 as    select protein_id, AA_start, AA_end from DomainEvent; select tempt1.protein_id, sum(AA_end)-sum(AA_start) as domainSpace, length from tempt1,tempt2 where tempt1.protein_id=tempt2.protein_id group by tempt1.protein_id");
+    //for (var i=0;)
+}
 async function runExonsInTranscriptsStatistics(){
     var results=await sqlQuery(
     "select count(transcript_id), exon_count "

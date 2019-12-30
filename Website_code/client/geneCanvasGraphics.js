@@ -122,7 +122,7 @@ function buildProteinView(canvasID, transcript) {
         domainX = domainsInProtein[i].start * coordinatesWidth;
         domainY = spacing - domainHeight / 2;
         overlap = false;//domainsInProtein[i].overlap;
-        shapeID=0; //currently its random
+        shapeID=domainsInProtein[i].typeID%4; //currently its random
         domainText=domainsInProtein[i].showText;
         if( domainX+domainWidth>=canvasWidth){
             domainWidth=Math.max(1,canvasWidth-domainX-2);
@@ -582,13 +582,21 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     if(shapeID==0){
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
     } else if(shapeID==1){
-        context.beginPath();
         context.moveTo(domainX, domainY);
         context.lineTo(domainX+ domainWidth/2,domainY+ domainHeight);
         context.lineTo(domainX+ domainWidth,domainY);
-        context.closePath();
+    } else if(shapeID==2){
+        context.moveTo(domainX, domainY);
+        context.lineTo(domainX+ domainWidth/2,domainY+ domainHeight);
+        context.lineTo(domainX+ domainWidth,domainY);
+    } else if(shapeID==3){
+        context.moveTo(domainX + domainWidth*0.4, domainY);
+        context.lineTo(domainX,domainY + domainHeight);
+        context.lineTo(domainX + domainWidth*0.6, domainY+ domainHeight);
+        context.lineTo(domainX + domainWidth, domainY);
+        
     }
-    
+    context.closePath();
     if(overlap){
         context.globalAlpha=0.7;  
         context.fill();
@@ -596,30 +604,10 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     }else{ 
         context.fill();
     }
-    
     //border
-    context.beginPath();
     context.strokeStyle = "black";
-    if(shapeID==0){
-        context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
-    }else if(shapeID==1){
-        context.beginPath();
-        context.moveTo(domainX, domainY);
-        context.lineTo(domainX+ domainWidth/2,domainY+ domainHeight);
-        context.lineTo(domainX+ domainWidth,domainY);
-        context.closePath();
-    }
     context.stroke();
-
-    //text
-    /*context.fillStyle = "black"; //for text
-    context.font = "bold 14px Calibri";
-    context.shadowColor = "black";
-    context.textBaseline = 'middle';
-    context.textAlign = "center";
-    context.fillText(name, domainX + domainWidth / 2, domainY + domainHeight+8);
-    */
-
+    
     if(domainText){
         context.save();
     context.translate(domainX+ domainWidth/2,domainY + domainHeight+8);

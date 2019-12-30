@@ -29,7 +29,9 @@ async function findGene(geneName, specie) {
     if (queryAns.length != 0) {
         return queryAns;
     } else {
-        var geneByTranscriptOrProteinId = await sqlQuery("SELECT gene_id FROM Transcripts WHERE ( transcript_id='" + geneName + "' or protein_id='" + geneName + "')");
+        var geneByTranscriptOrProteinId = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id='" + geneName + "' or protein_id='" + geneName + "') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
         if (geneByTranscriptOrProteinId.length > 0) {
             return geneByTranscriptOrProteinId;
         }
@@ -92,7 +94,7 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
     for (var i = 0; i < finalAns.genes.length; i++) {
         //get gene
         var gene = await sqlQuery("SELECT * FROM Genes WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
-        finalAns.genes[i] = gene[0];
+        finalAns.genes[i] = gene[0]; //first and only one who matches this id
         var sqlReviewed = "";
         //because of new requirements- get all transcripts and filter on page
         // if (req.params.isReviewed == "true") {
@@ -101,7 +103,6 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
         //get transcripts
         var transcripts = await sqlQuery("SELECT * FROM Transcripts WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'" + sqlReviewed);
         finalAns.genes[i].transcripts = transcripts;
-
         //get exons
         var geneExons = await sqlQuery("SELECT * FROM Exons WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
         finalAns.genes[i].geneExons = geneExons;
@@ -139,7 +140,7 @@ async function closeGenes(geneName, specie) {
     if (specie != "all") {
         sqlSpecie = " AND (specie ='" + specie + "')";
     }
-    queryAns = await sqlQuery("SELECT gene_id , synonyms FROM Genes WHERE synonyms LIKE  '%" + geneName + "%'" + sqlSpecie);
+    queryAns = await sqlQuery("SELECT gene_id , synonyms FROM Genes WHERE (synonyms LIKE  '" + geneName + "%' OR synonyms LIKE  '%; " + geneName + "%')" + sqlSpecie);
     if (queryAns.length != 0) {
         for (var i = 0; i < queryAns.length; i++) {
             var geneSynonyms = queryAns[i].synonyms.split("; ");
