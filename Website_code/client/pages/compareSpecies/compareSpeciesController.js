@@ -94,7 +94,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
   $(document).ready(function () {
     document.addEventListener("keypress", function (event) {
       if (event.code == "Enter") {
-        self.searchByGene();
+        self.geneSearch();
       }
     });
     document.getElementById("compareGeneSearchTextField").focus();

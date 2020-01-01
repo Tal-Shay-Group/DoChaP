@@ -477,14 +477,14 @@ function drawExonInGenomicView(context, index, exonX, exonY, exonWidth, exonHeig
     context.fillStyle = color;
     context.fillRect(exonX, exonY, exonWidth, exonHeight);
     //border
-    context.strokeStyle = "black";
+    context.strokeStyle = "grey";
     context.strokeRect(exonX, exonY, exonWidth, exonHeight);
    }else if(utrAll){
     //background color
    context.fillStyle = color;
    context.fillRect(exonX, exonY+(exonHeight/4), exonWidth, exonHeight/2);
    //border
-   context.strokeStyle = "black";
+   context.strokeStyle = "grey";
    context.strokeRect(exonX, exonY+(exonHeight/4), exonWidth, exonHeight/2);
    } else if(utrStart!=undefined && utrEnd==undefined){
     context.beginPath();
@@ -499,7 +499,7 @@ function drawExonInGenomicView(context, index, exonX, exonY, exonWidth, exonHeig
     context.closePath();
     context.fillStyle = color;
     context.fill();
-    context.strokeStyle = "black";
+    context.strokeStyle = "grey";
     context.stroke();
    } else if(utrStart==undefined && utrEnd!=undefined){
     context.beginPath();
@@ -514,7 +514,7 @@ function drawExonInGenomicView(context, index, exonX, exonY, exonWidth, exonHeig
     context.closePath();
     context.fillStyle = color;
     context.fill();
-    context.strokeStyle = "black";
+    context.strokeStyle = "grey";
     context.stroke();
    } 
    else if(utrStart!=undefined && utrEnd!=undefined){
@@ -534,7 +534,7 @@ function drawExonInGenomicView(context, index, exonX, exonY, exonWidth, exonHeig
     context.closePath();
     context.fillStyle = color;
     context.fill();
-    context.strokeStyle = "black";
+   context.strokeStyle = "grey";
     context.stroke();
    }
     
@@ -554,7 +554,7 @@ function drawExonInTranscriptView(context, index, exonX, exonY, exonWidth, exonH
     context.fillRect(exonX, exonY, exonWidth, exonHeight);
 
     //border
-    context.strokeStyle = "black";
+    context.strokeStyle = "grey";
     context.strokeRect(exonX, exonY, exonWidth, exonHeight);
 
     //text
@@ -579,7 +579,7 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     //background color
     context.beginPath();
     context.fillStyle = gradient;
-    if(shapeID==0){
+    if(shapeID==0 || shapeID==3){
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
     } else if(shapeID==1){
         context.moveTo(domainX, domainY);
@@ -589,7 +589,7 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
         context.moveTo(domainX, domainY);
         context.lineTo(domainX+ domainWidth/2,domainY+ domainHeight);
         context.lineTo(domainX+ domainWidth,domainY);
-    } else if(shapeID==3){
+    } else if(shapeID==8){
         context.moveTo(domainX + domainWidth*0.4, domainY);
         context.lineTo(domainX,domainY + domainHeight);
         context.lineTo(domainX + domainWidth*0.6, domainY+ domainHeight);
@@ -605,7 +605,7 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
         context.fill();
     }
     //border
-    context.strokeStyle = "black";
+    context.strokeStyle = "grey";
     context.stroke();
     
     if(domainText){
