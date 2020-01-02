@@ -667,7 +667,7 @@ angular.module("DoChaP")
         function updateCanvases() {
             //  $( '#testfadein' ).fadeIn(10000);
             for (var i = 0; i < $scope.transcripts.length; i++) {
-                $('#fadeinDiv' + i).hide().fadeIn(700 + Math.min(i * 500, 1000));
+                $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
                 buildGenomicView('canvas-genomic' + i, $scope.transcripts[i]);
                 buildTranscriptView('canvas-transcript' + i, $scope.transcripts[i]);
                 buildProteinView('canvas-protein' + i, $scope.transcripts[i]);
@@ -677,8 +677,8 @@ angular.module("DoChaP")
             }
             buildScaleView("canvas-scale", self.geneInfo.scale);
             buildScaleViewForProtein("canvas-scale-protein", self.geneInfo.proteinScale);
-            $('#canvas-scale').hide().fadeIn(500);
-            $('#canvas-scale-protein').hide().fadeIn(500);
+            $('#canvas-scale').hide().fadeIn(1000);
+            $('#canvas-scale-protein').hide().fadeIn(1000);
             //$( '#canvas-scale' ).animate({ "left": "500px" }, "slow" );
             /*
             onUpdate: function (data) {

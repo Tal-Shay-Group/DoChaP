@@ -5,8 +5,9 @@
     <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
         <div class="searchItems form-inline">
             <center>
-                <h2>Search for exon-domain associations</h2>
+               <i> <h2>Search for exon-domain associations</h2></i>
             </center>
+            <br>
             
             <i> Species&nbsp;&nbsp;</i>
             <select id="searchBySpecie" class="form-control searchBySpecie">
@@ -28,7 +29,7 @@
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
             <br>
             <br>
-            Examples&nbsp;&nbsp;
+            <i>Examples&nbsp;&nbsp;</i>
             <button class="btn blackButton" type="button" ng-click="querySearchCtrl.exmaple('Acly')">Acly</button>&nbsp;
             <button class="btn blackButton" type="button"
                 ng-click="querySearchCtrl.exmaple('a2ml1')">a2ml1</button>&nbsp;

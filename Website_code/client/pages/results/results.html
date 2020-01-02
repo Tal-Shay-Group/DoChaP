@@ -14,7 +14,7 @@
 <body ng-app="DoChaP" ng-controller="resultsCtrl">
     <!-- modal work class="modal"-->
     <div id="BlackBackground"
-        style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
+        style="background-color:rgba(0, 0, 0, 0.0);overflow:auto;height:100%;width:100%; position: fixed;"
         ng-show="showWindow" ng-click="closeModalFromBackground($event)">
         <div class="myModal">
             <span width="200" ng-click="showWindow=false" style="font-size: 25px; text-align: right;">&times;</span><br>
@@ -85,12 +85,12 @@
 
     <!-- gene introduction -->
     <br>
-    <div  id="testfadein"  class="searchItems">
+    <div   class="searchItems">
         {{::transcripts.length}} transcripts found for gene <a href=""><b
-                ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in specie
+                ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in
         {{::resultsCtrl.geneInfo.specie}} <br>
 
-        Choose Display
+        <i>choose display</i>
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
@@ -102,7 +102,7 @@
 
         </select>
         <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted records</i>
-        <br>
+        <br><!--
         Adjust displayed locus
         <br>
         start&nbsp;
@@ -113,7 +113,7 @@
             id="endWanted" style="width: 100px;" />
         &nbsp;
         <input type="button" class="btn blackButton" ng-click="resultsCtrl.zoomInFunction()" value="update views">
-
+-->
     </div>
     <!--
 
@@ -137,12 +137,12 @@
                 <td>
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
-                    Genomic Visualization
+                    Genomic 
 
                 </td>
                 <td></td>
                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'" class="resultTitle">
-                    Transcript and Protein Visualization
+                    Transcript & Protein 
                 </td>
                 <td></td>
                 <td></td>
@@ -178,13 +178,13 @@
             <tr id="fadeinDiv{{$index}}" ng-repeat="transcript in transcripts track by $index"
                 ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]">
                 <td class="resultText">
-                    Transcript: <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a> <br>
+                   
                     <input type="button" value="hide transcript" ng-click="changeTranscriptView($index)"
                         class="btn blackButton" style="width: auto;"
                         ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]" />
                 </td>
                 <td ng-show="showCanvas.genomicView[$index]">
-                    <!-- genomic view -->
+                    <!-- genomic view -->  <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a> <br>
                     <canvas id="canvas-genomic{{$index}}" height="100" width="{{canvasSize}}"
                         ng-show="showCanvas.genomicView[$index]"></canvas>
                 </td>
@@ -192,18 +192,18 @@
                     <b></b>
                 </td>
                 <td>
-                    <!-- transcript view -->
+                    <!-- transcript view -->    <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a><br>
                     <canvas id="canvas-transcript{{$index}}" height="30" width="{{canvasSize}}"
                         ng-show="showCanvas.transcriptView[$index]"></canvas><br>
-                    <!-- protein view -->
+                    <!-- protein view --> <a href="" ng-click="openWindow('protein',$index)">{{::transcript.proteinId}}</a><br>
                     <canvas id="canvas-protein{{$index}}" height="70" width="{{canvasSize}}"
                         ng-show="showCanvas.proteinView[$index]"></canvas>
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' || viewMode=='transcript_protein'"></td>
                 <td class="resultText" ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript'|| viewMode=='transcript_protein' ">
-                    Transcript: <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a><br>
+                 
 
-                    Protein: <a href="" ng-click="openWindow('protein',$index)">{{::transcript.proteinId}}</a>
+                   
                 </td>
             </tr>
 

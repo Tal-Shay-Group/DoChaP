@@ -579,9 +579,9 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     //background color
     context.beginPath();
     context.fillStyle = gradient;
-    if(shapeID==0 || shapeID==3){
+    if(true ||shapeID==0){
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
-    } else if(shapeID==1){
+    } else if(shapeID==1 || shapeID==3){
         context.moveTo(domainX, domainY);
         context.lineTo(domainX+ domainWidth/2,domainY+ domainHeight);
         context.lineTo(domainX+ domainWidth,domainY);
@@ -589,11 +589,11 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
         context.moveTo(domainX, domainY);
         context.lineTo(domainX+ domainWidth/2,domainY+ domainHeight);
         context.lineTo(domainX+ domainWidth,domainY);
-    } else if(shapeID==8){
-        context.moveTo(domainX + domainWidth*0.4, domainY);
-        context.lineTo(domainX,domainY + domainHeight);
-        context.lineTo(domainX + domainWidth*0.6, domainY+ domainHeight);
-        context.lineTo(domainX + domainWidth, domainY);
+    } else if(shapeID==3){
+        context.moveTo(domainX + domainWidth/2, domainY);
+        context.lineTo(domainX+ domainWidth,domainY + domainHeight/2);
+        context.lineTo(domainX + domainWidth/2, domainY+ domainHeight);
+        context.lineTo(domainX , domainY+ domainHeight/2);
         
     }
     context.closePath();
