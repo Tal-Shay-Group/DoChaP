@@ -114,11 +114,15 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     ansTranscript.ucsc_id=transcript.ucsc_id;
     ansTranscript.ensembl_id=transcript.ensembl_ID;
     ansTranscript.startCoordinate=startCoordinate; 
+    ansTranscript.genomicView=true;
+    ansTranscript.transcriptView=true;
+    ansTranscript.proteinView=true;
 
     //calculate things for each transcript
     for (var i = 0; i < transcript.transcriptExons.length; i++) {
         ansTranscript.exons[i] = new Object();
-        ansTranscript.exons[i].transcriptViewStart = transcript.transcriptExons[i].genomic_start_tx - startCoordinate;
+        //-1 zero base
+        ansTranscript.exons[i].transcriptViewStart = transcript.transcriptExons[i].genomic_start_tx - startCoordinate-1;
         ansTranscript.exons[i].transcriptViewEnd = transcript.transcriptExons[i].genomic_end_tx - startCoordinate;
         ansTranscript.exons[i].exonViewStart = transcript.transcriptExons[i].abs_start_CDS;
         ansTranscript.exons[i].exonViewEnd = transcript.transcriptExons[i].abs_end_CDS;

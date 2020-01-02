@@ -3,17 +3,85 @@
 
 <body ng-app="DoChaP" ng-controller="compareSpeciesCtrl">
     <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
-    <div class="searchItems">
+ 
+            <div id="BlackBackground"
+            style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
+            ng-show="showWindow" ng-click="closeModalFromBackground($event)">
+            <div class="myModal">
+                <span width="200" ng-click="showWindow=false" style="font-size: 25px; text-align: right;">&times;</span><br>
+                <a
+                        href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g={{::compareSpeciesCtrl.currSpecies.ensembl_id}}"
+                        target="_blank">{{::compareSpeciesCtrl.currSpecies.ensembl_id}}</a>
+                   
+                <span ng-if="showWindow=='gene'">
+                    GeneID: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::compareSpeciesCtrl.currSpecies.gene_id}}"
+                        target="_blank"></a>{{::compareSpeciesCtrl.currSpecies.gene_id}}<br>
+                    Gene symbol: {{::compareSpeciesCtrl.currSpecies.gene_symbol}}<br>
+                    Chromosome: {{::compareSpeciesCtrl.currSpecies.chromosome}}<br>
+                    Synonyms: {{::compareSpeciesCtrl.currSpecies.synonyms}}<br>
+                    Strand: {{::compareSpeciesCtrl.currSpecies.strand}}<br>
+                    Description: {{::compareSpeciesCtrl.currSpecies.description}}<br>
+                    MGI ID: <a href="http://www.informatics.jax.org/marker/MGI:{{::compareSpeciesCtrl.currSpecies.MGI_id}}"
+                        target="_blank">{{::compareSpeciesCtrl.currSpecies.MGI_id}}</a><br>
+                    Ensembl ID:
+                    
+                        
+                    {{::compareSpeciesCtrl.currSpecies.ensembl_id}}
+                </span>
+                <span ng-show="showWindow=='transcript'">
+                    RefSeq ID: <a href="https://www.ncbi.nlm.nih.gov/nuccore/{{compareSpeciesCtrl.currSpecies.currTranscript.id}}"
+                        target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.id}}</a><br>
+                    exon count: {{compareSpeciesCtrl.currSpecies.currTranscript.exonCount}}<br>
+                    <span ng-show="compareSpeciesCtrl.currSpecies.currTranscript.ucsc_id!=undefined">
+                        UCSC ID: <a
+                            href="https://genome.ucsc.edu/cgi-bin/hgTracks?id={{compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID}}"
+                            target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.ucsc_id}}</a> <br>
+                    </span>
+                    <span ng-show="compareSpeciesCtrl.currSpecies.currTranscript.ensembl_id!=undefined">
+                        Ensembl ID:
+                     
+                            <a
+                            href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{compareSpeciesCtrl.currSpecies.currTranscript.ensembl_id}}"
+                            target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.ensembl_id}}</a><br>
+                        
+                        {{compareSpeciesCtrl.currSpecies.currTranscript.ensembl_id}}<br>
+                    </span>
+                    transcription start: {{compareSpeciesCtrl.currSpecies.currTranscript.tx_start}}<br>
+                    transcription end: {{compareSpeciesCtrl.currSpecies.currTranscript.tx_end}}<br>
+                    CDS coordinates: {{compareSpeciesCtrl.currSpecies.currTranscript.cds_start}}-{{compareSpecies.currSpecies.currTranscript.cds_end}}<br>
+                </span>
+                <span ng-show="showWindow=='protein'">
+                    RefSeq ID: <a href=" https://www.ncbi.nlm.nih.gov/protein/{{compareSpeciesCtrl.currSpecies.currTranscript.proteinId}}"
+                        target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.proteinId}}</a><br>
+                    Description: {{compareSpeciesCtrl.currSpecies.currTranscript.description}} <br>
+                    Synonyms: {{compareSpeciesCtrl.currSpecies.currTranscript.synonyms}}<br>
+                    AA length: {{compareSpeciesCtrl.currSpecies.currTranscript.proteinLengthInAA}}<br>
+                    <span ng-show="compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID!=undefined">
+                        UniProt ID: <a
+                            href="https://www.uniprot.org/uniprot/{{compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID}}"
+                            target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID}}</a> <br>
+                    </span>
+                    <span ng-show="compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID!=undefined">
+                        Ensembl ID:
+                       
+                        {{compareSpeciesCtrl.currSpecies.currTranscript.proteinEnsemblID}}<br>
+                    </span>
+                </span> 
+            </div>   
+            </div>
+            <div class="searchItems">
         <center>
-            <h2>Compare exon-domain association between Human and Mouse</h2>
+           <i> <h2>Compare exon-domain association between:</h2></i>
+           <br>
         </center>
+       
         <div class="form-inline">
-            select specie 1 &nbsp;
+        <i> species 1 &nbsp;</i>
             <select id="specie1ComboBox" class="form-control searchBySpecie">
                 <option value="H_sapiens">human</option>
                 <option value="M_musculus">mouse</option>
             </select> &nbsp;
-            select specie 2 &nbsp;
+        <i> species 2 &nbsp;</i>
             <select id="specie2ComboBox" class="form-control searchBySpecie">
                 <option value="M_musculus">mouse</option>
                 <option value="H_sapiens">human</option>
@@ -31,7 +99,27 @@
     </div>
 
     <!--  taken from results.html we will need to adjust it   -->
-    <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined" class="searchItems"  style="background-color:white;">
+    <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined"   style="background-color:white;"><center>
+        {{::compareSpeciesCtrl.specie1Gene.transcripts.length}} transcripts found in
+        {{::compareSpeciesCtrl.specie1Gene.specie}} and
+        {{::compareSpeciesCtrl.specie2Gene.transcripts.length}} transcripts found in
+    {{::compareSpeciesCtrl.specie2Gene.specie}} <br>
+for gene <a href=""><b
+                ng-click="openWindow('gene',undefined)">{{::compareSpeciesCtrl.specie1Gene.gene_symbol}}</b></a>
+                <br>
+        <i>choose display</i>
+        <br>
+        <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
+            <option value="all">All Views</option>
+            <option value="transcript_protein">Transcript & Protein Views</option>
+            <option value="genomic">Genomic View Only</option>
+            <option value="transcript">Transcript View Only</option>
+            <option value="protein">Protein View Only</option>
+          
+
+        </select>
+        <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted records</i>
+        <br>
         <table class="documentationTable">
             <tr>
                 <td>
@@ -47,13 +135,17 @@
                         <tr>
                             <td>
                             </td>
-                            <td class="resultTitle">
-                                Genomic Visualization
+                            <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
+                                Genomic<br>
+                                {{compareSpeciesCtrl.specie1Gene.specie}}
+
 
                             </td>
                             <td></td>
-                            <td class="resultTitle">
-                                Transcript and Protein Visualization
+                            <td  ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'" class="resultTitle">
+                                Transcript & Protein<br>
+                                {{compareSpeciesCtrl.specie1Gene.specie}}
+
                             </td>
                             <td></td>
                             <td></td>
@@ -61,7 +153,7 @@
                         <tr>
                             <td>
                             </td>
-                            <td>
+                            <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                                 <canvas id="canvas-scale1" height="130" width="{{canvasSize}}">
                                 </canvas>
 
@@ -70,7 +162,7 @@
                             <td>
 
                             </td>
-                            <td>
+                            <td ng-show="viewMode!='genomic'">
                                 <!-- scale view for proteins -->
                                 <canvas id="canvas-scale-protein1" height="130" width="{{canvasSize}}">
                                 </canvas>
@@ -79,29 +171,27 @@
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
+                        <tr id="fadeinDiv1{{$index}}"  ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView"  ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
                             <td class="resultText">
-                                {{compareSpeciesCtrl.specie1Gene.specie}}<br>
-                                Transcript: {{::transcript.id}} <br>
+                                
+                               
                             </td>
-                            <td>
+                            <td ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView"> <a href="" ng-click="openWindow('transcript',$index,1)">{{::transcript.id}}</a> <br>
                                 <!-- genomic view -->
                                 <canvas id="canvas-genomic1{{$index}}" height="200" width="{{canvasSize}}"></canvas>
                             </td>
                             <td>
                             </td>
-                            <td>
+                            <td > <a href="" ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView" ng-click="openWindow('transcript',$index,1)">{{::transcript.id}}</a><br>
                                 <!-- transcript view -->
-                                <canvas id="canvas-transcript1{{$index}}" height="30"
+                                <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView" id="canvas-transcript1{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
-                                <!-- protein view -->
-                                <canvas id="canvas-protein1{{$index}}" height="170" width="{{canvasSize}}"></canvas>
+                                <!-- protein view --> <a ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" href="" ng-click="openWindow('protein',$index,1)">{{::transcript.proteinId}}</a><br>
+                                <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" id="canvas-protein1{{$index}}" height="170" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
-                                Transcript: {{::transcript.id}}<br>
-
-                                Protein: {{::transcript.proteinId}}
+                            
                             </td>
                         </tr>
                     </table>
@@ -119,13 +209,16 @@
                         <tr>
                             <td>
                             </td>
-                            <td class="resultTitle">
-                                Genomic Visualization
+                            <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
+                                Genomic <br>
+                            {{compareSpeciesCtrl.specie2Gene.specie}}
 
                             </td>
                             <td></td>
-                            <td class="resultTitle">
-                                Transcript and Protein Visualization
+                            <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'" class="resultTitle">
+                                Transcript & Protein<br>
+                                {{compareSpeciesCtrl.specie2Gene.specie}}
+
                             </td>
                             <td></td>
                             <td></td>
@@ -133,7 +226,7 @@
                         <tr>
                             <td>
                             </td>
-                            <td>
+                            <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                                 <canvas id="canvas-scale2" height="130" width="{{canvasSize}}">
                                 </canvas>
 
@@ -142,7 +235,7 @@
                             <td>
 
                             </td>
-                            <td>
+                            <td ng-show="viewMode!='genomic'">
                                 <!-- scale view for proteins -->
                                 <canvas id="canvas-scale-protein2" height="130" width="{{canvasSize}}">
                                 </canvas>
@@ -151,29 +244,29 @@
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
+                        <tr  id="fadeinDiv2{{$index}}" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
                             <td class="resultText">
-                                {{compareSpeciesCtrl.specie2Gene.specie}}<br>
-                                Transcript:{{::transcript.id}} <br>
+                                
+                              
                             </td>
-                            <td>
-                                <!-- genomic view -->
+                            <td ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView">
+                                <!-- genomic view --><a href="" ng-click="openWindow('transcript',$index,2)">{{::transcript.id}}</a> <br>
                                 <canvas id="canvas-genomic2{{$index}}" height="200" width="{{canvasSize}}"></canvas>
                             </td>
                             <td>
                             </td>
                             <td>
-                                <!-- transcript view -->
-                                <canvas id="canvas-transcript2{{$index}}" height="30"
+                                <!-- transcript view --> <a href="" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView" ng-click="openWindow('transcript',$index,2)">{{::transcript.id}}</a><br>
+                                <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView" id="canvas-transcript2{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
-                                <!-- protein view -->
-                                <canvas id="canvas-protein2{{$index}}" height="170" width="{{canvasSize}}"></canvas>
+                                <!-- protein view --><a href="" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" ng-click="openWindow('protein',$index,2)">{{::transcript.proteinId}}</a><br>
+                                <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" id="canvas-protein2{{$index}}" height="170" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
-                                Transcript:{{::transcript.id}}<br>
+                               
 
-                                Protein: {{::transcript.proteinId}}
+                               
                             </td>
                         </tr>
 
@@ -182,8 +275,10 @@
 
             </tr>
         </table>
+    </center>
     </div>
 </div>
+
 </body>
 
 </html>

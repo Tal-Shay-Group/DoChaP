@@ -3,8 +3,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
   $scope.loading = false;
   $scope.alert = "";
   $scope.genes = undefined;
-  self.humanGenes = {};
-  self.mouseGenes = {};
+  self.currSpecies=0;
   $scope.canvasSize = 250;
   self.geneSearch = function () {
     $scope.loading = true;
@@ -29,8 +28,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
         $scope.alert = "sorry! unexepected error.";
         $scope.$apply();
       });
-  }
- /* self.searchByGene = function () {
+  } 
+ /* 
+  self.humanGenes = {};
+  self.mouseGenes = {};
+ self.searchByGene = function () {
     if (specie2ComboBox.value == specie1ComboBox.value) {
       $scope.alert = "choose different species";
       return;
@@ -72,8 +74,9 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
 
 */
   function updateCanvases() {
-
+   
     for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
+       $('#fadeinDiv1' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
       buildGenomicView('canvas-genomic1' + i, self.specie1Gene.transcripts[i]);
       buildTranscriptView('canvas-transcript1' + i, self.specie1Gene.transcripts[i]);
       buildProteinView('canvas-protein1' + i, self.specie1Gene.transcripts[i]);
@@ -83,12 +86,17 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
     buildScaleViewForProtein("canvas-scale-protein1", self.specie1Gene.proteinScale);
 
     for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
+      $('#fadeinDiv2' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
       buildGenomicView('canvas-genomic2' + i , self.specie2Gene.transcripts[i]);
       buildTranscriptView('canvas-transcript2' + i, self.specie2Gene.transcripts[i]);
       buildProteinView('canvas-protein2' + i , self.specie2Gene.transcripts[i]);
     }
     buildScaleView("canvas-scale2", self.specie2Gene.scale);
     buildScaleViewForProtein("canvas-scale-protein2", self.specie2Gene.proteinScale);
+    $('#canvas-scale1').hide().fadeIn(1000);
+    $('#canvas-scale-protein1').hide().fadeIn(1000);
+    $('#canvas-scale2').hide().fadeIn(1000);
+    $('#canvas-scale-protein2').hide().fadeIn(1000);
   }
 
   $(document).ready(function () {
@@ -100,5 +108,94 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
     document.getElementById("compareGeneSearchTextField").focus();
   });
 
+  $scope.showWindow = undefined;
+  $scope.openWindow = function (type, id,species) {
+    if(species==1){
+      self.currSpecies=self.specie1Gene;
+    }
+    else if(species==2){
+      self.currSpecies=self.specie2Gene;
+    }
+      $scope.showWindow = type;
+      if (type == "transcript") {
+          self.currSpecies.currTranscript = self.currSpecies.transcripts[id];
+          self.currSpecies.currTranscript.tx_start = numberToTextWithCommas(self.currSpecies.currTranscript.tx_start);
+          self.currSpecies.currTranscript.tx_end = numberToTextWithCommas(self.currSpecies.currTranscript.tx_end);
+          self.currSpecies.currTranscript.cds_start = numberToTextWithCommas(self.currSpecies.currTranscript.cds_start);
+          self.currSpecies.currTranscript.cds_end = numberToTextWithCommas(self.currSpecies.currTranscript.cds_end);
+      } else if (type == "protein") {
+          self.currTranscript = self.currSpecies.transcripts[id];
+      }
+      $scope.closeModalFromBackground = function (event) {
+        if (event.target.id == 'BlackBackground') {
+            $scope.showWindow = false
+        }
+    }
+  }
+  $scope.viewMode="all";
+  $scope.checkboxChecked = function () {
+    var type = selectModeComboBox.value;
+    if ($scope.viewMode == type) {
+        return;
+    }
+    $scope.viewMode = type;
+    //if (type == "all") {
+      //  $scope.canvasSize = 550;
+   // } else {
+      //  $scope.canvasSize = 1000;
+   // }
+    $(document).ready(function () {
+        updateCanvases();
+    });
+    for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
+        if (type === "genomic") {
+          self.specie1Gene.transcripts[i].genomicView = true;
+          self.specie1Gene.transcripts[i].transcriptView = false;
+          self.specie1Gene.transcripts[i].proteinView = false;
+    
+        } else if (type === "transcript") {
+          self.specie1Gene.transcripts[i].genomicView = false;
+          self.specie1Gene.transcripts[i].transcriptView = true;
+          self.specie1Gene.transcripts[i].proteinView = false;
+        } else if (type === "protein") {
+          self.specie1Gene.transcripts[i].genomicView = false;
+          self.specie1Gene.transcripts[i].transcriptView = false;
+          self.specie1Gene.transcripts[i].proteinView = true;
+        } else if (type === "all") {
+          self.specie1Gene.transcripts[i].genomicView = true;
+          self.specie1Gene.transcripts[i].transcriptView = true;
+          self.specie1Gene.transcripts[i].proteinView = true;
+        } else if (type === "transcript_protein") {
+          self.specie1Gene.transcripts[i].genomicView = false;
+          self.specie1Gene.transcripts[i].transcriptView = true;
+          self.specie1Gene.transcripts[i].proteinView = true;
+        }
 
+    }
+    for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
+      if (type === "genomic") {
+        self.specie2Gene.transcripts[i].genomicView = true;
+        self.specie2Gene.transcripts[i].transcriptView = false;
+        self.specie2Gene.transcripts[i].proteinView = false;
+  
+      } else if (type === "transcript") {
+        self.specie2Gene.transcripts[i].genomicView = false;
+        self.specie2Gene.transcripts[i].transcriptView = true;
+        self.specie2Gene.transcripts[i].proteinView = false;
+      } else if (type === "protein") {
+        self.specie2Gene.transcripts[i].genomicView = false;
+        self.specie2Gene.transcripts[i].transcriptView = false;
+        self.specie2Gene.transcripts[i].proteinView = true;
+      } else if (type === "all") {
+        self.specie2Gene.transcripts[i].genomicView = true;
+        self.specie2Gene.transcripts[i].transcriptView = true;
+        self.specie2Gene.transcripts[i].proteinView = true;
+      } else if (type === "transcript_protein") {
+        self.specie2Gene.transcripts[i].genomicView = false;
+        self.specie2Gene.transcripts[i].transcriptView = true;
+        self.specie2Gene.transcripts[i].proteinView = true;
+      }
+
+  }
+}
 });
