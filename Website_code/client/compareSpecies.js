@@ -9,7 +9,7 @@ angular.module("DoChaP").service("compareSpeciesService", function ($http, $wind
         }
         return webService.compareGenes(textInput)
         .then(function (response) {
-            var genesFound = runGenesCreation(response.data,false,{colorByLength:true});
+            var genesFound = runGenesCreation(response.data,JSON.parse($window.sessionStorage.getItem("ignorePredictions")),{colorByLength:true});
             if (genesFound.length <=1) {
                 return ["error","sorry! no results were found"];
             }
@@ -18,6 +18,8 @@ angular.module("DoChaP").service("compareSpeciesService", function ($http, $wind
             }
             else{
                 geneFound=orderTheGenesBySpecie(genesFound,specie1,specie2);
+                $window.sessionStorage.setItem("currCompareSpecies",JSON.stringify(response.data));
+                $window.sessionStorage.setItem("ignorePredictions", "false");
                 return ["result",genesFound];
             }
         })
@@ -41,5 +43,7 @@ angular.module("DoChaP").service("compareSpeciesService", function ($http, $wind
             return undefined;
         }
     }
-
+    this.filterUnreviewed=function(results,ignorePredictions){
+            return runGenesCreation(results,ignorePredictions,{colorByLength:true});       
+    };
 })

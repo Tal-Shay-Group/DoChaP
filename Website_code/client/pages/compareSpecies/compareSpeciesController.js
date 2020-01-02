@@ -1,8 +1,9 @@
-angular.module("DoChaP").controller('compareSpeciesController', function ($scope, compareSpeciesService) {
+angular.module("DoChaP").controller('compareSpeciesController', function ($window, $scope, $route, compareSpeciesService) {
   self = this;
   $scope.loading = false;
   $scope.alert = "";
   $scope.genes = undefined;
+  $scope.results=undefined;
   self.currSpecies=0;
   $scope.canvasSize = 250;
   self.geneSearch = function () {
@@ -197,5 +198,13 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($scope
       }
 
   }
+}
+$scope.filterUnreviewed = function () {
+  var newResults=compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")),$window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked));
+  self.specie1Gene=newResults[0];
+  self.specie2Gene=newResults[1];
+  $(document).ready(function (self) {
+    updateCanvases();
+  });
 }
 });
