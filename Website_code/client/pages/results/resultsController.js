@@ -665,35 +665,16 @@ angular.module("DoChaP")
         }
 
         function updateCanvases() {
-            //  $( '#testfadein' ).fadeIn(10000);
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
                 buildGenomicView('canvas-genomic' + i, $scope.transcripts[i]);
                 buildTranscriptView('canvas-transcript' + i, $scope.transcripts[i]);
                 buildProteinView('canvas-protein' + i, $scope.transcripts[i]);
-
-                // $( '#canvas-transcript'+i ).hide().fadeIn(4000+i*1000);
-                //$( '#canvas-protein'+i ).hide().fadeIn(4000+i*1000);
             }
             buildScaleView("canvas-scale", self.geneInfo.scale);
             buildScaleViewForProtein("canvas-scale-protein", self.geneInfo.proteinScale);
             $('#canvas-scale').hide().fadeIn(1000);
             $('#canvas-scale-protein').hide().fadeIn(1000);
-            //$( '#canvas-scale' ).animate({ "left": "500px" }, "slow" );
-            /*
-            onUpdate: function (data) {
-                    self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
-                        start: data.from,
-                        end: data.to
-                    })
-                    $scope.transcripts = self.geneInfo.transcripts;
-                    $scope.geneName = self.geneInfo.gene_symbol;
-                    $(document).ready(function (self) {
-                        updateCanvases();
-                    });
-                    $scope.apply();
-                }
-            */
             $(".js-range-slider").ionRangeSlider({
                 type: "double",
                 min: self.geneInfo.scale.start,
@@ -709,12 +690,13 @@ angular.module("DoChaP")
                     $scope.transcripts = self.geneInfo.transcripts;
                     $scope.geneName = self.geneInfo.gene_symbol;
                     /*$scope.$apply();*/
-                    $(document).ready(function (self) {
+                    $(document).ready(function () {
                         updateCanvases();
                     });
                 }
                 
             });
+            console.log("got here");
            
         
             
