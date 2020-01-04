@@ -282,12 +282,18 @@ function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,
 function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, cw is the convertor
     var skip=1000; //skip is in genomic units
     console.log(skip*coordinatesWidth);
-    if (skip*coordinatesWidth<2 ){
+    if (skip*coordinatesWidth<0.005 ){
+        skip=50000000; //fifty million
+    }else if (skip*coordinatesWidth<0.01 ){
+        skip=10000000; //ten million
+    }else if (skip*coordinatesWidth<1 ){
+        skip=500000;
+    }else if (skip*coordinatesWidth<1.3 ){
         skip=100000;
-    }else if (skip*coordinatesWidth<4 ){
+    }else if (skip*coordinatesWidth<3.5 ){
         skip=50000;
     }
-    else if (skip*coordinatesWidth<30 ){
+    else if (skip*coordinatesWidth<20 ){
         skip=10000;
     }else if (skip*coordinatesWidth<40 ){
         skip=5000;
@@ -302,7 +308,13 @@ function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, c
         skip=500;
     }
         return skip;
-    
+    /*info on long genes:
+
+        select *
+        from (select gene_id, max(tx_end)-min(tx_start) as length from transcripts group by gene_id)
+        order by length desc
+
+    */
 }
 
 function drawArrow(context,strand,arrowLength,width,height){ //width and height in which the arrow starts

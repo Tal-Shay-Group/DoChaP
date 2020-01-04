@@ -2,9 +2,14 @@
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
-//var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-//var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
-//var credentials = {key: privateKey, cert: certificate};
+//var nodemailer = require('nodemailer');
+// var transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: 'youremail@gmail.com',
+//       pass: 'yourpassword'
+//     }
+//   });
 const express = require("express");
 const app = express();
 var bodyParser = require('body-parser');
@@ -20,18 +25,19 @@ app.use(express.json(), function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-app.use('/', function (req, res, next){
-    if(req.originalUrl=="/"){
-
-    }
-    fs.writeFile("log.txt", "*loggedIn-"+req.ip+"\n",{flag:'a'}, function(err) {
-        
-    }); 
-    
-    next();
-});
 app.use(express.static('client'));
 
+
+app.get('/sendMail/:name/:mail/:msg', (req, res) => {
+    var mailOptions = {
+      from: '',
+      to: 'galozs@post.bgu.ac.il',
+      subject: 'new Message via DoChaP Contact Us.',
+      text: "reply to: "+req.params.mail +"\nmessage: \n"+req.params.msg
+    };
+    
+    transporter.sendMail(mailOptions, function(error, info){ });
+});
 //querySearch module constructor
 const querySearch = require("./querySearch");
 app.use('/', querySearch);
@@ -42,9 +48,3 @@ app.use('/', querySearch);
      console.log(`Listening on port ${port}`);
 
  });
-//var httpServer = http.createServer(app);
-//var httpsServer = https.createServer(credentials, app);
-
-//httpServer.listen(80);
-//httpsServer.listen(443);
-//console.log(`Listening on port 80,443`);

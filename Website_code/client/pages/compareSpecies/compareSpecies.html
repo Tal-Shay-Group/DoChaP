@@ -107,7 +107,7 @@
 for gene <a href=""><b
                 ng-click="openWindow('gene',undefined)">{{::compareSpeciesCtrl.specie1Gene.gene_symbol}}</b></a>
                 <br>
-        <i>choose display</i>
+        <i>Choose Display</i>
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
@@ -173,12 +173,14 @@ for gene <a href=""><b
                         </tr>
                         <tr id="fadeinDiv1{{$index}}"  ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView"  ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
                             <td class="resultText">
-                                
+                                <input type="button" value="hide transcript" ng-click="changeTranscriptView($index,1)"
+                                class="btn blackButton" style="width: auto;"
+                                ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" />
                                
                             </td>
                             <td ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView"> <a href="" ng-click="openWindow('transcript',$index,1)">{{::transcript.id}}</a> <br>
                                 <!-- genomic view -->
-                                <canvas id="canvas-genomic1{{$index}}" height="200" width="{{canvasSize}}"></canvas>
+                                <canvas id="canvas-genomic1{{$index}}" height="100" width="{{canvasSize}}"></canvas>
                             </td>
                             <td>
                             </td>
@@ -187,7 +189,7 @@ for gene <a href=""><b
                                 <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView" id="canvas-transcript1{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
                                 <!-- protein view --> <a ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" href="" ng-click="openWindow('protein',$index,1)">{{::transcript.proteinId}}</a><br>
-                                <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" id="canvas-protein1{{$index}}" height="170" width="{{canvasSize}}"></canvas>
+                                <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" id="canvas-protein1{{$index}}" height="70" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
@@ -246,12 +248,14 @@ for gene <a href=""><b
                         </tr>
                         <tr  id="fadeinDiv2{{$index}}" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
                             <td class="resultText">
-                                
+                                <input type="button" value="hide transcript" ng-click="changeTranscriptView($index,2)"
+                                class="btn blackButton" style="width: auto;"
+                                ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" />
                               
                             </td>
                             <td ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView">
                                 <!-- genomic view --><a href="" ng-click="openWindow('transcript',$index,2)">{{::transcript.id}}</a> <br>
-                                <canvas id="canvas-genomic2{{$index}}" height="200" width="{{canvasSize}}"></canvas>
+                                <canvas id="canvas-genomic2{{$index}}" height="100" width="{{canvasSize}}"></canvas>
                             </td>
                             <td>
                             </td>
@@ -260,7 +264,7 @@ for gene <a href=""><b
                                 <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView" id="canvas-transcript2{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
                                 <!-- protein view --><a href="" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" ng-click="openWindow('protein',$index,2)">{{::transcript.proteinId}}</a><br>
-                                <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" id="canvas-protein2{{$index}}" height="170" width="{{canvasSize}}"></canvas>
+                                <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" id="canvas-protein2{{$index}}" height="70" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
