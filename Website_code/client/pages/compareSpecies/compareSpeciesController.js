@@ -21,7 +21,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
             updateCanvases();
           });
         }
-        $scope.$apply();
+       // $scope.$apply();
       })
       .catch(function (response) {
         console.log(response);
@@ -207,4 +207,20 @@ $scope.filterUnreviewed = function () {
     updateCanvases();
   });
 }
+
+$scope.changeTranscriptView = function (index,species) { //hide transcript. change name later
+  var specieToChange=undefined;
+  if(species==1){
+    specieToChange=self.specie1Gene;
+  }
+  else if(species==2){
+    specieToChange=self.specie2Gene;
+  }
+  specieToChange.transcripts[index].genomicView = false;
+  specieToChange.transcripts[index].transcriptView = false;
+  specieToChange.transcripts[index].proteinView = false;
+
+};
+
+
 });

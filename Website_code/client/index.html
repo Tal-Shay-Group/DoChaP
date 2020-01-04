@@ -43,10 +43,10 @@ Logo and navigation bars will be declared here for example.
 
     <!-- load controllers -->
     <script src="webService.js"></script>
-    <script src="compareSpecies.js"></script>
+    <script src="compareSpeciesService.js"></script>
+    <script src="querySearchService.js"></script>
     <script src="pages/home/homeController.js"></script>
     <script src="pages/querySearch/querySearchController.js"></script>
-    <script src="pages/querySearch/querySearchService.js"></script>
     <script src="pages/results/resultsController.js"></script>
     <script src="pages/underConstruction/underConstructionController.js"></script>
     <script src="pages/documentation/documentationController.js"></script>
@@ -89,20 +89,20 @@ Logo and navigation bars will be declared here for example.
              
             </ul>
             <ul class="nav navbar-nav navbar-right" >
-                <li ng-if="false&&showQuickSearch" class="form-inline" style="margin: 10px;"> 
-                    <select class="form-control searchBySpecie">
+                <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
+                    <select class="form-control searchBySpecie" id="indexSpecies">
                         <option value="H_sapiens">human</option>
                         <option value="M_musculus">mouse</option>
                     </select>
-                    <input placeholder="  enter gene symbol, geneID, RefSeq ID or Ensembl ID" class="searchTextFieldClass">
-                    <input type="checkbox" value="isReviewed"  id="isReviewedCheckBox"  ><i style="color:rgb(170, 169, 169);">hide predictions</i>
-                   &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
+                    <input placeholder="  enter gene symbol, geneID, RefSeq ID or Ensembl ID" class="searchTextFieldClass" id="indexTextField">
+                   &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="indexCtrl.search()">
                    <span class="glyphicon glyphicon-search"></span></button>
-                   <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading"/>
+                   <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="false"/>
+                   <span style="color: white;" ng-show="indexLoading"> loading...</span>
                 </li>
                 <li><a href="#!about">About</a></li>
                 <li><a href="#!documentation">Help</a></li>
-             <li><a href="#!contactUs"> <span class="glyphicon glyphicon-envelope"></span> Contact Us</a></li>
+             <li><a href="#!contactUs"> <span style="font-size: 20px;" class="glyphicon glyphicon-envelope"></span> Contact Us</a></li>
             </ul>
           </div>
       </nav>

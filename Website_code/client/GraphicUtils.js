@@ -26,6 +26,7 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     ansGene.MGI_id=gene.MGI_id; 
     ansGene.ensembl_id=gene.ensembl_id; 
     ansGene.specie=gene.specie;
+    ansGene.EnsemblLink=getEnsemblGeneLink(gene.ensembl_id,gene.specie); 
     /*if(ansGene.specie=="H_sapiens"){
         ansGene.specie="Human";
     }
@@ -55,16 +56,22 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
     for (var i = 0; i < gene.transcripts.length; i++) {
         if(ignorePredictionsT==false || gene.transcripts[i].transcript_id.substring(0,2)=="NM"){
-            ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons));
+            ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons,ansGene.specie));
        }
     } 
     //for showing nm before xm
     function compare( a, b ) {
-        if ( a.id < b.id ){
+        if ( a.id.substring(0,2) < b.id.substring(0,2) ){
           return -1;
         }
-        if ( a.id > b.id ){
+        if ( a.id.substring(0,2) > b.id.substring(0,2) ){
           return 1;
+        }
+        if(a.proteinLength<b.proteinLength){
+            return -1;
+        }
+        if(a.proteinLength>b.proteinLength){
+            return 1;
         }
         return 0;
       }
@@ -91,7 +98,7 @@ function createProteinScale(length){
 /* this function is a helper function that will focus on each transcript info and calculations.
 we have function to calculate start and end as described individually
 */
-function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordinate,maxProteinLength, geneExons) {
+function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordinate,maxProteinLength, geneExons,specie) {
     var ansTranscript = new Object();
     ansTranscript.id = transcript.transcript_id;
     ansTranscript.proteinId = transcript.protein.protein_id;
@@ -114,6 +121,8 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     ansTranscript.ucsc_id=transcript.ucsc_id;
     ansTranscript.ensembl_id=transcript.ensembl_ID;
     ansTranscript.startCoordinate=startCoordinate; 
+    ansTranscript.transcriptEnsemblLink=getEnsemblTranscriptLink(transcript.ensembl_ID,specie); 
+    ansTranscript.proteinEnsemblLink=getEnsemblProteinLink(transcript.protein.ensembl_id,specie); 
     ansTranscript.genomicView=true;
     ansTranscript.transcriptView=true;
     ansTranscript.proteinView=true;
@@ -316,6 +325,26 @@ function getTranscriptsForExon(start,end,transcripts){
         }
     }
     return ans;
+}
+
+function getEnsemblTranscriptLink(ensembl_id,specie){
+    return "https://www.ensembl.org/"+ensembleSpecieName(specie)+"/Transcript/Summary?db=core;t="+ensembl_id;
+}
+function getEnsemblProteinLink(ensembl_id,specie){
+    return "https://www.ensembl.org/"+ensembleSpecieName(specie)+"/Transcript/ProteinSummary?db=core;p="+ensembl_id;
+}
+
+function ensembleSpecieName(specie){
+    if(specie=="M_Musculus"){
+        return "Mus_musculus";
+    }else if(specie=="H_sapiens"){
+        return "Homo_sapiens";
+    }
+    return undefined;
+}
+
+function getEnsemblGeneLink(ensembl_id,specie){
+    return "https://www.ensembl.org/"+ensembleSpecieName(specie)+"/Gene/Summary?db=core;g="+ensembl_id;
 }
 
 function runGenesCreationTry2(result,ignorePredictions){

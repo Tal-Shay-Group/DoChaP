@@ -696,10 +696,7 @@ angular.module("DoChaP")
                 }
                 
             });
-            console.log("got here");
-           
-        
-            
+         
         }
 
         $scope.closeModalFromBackground = function (event) {

@@ -25,11 +25,9 @@
                 MGI ID: <a href="http://www.informatics.jax.org/marker/MGI:{{::resultsCtrl.geneInfo.MGI_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.MGI_id}}</a><br>
                 Ensembl ID:
-                <!--
                      <a
-                    href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g={{::resultsCtrl.geneInfo.ensembl_id}}"
+                    href="{{::resultsCtrl.geneInfo.EnsemblLink}}"
                     target="_blank">{{::resultsCtrl.geneInfo.ensembl_id}}</a>
-                -->
                 {{::resultsCtrl.geneInfo.ensembl_id}}
             </span>
             <span ng-show="showWindow=='transcript'">
@@ -43,11 +41,9 @@
                 </span>
                 <span ng-show="resultsCtrl.currTranscript.ensembl_id!=undefined">
                     Ensembl ID:
-                    <!--
                         <a
-                        href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.ensembl_id}}"
+                        href="{{resultsCtrl.currTranscript.transcriptEnsemblLink}}"
                         target="_blank">{{resultsCtrl.currTranscript.ensembl_id}}</a><br>
-                    -->
                     {{resultsCtrl.currTranscript.ensembl_id}}<br>
                 </span>
                 transcription start: {{resultsCtrl.currTranscript.tx_start}}<br>
@@ -67,11 +63,9 @@
                 </span>
                 <span ng-show="resultsCtrl.currTranscript.proteinUniprotID!=undefined">
                     Ensembl ID:
-                    <!--
                          <a
-                        href="http://m.ensembl.org/Mus_musculus/Gene/Summary?db=core;g={{resultsCtrl.currTranscript.proteinEnsemblID}}"
+                        href="{{resultsCtrl.currTranscript.proteinEnsemblLink}}"
                         target="_blank">{{resultsCtrl.currTranscript.proteinEnsemblID}}</a>
-                    -->
                     {{resultsCtrl.currTranscript.proteinEnsemblID}}<br>
                 </span>
             </span>
@@ -86,7 +80,7 @@
                 ng-click="openWindow('gene',undefined)">{{::geneName}}</b></a> in
         {{::resultsCtrl.geneInfo.specie}} <br>
 
-        <i>choose display</i>
+        <i>Choose Display</i>
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
@@ -148,8 +142,8 @@
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                     <!-- scale view for transcripts -->
-                    <div  style="width: 550px;">
-                            <input type="text" class="js-range-slider" name="my_range" value=""/>
+                    <div  style="width: {{canvasSize}}px; z-index: -1;">
+                            <input type="text" class="js-range-slider"  style="z-index: -1;" name="my_range" value=""/>
                                </div>
                                <br>
                     <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
@@ -163,6 +157,7 @@
                 </td>
                 <td ng-show="viewMode!='genomic'">
                     <!-- scale view for proteins -->
+                    <div  style="height: 95px;"> </div>
                     <br>
                     <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                     </canvas>
@@ -180,7 +175,7 @@
                         ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]" />
                 </td>
                 <td ng-show="showCanvas.genomicView[$index]">
-                    <!-- genomic view -->  <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a> <br>
+                    <!-- genomic view -->  <a href="" ng-show="showCanvas.genomicView[$index]" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a> <br>
                     <canvas id="canvas-genomic{{$index}}" height="100" width="{{canvasSize}}"
                         ng-show="showCanvas.genomicView[$index]"></canvas>
                 </td>
@@ -188,10 +183,10 @@
                     <b></b>
                 </td>
                 <td>
-                    <!-- transcript view -->    <a href="" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a><br>
+                    <!-- transcript view -->    <a href="" ng-show="showCanvas.transcriptView[$index]" ng-click="openWindow('transcript',$index)">{{::transcript.id}}</a><br>
                     <canvas id="canvas-transcript{{$index}}" height="30" width="{{canvasSize}}"
                         ng-show="showCanvas.transcriptView[$index]"></canvas><br>
-                    <!-- protein view --> <a href="" ng-click="openWindow('protein',$index)">{{::transcript.proteinId}}</a><br>
+                    <!-- protein view --> <a href="" ng-show="showCanvas.proteinView[$index]" ng-click="openWindow('protein',$index)">{{::transcript.proteinId}}</a><br>
                     <canvas id="canvas-protein{{$index}}" height="70" width="{{canvasSize}}"
                         ng-show="showCanvas.proteinView[$index]"></canvas>
                 </td>

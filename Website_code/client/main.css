@@ -26,19 +26,17 @@ body {
     border-style: solid;
     border-width: 3px;
     border-radius: 5px;
-    border-color: rgb(97, 97, 97);
+    border-color: rgb(61, 61, 61);
 
     text-align: left;
     font-size: 16px;
 
     box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
-
     left: 50%;
-    overflow: auto;
+    /* overflow: auto; */
     padding: 5px;
     top: 50%;
     margin: auto;
-
 
 }
 
@@ -210,21 +208,14 @@ td {
 }
 
 
-form {
-    margin: 0 auto;
-    width: 500px;
-    padding-top: 10px;
-    color: white;
-    position: relative;
-
-
-}
 
 label,
 textarea {
     display: block;
 }
-
+form {
+    color: white;
+}
 .contactUs {
     width: 500px;
     border: none;
@@ -249,7 +240,7 @@ textarea {
     overflow: auto;
 }
 
-label {
+/*label {
     font-size: 1.5em;
     margin-top: 5px;
     padding-left: 20px;
@@ -267,4 +258,4 @@ label {
     -o-transition: background-image 0.7s;
     width: 566px;
     padding-top: 2px;
-}
+}*/
