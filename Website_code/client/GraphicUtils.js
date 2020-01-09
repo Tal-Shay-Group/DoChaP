@@ -75,10 +75,10 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
         }
         return 0;
       }
-      ansGene.transcripts.sort(compare);
+    ansGene.transcripts.sort(compare);
     ansGene.scale=createScale(start,end,gene.strand,gene.chromosome);
     ansGene.proteinScale=createProteinScale(maxProteinLength);
-
+   
     return ansGene;
 }
 function createScale(start,end,strand,chromosomeName){
