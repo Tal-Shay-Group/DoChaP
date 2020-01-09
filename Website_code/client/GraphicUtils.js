@@ -54,9 +54,22 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     }
     
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
+    if(preferences!=undefined && preferences.proteinStart!=undefined){
+        var proteinStart = preferences.proteinStart;    
+    }
+    else{
+        var proteinStart = 0;
+    }
+    if(preferences!=undefined && preferences.proteinEnd!=undefined){
+        var proteinEnd = preferences.proteinEnd;    
+    }
+    else{
+        var proteinEnd = maxProteinLength;
+    }
+    
     for (var i = 0; i < gene.transcripts.length; i++) {
         if(ignorePredictionsT==false || gene.transcripts[i].transcript_id.substring(0,2)=="NM"){
-            ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons,ansGene.specie));
+            ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons,ansGene.specie,proteinStart,proteinEnd));
        }
     } 
     //for showing nm before xm
@@ -98,7 +111,7 @@ function createProteinScale(length){
 /* this function is a helper function that will focus on each transcript info and calculations.
 we have function to calculate start and end as described individually
 */
-function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordinate,maxProteinLength, geneExons,specie) {
+function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordinate,maxProteinLength, geneExons,specie,proteinStart,proteinEnd) {
     var ansTranscript = new Object();
     ansTranscript.id = transcript.transcript_id;
     ansTranscript.proteinId = transcript.protein.protein_id;
@@ -126,6 +139,7 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     ansTranscript.genomicView=true;
     ansTranscript.transcriptView=true;
     ansTranscript.proteinView=true;
+    ansTranscript.shownLength=proteinEnd-proteinStart;
 
     //calculate things for each transcript
     for (var i = 0; i < transcript.transcriptExons.length; i++) {
@@ -133,14 +147,15 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
         //-1 zero base
         ansTranscript.exons[i].transcriptViewStart = transcript.transcriptExons[i].genomic_start_tx - startCoordinate-1;
         ansTranscript.exons[i].transcriptViewEnd = transcript.transcriptExons[i].genomic_end_tx - startCoordinate;
-        ansTranscript.exons[i].exonViewStart = transcript.transcriptExons[i].abs_start_CDS;
-        ansTranscript.exons[i].exonViewEnd = transcript.transcriptExons[i].abs_end_CDS;
+        ansTranscript.exons[i].exonViewStart = transcript.transcriptExons[i].abs_start_CDS-proteinStart;
+        ansTranscript.exons[i].exonViewEnd = transcript.transcriptExons[i].abs_end_CDS-proteinStart;
         ansTranscript.exons[i].name =""// getGeneExonName(geneExons,transcript.transcriptExons[i].genomic_start,transcript.transcriptExons[i].genomic_end);
         ansTranscript.exons[i].id = transcript.transcriptExons[i].abs_end;
         ansTranscript.exons[i].color = geneExons[transcript.transcriptExons[i].genomic_start_tx][transcript.transcriptExons[i].genomic_end_tx].color;
         ansTranscript.exons[i].isUTRStart=undefined;
         ansTranscript.exons[i].isUTREnd=undefined;
         ansTranscript.exons[i].isUTRAll=false;
+        ansTranscript.exons[i].orderInTranscript=transcript.transcriptExons[i].order_in_transcript;
         
         
         if(transcript.transcriptExons[i].abs_start_CDS==0){ //that is the representation is the database
@@ -164,8 +179,8 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     ansTranscript.domains = [];
     for (var i = 0; i < domains.length; i++) {
         ansTranscript.domains[i] = new Object();
-        ansTranscript.domains[i].start = domains[i].nuc_start;
-        ansTranscript.domains[i].end = domains[i].nuc_end;
+        ansTranscript.domains[i].start = domains[i].nuc_start-proteinStart;
+        ansTranscript.domains[i].end = domains[i].nuc_end-proteinStart;
         ansTranscript.domains[i].name = domains[i].domainType.name;
         ansTranscript.domains[i].typeID = domains[i].domainType.type_id;
         ansTranscript.domains[i].overlap=false;

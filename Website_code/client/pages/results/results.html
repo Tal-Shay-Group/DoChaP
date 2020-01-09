@@ -144,8 +144,8 @@
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                     <!-- scale view for transcripts -->
-                    <div  style="width: {{canvasSize}}px; z-index: -1;">
-                            <input type="text" class="js-range-slider"  style="z-index: -1;" name="my_range" value=""/>
+                    <div  style="width: {{canvasSize}}px;">
+                            <input type="text" class="js-range-slider"  id="genomic_range" value=""/>
                                </div>
                                <br>
                     <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
@@ -159,8 +159,10 @@
                 </td>
                 <td ng-show="viewMode!='genomic'">
                     <!-- scale view for proteins -->
-                    <div  style="height: 95px;"> </div>
-                    <br>
+                    <div  style="width: {{canvasSize}}px;">
+                            <input type="text" class="js-range-slider"  id="protein_range" value=""/>
+                               </div>
+                               <br>
                     <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                     </canvas>
 
@@ -189,7 +191,7 @@
                     <canvas id="canvas-transcript{{$index}}" height="30" width="{{canvasSize}}"
                         ng-show="showCanvas.transcriptView[$index]"></canvas><br>
                     <!-- protein view --> <a href="" ng-show="showCanvas.proteinView[$index]" ng-click="openWindow('protein',$index)">{{::transcript.proteinId}}</a><br>
-                    <canvas id="canvas-protein{{$index}}" height="70" width="{{canvasSize}}"
+                    <canvas id="canvas-protein{{$index}}" height="100" width="{{canvasSize}}"
                         ng-show="showCanvas.proteinView[$index]"></canvas>
                 </td>
                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' || viewMode=='transcript_protein'"></td>

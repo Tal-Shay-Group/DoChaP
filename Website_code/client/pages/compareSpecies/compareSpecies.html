@@ -108,8 +108,8 @@
     </div>
 
     <!--  taken from results.html we will need to adjust it   -->
-    <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined"   style="background-color:white;"><center>
-        <i>Choose Display</i>
+    <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined"   style="background-color:white;">
+     <div class="searchItems">  <i>Choose Display</i>
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
             <option value="all">All Views</option>
@@ -121,7 +121,7 @@
 
         </select>
         <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted records</i>
-        <br>
+        <br></div> <center>
         <table class="documentationTable">
             <tr>
                 <td>
@@ -196,7 +196,7 @@
                                 <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView" id="canvas-transcript1{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
                                 <!-- protein view --> <a ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" href="" ng-click="openWindow('protein',$index,1)">{{::transcript.proteinId}}</a><br>
-                                <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" id="canvas-protein1{{$index}}" height="70" width="{{canvasSize}}"></canvas>
+                                <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" id="canvas-protein1{{$index}}" height="100" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
@@ -272,7 +272,7 @@
                                 <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView" id="canvas-transcript2{{$index}}" height="30"
                                     width="{{canvasSize}}"></canvas><br>
                                 <!-- protein view --><a href="" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" ng-click="openWindow('protein',$index,2)">{{::transcript.proteinId}}</a><br>
-                                <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" id="canvas-protein2{{$index}}" height="70" width="{{canvasSize}}"></canvas>
+                                <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" id="canvas-protein2{{$index}}" height="100" width="{{canvasSize}}"></canvas>
                             </td>
                             <td></td>
                             <td class="resultText">
