@@ -591,7 +591,7 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     //background color
     context.beginPath();
     context.fillStyle = gradient;
-    if(shapeID==0){
+    if(shapeID==0 || true){
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
     } else if(shapeID==1 ){
         context.moveTo(domainX, domainY);

@@ -61,17 +61,17 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     } 
     //for showing nm before xm
     function compare( a, b ) {
-        if ( a.id.substring(0,2) < b.id.substring(0,2) ){
+        /*if ( a.id.substring(0,2) < b.id.substring(0,2) ){
           return -1;
         }
         if ( a.id.substring(0,2) > b.id.substring(0,2) ){
           return 1;
-        }
+        }*/
         if(a.proteinLength<b.proteinLength){
-            return -1;
+            return 1;
         }
         if(a.proteinLength>b.proteinLength){
-            return 1;
+            return -1;
         }
         return 0;
       }
