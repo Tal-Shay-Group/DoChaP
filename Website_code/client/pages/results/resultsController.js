@@ -9,6 +9,12 @@ angular.module("DoChaP")
         isReviewedCheckBox.checked = ignorePredictions;
         $scope.canvasSize = 550;
         $scope.viewMode = "all";
+        self.toolTipManagerForCanvas = {
+            "canvas-protein0" : [
+              [50, 50, 50, 50, " this is red"],
+              [150, 50, 50, 50, "this is blue"]
+            ]
+          };
         if (loadedGene == undefined) {
             //example in case nothing is entered in search
             loadedGene = {
@@ -696,6 +702,39 @@ angular.module("DoChaP")
                 }
                 
             });
+            $("canvas")
+            // .mouseover(function (event) {
+      
+            //   $("#tooltip").show();
+            // })
+            .mousemove(function (event) {
+              showTextValues = showText(event);
+              if (showTextValues[0]) {
+                $("#tooltip").show();
+                $("#tooltip").css("top", event.clientY);
+                $("#tooltip").css("left", event.clientX);
+                $("#tooltip").text(showTextValues[1]); 
+              } else {
+                $("#tooltip").hide();
+              }
+      
+              //   }).mouseout(function () {
+      
+            });
+            function showText(event) {
+                $window.alert("tppltip");
+                res = [false, ""];
+                if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
+                  exon = self.toolTipManagerForCanvas[event.target.id];
+                  for (var i = 0; i < exon.length; i++) {
+                    if (event.clientX >= exon[i][0] && event.clientX <= exon[i][0] + exon[i][2] &&
+                      event.clientY >= exon[i][1] && event.clientY <= exon[i][1] + exon[i][3]) {
+                      return [true, exon[i][4]];
+                    }
+                  }
+                }
+                return res;
+              }
          
         }
 

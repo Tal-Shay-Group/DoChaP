@@ -239,6 +239,18 @@ textarea {
     resize: none;
     overflow: auto;
 }
+#myTooltip {
+    background-color: rgb(61, 61, 61);
+    color: white;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px;
+    top: 50px;
+    left: 50px;
+    position: absolute;
+    z-index: 2;
+    display: none;
+  }
 
 /*label {
     font-size: 1.5em;
