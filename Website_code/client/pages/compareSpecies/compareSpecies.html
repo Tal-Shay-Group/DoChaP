@@ -72,7 +72,7 @@
             <div class="searchItems">
         <center>
            <i> <h2>Compare exon-domain association between:</h2></i>
-           <br>
+          
         </center>
        
         <div class="form-inline">
@@ -93,6 +93,15 @@
             </button>
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
             <br>
+            <br>
+            <i>Examples&nbsp;&nbsp;</i>
+            <button class="btn blackButton" type="button" ng-click="compareSpeciesCtrl.exmaple('Acly')">Acly</button>&nbsp;
+            <button class="btn blackButton" type="button"
+                ng-click="compareSpeciesCtrl.exmaple('a2ml1')">a2ml1</button>&nbsp;
+            <button class="btn blackButton" type="button"
+                ng-click="compareSpeciesCtrl.exmaple('Pgap3')">Pgap3</button>&nbsp;
+            <button class="btn blackButton" type="button"
+                ng-click="compareSpeciesCtrl.exmaple('FANCC')">FANCC</button>
             <span style="color:red">{{alert}}</span>
 
         </div>
@@ -100,13 +109,6 @@
 
     <!--  taken from results.html we will need to adjust it   -->
     <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined"   style="background-color:white;"><center>
-        {{::compareSpeciesCtrl.specie1Gene.transcripts.length}} transcripts found in
-        {{::compareSpeciesCtrl.specie1Gene.specie}} and
-        {{::compareSpeciesCtrl.specie2Gene.transcripts.length}} transcripts found in
-    {{::compareSpeciesCtrl.specie2Gene.specie}} <br>
-for gene <a href=""><b
-                ng-click="openWindow('gene',undefined)">{{::compareSpeciesCtrl.specie1Gene.gene_symbol}}</b></a>
-                <br>
         <i>Choose Display</i>
         <br>
         <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
@@ -126,8 +128,12 @@ for gene <a href=""><b
                     <table class="resultTable">
                         <tr>
                             <th style="width:130px"></th>
-                            <th></th>
-                            <th class="betweenVisualizationSpace"></th>
+                            <th colspan="2"><a href=""><b
+                                        ng-click="openWindow('gene',undefined)">{{::compareSpeciesCtrl.specie1Gene.gene_symbol}}</b></a>: {{::compareSpeciesCtrl.specie1Gene.transcripts.length}}
+                                      transcripts    {{compareSpeciesCtrl.specie1Gene.specie}}
+    
+                            </th>
+                           <!-- <th class="betweenVisualizationSpace"></th>-->
                             <th></th>
                             <th class="beforProteinTextSpace"></th>
                             <th></th>
@@ -136,15 +142,16 @@ for gene <a href=""><b
                             <td>
                             </td>
                             <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
-                                Genomic<br>
-                                {{compareSpeciesCtrl.specie1Gene.specie}}
-
+                               
+                               
+                               
+                                Genomic
 
                             </td>
                             <td></td>
                             <td  ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'" class="resultTitle">
-                                Transcript & Protein<br>
-                                {{compareSpeciesCtrl.specie1Gene.specie}}
+                                Transcript & Protein
+                                
 
                             </td>
                             <td></td>
@@ -173,7 +180,7 @@ for gene <a href=""><b
                         </tr>
                         <tr id="fadeinDiv1{{$index}}"  ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView"  ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
                             <td class="resultText">
-                                <input type="button" value="hide transcript" ng-click="changeTranscriptView($index,1)"
+                                <input type="button" value="hide" ng-click="changeTranscriptView($index,1)"
                                 class="btn blackButton" style="width: auto;"
                                 ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" />
                                
@@ -202,8 +209,12 @@ for gene <a href=""><b
                     <table class="resultTable">
                         <tr>
                             <th style="width:130px"></th>
-                            <th></th>
-                            <th class="betweenVisualizationSpace"></th>
+                            <th colspan="2"><a href=""><b
+                                        ng-click="openWindow('gene',undefined)">{{::compareSpeciesCtrl.specie2Gene.gene_symbol}}</b></a>: {{::compareSpeciesCtrl.specie2Gene.transcripts.length}}
+                                       transcripts   {{compareSpeciesCtrl.specie2Gene.specie}} 
+                                
+                            </th>
+                           <!-- <th class="betweenVisualizationSpace"></th>-->
                             <th></th>
                             <th class="beforProteinTextSpace"></th>
                             <th></th>
@@ -212,14 +223,11 @@ for gene <a href=""><b
                             <td>
                             </td>
                             <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
-                                Genomic <br>
-                            {{compareSpeciesCtrl.specie2Gene.specie}}
-
+                                Genomic 
                             </td>
                             <td></td>
                             <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'" class="resultTitle">
-                                Transcript & Protein<br>
-                                {{compareSpeciesCtrl.specie2Gene.specie}}
+                                Transcript & Protein
 
                             </td>
                             <td></td>
@@ -248,7 +256,7 @@ for gene <a href=""><b
                         </tr>
                         <tr  id="fadeinDiv2{{$index}}" ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
                             <td class="resultText">
-                                <input type="button" value="hide transcript" ng-click="changeTranscriptView($index,2)"
+                                <input type="button" value="hide" ng-click="changeTranscriptView($index,2)"
                                 class="btn blackButton" style="width: auto;"
                                 ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" />
                               

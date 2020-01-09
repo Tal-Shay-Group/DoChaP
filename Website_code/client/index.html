@@ -86,20 +86,19 @@ Logo and navigation bars will be declared here for example.
               
               <li><a href="#!underConstruction">Tool Result Upload</a></li>
               -->
-             
-            </ul>
-            <ul class="nav navbar-nav navbar-right" >
-                <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
+             <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
                     <select class="form-control searchBySpecie" id="indexSpecies">
                         <option value="H_sapiens">human</option>
                         <option value="M_musculus">mouse</option>
                     </select>
-                    <input placeholder="  enter gene symbol, geneID, RefSeq ID or Ensembl ID" class="searchTextFieldClass" id="indexTextField">
+                    <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField">
                    &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="indexCtrl.search()">
                    <span class="glyphicon glyphicon-search"></span></button>
-                   <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="false"/>
                    <span style="color: white;" ng-show="indexLoading"> loading...</span>
                 </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right" >
+                
                 <li><a href="#!about">About</a></li>
                 <li><a href="#!documentation">Help</a></li>
              <li><a href="#!contactUs"> <span style="font-size: 20px;" class="glyphicon glyphicon-envelope"></span> Contact Us</a></li>

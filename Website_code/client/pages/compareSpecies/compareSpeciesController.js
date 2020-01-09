@@ -221,6 +221,14 @@ $scope.changeTranscriptView = function (index,species) { //hide transcript. chan
   specieToChange.transcripts[index].proteinView = false;
 
 };
+self.exmaple = function (input) {
+  $('#compareGeneSearchTextField').val(input);
 
+  $('#compareGeneSearchTextField').css("font-weight", "bold");
+  setTimeout(function () {
+      $('#compareGeneSearchTextField').css("font-weight", "");
+  }, 500);
+
+}
 
 });
