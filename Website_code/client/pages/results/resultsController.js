@@ -11,8 +11,8 @@ angular.module("DoChaP")
         $scope.viewMode = "all";
         self.toolTipManagerForCanvas = {
             "canvas-protein0" : [
-              [50, 50, 50, 50, " this is red"],
-              [150, 50, 50, 50, "this is blue"]
+              [50,0, 50, 70, " this is red"],
+              [150, 0, 50, 70, "this is blue"]
             ]
           };
         if (loadedGene == undefined) {
@@ -679,6 +679,7 @@ angular.module("DoChaP")
             }
             buildScaleView("canvas-scale", self.geneInfo.scale);
             buildScaleViewForProtein("canvas-scale-protein", self.geneInfo.proteinScale);
+            createTooltipManager();
             $('#canvas-scale').hide().fadeIn(1000);
             $('#canvas-scale-protein').hide().fadeIn(1000);
             $(".js-range-slider").ionRangeSlider({
@@ -699,36 +700,36 @@ angular.module("DoChaP")
                     $(document).ready(function () {
                         updateCanvases();
                     });
+
                 }
                 
             });
             $("canvas")
-            // .mouseover(function (event) {
-      
-            //   $("#tooltip").show();
-            // })
             .mousemove(function (event) {
-              showTextValues = showText(event);
+             showTextValues = showText(event);
+              // $window.alert(JSON.stringify(showTextValues));
               if (showTextValues[0]) {
-                $("#tooltip").show();
-                $("#tooltip").css("top", event.clientY);
-                $("#tooltip").css("left", event.clientX);
-                $("#tooltip").text(showTextValues[1]); 
+                $("#myTooltip").show();
+                $("#myTooltip").css("top", event.pageY);
+                $("#myTooltip").css("left", event.pageX);
+                $("#myTooltip").text(showTextValues[1]); 
               } else {
-                $("#tooltip").hide();
+                $("#myTooltip").hide();
               }
       
               //   }).mouseout(function () {
       
             });
             function showText(event) {
-                $window.alert("tppltip");
                 res = [false, ""];
                 if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
+                    offset =event.target.getBoundingClientRect();
                   exon = self.toolTipManagerForCanvas[event.target.id];
+                //   $window.alert(event.clientX - offset.left);
+                //   $window.alert(event.clientY- offset.top);
                   for (var i = 0; i < exon.length; i++) {
-                    if (event.clientX >= exon[i][0] && event.clientX <= exon[i][0] + exon[i][2] &&
-                      event.clientY >= exon[i][1] && event.clientY <= exon[i][1] + exon[i][3]) {
+                    if (event.clientX - offset.left >= exon[i][0] && event.clientX- offset.left <= exon[i][0] + exon[i][2] &&
+                      event.clientY - offset.top>= exon[i][1] && event.clientY- offset.top <= exon[i][1] + exon[i][3]) {
                       return [true, exon[i][4]];
                     }
                   }
@@ -772,5 +773,34 @@ angular.module("DoChaP")
             //closeLoadingText();
             updateCanvases();
         });
+
+        function createTooltipManager(){
+            self.toolTipManagerForCanvas={};
+            for( var i=0;i<$scope.transcripts.length; i++){
+                var canvasID="canvas-protein"+i;
+                self.toolTipManagerForCanvas[canvasID]=[];
+            for (var j= $scope.transcripts[i].domains.length-1; j >= 0; j--) {
+                var domains=$scope.transcripts[i].domains;
+                var spacing=25;
+                var canvasP = document.getElementById(canvasID);
+                var canvasWidth = canvasP.width;
+                var coordinatesWidth =((canvasWidth)/$scope.transcripts[i].maxProteinLength) ;
+                //calculations
+                domainWidth = (domains[j].end - domains[j].start) * coordinatesWidth;
+                domainHeight = 45;
+                domainX = domains[j].start * coordinatesWidth;
+                domainY = spacing - domainHeight / 2;
+                if( domainX+domainWidth>=canvasWidth){
+                    domainWidth=Math.max(1,canvasWidth-domainX-2);
+                }
+                self.toolTipManagerForCanvas[canvasID].push([domainX,domainY,domainWidth,domainHeight,domains[j].name]);
+            }
+
+
+            }
+            
+        }
+
+
 
     });
