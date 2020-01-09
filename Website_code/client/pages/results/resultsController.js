@@ -682,7 +682,7 @@ angular.module("DoChaP")
             createTooltipManager();
             $('#canvas-scale').hide().fadeIn(1000);
             $('#canvas-scale-protein').hide().fadeIn(1000);
-            $(".js-range-slider").ionRangeSlider({
+            $('#genomic_range').ionRangeSlider({
                 type: "double",
                 min: self.geneInfo.scale.start,
                 max: self.geneInfo.scale.end,
@@ -693,6 +693,28 @@ angular.module("DoChaP")
                     self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
                         start: data.from,
                         end: data.to
+                    });
+                    $scope.transcripts = self.geneInfo.transcripts;
+                    $scope.geneName = self.geneInfo.gene_symbol;
+                    /*$scope.$apply();*/
+                    $(document).ready(function () {
+                        updateCanvases();
+                    });
+
+                }
+                
+            });
+            $('#protein_range').ionRangeSlider({
+                type: "double",
+                min: 0,
+                max: self.geneInfo.proteinScale.length,
+                from: 0,
+                to: self.geneInfo.proteinScale.length,
+                grid: true,
+                onFinish: function (data) {
+                    self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
+                        proteinStart: data.from,
+                        proteinEnd: data.to
                     });
                     $scope.transcripts = self.geneInfo.transcripts;
                     $scope.geneName = self.geneInfo.gene_symbol;
@@ -777,14 +799,16 @@ angular.module("DoChaP")
         function createTooltipManager(){
             self.toolTipManagerForCanvas={};
             for( var i=0;i<$scope.transcripts.length; i++){
-                var canvasID="canvas-protein"+i;
-                self.toolTipManagerForCanvas[canvasID]=[];
+                var proteinCanvasID="canvas-protein"+i;
+                var transcriptCanvasID="canvas-transcript"+i;
+                self.toolTipManagerForCanvas[proteinCanvasID]=[];
+                self.toolTipManagerForCanvas[transcriptCanvasID]=[];
             for (var j= $scope.transcripts[i].domains.length-1; j >= 0; j--) {
                 var domains=$scope.transcripts[i].domains;
                 var spacing=25;
-                var canvasP = document.getElementById(canvasID);
+                var canvasP = document.getElementById(proteinCanvasID);
                 var canvasWidth = canvasP.width;
-                var coordinatesWidth =((canvasWidth)/$scope.transcripts[i].maxProteinLength) ;
+                var coordinatesWidth =((canvasWidth-50)/$scope.transcripts[i].maxProteinLength) ;
                 //calculations
                 domainWidth = (domains[j].end - domains[j].start) * coordinatesWidth;
                 domainHeight = 45;
@@ -793,13 +817,30 @@ angular.module("DoChaP")
                 if( domainX+domainWidth>=canvasWidth){
                     domainWidth=Math.max(1,canvasWidth-domainX-2);
                 }
-                self.toolTipManagerForCanvas[canvasID].push([domainX,domainY,domainWidth,domainHeight,domains[j].name]);
+                self.toolTipManagerForCanvas[proteinCanvasID].push([domainX,domainY,domainWidth,domainHeight,domains[j].name]);
             }
-
+                for(j=0; j<$scope.transcripts[i].exons.length;j++){
+                    var exons = $scope.transcripts[i].exons;
+                    var canvasE = document.getElementById(transcriptCanvasID);
+                    var canvasHeight = canvasE.height;
+                    var canvasWidth = canvasE.width;
+                    var lineThickness = 4;
+                    var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
+                    var coordinatesWidth = ((canvasWidth-50)/$scope.transcripts[i].maxProteinLength) ;
+                        exonWidth = (exons[j].exonViewEnd - exons[j].exonViewStart + 1) * coordinatesWidth;
+                        exonHeight = 25;
+                        exonX = exons[j].exonViewStart * coordinatesWidth; //currX;
+                        exonY = spacing - exonHeight / 2;
+                        if( exonX+exonWidth>=canvasWidth){
+                            exonWidth=Math.max(1,canvasWidth-exonX-2);
+                        }
+                        self.toolTipManagerForCanvas[transcriptCanvasID].push([exonX,exonY,exonWidth,exonHeight,"order in transcript: "+exons[j].orderInTranscript]);
+                       
+                    }
+                }
 
             }
-            
-        }
+        
 
 
 

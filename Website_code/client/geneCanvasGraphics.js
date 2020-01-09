@@ -57,7 +57,7 @@ function buildTranscriptView(canvasID, transcript) {
     var canvasWidth = canvasE.width;
     var lineThickness = 4;
     var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-    var coordinatesWidth = ((canvasWidth)/transcript.maxProteinLength) ;
+    var coordinatesWidth = ((canvasWidth-50)/transcript.shownLength) ;
     contextE.clearRect(0, 0, canvasWidth, canvasHeight);
     //var currX = 0; //used if the area is calculated with genomePositions
 
@@ -107,12 +107,12 @@ function buildProteinView(canvasID, transcript) {
     //domains
     //calculate places with no non-coding areas
     var domainsInProtein = transcript.domains; //[]
-    var coordinatesWidth =((canvasWidth)/transcript.maxProteinLength) ;
+    var coordinatesWidth =((canvasWidth-50)/transcript.shownLength) ;
 
     contextP.clearRect(0, 0, canvasWidth, canvasHeight);
 
     //line. 
-    var proteinEndInView=proteinLength*coordinatesWidth;
+    var proteinEndInView=transcript.shownLength*coordinatesWidth;
     createBaseLine(contextP, 0, spacing, proteinEndInView, lineThickness);
 
     for (var i = 0; i < domainsInProtein.length; i++) {
@@ -124,14 +124,14 @@ function buildProteinView(canvasID, transcript) {
         overlap = false;//domainsInProtein[i].overlap;
         shapeID=domainsInProtein[i].typeID%4; //currently its random
         domainText=domainsInProtein[i].showText;
-        if( domainX+domainWidth>=canvasWidth){
-            domainWidth=Math.max(1,canvasWidth-domainX-2);
-        }
+        // if( domainX+domainWidth>=canvasWidth){
+        //     domainWidth=Math.max(1,canvasWidth-domainX-2);
+        // }
         //calculate domain colors and gradient
         gradient = getGradientForDomain(domainX, domainX + domainWidth, domainsInProtein[i], spacing, exons, contextP);
         
         //domain draw
-        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name,overlap,shapeID,domainText);
+        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name.replace("_","\n").replace(" ","\n"),overlap,shapeID,domainText);
     }
  
 }
@@ -183,16 +183,16 @@ function buildScaleViewForProtein(canvasID, proteinScale) {
     var lineThickness = 8;
     var spacing = 70; //space from top
     var lengthOfScale = proteinScale.length/3; //both in necluotides
-    var coordinatesWidth = (canvasS.width) / lengthOfScale;
+    var coordinatesWidth = (canvasS.width-50) / lengthOfScale;
     //var skip=100;
     var skip=getSkipSize(lengthOfScale,coordinatesWidth);
     contextS.clearRect(0, 0, canvasWidth, canvasHeight);
 
     //gridlines
-    createProteinGridLines(contextS,coordinatesWidth,spacing,canvasWidth,skip);
+    createProteinGridLines(contextS,coordinatesWidth,spacing,lengthOfScale*coordinatesWidth,skip);
 
     //line graphics
-    createBaseLine(contextS, 0, spacing, canvasWidth, lineThickness);
+    createBaseLine(contextS, 0, spacing, lengthOfScale*coordinatesWidth, lineThickness);
      
     
 
@@ -624,11 +624,16 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
         context.save();
     context.translate(domainX+ domainWidth/2,domainY + domainHeight+8);
     context.rotate(Math.PI/16);
+    var lineheight = 15;
+    var lines = name.split('\n');
     context.fillStyle = "black"; //for text
     context.font = "bold 13px Calibri";
     context.shadowColor = "black";
     context.textAlign = "left";
-    context.fillText(name,0,0);
+    for (var i = 0; i<lines.length; i++){
+        context.fillText(lines[i], 0, 0+ (i*lineheight) );
+    }
+    //context.fillText(name,0,0);
     context.restore();
     }
     
