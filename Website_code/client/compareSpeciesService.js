@@ -1,4 +1,4 @@
-angular.module("DoChaP").service("compareSpeciesService", function ($http, $window, $rootScope,webService) {
+angular.module("DoChaP").service("compareSpeciesService", function ($window,webService) {
     this.specieTextInput="";
     //returns ["error","message"] or ["res",actualResult]
     this.geneSearch=function(textInput,specie1,specie2){

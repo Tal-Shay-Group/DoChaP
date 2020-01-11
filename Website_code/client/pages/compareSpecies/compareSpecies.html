@@ -1,9 +1,8 @@
 <html>
-<!-- will be commented on when it will be created -->
 
 <body ng-app="DoChaP" ng-controller="compareSpeciesCtrl">
     <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
- 
+ <!-- modal creation -->
             <div id="BlackBackground"
             style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
             ng-show="showWindow" ng-click="closeModalFromBackground($event)">
@@ -70,6 +69,7 @@
             </div>   
             </div>
             <div class="searchItems">
+                 <!-- modal search for genes part -->
         <center>
            <i> <h2>Compare exon-domain association between:</h2></i>
           
@@ -107,7 +107,6 @@
         </div>
     </div>
 
-    <!--  taken from results.html we will need to adjust it   -->
     <div ng-show="compareSpeciesCtrl.specie1Gene!=undefined"   style="background-color:white;">
      <div class="searchItems">  <i>Choose Display</i>
         <br>
@@ -122,6 +121,7 @@
         </select>
         <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted records</i>
         <br></div> <center>
+             <!-- results graphics -->
         <table class="documentationTable">
             <tr>
                 <td>
@@ -276,8 +276,6 @@
                             </td>
                             <td></td>
                             <td class="resultText">
-                               
-
                                
                             </td>
                         </tr>

@@ -1,3 +1,10 @@
+/**
+ * this is one of the most speciual pafgesa i nthe site. 
+ * we compare the same gene in different species so we need to manage two different yet similar genes
+ * and sometimes anaylize together and sometimes alone.
+ * 
+ */
+
 angular.module("DoChaP").controller('compareSpeciesController', function ($window, $scope, $route, compareSpeciesService) {
   self = this;
   $scope.loading = false;

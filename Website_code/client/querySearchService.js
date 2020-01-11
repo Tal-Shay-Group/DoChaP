@@ -1,3 +1,6 @@
+/**
+ * this service can be accessed from every page. If needed to search for gene by text-field
+ */
 angular.module("DoChaP").service("querySearchService", function ($window,webService) {
     self = this;
 

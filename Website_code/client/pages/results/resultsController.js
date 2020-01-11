@@ -656,6 +656,8 @@ angular.module("DoChaP")
 
             }
         }
+
+        //for modals we need variable and function for opening:
         $scope.showWindow = undefined;
         $scope.openWindow = function (type, id) {
             $scope.showWindow = type;
@@ -670,6 +672,8 @@ angular.module("DoChaP")
             }
         }
 
+        //after every page-load or configuration change we create updated graphics 
+         //a function which its purpose is to load the canvases' graphics only after the elements finished loading
         function updateCanvases() {
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
@@ -729,7 +733,6 @@ angular.module("DoChaP")
             $("canvas")
             .mousemove(function (event) {
              showTextValues = showText(event);
-              // $window.alert(JSON.stringify(showTextValues));
               if (showTextValues[0]) {
                 $("#myTooltip").show();
                 $("#myTooltip").css("top", event.pageY);
@@ -737,18 +740,14 @@ angular.module("DoChaP")
                 $("#myTooltip").text(showTextValues[1]); 
               } else {
                 $("#myTooltip").hide();
-              }
-      
-              //   }).mouseout(function () {
-      
+              }  
             });
+            //when to show modal
             function showText(event) {
                 res = [false, ""];
                 if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
                     offset =event.target.getBoundingClientRect();
                   exon = self.toolTipManagerForCanvas[event.target.id];
-                //   $window.alert(event.clientX - offset.left);
-                //   $window.alert(event.clientY- offset.top);
                   for (var i = 0; i < exon.length; i++) {
                     if (event.clientX - offset.left >= exon[i][0] && event.clientX- offset.left <= exon[i][0] + exon[i][2] &&
                       event.clientY - offset.top>= exon[i][1] && event.clientY- offset.top <= exon[i][1] + exon[i][3]) {
@@ -766,12 +765,10 @@ angular.module("DoChaP")
                 $scope.showWindow = false
             }
         }
-        //a function which its purpose is to load the canvases' graphics only after the elements finished loading
-
-
+      
         $scope.chromosomeLocation = self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
 
-
+        //zooming in by receiving new ends and calculating in between the new graphics
         self.zoomInFunction = function () {
             if (startWanted.value >= endWanted.value) {
                 $window.alert("the start coordinate must be before the end coordinate");
@@ -792,10 +789,14 @@ angular.module("DoChaP")
             $route.reload();
         }
         $(document).ready(function (self) {
-            //closeLoadingText();
             updateCanvases();
         });
 
+        /*
+        for using tooltip we need for all canvases to hold information on areas for
+        tooltip and the text wanted for them. this means we need to go over each
+        exon or domain and look we it is drawn
+        */
         function createTooltipManager(){
             self.toolTipManagerForCanvas={};
             for( var i=0;i<$scope.transcripts.length; i++){
