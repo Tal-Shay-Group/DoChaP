@@ -39,7 +39,8 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
         colorStyleByLength=true;
     }
     ansGene.geneExons=createGeneExonInfo(gene.geneExons,gene.transcripts,ansGene,colorStyleByLength);
-    //calculate things for each transcript
+    
+    //add preferences
     if(preferences!=undefined && preferences.start!=undefined){
         var start = preferences.start;    
     }
@@ -52,7 +53,6 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     else{
         var end = findEndCoordinate(gene.transcripts);
     }
-    
     var maxProteinLength= findmaxProteinLength(gene.transcripts);
     if(preferences!=undefined && preferences.proteinStart!=undefined){
         var proteinStart = preferences.proteinStart;    
@@ -67,12 +67,13 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
         var proteinEnd = maxProteinLength;
     }
     
+    //push transcripts
     for (var i = 0; i < gene.transcripts.length; i++) {
         if(ignorePredictionsT==false || gene.transcripts[i].transcript_id.substring(0,2)=="NM"){
             ansGene.transcripts.push(createGraphicInfoForTranscript(gene.transcripts[i], start, end,maxProteinLength, ansGene.geneExons,ansGene.specie,proteinStart,proteinEnd));
        }
     } 
-    //for showing nm before xm
+    //for showing by size (commented is showing nm before xm)
     function compare( a, b ) {
         /*if ( a.id.substring(0,2) < b.id.substring(0,2) ){
           return -1;
@@ -94,6 +95,8 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
    
     return ansGene;
 }
+
+//creating genomic scale object
 function createScale(start,end,strand,chromosomeName){
     var scale=new Object;
     scale.start=start;
@@ -102,6 +105,8 @@ function createScale(start,end,strand,chromosomeName){
     scale.chromosomeName=chromosomeName;
     return scale;
 }
+
+//creating protein scale object
 function createProteinScale(length){
     var proteinScale=new Object;
     proteinScale.length=length;
@@ -144,8 +149,7 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     //calculate things for each transcript
     for (var i = 0; i < transcript.transcriptExons.length; i++) {
         ansTranscript.exons[i] = new Object();
-        //-1 zero base
-        ansTranscript.exons[i].transcriptViewStart = transcript.transcriptExons[i].genomic_start_tx - startCoordinate-1;
+        ansTranscript.exons[i].transcriptViewStart = transcript.transcriptExons[i].genomic_start_tx - startCoordinate-1;  //-1  because it is zero based
         ansTranscript.exons[i].transcriptViewEnd = transcript.transcriptExons[i].genomic_end_tx - startCoordinate;
         ansTranscript.exons[i].exonViewStart = transcript.transcriptExons[i].abs_start_CDS-proteinStart;
         ansTranscript.exons[i].exonViewEnd = transcript.transcriptExons[i].abs_end_CDS-proteinStart;
@@ -157,7 +161,7 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
         ansTranscript.exons[i].isUTRAll=false;
         ansTranscript.exons[i].orderInTranscript=transcript.transcriptExons[i].order_in_transcript;
         
-        
+        //finding utr for later drawings 
         if(transcript.transcriptExons[i].abs_start_CDS==0){ //that is the representation is the database
             ansTranscript.exons[i].isUTRAll=true;
         }
@@ -216,6 +220,7 @@ function findEndCoordinate(transcripts) {
     return endPoint;
 }
 
+//finding the longest protein length so graphics will be measured according to it 
 function findmaxProteinLength(transcripts){
     var maxProtein=0;
     for(var i=0; i<transcripts.length;i++){
@@ -226,6 +231,7 @@ function findmaxProteinLength(transcripts){
     return maxProtein*3; //because we need length in nucleotides
 }
 
+//selecting color and related transcripts for each exon
 function createGeneExonInfo(geneExons,geneTranscripts,ansGene,colorByLength){
     var exonInfo={};
     var exonForTable=[];
@@ -262,6 +268,7 @@ function createGeneExonInfo(geneExons,geneTranscripts,ansGene,colorByLength){
     return exonInfo;
 }
 
+//checking for overlapping domains in positions. if it is overlapping at least once it is true
 function findOverlaps(domains){
     function compare( a, b ) {
         if ( a.start < b.start ){
@@ -291,6 +298,8 @@ function findOverlaps(domains){
         }
       }
 }
+
+//sort *domains* by size
 function orderBySize(domainArr){
     function compare( a, b ) {
         aLength=a.end-a.start;
@@ -306,6 +315,7 @@ function orderBySize(domainArr){
       domainArr.sort(compare);
 }
 
+//when seeing overlapping domains it choses which one to show text to
 function showNameOfDomains(domains){
     for(var i=0;i<domains.length;i++){
         
@@ -326,6 +336,7 @@ function showNameOfDomains(domains){
     }
 }
 
+//finding transcripts for each exon O(n*m) when n is number of transcripts and m number of exons
 function getTranscriptsForExon(start,end,transcripts){
     var ans=""
     for(var i=0; i<transcripts.length;i++){
@@ -342,13 +353,17 @@ function getTranscriptsForExon(start,end,transcripts){
     return ans;
 }
 
+//calculating ensemble transcript link
 function getEnsemblTranscriptLink(ensembl_id,specie){
     return "https://www.ensembl.org/"+ensembleSpecieName(specie)+"/Transcript/Summary?db=core;t="+ensembl_id;
 }
+
+//calculating ensemble protein link
 function getEnsemblProteinLink(ensembl_id,specie){
     return "https://www.ensembl.org/"+ensembleSpecieName(specie)+"/Transcript/ProteinSummary?db=core;p="+ensembl_id;
 }
 
+//this function returns the right specie name as it is in Ensembl
 function ensembleSpecieName(specie){
     if(specie=="M_Musculus"){
         return "Mus_musculus";
@@ -358,10 +373,12 @@ function ensembleSpecieName(specie){
     return undefined;
 }
 
+//calculating ensemble gene link
 function getEnsemblGeneLink(ensembl_id,specie){
     return "https://www.ensembl.org/"+ensembleSpecieName(specie)+"/Gene/Summary?db=core;g="+ensembl_id;
 }
 
+//TODO? is it used? might delete
 function runGenesCreationTry2(result,ignorePredictions){
     var geneList=[];
 

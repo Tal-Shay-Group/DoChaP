@@ -1,3 +1,9 @@
+/*
+ * This is the running file that opens the server and get rewuests 
+ * for html files and query-searches.  
+ */
+
+
 //technical server constructors
 var fs = require('fs');
 var http = require('http');
@@ -25,19 +31,22 @@ app.use(express.json(), function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
+//site files
 app.use(express.static('client'));
 
-
+//mail sender for contact us requests
 app.get('/sendMail/:name/:mail/:msg', (req, res) => {
     var mailOptions = {
       from: '',
-      to: 'galozs@post.bgu.ac.il',
+      to: '', //add on server the e-mail
       subject: 'new Message via DoChaP Contact Us.',
       text: "reply to: "+req.params.mail +"\nmessage: \n"+req.params.msg
     };
     
     transporter.sendMail(mailOptions, function(error, info){ });
 });
+
 //querySearch module constructor
 const querySearch = require("./querySearch");
 app.use('/', querySearch);
