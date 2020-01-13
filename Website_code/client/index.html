@@ -93,8 +93,11 @@ Logo and navigation bars will be declared here for example.
               -->
              <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
                     <select class="form-control searchBySpecie" id="indexSpecies">
-                        <option value="H_sapiens">human</option>
-                        <option value="M_musculus">mouse</option>
+                        <option value="H_sapiens">Human</option>
+                        <option value="M_musculus">Mouse</option>
+                        <option value="R_norvegicus">Rat</option>
+                        <option value="D_rerio">Zebrafish</option>
+                        <option value="X_tropicalis">Frog</option>
                     </select>
                     <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField">
                    &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="indexCtrl.search()">

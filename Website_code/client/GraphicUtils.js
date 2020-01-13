@@ -26,6 +26,7 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
     ansGene.MGI_id=gene.MGI_id; 
     ansGene.ensembl_id=gene.ensembl_id; 
     ansGene.specie=gene.specie;
+    ansGene.specieName=getSpecieName(gene.specie);
     ansGene.EnsemblLink=getEnsemblGeneLink(gene.ensembl_id,gene.specie); 
     /*if(ansGene.specie=="H_sapiens"){
         ansGene.specie="Human";
@@ -89,7 +90,7 @@ function createGraphicInfoForGene(gene,ignorePredictionsT,preferences) {
         }
         return 0;
       }
-    ansGene.transcripts.sort(compare);
+    ansGene.transcripts=ansGene.transcripts.sort(compare);
     ansGene.scale=createScale(start,end,gene.strand,gene.chromosome);
     ansGene.proteinScale=createProteinScale(maxProteinLength);
    
@@ -145,6 +146,7 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
     ansTranscript.transcriptView=true;
     ansTranscript.proteinView=true;
     ansTranscript.shownLength=proteinEnd-proteinStart;
+    ansTranscript.proteinStart=proteinStart;
 
     //calculate things for each transcript
     for (var i = 0; i < transcript.transcriptExons.length; i++) {
@@ -386,4 +388,23 @@ function runGenesCreationTry2(result,ignorePredictions){
         geneList.push(createGraphicInfoForGene(result.genes[i],ignorePredictions));
     }
     return geneList;
+}
+
+function getSpecieName(specie){
+    if(specie=="M_musculus"){
+        return "(Mouse, mm10)"
+    }
+    if(specie=="H_sapiens"){
+        return "(Human, hg38)"
+    }
+    if(specie=="R_norvegicus"){
+        return "(Rat, rn6)"
+    }
+    if(specie=="D_rerio"){
+        return "(Zebrafish, danRer11)"
+    }
+    if(specie=="X_tropicalis"){
+        return "(Frog, xenTro9)"
+    }
+    return undefined;
 }

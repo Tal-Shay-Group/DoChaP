@@ -207,7 +207,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   }
 }
 $scope.filterUnreviewed = function () {
-  var newResults=compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")),$window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked));
+  $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
+  var newResults=compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")), isReviewedCheckBox.checked);
   self.specie1Gene=newResults[0];
   self.specie2Gene=newResults[1];
   $(document).ready(function (self) {

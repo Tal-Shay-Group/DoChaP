@@ -87,11 +87,13 @@ function buildProteinView(canvasID, transcript) {
     //calculate places with no non-coding areas
     var domainsInProtein = transcript.domains; 
     var coordinatesWidth =((canvasWidth-50)/transcript.shownLength) ;
-
+    contextP.closePath();
+    contextP.beginPath();
     contextP.clearRect(0, 0, canvasWidth, canvasHeight);
+    contextP.closePath();
 
     //draw line
-    var proteinEndInView=transcript.shownLength*coordinatesWidth;
+    var proteinEndInView=(proteinLength-transcript.proteinStart)*coordinatesWidth;
     createBaseLine(contextP, 0, spacing, proteinEndInView, lineThickness);
 
     for (var i = 0; i < domainsInProtein.length; i++) {
@@ -278,7 +280,7 @@ function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,
 */
 function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, cw is the convertor
     var skip=1000; //skip is in genomic units
-    console.log(skip*coordinatesWidth);
+    //console.log(skip*coordinatesWidth);
     if (skip*coordinatesWidth<0.005 ){
         skip=50000000; //fifty million
     }else if (skip*coordinatesWidth<0.01 ){
@@ -449,8 +451,7 @@ function domainPositionsGivenGenomePositions(domains) {
 //calculations of gradient color
 function getGradientForDomain(start, end, domainCoordinates, spacing, exons, context) { //exons are absolute position for this to work
     var gradient = context.createLinearGradient(start, spacing, end, spacing); //contextP only for domains now
-    var whiteLineRadius = 8;
-
+    var whiteLineRadius = 10;
     for (var i = 0; i < exons.length; i++) {
         if (exons[i].exonViewStart <= domainCoordinates.start && domainCoordinates.start <= exons[i].exonViewEnd && exons[i].exonViewStart <= domainCoordinates.end && domainCoordinates.end <= exons[i].exonViewEnd) {
             //no junctions so only one color

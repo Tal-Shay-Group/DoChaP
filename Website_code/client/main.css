@@ -30,13 +30,15 @@ body {
 
     text-align: left;
     font-size: 16px;
-
-    box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
-    left: 50%;
     /* overflow: auto; */
+    box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
     padding: 5px;
+    left: 50%;
     top: 50%;
+    
     margin: auto;
+    /*position: absolute;
+    z-index: 1000;*/
 
 }
 
