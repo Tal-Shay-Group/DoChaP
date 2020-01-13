@@ -735,8 +735,8 @@ angular.module("DoChaP")
              showTextValues = showText(event);
               if (showTextValues[0]) {
                 $("#myTooltip").show();
-                $("#myTooltip").css("top", event.pageY);
-                $("#myTooltip").css("left", event.pageX);
+                $("#myTooltip").css("top", event.pageY+5);
+                $("#myTooltip").css("left", event.pageX+5);
                 $("#myTooltip").text(showTextValues[1]); 
               } else {
                 $("#myTooltip").hide();
@@ -809,15 +809,12 @@ angular.module("DoChaP")
                 var spacing=25;
                 var canvasP = document.getElementById(proteinCanvasID);
                 var canvasWidth = canvasP.width;
-                var coordinatesWidth =((canvasWidth-50)/$scope.transcripts[i].maxProteinLength) ;
+                var coordinatesWidth =((canvasWidth-50)/$scope.transcripts[i].shownLength) ;
                 //calculations
                 domainWidth = (domains[j].end - domains[j].start) * coordinatesWidth;
                 domainHeight = 45;
                 domainX = domains[j].start * coordinatesWidth;
                 domainY = spacing - domainHeight / 2;
-                if( domainX+domainWidth>=canvasWidth){
-                    domainWidth=Math.max(1,canvasWidth-domainX-2);
-                }
                 self.toolTipManagerForCanvas[proteinCanvasID].push([domainX,domainY,domainWidth,domainHeight,domains[j].name]);
             }
                 for(j=0; j<$scope.transcripts[i].exons.length;j++){
@@ -827,7 +824,7 @@ angular.module("DoChaP")
                     var canvasWidth = canvasE.width;
                     var lineThickness = 4;
                     var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-                    var coordinatesWidth = ((canvasWidth-50)/$scope.transcripts[i].maxProteinLength) ;
+                    var coordinatesWidth = ((canvasWidth-50)/$scope.transcripts[i].shownLength) ;
                         exonWidth = (exons[j].exonViewEnd - exons[j].exonViewStart + 1) * coordinatesWidth;
                         exonHeight = 25;
                         exonX = exons[j].exonViewStart * coordinatesWidth; //currX;
@@ -835,14 +832,8 @@ angular.module("DoChaP")
                         if( exonX+exonWidth>=canvasWidth){
                             exonWidth=Math.max(1,canvasWidth-exonX-2);
                         }
-                        self.toolTipManagerForCanvas[transcriptCanvasID].push([exonX,exonY,exonWidth,exonHeight,"order in transcript: "+exons[j].orderInTranscript]);
-                       
+                        self.toolTipManagerForCanvas[transcriptCanvasID].push([exonX,exonY,exonWidth,exonHeight,"order in transcript: "+exons[j].orderInTranscript]);           
                     }
                 }
-
             }
-        
-
-
-
     });

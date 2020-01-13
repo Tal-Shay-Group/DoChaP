@@ -13,9 +13,9 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window,webS
             if (genesFound.length <=1) {
                 return ["error","sorry! no results were found"];
             }
-            else if(genesFound.length >=3){
+            /*else if(genesFound.length >=3){
                 return ["error","sorry! found more genes than expected. try different name."];
-            }
+            }*/
             else{
                 geneFound=orderTheGenesBySpecie(genesFound,specie1,specie2);
                 $window.sessionStorage.setItem("currCompareSpecies",JSON.stringify(response.data));
@@ -33,15 +33,20 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window,webS
 
     };
     function orderTheGenesBySpecie(genesFound,specie1,specie2){
-        if(genesFound[0].specie==specie1&&genesFound[1].specie==specie2){
-            return genesFound;
-        } else if (genesFound[1].specie==specie1&&genesFound[0].specie==specie2){
-            return [genesFound[1],genesFound[0]]
-        }
-        else{
-            //should never get here
+        var specie1Gene=undefined;
+        var specie2Gene=undefined;
+        for(var i=0; i<genesFound.length;i++){
+            if(genesFound[i].specie==specie1){
+                specie1Gene=genesFound[i];
+            }
+            if(genesFound[i].specie==specie2){
+                specie2Gene=genesFound[i];
+            }
+        } 
+        if(specie1Gene==undefined || specie2Gene==undefined){
             return undefined;
         }
+        return [specie1Gene,specie2Gene]
     }
     this.filterUnreviewed=function(results,ignorePredictions){
             return runGenesCreation(results,ignorePredictions,{colorByLength:true});       
