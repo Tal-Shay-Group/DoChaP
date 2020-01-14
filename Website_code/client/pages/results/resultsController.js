@@ -9,6 +9,12 @@ angular.module("DoChaP")
         isReviewedCheckBox.checked = ignorePredictions;
         $scope.canvasSize = 550;
         $scope.viewMode = "all";
+        self.toolTipManagerForCanvas = {
+            "canvas-protein0" : [
+              [50,0, 50, 70, " this is red"],
+              [150, 0, 50, 70, "this is blue"]
+            ]
+          };
         if (loadedGene == undefined) {
             //example in case nothing is entered in search
             loadedGene = {
@@ -650,6 +656,8 @@ angular.module("DoChaP")
 
             }
         }
+
+        //for modals we need variable and function for opening:
         $scope.showWindow = undefined;
         $scope.openWindow = function (type, id) {
             $scope.showWindow = type;
@@ -664,6 +672,8 @@ angular.module("DoChaP")
             }
         }
 
+        //after every page-load or configuration change we create updated graphics 
+         //a function which its purpose is to load the canvases' graphics only after the elements finished loading
         function updateCanvases() {
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
@@ -673,9 +683,10 @@ angular.module("DoChaP")
             }
             buildScaleView("canvas-scale", self.geneInfo.scale);
             buildScaleViewForProtein("canvas-scale-protein", self.geneInfo.proteinScale);
+            createTooltipManager();
             $('#canvas-scale').hide().fadeIn(1000);
             $('#canvas-scale-protein').hide().fadeIn(1000);
-            $(".js-range-slider").ionRangeSlider({
+            $('#genomic_range').ionRangeSlider({
                 type: "double",
                 min: self.geneInfo.scale.start,
                 max: self.geneInfo.scale.end,
@@ -693,9 +704,59 @@ angular.module("DoChaP")
                     $(document).ready(function () {
                         updateCanvases();
                     });
+
                 }
                 
             });
+            $('#protein_range').ionRangeSlider({
+                type: "double",
+                min: 0,
+                max: self.geneInfo.proteinScale.length,
+                from: 0,
+                to: self.geneInfo.proteinScale.length,
+                grid: true,
+                onFinish: function (data) {
+                    self.geneInfo = createGraphicInfoForGene(loadedGene.genes[0], isReviewedCheckBox.checked, {
+                        proteinStart: data.from,
+                        proteinEnd: data.to
+                    });
+                    $scope.transcripts = self.geneInfo.transcripts;
+                    $scope.geneName = self.geneInfo.gene_symbol;
+                    /*$scope.$apply();*/
+                    $(document).ready(function () {
+                        updateCanvases();
+                    });
+
+                }
+                
+            });
+            $("canvas")
+            .mousemove(function (event) {
+             showTextValues = showText(event);
+              if (showTextValues[0]) {
+                $("#myTooltip").show();
+                $("#myTooltip").css("top", event.pageY+5);
+                $("#myTooltip").css("left", event.pageX+5);
+                $("#myTooltip").text(showTextValues[1]); 
+              } else {
+                $("#myTooltip").hide();
+              }  
+            });
+            //when to show modal
+            function showText(event) {
+                res = [false, ""];
+                if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
+                    offset =event.target.getBoundingClientRect();
+                  exon = self.toolTipManagerForCanvas[event.target.id];
+                  for (var i = 0; i < exon.length; i++) {
+                    if (event.clientX - offset.left >= exon[i][0] && event.clientX- offset.left <= exon[i][0] + exon[i][2] &&
+                      event.clientY - offset.top>= exon[i][1] && event.clientY- offset.top <= exon[i][1] + exon[i][3]) {
+                      return [true, exon[i][4]];
+                    }
+                  }
+                }
+                return res;
+              }
          
         }
 
@@ -704,12 +765,10 @@ angular.module("DoChaP")
                 $scope.showWindow = false
             }
         }
-        //a function which its purpose is to load the canvases' graphics only after the elements finished loading
-
-
+      
         $scope.chromosomeLocation = self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
 
-
+        //zooming in by receiving new ends and calculating in between the new graphics
         self.zoomInFunction = function () {
             if (startWanted.value >= endWanted.value) {
                 $window.alert("the start coordinate must be before the end coordinate");
@@ -730,8 +789,51 @@ angular.module("DoChaP")
             $route.reload();
         }
         $(document).ready(function (self) {
-            //closeLoadingText();
             updateCanvases();
         });
 
+        /*
+        for using tooltip we need for all canvases to hold information on areas for
+        tooltip and the text wanted for them. this means we need to go over each
+        exon or domain and look we it is drawn
+        */
+        function createTooltipManager(){
+            self.toolTipManagerForCanvas={};
+            for( var i=0;i<$scope.transcripts.length; i++){
+                var proteinCanvasID="canvas-protein"+i;
+                var transcriptCanvasID="canvas-transcript"+i;
+                self.toolTipManagerForCanvas[proteinCanvasID]=[];
+                self.toolTipManagerForCanvas[transcriptCanvasID]=[];
+            for (var j= $scope.transcripts[i].domains.length-1; j >= 0; j--) {
+                var domains=$scope.transcripts[i].domains;
+                var spacing=25;
+                var canvasP = document.getElementById(proteinCanvasID);
+                var canvasWidth = canvasP.width;
+                var coordinatesWidth =((canvasWidth-50)/$scope.transcripts[i].shownLength) ;
+                //calculations
+                domainWidth = (domains[j].end - domains[j].start) * coordinatesWidth;
+                domainHeight = 45;
+                domainX = domains[j].start * coordinatesWidth;
+                domainY = spacing - domainHeight / 2;
+                self.toolTipManagerForCanvas[proteinCanvasID].push([domainX,domainY,domainWidth,domainHeight,domains[j].name]);
+            }
+                for(j=0; j<$scope.transcripts[i].exons.length;j++){
+                    var exons = $scope.transcripts[i].exons;
+                    var canvasE = document.getElementById(transcriptCanvasID);
+                    var canvasHeight = canvasE.height;
+                    var canvasWidth = canvasE.width;
+                    var lineThickness = 4;
+                    var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
+                    var coordinatesWidth = ((canvasWidth-50)/$scope.transcripts[i].shownLength) ;
+                        exonWidth = (exons[j].exonViewEnd - exons[j].exonViewStart + 1) * coordinatesWidth;
+                        exonHeight = 25;
+                        exonX = exons[j].exonViewStart * coordinatesWidth; //currX;
+                        exonY = spacing - exonHeight / 2;
+                        if( exonX+exonWidth>=canvasWidth){
+                            exonWidth=Math.max(1,canvasWidth-exonX-2);
+                        }
+                        self.toolTipManagerForCanvas[transcriptCanvasID].push([exonX,exonY,exonWidth,exonHeight,"order in transcript: "+exons[j].orderInTranscript]);           
+                    }
+                }
+            }
     });

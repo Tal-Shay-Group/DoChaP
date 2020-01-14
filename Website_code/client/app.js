@@ -1,3 +1,6 @@
+/**
+ * configuring html pages for every page URL
+ */
 let app = angular.module('DoChaP', ["ngRoute"])
 
 // config routes

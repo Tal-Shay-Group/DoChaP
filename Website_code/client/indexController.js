@@ -1,6 +1,12 @@
+/**
+ * this controller manages the top part of the site that stays there for everypage.
+ * includes logo and navigation bar
+ */
 angular.module("DoChaP").controller('indexController', function ($scope, $location, querySearchService,$window,$route) {
    self = this;
    $scope.showQuickSearch = false;
+
+   //changing text in page name to white if we are on the current page
    $scope.$on('$locationChangeSuccess', function () {
       var headers = $('li');
       var currAddress = "#!" + $location.path().substring(1);
@@ -13,6 +19,8 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
       });
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" &&currAddress != "#!");
    });
+
+   //searching for query using the navigation text field
    self.search = async function () {
       var query = indexTextField.value;
       var specie = indexSpecies.value;

@@ -1,18 +1,29 @@
+<!--
+
+    current homepage. Will have small description and search poptions
+-->
+
 <html>
 <!-- display all categories -->
 
 <body ng-app="DoChaP" ng-controller="querySearchCtrl">
     <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
         <div class="searchItems form-inline">
+            <!--
+                searching for domains here
+            -->
             <center>
                <i> <h2>Search for exon-domain associations</h2></i>
             </center>
-            <br>
+
             
             <i> Species&nbsp;&nbsp;</i>
             <select id="searchBySpecie" class="form-control searchBySpecie">
-                <option value="H_sapiens">human</option>
-                <option value="M_musculus">mouse</option>
+                <option value="H_sapiens">Human</option>
+                <option value="M_musculus">Mouse</option>
+                <option value="R_norvegicus">Rat</option>
+                <option value="D_rerio">Zebrafish</option>
+                <option value="X_tropicalis">Frog</option>
             </select>&nbsp;&nbsp;
             <i>Search Term&nbsp;&nbsp;</i>
             <input placeholder="  enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass"
@@ -42,6 +53,9 @@
         </div>
         <br>
         <br>
+        <!--
+            small explanation on the website
+        -->
         <div class="searchItems"
             style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px">
             <p><strong>Overview:</strong></p>

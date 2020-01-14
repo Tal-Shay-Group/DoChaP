@@ -24,9 +24,10 @@ angular.module("DoChaP")
             if(results[0]=="error"){
                 $scope.alert=results[1];
             }
+            $scope.$apply();
         }
 
-
+        //when clicking on example button
         self.exmaple = function (input) {
             $('#searchTextField').val(input);
             if (input == "NM_001033537.2") {
