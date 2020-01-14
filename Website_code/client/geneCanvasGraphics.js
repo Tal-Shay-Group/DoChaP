@@ -2,7 +2,8 @@
     this file focuses on actual graphics. drawing the shapes in proportions, sizes and length.
     each view is coded differently and we hope to write code that can be easily handled and managed.
 */
-// transcript view consists of line and rectangles with exon order names
+
+// genomic view consists of line and rectangles with exon order names
 function buildGenomicView(canvasID, transcript) {
     var exons = transcript.exons;
     if (exons == undefined) {
@@ -10,7 +11,6 @@ function buildGenomicView(canvasID, transcript) {
     }
 
     //calculations
-    //var colorDict = transcript.colorDict;
     var canvasT = document.getElementById(canvasID); //$('#' + canvasID); 
     var contextT = canvasT.getContext("2d");
     var canvasHeight = canvasT.height;
@@ -24,10 +24,6 @@ function buildGenomicView(canvasID, transcript) {
     var coordinatesWidth = (canvasT.width-beginningEmpty-endEmpty) / lengthOfGene;
     var startCoordinate=transcript.startCoordinate;
     
-    contextT.fillStyle = "white";
-    contextT.fillRect(0, 0, canvasWidth, canvasHeight);
-    //contextT.fill();
-
     //gridlines
     createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,true,spacing);
 
@@ -46,7 +42,7 @@ function buildGenomicView(canvasID, transcript) {
     }
 
 }
-// exon view consists  exon rectangles filling the canvas in order and proportions
+// transctipt view consists  exon rectangles filling the canvas in order and proportions
 function buildTranscriptView(canvasID, transcript) {
     //calculations
     var exons = transcript.exons;
@@ -57,12 +53,8 @@ function buildTranscriptView(canvasID, transcript) {
     var canvasWidth = canvasE.width;
     var lineThickness = 4;
     var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-    var coordinatesWidth = ((canvasWidth)/transcript.maxProteinLength) ;
+    var coordinatesWidth = ((canvasWidth-50)/transcript.shownLength) ;
     contextE.clearRect(0, 0, canvasWidth, canvasHeight);
-    //var currX = 0; //used if the area is calculated with genomePositions
-
-    //line graphics
-    //createBaseLine(contextE, 0, spacing, canvasWidth, lineThickness);
 
     //exon graphics
     for (var i = 0; i < exons.length; i++) {
@@ -76,20 +68,8 @@ function buildTranscriptView(canvasID, transcript) {
         if( exonX+exonWidth>=canvasWidth){
             exonWidth=Math.max(1,canvasWidth-exonX-2);
         }
-        //for now its the same exon drawer
+        //actual drawings
         drawExonInTranscriptView(contextE, i, exonX, exonY, exonWidth, exonHeight, exons[i].color,false);
-
-        //for now its the same exon drawer
-        /*contextE.fillStyle = colorDict[i];
-        contextE.fillRect(exonX, exonY, exonWidth, exonHeight);
-
-        contextE.fillStyle = "white";
-        contextE.fillText("" + (i + 1), exonX + 8, exonY + 8);
-
-        contextE.strokeStyle = "black";
-        contextE.strokeRect(exonX, exonY, exonWidth, exonHeight);
-        */
-        //currX = exonX + exonWidth;
     }
 }
 //protein view consists of a line and currently circles in color of exons they are made of in gradient manner
@@ -102,17 +82,18 @@ function buildProteinView(canvasID, transcript) {
     var canvasWidth = canvasP.width;
     var proteinLength= transcript.proteinLength;
     var lineThickness = 4;
-    // var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
     var spacing=25;
     //domains
     //calculate places with no non-coding areas
-    var domainsInProtein = transcript.domains; //[]
-    var coordinatesWidth =((canvasWidth)/transcript.maxProteinLength) ;
-
+    var domainsInProtein = transcript.domains; 
+    var coordinatesWidth =((canvasWidth-50)/transcript.shownLength) ;
+    contextP.closePath();
+    contextP.beginPath();
     contextP.clearRect(0, 0, canvasWidth, canvasHeight);
+    contextP.closePath();
 
-    //line. 
-    var proteinEndInView=proteinLength*coordinatesWidth;
+    //draw line
+    var proteinEndInView=(proteinLength-transcript.proteinStart)*coordinatesWidth;
     createBaseLine(contextP, 0, spacing, proteinEndInView, lineThickness);
 
     for (var i = 0; i < domainsInProtein.length; i++) {
@@ -124,19 +105,22 @@ function buildProteinView(canvasID, transcript) {
         overlap = false;//domainsInProtein[i].overlap;
         shapeID=domainsInProtein[i].typeID%4; //currently its random
         domainText=domainsInProtein[i].showText;
-        if( domainX+domainWidth>=canvasWidth){
-            domainWidth=Math.max(1,canvasWidth-domainX-2);
-        }
+
+        // if( domainX+domainWidth>=canvasWidth){
+        //     domainWidth=Math.max(1,canvasWidth-domainX-2);
+        // }
         //calculate domain colors and gradient
         gradient = getGradientForDomain(domainX, domainX + domainWidth, domainsInProtein[i], spacing, exons, contextP);
         
         //domain draw
-        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name,overlap,shapeID,domainText);
+        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name.replace("_","\n").replace(" ","\n"),overlap,shapeID,domainText);
     }
- 
 }
-function buildScaleView(canvasID, scale) {
 
+/**
+ * scale is needed for understanding proportions 
+ */
+function buildScaleView(canvasID, scale) {
     //calculations
     var canvasS = document.getElementById(canvasID);
     var contextS = canvasS.getContext("2d");
@@ -166,15 +150,16 @@ function buildScaleView(canvasID, scale) {
     //labels for counting
     createNumberLabelsForScale(contextS,lengthOfScale,skip,coordinatesWidth,beginningEmpty,spacing,scale.start);
     
-    
     //draw arrow 
     drawArrow(contextS,strand,200,(canvasWidth-200)/2,110);
-
-
 }
 
+/**
+ * this scale is for transcript and protein views to understand proportions
+ * @param {string} canvasID - name of canvas in controller
+ * @param {proteinScale object} proteinScale all information calculated needed
+ */
 function buildScaleViewForProtein(canvasID, proteinScale) {
-
     //calculations
     var canvasS = document.getElementById(canvasID);
     var contextS = canvasS.getContext("2d");
@@ -183,22 +168,30 @@ function buildScaleViewForProtein(canvasID, proteinScale) {
     var lineThickness = 8;
     var spacing = 70; //space from top
     var lengthOfScale = proteinScale.length/3; //both in necluotides
-    var coordinatesWidth = (canvasS.width) / lengthOfScale;
+    var coordinatesWidth = (canvasS.width-50) / lengthOfScale;
     //var skip=100;
     var skip=getSkipSize(lengthOfScale,coordinatesWidth);
     contextS.clearRect(0, 0, canvasWidth, canvasHeight);
 
     //gridlines
-    createProteinGridLines(contextS,coordinatesWidth,spacing,canvasWidth,skip);
+    createProteinGridLines(contextS,coordinatesWidth,spacing,lengthOfScale*coordinatesWidth,skip);
 
     //line graphics
-    createBaseLine(contextS, 0, spacing, canvasWidth, lineThickness);
-     
-    
-
+    createBaseLine(contextS, 0, spacing, lengthOfScale*coordinatesWidth, lineThickness);
 }
 
-
+/**
+ * builds gridlines after constant skip. for genomic view only
+ * @param {*} contextT context of the canvas wanted
+ * @param {*} beginningEmpty pixels empty in start
+ * @param {*} coordinatesWidth needed for pixal to nuc conversion 
+ * @param {*} canvasHeight 
+ * @param {*} canvasWidth 
+ * @param {*} lengthOfGene in nuc units
+ * @param {*} startCoordinate 
+ * @param {boolean} isinMiddle  gridline from middle or from bottom mostly
+ * @param {*} spacing length from top
+ */
 function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,isinMiddle,spacing){
     var gridLength=10;
     var startHeight=spacing-gridLength;
@@ -209,7 +202,6 @@ function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,c
         contextT.fillStyle ="black";
     }
     
-    
     var skip=getSkipSize(lengthOfGene,coordinatesWidth);    
    // contextT.fillRect(beginningEmpty, startHeight, 1,gridLength);
     var secondCoordinate=skip-(startCoordinate%skip); //the length till the next rounded after start
@@ -218,6 +210,10 @@ function createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,c
     }
     
 }
+/** 
+ * this is for the transcript and protein scales. add gridline after constant skip
+ * distance calculated and the position.
+*/
 function createProteinGridLines(context,coordinatesWidth,startHeight,canvasWidth,skip){
     var gridLength=30;
     var lineheight= startHeight-(gridLength-8)/2;
@@ -249,11 +245,11 @@ function createProteinGridLines(context,coordinatesWidth,startHeight,canvasWidth
         context.fillText(numberToTextWithCommas(i), 0, 0);
         context.restore();
      }
-        
-
 }
 
-
+/** 
+ * creating labels for genomic scale. 
+*/
 function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,beginningEmpty,spacing,scaleStart){
     //first coordinate
       /*  context.save();
@@ -265,7 +261,7 @@ function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,
         context.fillText(numberToTextWithCommas(scaleStart), 0,  0);
         context.restore();*/
     var currLabel=scaleStart-(scaleStart%skip)+skip;// space in the beginning
-    var endEmpty=50/coordinatesWidth;//its 30 pixels in genome units
+    var endEmpty=50/coordinatesWidth;//its 50 pixels in genome units
     for( var i=(skip-(scaleStart%skip)); i<lengthOfScale-endEmpty ; i=i+skip){
         context.save();
         context.translate(coordinatesWidth*i+beginningEmpty,spacing-8);
@@ -279,9 +275,12 @@ function createNumberLabelsForScale(context,lengthOfScale,skip,coordinatesWidth,
     }
 }
 
+/** 
+ * selecting how musch is for skip. depends on proportions between the canvas size and protein size
+*/
 function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, cw is the convertor
     var skip=1000; //skip is in genomic units
-    console.log(skip*coordinatesWidth);
+    //console.log(skip*coordinatesWidth);
     if (skip*coordinatesWidth<0.005 ){
         skip=50000000; //fifty million
     }else if (skip*coordinatesWidth<0.01 ){
@@ -317,6 +316,9 @@ function getSkipSize(lengthOfScale,coordinatesWidth){ ///length in base units, c
     */
 }
 
+/** 
+ * drawing the arrow for strand
+*/
 function drawArrow(context,strand,arrowLength,width,height){ //width and height in which the arrow starts
     var arrowWidthLine=8;
     //baseline
@@ -356,6 +358,7 @@ function getRandomColor() {
     return color;
 }
 
+//selecting color from list (deterministic yet not in order)
 function getcolorFromList(colorArr) {
     i=colorArr.length%3;
     if(i==0){
@@ -369,10 +372,17 @@ function getcolorFromList(colorArr) {
     //return  colorArr.splice(0, 1);
 }
 
+/** 
+ * color that same sized exon receive same colors
+*/
 function getcolorByLength(colorArr,length) {
     return colorArr[length%colorArr.length];
 }
 
+/**
+ * using a number to select color (same exons receive same colors)
+ * @param {number that somehow represent exon} number e.g. start coordinate
+ */
 function placeRedColor(number) {
     var letters = '0123456789ABCDEF';
     var color = '#FF';
@@ -383,10 +393,18 @@ function placeRedColor(number) {
     return color;
 }
 
+/**
+ * change int to string with comma for thaousands
+ * @param {int} number 
+ */
 function numberToTextWithCommas(number){
     //from internet! what to do with that
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+/**|
+ * color by place so the color changes as the position changes
+ */
 function placeCorrolationColor(number) {
     var letters = '0123456789ABCDEF';
     var color = '#';//+letters[rand1]+letters[rand1];
@@ -397,7 +415,6 @@ function placeCorrolationColor(number) {
     }
     return color;
 }
-
 
 /*calculate domain positions if given in genome postions (absoulute but includes introns).
 not needed anymore but may be handy in the future*/
@@ -434,8 +451,7 @@ function domainPositionsGivenGenomePositions(domains) {
 //calculations of gradient color
 function getGradientForDomain(start, end, domainCoordinates, spacing, exons, context) { //exons are absolute position for this to work
     var gradient = context.createLinearGradient(start, spacing, end, spacing); //contextP only for domains now
-    var whiteLineRadius = 8;
-
+    var whiteLineRadius = 10;
     for (var i = 0; i < exons.length; i++) {
         if (exons[i].exonViewStart <= domainCoordinates.start && domainCoordinates.start <= exons[i].exonViewEnd && exons[i].exonViewStart <= domainCoordinates.end && domainCoordinates.end <= exons[i].exonViewEnd) {
             //no junctions so only one color
@@ -586,12 +602,12 @@ function getCoordinatesWidth(exons, canvasWidth) { //exons is an array of [start
     return canvasWidth / coordinatesWidth; //divides so we know how wide is each coordinate
 }
 
-
+// add gradient color in shapes in wanted positions in canvas
 function drawDomainInProteinView(context, domainX, domainY, domainHeight, domainWidth, gradient, name,overlap,shapeID,domainText) {   
     //background color
     context.beginPath();
     context.fillStyle = gradient;
-    if(shapeID==0){
+    if(shapeID==0 || true){
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
     } else if(shapeID==1 ){
         context.moveTo(domainX, domainY);
@@ -624,11 +640,16 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
         context.save();
     context.translate(domainX+ domainWidth/2,domainY + domainHeight+8);
     context.rotate(Math.PI/16);
+    var lineheight = 15;
+    var lines = name.split('\n');
     context.fillStyle = "black"; //for text
     context.font = "bold 13px Calibri";
     context.shadowColor = "black";
     context.textAlign = "left";
-    context.fillText(name,0,0);
+    for (var i = 0; i<lines.length; i++){
+        context.fillText(lines[i], 0, 0+ (i*lineheight) );
+    }
+    //context.fillText(name,0,0);
     context.restore();
     }
     

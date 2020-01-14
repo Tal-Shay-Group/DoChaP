@@ -1,3 +1,7 @@
+/**
+ * this file control gene searches and querying the database
+ */
+
 const express = require("express");
 const app = express.Router();
 var DButils = require('./DButils');
@@ -90,16 +94,18 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
         }
 
     }
-
+    //after finding the genes, completing all information needed for results
     for (var i = 0; i < finalAns.genes.length; i++) {
         //get gene
         var gene = await sqlQuery("SELECT * FROM Genes WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
         finalAns.genes[i] = gene[0]; //first and only one who matches this id
         var sqlReviewed = "";
+        
         //because of new requirements- get all transcripts and filter on page
         // if (req.params.isReviewed == "true") {
         //     sqlReviewed = " AND transcript_id LIKE 'NM%' ";
         // }
+
         //get transcripts
         var transcripts = await sqlQuery("SELECT * FROM Transcripts WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'" + sqlReviewed);
         finalAns.genes[i].transcripts = transcripts;
@@ -127,7 +133,8 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
 
 });
 
-
+//if regular search does not work we find genes that are similar 
+//because the user may have wanted them and searched for something wrong
 async function closeGenes(geneName, specie) {
     if (geneName.substring(0, 2).toUpperCase() == "NM" ||
         geneName.substring(0, 2).toUpperCase() == "XM" ||
@@ -147,18 +154,13 @@ async function closeGenes(geneName, specie) {
             for (var j = 0; j < geneSynonyms.length; j++) {
                 if (geneSynonyms[j].toLowerCase() == geneName.toLowerCase()) {
                     synonyms.push(queryAns[i]);
-
-
                 }
-
             }
         }
-
-
     }
     return synonyms;
 }
-
+//by transcripts and proteins finding the gene that made them to be used for results
 async function closeProteins(geneName, specie) {
     var sqlSpecie = "";
     if (specie != "all") {
@@ -177,6 +179,7 @@ async function closeProteins(geneName, specie) {
     return queryAns2;
 }
 
+// added support for finding the gene by the Ensembl and Uniprot protein ID. returns the genes
 async function emsemblRecords(geneName, specie) {
     var sqlSpecie = "";
     if (specie != "all") {

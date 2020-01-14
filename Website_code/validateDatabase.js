@@ -1,7 +1,13 @@
+
+/**
+ * this class is only for developer's use. we will examine the database
+ * using these functions to make sure that we only preserve the correct data.
+ */
+
 var DButils = require('./DButils');
 
 ///main: !!
-//runTestsOnDB();
+runTestsOnDB();
 //end main
 
 

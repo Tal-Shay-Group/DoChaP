@@ -1,3 +1,6 @@
+/**
+ * this service can be accessed from every page. If needed to search for gene by text-field
+ */
 angular.module("DoChaP").service("querySearchService", function ($window,webService) {
     self = this;
 
@@ -23,7 +26,7 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
                         for (var i = 0; i < response.data.genes.length - 1; i++) {
                             message = message + response.data.genes[i].gene_symbol + ", ";
                         }
-                        message = "We did not find exact results. You can try one of the following:\n" +message + response.data.genes[response.data.genes.length - 1].gene_symbol;
+                        message = "We couldn't find an exact match for your query. Did you mean:\n" +message + response.data.genes[response.data.genes.length - 1].gene_symbol;
                         return ["error", message];
                     }
                 }

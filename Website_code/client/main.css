@@ -1,5 +1,5 @@
 body {
-    font-size: 24px;
+    font-size: 19px;
     background-color: rgb(255, 255, 255);
     font-family: "Calibri";
     /*background-color: rgb(196, 221, 217);*/
@@ -30,13 +30,15 @@ body {
 
     text-align: left;
     font-size: 16px;
-
-    box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
-    left: 50%;
     /* overflow: auto; */
+    box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
     padding: 5px;
+    left: 50%;
     top: 50%;
+    
     margin: auto;
+    /*position: absolute;
+    z-index: 1000;*/
 
 }
 
@@ -239,6 +241,18 @@ textarea {
     resize: none;
     overflow: auto;
 }
+#myTooltip {
+    background-color: rgb(61, 61, 61);
+    color: white;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px;
+    top: 50px;
+    left: 50px;
+    position: absolute;
+    z-index: 2;
+    display: none;
+  }
 
 /*label {
     font-size: 1.5em;

@@ -1,3 +1,10 @@
+/**
+ * this is one of the most speciual pafgesa i nthe site. 
+ * we compare the same gene in different species so we need to manage two different yet similar genes
+ * and sometimes anaylize together and sometimes alone.
+ * 
+ */
+
 angular.module("DoChaP").controller('compareSpeciesController', function ($window, $scope, $route, compareSpeciesService) {
   self = this;
   $scope.loading = false;
@@ -200,7 +207,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   }
 }
 $scope.filterUnreviewed = function () {
-  var newResults=compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")),$window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked));
+  $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
+  var newResults=compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")), isReviewedCheckBox.checked);
   self.specie1Gene=newResults[0];
   self.specie2Gene=newResults[1];
   $(document).ready(function (self) {
@@ -221,6 +229,14 @@ $scope.changeTranscriptView = function (index,species) { //hide transcript. chan
   specieToChange.transcripts[index].proteinView = false;
 
 };
+self.exmaple = function (input) {
+  $('#compareGeneSearchTextField').val(input);
 
+  $('#compareGeneSearchTextField').css("font-weight", "bold");
+  setTimeout(function () {
+      $('#compareGeneSearchTextField').css("font-weight", "");
+  }, 500);
+
+}
 
 });
