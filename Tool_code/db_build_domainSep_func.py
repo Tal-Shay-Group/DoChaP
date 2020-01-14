@@ -307,8 +307,8 @@ if __name__ == "__main__":
     #specie = 'R_norvegicus' #'M_musculus'#'H_sapiens' #  #'M_musculus_small'
     # files for flatfiles parser
     # Don't rerun - path for mouse
-    #gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
-     #      r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
+    gpff_path =[r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.1.protein.gpff', 
+           r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\M_musculus\flatfiles\mouse.2.protein.gpff']
     
     # Redownload
     #gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
@@ -321,9 +321,9 @@ if __name__ == "__main__":
     
     # Don't rerun - path for human
     #dirpath='data/H_sapiens/flatfiles/'
-    #dirpath = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\H_sapiens\flatfiles"
-    #gpff_path = [dirpath+'\human.2.protein.gpff', dirpath+'\human.1.protein.gpff', dirpath+'\human.7.protein.gpff',
-    #             dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
+   dirpath = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\data\H_sapiens\flatfiles"
+   gpff_path = [dirpath+'\human.2.protein.gpff', dirpath+'\human.1.protein.gpff', dirpath+'\human.7.protein.gpff',
+                 dirpath+'\human.4.protein.gpff', dirpath+'\human.5.protein.gpff', dirpath+'\human.8.protein.gpff', dirpath+'\human.6.protein.gpff', dirpath+'\human.3.protein.gpff']
     
     #parse
     #region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
