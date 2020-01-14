@@ -105,7 +105,7 @@ def create_tables_db(species):
         print('Creating the table: DomainType')
         cur.execute('''
                     CREATE TABLE DomainType(
-                            type_id INTEGER AUTO INCREMENT NOT NULL PRIMARY KEY UNIQUE,
+                            type_id INTEGER NOT NULL PRIMARY KEY UNIQUE,
                             name TEXT,
                             other_name TEXT,
                             description TEXT,
@@ -136,7 +136,7 @@ def create_tables_db(species):
                             ext_id TEXT,
                             splice_junction BOOLEAN,
                             complete_exon BOOLEAN,
-                            PRIMARY KEY(protein_id, type_id, AA_start, total_length),
+                            PRIMARY KEY(protein_id, type_id, AA_start, total_length, ext_id),
                             FOREIGN KEY(type_id) REFERENCES DomainType(type_id),
                             FOREIGN KEY(protein_id) REFERENCES Proteins(protein_id)
                             );'''
@@ -196,24 +196,26 @@ def fill_in_db(specie, name, add=True):
         cur = con.cursor()        
         geneSet = set()
         uExon =set()
+        domeve = set()
         dTypeDict = {}        
         dNames = {}
         dExt = {}
         dCDD = {}
-        if add:
-            dTypeID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
-            cur.execute('SELECT * FROM DomainType')
-            for ud in cur.fetchall():
-                c_ud = tuple(ud)
-                dTypeDict[c_ud[0]] = c_ud[1:] 
-                dNames[c_ud[1]] = c_ud[0]
-                for u_ext in c_ud[5:]:
-                    if u_ext != None:
-                        dExt[u_ext] = c_ud[0]
-                dCDD[c_ud[4]] = c_ud[0]
-        else: 
-            dTypeID = 0
-
+        #if add:
+        dTypeID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
+        cur.execute('SELECT * FROM DomainType')
+        for ud in cur.fetchall():
+            c_ud = tuple(ud)
+            dTypeDict[c_ud[0]] = c_ud[1:] 
+            dNames[c_ud[1]] = c_ud[0]
+            for u_ext in c_ud[5:]:
+                if u_ext != None:
+                    dExt[u_ext] = c_ud[0]
+            dCDD[c_ud[4]] = c_ud[0]
+        #else: 
+        #    dTypeID = 0
+        if add == False:
+            relevantDomains = set()
 
         for t, d in refGene.items():
             #print(t)
@@ -277,12 +279,11 @@ def fill_in_db(specie, name, add=True):
                                 (gene_id, genomic_start_tx, genomic_end_tx)
                                 VALUES (?, ?, ?)''', values)
             
-            ''' insert into domain event table'''
             if pr in region_dict.keys():
                 splicin = set()
-                domeve = set()
                 for reg in region_dict[pr]:
                     currReg, currExt, dTypeDict, dTypeID, dExt, dNames, dCDD = order_domains.order_domains(reg, dTypeDict, dTypeID, dExt, dNames, dCDD)
+                    relevantDomains.add(currReg)
                     nucStart, nucEnd = ffParser.domain_pos_calc(reg[0], reg[1])
                     #print(nucStart, nucEnd, t)
                     relation, exon_list, length = domain_exon_relationship([nucStart, nucEnd], start_abs, stop_abs)
@@ -305,45 +306,55 @@ def fill_in_db(specie, name, add=True):
                     ''' insert into domain event table'''
                     values = (p_info[pr][0], currReg, reg[0], reg[1], total_length,
                                             nucStart, nucEnd, currExt, splice_junction, complete,)
-                    if values[0:7] not in domeve:
+                    if values not in domeve:
                         cur.execute(''' INSERT INTO DomainEvent
                                     (protein_id, type_id, AA_start, AA_end, total_length, nuc_start, nuc_end, ext_id, splice_junction, complete_exon)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                        domeve.add(values[0:7])
+                        domeve.add(values)
             
             
-        print('Recreating the table: DomainType and update domains')
-        cur.executescript("DROP TABLE IF EXISTS DomainType;")
-        cur.execute('''
-                    CREATE TABLE DomainType(
-                            type_id INTEGER AUTO INCREMENT NOT NULL PRIMARY KEY UNIQUE,
-                            name TEXT,
-                            other_name TEXT,
-                            description TEXT,
-                            CDD_id TEXT,
-                            cd TEXT,
-                            cl TEXT,
-                            pfam TEXT,
-                            smart TEXT,
-                            nf TEXT,
-                            cog TEXT,
-                            kog TEXT,
-                            prk TEXT,
-                            tigr TEXT,
-                            other TEXT
-                            );'''
-                            )
-        ''' insert into domain type table'''
-        for dom, inf in dTypeDict.items():
-            values = tuple([dom]) + inf
-            cur.execute(''' INSERT INTO DomainType
-                            (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr,other)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
+        
+        if add:
+            print('Recreating the table: DomainType and update domains')
+            cur.executescript("DROP TABLE IF EXISTS DomainType;")
+            cur.execute('''
+                        CREATE TABLE DomainType(
+                                type_id INTEGER AUTO INCREMENT NOT NULL PRIMARY KEY UNIQUE,
+                                name TEXT,
+                                other_name TEXT,
+                                description TEXT,
+                                CDD_id TEXT,
+                                cd TEXT,
+                                cl TEXT,
+                                pfam TEXT,
+                                smart TEXT,
+                                nf TEXT,
+                                cog TEXT,
+                                kog TEXT,
+                                prk TEXT,
+                                tigr TEXT,
+                                other TEXT
+                                );'''
+                                )
+            ''' insert into domain type table'''
+            for dom, inf in dTypeDict.items():
+                values = tuple([dom]) + inf
+                cur.execute(''' INSERT INTO DomainType
+                                (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr,other)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
+        else:
+            ''' insert into domain type table'''
+            for dom in relevantDomains:
+                values = tuple([dom]) + dTypeDict[dom]
+                print(values)
+                cur.execute(''' INSERT INTO DomainType
+                                (type_id, name, other_name, description, CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr,other)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values) 
            
             
 if __name__ == "__main__":
     
-    species_list = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    species_list = ['M_musculus', 'H_sapiens']#, 'R_norvegicus', 'D_rerio', 'X_tropicalis']
     create = True
     for specie in species_list:
         if create == True:

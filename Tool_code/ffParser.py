@@ -88,25 +88,28 @@ def regions_from_record(record):
             if 'note' in reg.qualifiers:
                 note = reg.qualifiers['note'][0]
             else:
-                note = ''
+                note = None
             #cdId = note.split('; ')[-1]
             #print(name)
             if name.startswith('PRK'):
                 ext_id = name
-            elif 'propagated from UniProtKB' in note:
-                note = note
-                ext_id = ''
-            elif ';' in note:
-                noteSplit = note.split('; ')
-                ext_id = noteSplit[-1]
-                note = note[:-len(ext_id)]
+            elif note != None:
+                if 'propagated from UniProtKB' in note:
+                    note = note
+                    ext_id = None
+                elif ';' in note:
+                    noteSplit = note.split('; ')
+                    ext_id = noteSplit[-1]
+                    note = note[:-len(ext_id)]
+                else:
+                    ext_id = None
             else:
-                ext_id = ''
+                ext_id = None
             if 'db_xref' not in reg.qualifiers:
-                if ext_id == '':
+                if ext_id == None:
                     kicked.append(note)
                     continue
-                cdId = ''
+                cdId = None
                 domains = domains.union(set([ext_id]))
             else:
                 cdId = reg.qualifiers['db_xref'][0].split(':')[1]
@@ -132,10 +135,10 @@ def protein_info(record):
     try:
         note = pro.qualifiers['note'][0]
     except Exception:
-        note = ''
+        note = None
     cds = [c for c in record.features if c.type == 'CDS'][0]
     gene = cds.qualifiers['coded_by'][0].split(':')[0]
-    gene_info = (cds.qualifiers.get('gene', ' ')[0], cds.qualifiers.get('gene_synonym',' ')[0], cds.qualifiers.get('db_xref',[]))
+    gene_info = (cds.qualifiers.get('gene', [None])[0], cds.qualifiers.get('gene_synonym',[None])[0], cds.qualifiers.get('db_xref',[]))
     return (refseq_id, withversion, descr, length, note,), gene , gene_info    
 
 
