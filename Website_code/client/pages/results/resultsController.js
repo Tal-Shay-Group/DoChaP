@@ -10,11 +10,11 @@ angular.module("DoChaP")
         $scope.canvasSize = 550;
         $scope.viewMode = "all";
         self.toolTipManagerForCanvas = {
-            "canvas-protein0" : [
-              [50,0, 50, 70, " this is red"],
-              [150, 0, 50, 70, "this is blue"]
+            "canvas-protein0": [
+                [50, 0, 50, 70, " this is red"],
+                [150, 0, 50, 70, "this is blue"]
             ]
-          };
+        };
         if (loadedGene == undefined) {
             //example in case nothing is entered in search
             loadedGene = {
@@ -673,7 +673,7 @@ angular.module("DoChaP")
         }
 
         //after every page-load or configuration change we create updated graphics 
-         //a function which its purpose is to load the canvases' graphics only after the elements finished loading
+        //a function which its purpose is to load the canvases' graphics only after the elements finished loading
         function updateCanvases() {
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
@@ -706,7 +706,7 @@ angular.module("DoChaP")
                     });
 
                 }
-                
+
             });
             $('#protein_range').ionRangeSlider({
                 type: "double",
@@ -728,36 +728,36 @@ angular.module("DoChaP")
                     });
 
                 }
-                
+
             });
             $("canvas")
-            .mousemove(function (event) {
-             showTextValues = showText(event);
-              if (showTextValues[0]) {
-                $("#myTooltip").show();
-                $("#myTooltip").css("top", event.pageY+5);
-                $("#myTooltip").css("left", event.pageX+5);
-                $("#myTooltip").text(showTextValues[1]); 
-              } else {
-                $("#myTooltip").hide();
-              }  
-            });
+                .mousemove(function (event) {
+                    showTextValues = showText(event);
+                    if (showTextValues[0]) {
+                        $("#myTooltip").show();
+                        $("#myTooltip").css("top", event.pageY + 2);
+                        $("#myTooltip").css("left", event.pageX + 2);
+                        $("#myTooltip").html(showTextValues[1]);
+                    } else {
+                        $("#myTooltip").hide();
+                    }
+                });
             //when to show modal
             function showText(event) {
                 res = [false, ""];
                 if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
-                    offset =event.target.getBoundingClientRect();
-                  exon = self.toolTipManagerForCanvas[event.target.id];
-                  for (var i = 0; i < exon.length; i++) {
-                    if (event.clientX - offset.left >= exon[i][0] && event.clientX- offset.left <= exon[i][0] + exon[i][2] &&
-                      event.clientY - offset.top>= exon[i][1] && event.clientY- offset.top <= exon[i][1] + exon[i][3]) {
-                      return [true, exon[i][4]];
+                    offset = event.target.getBoundingClientRect();
+                    exon = self.toolTipManagerForCanvas[event.target.id];
+                    for (var i = 0; i < exon.length; i++) {
+                        if (event.clientX - offset.left >= exon[i][0] && event.clientX - offset.left <= exon[i][0] + exon[i][2] &&
+                            event.clientY - offset.top >= exon[i][1] && event.clientY - offset.top <= exon[i][1] + exon[i][3]) {
+                            return [true, exon[i][4]];
+                        }
                     }
-                  }
                 }
                 return res;
-              }
-         
+            }
+
         }
 
         $scope.closeModalFromBackground = function (event) {
@@ -765,7 +765,7 @@ angular.module("DoChaP")
                 $scope.showWindow = false
             }
         }
-      
+
         $scope.chromosomeLocation = self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
 
         //zooming in by receiving new ends and calculating in between the new graphics
@@ -797,43 +797,82 @@ angular.module("DoChaP")
         tooltip and the text wanted for them. this means we need to go over each
         exon or domain and look we it is drawn
         */
-        function createTooltipManager(){
-            self.toolTipManagerForCanvas={};
-            for( var i=0;i<$scope.transcripts.length; i++){
-                var proteinCanvasID="canvas-protein"+i;
-                var transcriptCanvasID="canvas-transcript"+i;
-                self.toolTipManagerForCanvas[proteinCanvasID]=[];
-                self.toolTipManagerForCanvas[transcriptCanvasID]=[];
-            for (var j= $scope.transcripts[i].domains.length-1; j >= 0; j--) {
-                var domains=$scope.transcripts[i].domains;
-                var spacing=25;
-                var canvasP = document.getElementById(proteinCanvasID);
-                var canvasWidth = canvasP.width;
-                var coordinatesWidth =((canvasWidth-50)/$scope.transcripts[i].shownLength) ;
-                //calculations
-                domainWidth = (domains[j].end - domains[j].start) * coordinatesWidth;
-                domainHeight = 45;
-                domainX = domains[j].start * coordinatesWidth;
-                domainY = spacing - domainHeight / 2;
-                self.toolTipManagerForCanvas[proteinCanvasID].push([domainX,domainY,domainWidth,domainHeight,domains[j].name]);
-            }
-                for(j=0; j<$scope.transcripts[i].exons.length;j++){
+        function createTooltipManager() {
+            self.toolTipManagerForCanvas = {};
+            for (var i = 0; i < $scope.transcripts.length; i++) {
+                
+                var proteinCanvasID = "canvas-protein" + i;
+                var transcriptCanvasID = "canvas-transcript" + i;
+                var genomicCanvasID = "canvas-genomic" + i;
+                self.toolTipManagerForCanvas[proteinCanvasID] = [];
+                self.toolTipManagerForCanvas[transcriptCanvasID] = [];
+                self.toolTipManagerForCanvas[genomicCanvasID] = [];
+                
+                for (var j = $scope.transcripts[i].domains.length - 1; j >= 0; j--) {
+                    var domains = $scope.transcripts[i].domains;
+                    var spacing = 25;
+                    var canvasP = document.getElementById(proteinCanvasID);
+                    var canvasWidth = canvasP.width;
+                    var coordinatesWidth = ((canvasWidth - 50) / $scope.transcripts[i].shownLength);
+                    //calculations
+                    domainWidth = (domains[j].end - domains[j].start) * coordinatesWidth;
+                    domainHeight = 45;
+                    domainX = domains[j].start * coordinatesWidth;
+                    domainY = spacing - domainHeight / 2;
+                    self.toolTipManagerForCanvas[proteinCanvasID].push([domainX, domainY, domainWidth, domainHeight,getTooltipTextForDomain(domains[j])]);
+                }
+                for (j = 0; j < $scope.transcripts[i].exons.length; j++) {
                     var exons = $scope.transcripts[i].exons;
                     var canvasE = document.getElementById(transcriptCanvasID);
                     var canvasHeight = canvasE.height;
                     var canvasWidth = canvasE.width;
                     var lineThickness = 4;
                     var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
-                    var coordinatesWidth = ((canvasWidth-50)/$scope.transcripts[i].shownLength) ;
-                        exonWidth = (exons[j].exonViewEnd - exons[j].exonViewStart + 1) * coordinatesWidth;
-                        exonHeight = 25;
-                        exonX = exons[j].exonViewStart * coordinatesWidth; //currX;
-                        exonY = spacing - exonHeight / 2;
-                        if( exonX+exonWidth>=canvasWidth){
-                            exonWidth=Math.max(1,canvasWidth-exonX-2);
-                        }
-                        self.toolTipManagerForCanvas[transcriptCanvasID].push([exonX,exonY,exonWidth,exonHeight,"order in transcript: "+exons[j].orderInTranscript]);           
+                    var coordinatesWidth = ((canvasWidth - 50) / $scope.transcripts[i].shownLength);
+                    exonWidth = (exons[j].exonViewEnd - exons[j].exonViewStart + 1) * coordinatesWidth;
+                    exonHeight = 25;
+                    exonX = exons[j].exonViewStart * coordinatesWidth; //currX;
+                    exonY = spacing - exonHeight / 2;
+                    if (exonX + exonWidth >= canvasWidth) {
+                        exonWidth = Math.max(1, canvasWidth - exonX - 2);
                     }
+                    self.toolTipManagerForCanvas[transcriptCanvasID].push([exonX, exonY, exonWidth, exonHeight, "exon: " + exons[j].orderInTranscript+"/"+exons.length]);
+                }
+                for (j = 0; j < $scope.transcripts[i].exons.length; j++) {
+                    var exons = $scope.transcripts[i].exons;
+                    var canvasT = document.getElementById(genomicCanvasID); 
+                    var canvasHeight = canvasT.height;
+                    var canvasWidth = canvasT.width;
+                    var lineThickness = 2;
+                    var spacing = 50;
+                    var lengthOfGene = $scope.transcripts[i].length;
+                    var beginningEmpty=10; //in pixels
+                    var endEmpty=5; //in pixels
+                    var coordinatesWidth = (canvasT.width-beginningEmpty-endEmpty) / lengthOfGene;
+                    var exonWidth = Math.max(3, (exons[j].transcriptViewEnd - exons[j].transcriptViewStart + 1) * coordinatesWidth);
+                    const exonHeight = 70;
+                    const exonX = exons[j].transcriptViewStart * coordinatesWidth+beginningEmpty;
+                    const exonY = spacing - exonHeight / 2;
+                    if (exonX + exonWidth >= canvasWidth) {
+                        exonWidth = Math.max(1, canvasWidth - exonX - 2);
+                    }
+                    self.toolTipManagerForCanvas[genomicCanvasID].push([exonX, exonY, exonWidth, exonHeight, "exon: " + exons[j].orderInTranscript+"/"+exons.length]);
                 }
             }
+        }
+
+        function getTooltipTextForDomain(domain){
+            var name=domain.name;
+            var start=domain.start;
+            var end=domain.end;
+            var length=end-start;
+            var source=domain.source;
+            if(source==undefined){
+                source="unknown";
+            }
+            return  "<u>"+name+"</u><br> positions: "+start+"-"+end+"<br>length: "+length+"<br>source: "+source;
+
+
+
+        }
     });
