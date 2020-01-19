@@ -1,3 +1,20 @@
 <component name="ProjectDictionaryState">
-  <dictionary name="galozs" />
+  <dictionary name="galozs">
+    <words>
+      <w>chrom</w>
+      <w>ensembl</w>
+      <w>exon</w>
+      <w>exons</w>
+      <w>flatfiles</w>
+      <w>gbff</w>
+      <w>gpff</w>
+      <w>interpro</w>
+      <w>musculus</w>
+      <w>ncbi</w>
+      <w>prot</w>
+      <w>refseq</w>
+      <w>sapiens</w>
+      <w>ucsc</w>
+    </words>
+  </dictionary>
 </component>
