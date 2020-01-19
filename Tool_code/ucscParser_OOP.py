@@ -5,6 +5,7 @@ Created on Sun Jun  2 15:43:57 2019
 @author: galozs
 """
 import os
+import try_OOP
 
 
 def parse_kgXref(specie, kgXref_path=os.getcwd() + '/data/{}/from_ucsc/kgXref.txt'):
@@ -31,7 +32,7 @@ def parse_ncbiRefSeq(specie, table_path=os.getcwd() + '/data/{}/from_ucsc/ncbiRe
             ex_starts = [int(start) for start in ll[9].split(',') if len(start) > 0]
             ex_ends = [int(ends) for ends in ll[10].split(',') if len(ends) > 0]
             ncbiRefSeq[ll[1]] = ncbiRefSeq.get(ll[1],
-                                               [ll[2], ll[3]] + list(map(int, ll[4:9])) + [ex_starts, ex_ends, ll[12]])
+                                               try_OOP.Transcript(ll[1], None, ll[2], ll[3], ll[4:6], ll[6:8], ll[12], None, ex_starts, ex_ends))
     return ncbiRefSeq
 
 
@@ -59,7 +60,7 @@ def parse_knownGene(specie, kgXref, knownGene_path=os.getcwd() + '/data/{}/from_
 # ncbiRefSeq = parse_ncbiRefSeq('M_musculus', r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP_Shani\Tool_code\data\{}\from_ucsc\refGene.txt')
 # knownGene = parse_knownGene('M_musculus', kgXref)
 
-def MatchAcc_ucsc(refseq, ensembl, kgXref):
+def MatchAcc_ucsc(ensembl, kgXref):
     all_aliases = {}  # contain tuples of (refseq, UCSC, GENESYMB, UNIPROT)
     for uid, entry in kgXref.items():
         ucsc = ensembl[uid][10]

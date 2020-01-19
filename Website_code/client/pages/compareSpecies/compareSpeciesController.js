@@ -1,5 +1,5 @@
 /**
- * this is one of the most speciual pafgesa i nthe site. 
+ * this is one of the most special pages in the site. 
  * we compare the same gene in different species so we need to manage two different yet similar genes
  * and sometimes anaylize together and sometimes alone.
  * 
@@ -20,6 +20,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
         $scope.loading = false;
         if (response[0] == "error") {
           $scope.alert = response[1];
+          
         } else {
           $scope.alert = "";
           self.specie1Gene=response[1][0];
@@ -28,7 +29,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
             updateCanvases();
           });
         }
-       // $scope.$apply();
       })
       .catch(function (response) {
         console.log(response);
@@ -37,50 +37,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
         $scope.$apply();
       });
   } 
- /* 
-  self.humanGenes = {};
-  self.mouseGenes = {};
- self.searchByGene = function () {
-    if (specie2ComboBox.value == specie1ComboBox.value) {
-      $scope.alert = "choose different species";
-      return;
-    }
-    $scope.loading = true;
-    webService.compareGenes(compareGeneSearchTextField.value).then(function (response) {
-        var geneList = runGenesCreation(response.data);
-        $scope.loading = false;
-        if (geneList.length <= 1) {
-          $scope.alert = "sorry! no results were found";
-        } else {
-          $scope.alert = "";
-          $scope.genes = geneList;
-          if (geneList[0].specie == 'M_musculus') {
-            self.mouseGenes = geneList[0];
-            self.humanGenes = geneList[1];
-          } else {
-            self.mouseGenes = geneList[1];
-            self.humanGenes = geneList[0];
-          }
-          $(document).ready(function (self) {
-            //closeLoadingText();
-            // angular.element(document).ready(function(){
-            //updateCanvases();
-            //})
-            updateCanvases();
-          });
-        }
-      })
-      .catch(function (response) {
-        $scope.loading = false;
-        if (response.data != undefined) {
-          $scope.alert = "sorry! no results were found";
-        } else {
-          $scope.alert = "error! the server is off";
-        }
-      });
-  }
-
-*/
+ 
   function updateCanvases() {
    
     for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
@@ -105,6 +62,9 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     $('#canvas-scale-protein1').hide().fadeIn(1000);
     $('#canvas-scale2').hide().fadeIn(1000);
     $('#canvas-scale-protein2').hide().fadeIn(1000);
+    $scope.chromosomeLocation1=self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
+    $scope.chromosomeLocation2=self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
+    $scope.$apply();
   }
 
   $(document).ready(function () {
@@ -211,9 +171,9 @@ $scope.filterUnreviewed = function () {
   var newResults=compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")), isReviewedCheckBox.checked);
   self.specie1Gene=newResults[0];
   self.specie2Gene=newResults[1];
-  $(document).ready(function (self) {
-    updateCanvases();
-  });
+  selectModeComboBox.value='all';//update canvas+all biews shown
+  $scope.viewMode='all';
+  $scope.$apply();
 }
 
 $scope.changeTranscriptView = function (index,species) { //hide transcript. change name later
