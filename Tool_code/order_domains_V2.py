@@ -7,14 +7,14 @@ Created on Thu Dec  5 09:41:38 2019
 import re
 
 
-# external ID list is built as: ['cd','cl','pfam','smart','nf','cog','kog','prk','tigr']
-# list inside dTypeDict: (name, other names,  description, CDD_id, 'cd','cl','pfam','smart',\
-# nf','cog','kog','prk','tigr')
+# external ID list is built as: ['cd','cl','pfam','smart','tigr']
+# list inside dTypeDict: (name, other names,  description, CDD_id, 'cd','cl','pfam','smart','tigr')
+# ONLY looking at: cd, cl, pfam, smart, tigr (only with external links)
 
 
 def order_domains(region, dTypeDict, dTypeID, dExt, dNames, dCDD):
-    external = ['cd', 'cl', 'pfam', 'smart', 'nf', 'cog', 'kog', 'prk', 'tigr', 'other']
-    extIDs = [None, None, None, None, None, None, None, None, None, None]
+    external = ['cd', 'cl', 'pfam', 'smart', 'tigr']
+    extIDs = [None, None, None, None, None]
     oname = None
     cdname = None
     pref = None

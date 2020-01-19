@@ -17,10 +17,13 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window,webS
                 return ["error","sorry! found more genes than expected. try different name."];
             }*/
             else{
-                geneFound=orderTheGenesBySpecie(genesFound,specie1,specie2);
+                var res=orderTheGenesBySpecie(genesFound,specie1,specie2);
+                if(res==undefined){
+                    return ["error","sorry! we could not find the gene in at least one of the species"];
+                }
                 $window.sessionStorage.setItem("currCompareSpecies",JSON.stringify(response.data));
                 $window.sessionStorage.setItem("ignorePredictions", "false");
-                return ["result",genesFound];
+                return ["result",res];
             }
         })
         .catch(function (response) {

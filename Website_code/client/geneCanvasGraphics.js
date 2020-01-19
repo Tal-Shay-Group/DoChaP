@@ -16,13 +16,15 @@ function buildGenomicView(canvasID, transcript) {
     var canvasHeight = canvasT.height;
     var canvasWidth = canvasT.width;
     var lineThickness = 2;
-   // var spacing = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
     var spacing = 50;
     var lengthOfGene = transcript.length;
     var beginningEmpty=10; //in pixels
     var endEmpty=5; //in pixels
     var coordinatesWidth = (canvasT.width-beginningEmpty-endEmpty) / lengthOfGene;
     var startCoordinate=transcript.startCoordinate;
+    
+    contextT.closePath();
+    contextT.clearRect(0, 0,canvasWidth, canvasHeight)
     
     //gridlines
     createGridLines(contextT,beginningEmpty,coordinatesWidth,canvasHeight,canvasWidth,lengthOfGene,startCoordinate,true,spacing);
@@ -113,7 +115,7 @@ function buildProteinView(canvasID, transcript) {
         gradient = getGradientForDomain(domainX, domainX + domainWidth, domainsInProtein[i], spacing, exons, contextP);
         
         //domain draw
-        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name.replace("_","\n").replace(" ","\n"),overlap,shapeID,domainText);
+        drawDomainInProteinView(contextP, domainX, domainY, domainHeight, domainWidth, gradient, domainsInProtein[i].name.replace(/_/g,"\n").replace(/ /g,"\n"),overlap,shapeID,domainText);
     }
 }
 
@@ -223,7 +225,7 @@ function createProteinGridLines(context,coordinatesWidth,startHeight,canvasWidth
     }
  
     //draw number
-    context.font = "15px Calibri";
+    context.font = "20px Calibri";
     context.fillText("nucleotide",10,30);
     context.fillText("amino acid",10,125);
      for(var i=0; (i*coordinatesWidth+50)<canvasWidth;i=i+skip){
@@ -360,13 +362,15 @@ function getRandomColor() {
 
 //selecting color from list (deterministic yet not in order)
 function getcolorFromList(colorArr) {
-    i=colorArr.length%3;
+    i=colorArr.length%4;
     if(i==0){
         i=0;
     } else if (i==1){
         i=colorArr.length-1;
     } else if (i==2){
-        i=(colorArr.length+1)/2;
+        i=colorArr.length/3;
+    } else if (i==3){
+        i=colorArr.length*2/3;
     }
     return  colorArr.splice(i, 1);
     //return  colorArr.splice(0, 1);
@@ -643,11 +647,11 @@ function drawDomainInProteinView(context, domainX, domainY, domainHeight, domain
     var lineheight = 15;
     var lines = name.split('\n');
     context.fillStyle = "black"; //for text
-    context.font = "bold 13px Calibri";
-    context.shadowColor = "black";
+    context.font = "20px Calibri"; //bold 
+    //context.shadowColor = "black";
     context.textAlign = "left";
     for (var i = 0; i<lines.length; i++){
-        context.fillText(lines[i], 0, 0+ (i*lineheight) );
+        context.fillText(lines[i], 0, 10+ (i*lineheight) );
     }
     //context.fillText(name,0,0);
     context.restore();

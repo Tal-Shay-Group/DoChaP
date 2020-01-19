@@ -5,11 +5,6 @@ Created on Sun Oct 27 16:03:15 2019
 @author: galozs
 """
 
-# TODO:
-# in human and mouse -
-# for each gene - 
-# number of transcripts, number of unique exons, number of exons in the transcript with most exons
-
 import pandas as pd
 import sqlite3 as lite
 
