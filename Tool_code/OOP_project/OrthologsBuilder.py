@@ -30,7 +30,7 @@ class OrthologsBuilder(SourceBuilder):
         scriptList = tuple()
         for species in self.species:
             replaceDict = {"output.txt": "{}.orthology.txt".format(species),
-                           "MainSpecies": self.speciesConvertor[species]}
+                           "MainSpecies": self.speciesConvertor[species]+"_gene_ensembl"}
             addcomps = 1
             for compSpec in self.species:
                 if compSpec is not species:
@@ -55,9 +55,9 @@ class OrthologsBuilder(SourceBuilder):
             n += 1
             runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             output[shellCommand], err[shellCommand] = runScript.communicate()
-            print(runScript.poll())
-            #if runScript.poll() is not None or 0:
-            #    raise ValueError("Error in the run of " + shellCommand + "; stderr: " + err[shellCommand])
+            if runScript.poll() is not None or 0:
+                print(runScript.poll())
+                raise ValueError("Error in the run of " + shellCommand + "; stderr: " + err[shellCommand])
             if n == iterlen:
                 check = None
                 while check is None:
