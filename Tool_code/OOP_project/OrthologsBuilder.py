@@ -67,6 +67,7 @@ class OrthologsBuilder(SourceBuilder):
         print("Validating successful downloads...")
         for key in err.keys():
             if err[key] is not '':
-                raise ValueError("Error in the run of " + key + "; stderr: " + err[key])
+                print(key)
+                print(err[key])
             else:
                 print("script: " + key + " has finished running without errors")
