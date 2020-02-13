@@ -55,8 +55,9 @@ class OrthologsBuilder(SourceBuilder):
             n += 1
             runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             output[shellCommand], err[shellCommand] = runScript.communicate()
-            if runScript.poll() is not None or 0:
-                raise ValueError("Error in the run of " + shellCommand + "; stderr: " + err[shellCommand])
+            print(runScript.poll())
+            #if runScript.poll() is not None or 0:
+            #    raise ValueError("Error in the run of " + shellCommand + "; stderr: " + err[shellCommand])
             if n == iterlen:
                 check = None
                 while check is None:
