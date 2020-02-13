@@ -31,3 +31,4 @@ Website_code/log.txt
 **/log.txt
 
 Tool_code/*.txt
+**/*.orthology.txt
