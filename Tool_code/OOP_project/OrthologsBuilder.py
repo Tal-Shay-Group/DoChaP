@@ -36,14 +36,14 @@ class OrthologsBuilder(SourceBuilder):
                 if compSpec is not species:
                     replaceDict["Comp" + str(addcomps)] = self.speciesConvertor[compSpec]
                     addcomps += 1
-            with open(os.getcwd() + "BioMart.orthologs.template.sh", "r") as template:
-                with open(os.getcwd() + "BioMart.orthologs.{}.sh".format(species), "w") as writo:
+            with open(os.getcwd() + "/BioMart.orthologs.template.sh", "r") as template:
+                with open(os.getcwd() + "/BioMart.orthologs.{}.sh".format(species), "w") as writo:
                     for line in template:
                         for key in replaceDict:
                             if key in line:
                                 line = line.replace(key, replaceDict[key])
                         writo.write(line)
-                    scriptList = scriptList + (os.getcwd() + "BioMart.orthologs.{}.sh".format(species),)
+                    scriptList = scriptList + (os.getcwd() + "/BioMart.orthologs.{}.sh".format(species),)
         self.setFileList(scriptList)
 
     def downloader(self):
