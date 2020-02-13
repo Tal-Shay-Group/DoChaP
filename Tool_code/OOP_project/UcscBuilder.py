@@ -2,7 +2,7 @@ import ftplib
 import gzip
 import os
 
-from Tool_code.OOP_project.Director import SourceBuilder
+from Director import SourceBuilder
 
 
 class UcscBuilder(SourceBuilder):

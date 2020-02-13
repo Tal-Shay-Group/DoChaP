@@ -1,7 +1,7 @@
-from Tool_code.OOP_project.Director import *
-from Tool_code.OOP_project.UcscBuilder import *
-from Tool_code.OOP_project.ffBuilder import *
-from Tool_code.OOP_project.DB_builder import *
+from Director import *
+from UcscBuilder import *
+from ffBuilder import *
+from DB_builder import *
 
 species = 'M_musculus'
 ucscbuilder = UcscBuilder(species)
