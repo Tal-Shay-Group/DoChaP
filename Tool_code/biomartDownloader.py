@@ -21,7 +21,7 @@ def download_domains_BioMart(specie, ifsave=True):
         data.to_csv(path2save.format(specie) + specie + '.Ensembl.Domains.csv', header=True)
 
 
-download_domains_BioMart('M_musculus')
+#download_domains_BioMart('M_musculus')
 
 
 #def parse_domain_BioMart(BMdataset):

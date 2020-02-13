@@ -59,6 +59,7 @@ class OrthologsBuilder(SourceBuilder):
                     print("waiting for last job to finish")
                     check = runScript.wait()
                 print("last job has finished")
+        print("Validating successful downloads...")
         for key in err.keys():
             if err[key] is not '':
                 raise ValueError("Error in the run of " + key + "; stderr: " + err[key])

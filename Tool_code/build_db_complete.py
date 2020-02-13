@@ -6,12 +6,14 @@ This Module is used to build MERGED databases only
 """
 
 from sqlite3 import connect
-import ucscParser
-import ffParser
+import Tool_code.ucscParser
+#import Tool_code.ffParser
 # import csv
-import ffDownloader
-import order_domains
+#import Tool_code.ffDownloader
+#import Tool_code.order_domains
 import os
+
+from Tool_code import ffParser, ffDownloader, order_domains
 
 
 def create_tables_db(species):
@@ -239,7 +241,7 @@ def fill_in_db(specie, name, add=True):
             # insert into Transcripts table
             values = tuple(
                 [t] + d[2:6] + GeneID + [d[6], ensID] + [ucsc_acc.get(ensID, [None, None])[1], p_info[pr][0]])
-            cur.execute('''INSERT INTO Transcripts 
+            cur.execute('''INSERT INTO Transcripts
                         (transcript_id, tx_start, tx_end, cds_start, cds_end, gene_id,
                          exon_count, ensembl_id, ucsc_id, protein_id) 
                         VALUES(?,?,?,?,?,?,?,?,?,?)''', values)
@@ -265,7 +267,7 @@ def fill_in_db(specie, name, add=True):
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
 
             # insert into Transcript_Exon table
-            start_abs, stop_abs = ucscParser.exons2abs(d[7].copy(), d[8].copy(), d[4:6].copy(), d[1])
+            start_abs, stop_abs = Tool_code.ucscParser.exons2abs(d[7].copy(), d[8].copy(), d[4:6].copy(), d[1])
             ex_num = 0
             if d[1] == '-':
                 starts = d[7].copy()[::-1]
@@ -390,19 +392,19 @@ if __name__ == "__main__":
         # Download files
         gbff_list, gpff_list = ffDownloader.download_flatfiles(specie)
         gpff_path = [f[1] for f in gpff_list]
-        gpff_path = [os.getcwd() + '\\data\\' + specie + '\\flatfiles\\' + i for i in
-                     os.listdir(os.getcwd() + '\\data\\' + specie + '\\flatfiles\\') if i.endswith(".gpff")]
+        # gpff_path = [os.getcwd() + '\\data\\' + specie + '\\flatfiles\\' + i for i in
+        #             os.listdir(os.getcwd() + '\\data\\' + specie + '\\flatfiles\\') if i.endswith(".gpff")]
         ffDownloader.download_ucsc_tables(specie)
         # parse data
         region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = ffParser.parse_all_gpff(gpff_path)
-        refGene = ucscParser.parse_ncbiRefSeq(specie)
+        refGene = Tool_code.ucscParser.parse_ncbiRefSeq(specie)
         if specie in ['M_musculus', 'H_sapiens']:
-            kgXref = ucscParser.parse_kgXref(specie)
-            knownGene = ucscParser.parse_knownGene(specie, kgXref)
-            ucsc_acc = ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
+            kgXref = Tool_code.ucscParser.parse_kgXref(specie)
+            knownGene = Tool_code.ucscParser.parse_knownGene(specie, kgXref)
+            ucsc_acc = Tool_code.ucscParser.MatchAcc_ucsc(refGene, knownGene, kgXref)
         else:
             ucsc_acc = {None: [None, None, None, None]}
-        gene_con, trans_con, protein_con = ucscParser.gene2ensembl_parser(specie)
+        gene_con, trans_con, protein_con = Tool_code.ucscParser.gene2ensembl_parser(specie)
 
         # Fill in database
         fill_in_db(specie, 'merged', add=not create)
