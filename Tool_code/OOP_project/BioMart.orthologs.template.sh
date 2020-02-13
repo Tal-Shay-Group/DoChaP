@@ -22,7 +22,7 @@ wget -O output.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml versi
 		<Attribute name = "Comp4_homolog_ensembl_gene" />
 		<Attribute name = "Comp4_homolog_associated_gene_name" />
 		<Attribute name = "Comp4_homolog_ensembl_peptide" />
-		<Attribute name = "Comp4_orthology_type" />
+		<Attribute name = "Comp4_homolog_orthology_type" />
 		<Attribute name = "external_gene_name" />
 		<Attribute name = "ensembl_peptide_id" />
 	</Dataset>
