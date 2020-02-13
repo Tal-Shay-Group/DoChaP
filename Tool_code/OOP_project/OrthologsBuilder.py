@@ -1,5 +1,6 @@
 import subprocess
-from Tool_code.OOP_project.Director import SourceBuilder
+from Director import SourceBuilder
+import os
 
 
 class OrthologsBuilder(SourceBuilder):
@@ -7,7 +8,10 @@ class OrthologsBuilder(SourceBuilder):
     Dowload and parse Orthology tables
     """
 
-    def __init__(self, species = {'M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'}):
+    def __init__(self, species={'M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'}):
+        """
+        @type species: Dict
+        """
         super().__init__(species)
         self.species = species
         self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
@@ -32,14 +36,14 @@ class OrthologsBuilder(SourceBuilder):
                 if compSpec is not species:
                     replaceDict["Comp" + str(addcomps)] = self.speciesConvertor[compSpec]
                     addcomps += 1
-            with open("BioMart.orthologs.template.sh", "r") as template:
-                with open("BioMart.orthologs.{}.sh".format(species), "w") as writo:
+            with open(os.getcwd() + "BioMart.orthologs.template.sh", "r") as template:
+                with open(os.getcwd() + "BioMart.orthologs.{}.sh".format(species), "w") as writo:
                     for line in template:
                         for key in replaceDict:
                             if key in line:
                                 line = line.replace(key, replaceDict[key])
                         writo.write(line)
-                    scriptList = scriptList + ("BioMart.orthologs.{}.sh".format(species),)
+                    scriptList = scriptList + (os.getcwd() + "BioMart.orthologs.{}.sh".format(species),)
         self.setFileList(scriptList)
 
     def downloader(self):
@@ -49,7 +53,7 @@ class OrthologsBuilder(SourceBuilder):
         n = 0
         for shellCommand in self.fileList:
             n += 1
-            runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stder=subprocess.PIPE, text=True)
+            runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             output[shellCommand], err[shellCommand] = runScript.communicate()
             if runScript.poll() is not None or 0:
                 raise ValueError("Error in the run of " + shellCommand + "; stderr: " + err[shellCommand])

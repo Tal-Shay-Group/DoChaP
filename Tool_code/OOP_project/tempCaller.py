@@ -1,4 +1,4 @@
-from Tool_code.OOP_project.OrthologsBuilder import *
+from OrthologsBuilder import *
 
 orthoDown = OrthologsBuilder()
 orthoDown.createDownloadScripts()
