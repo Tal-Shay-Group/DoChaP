@@ -863,8 +863,8 @@ angular.module("DoChaP")
 
         function getTooltipTextForDomain(domain){
             var name=domain.name;
-            var start=domain.start;
-            var end=domain.end;
+            var start=domain.AAstart;
+            var end=domain.AAend;
             var length=end-start;
             var source=domain.source;
             if(source==undefined){
