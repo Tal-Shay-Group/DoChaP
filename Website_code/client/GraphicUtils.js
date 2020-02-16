@@ -186,6 +186,8 @@ function createGraphicInfoForTranscript(transcript, startCoordinate, endCoordina
         ansTranscript.domains[i] = new Object();
         ansTranscript.domains[i].start = domains[i].nuc_start - proteinStart;
         ansTranscript.domains[i].end = domains[i].nuc_end - proteinStart;
+        ansTranscript.domains[i].AAstart = domains[i].AA_start;
+        ansTranscript.domains[i].AAend = domains[i].AA_end;
         ansTranscript.domains[i].name = domains[i].domainType.name;
         ansTranscript.domains[i].typeID = domains[i].domainType.type_id;
         ansTranscript.domains[i].overlap = false;
