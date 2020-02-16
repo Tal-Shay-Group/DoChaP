@@ -226,8 +226,8 @@ function createProteinGridLines(context,coordinatesWidth,startHeight,canvasWidth
  
     //draw number
     context.font = "20px Calibri";
-    context.fillText("nucleotide",10,30);
-    context.fillText("amino acid",10,125);
+    context.fillText("Nucleotide",10,30);
+    context.fillText("Amino acid",10,125);
      for(var i=0; (i*coordinatesWidth+50)<canvasWidth;i=i+skip){
        context.save();
         context.translate(coordinatesWidth*i+3,lineheight-3);
