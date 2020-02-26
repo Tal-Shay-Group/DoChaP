@@ -35,7 +35,7 @@ class OrthologsBuilder(SourceBuilder):
         scriptList = tuple()
         os.makedirs(self.downloadPath, exist_ok=True)
         for species in self.species:
-            replaceDict = {"output.txt": "{}.orthology.txt".format(species),
+            replaceDict = {"output.txt": self.downloadPath + "{}.orthology.txt".format(species),
                            "MainSpecies": self.speciesConvertor[species] + "_gene_ensembl"}
             addcomps = 1
             for compSpec in self.species:

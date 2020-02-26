@@ -5,10 +5,11 @@ class Director:
         self.__builder = builder
         #self.__builder.setSpecies(species)
 
-    def collectFromSource(self):
-        #self.__builder.downloader()
+    def collectFromSource(self, download=False):
+        if download:
+            self.__builder.downloader()
         self.__builder.parser()
-        return self.__builder.records()
+        #return self.__builder.records()
 
 
 # Builder
