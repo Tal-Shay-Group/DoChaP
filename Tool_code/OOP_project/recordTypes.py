@@ -1,13 +1,28 @@
+import re
+
+
 class Gene:
 
-    def __init__(self, GeneID, ensembl, symbol, synonyms, chromosome, strand, transcripts):
+    def __init__(self, GeneID, ensembl, symbol, synonyms, chromosome, strand):
         self.GeneID = GeneID
         self.ensembl = ensembl
         self.symbol = symbol
         self.synonyms = synonyms
         self.chromosome = chromosome
         self.strand = strand
-        self.transcripts = transcripts
+
+    #def __repr__(self):
+    #    print('GeneID: ' + self.GeneID + ' / ' + self.ensembl)
+
+    def compareGenes(self, other):
+        if self.GeneID == other.GeneID and self.ensembl == other.ensembl:
+            return True
+        elif (self.GeneID is None or other.GeneID is None) and self.ensembl == other.ensembl:
+            return True
+        elif (self.ensembl is None or other.ensembl is None) and self.GeneID == other.GeneID:
+            return True
+        else:
+            return False
 
 
 class Transcript:
@@ -27,8 +42,15 @@ class Transcript:
         else:
             raise ValueError('different number of Exons starts and Exons ends')
 
+    def setEnsemble(self, ensembl):
+        self.ensembl = ensembl
+
     def countExons(self):
         return len(self.exon_starts)
+
+    def __repr__(self):
+        rep = (self.refseq, self.ensembl)
+        return str(rep)
 
     def exons2abs(self):
         if len(self.exon_starts) != len(self.exon_ends):
@@ -67,9 +89,6 @@ class Transcript:
             transcript_len = transcript_len + curr_length
         return abs_start, abs_stop
 
-    def __repr__(self):
-        print(self.refseq + ' / ' + self.ensembl)
-
     def compare_transcript(self, other):
         if self.refseq is not None and other.refseq is not None:
             return self.refseq == other.refseq
@@ -81,3 +100,60 @@ class Transcript:
                    self.exon_ends == other.exon_ends
 
 
+class Domain:
+
+    def __init__(self, ext_id, start=None, end=None, cddId=None, name=None, note=None):
+        self.suppTypes = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
+                          'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'ipr': 'interpro'}
+        self.aaStart = start
+        self.aaEnd = end
+        if self.aaStart is not None:
+            self.nucStart = (self.aaStart * 3) - 2  # start position, including
+        if self.aaEnd is not None:
+            self.nucEnd = self.aaEnd * 3  # end position, including!!!
+        self.name = name
+        self.note = note
+        self.cdd = cddId
+        if ext_id is not None:
+            prefix = re.sub(r"\d+$", "", ext_id.lower())
+            if prefix in self.suppTypes.keys():
+                self.extType = self.suppTypes[prefix]
+                self.extID = ext_id.lower().replace(prefix, self.suppTypes[prefix])
+            else:
+                raise ValueError('Unknown external ID prefix: ' + ext_id)
+        elif ext_id is None and self.cdd is None:
+            raise ValueError('Domain obj not supporting NoneType external ID')
+        else:
+            self.extID = None
+
+    def domain_exon_relationship(self, exon_starts, exon_ends):
+        domain_nuc_positions = (self.nucStart, self.nucEnd,)
+        for ii in range(len(exon_starts)):
+            if exon_starts[ii] <= domain_nuc_positions[0] <= exon_ends[ii]:
+                if domain_nuc_positions[1] <= exon_ends[ii]:
+                    return 'complete_exon', ii + 1, domain_nuc_positions[1] - domain_nuc_positions[0] + 1
+                else:
+                    flag = 0
+                    jj = ii + 1
+                    length = [-1 * (exon_ends[ii] - domain_nuc_positions[0] + 1)]
+                    while flag == 0 and jj < len(exon_starts):
+                        if exon_starts[jj] <= domain_nuc_positions[1] <= exon_ends[jj]:
+                            flag = 1
+                            length.append(domain_nuc_positions[1] - exon_starts[jj] + 1)
+                        else:
+                            length.append(exon_ends[jj] - exon_startsn[jj] + 1)
+                        jj += 1
+                    return 'splice_junction', list(range(ii + 1, jj + 1)), length
+        return None, None, None
+
+
+class Protein:
+    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, note=None):
+        self.refseq = refseq
+        self.ensembl = ensembl
+        self.description = descr
+        self.length = length
+        self.note = note
+
+    def refseqNoVersion(self):
+        return self.refseq.split('.')[0]
