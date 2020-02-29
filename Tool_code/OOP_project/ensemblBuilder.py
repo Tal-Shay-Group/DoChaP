@@ -1,23 +1,24 @@
-import ftplib
-import gzip
-import os
-import datetime
 from Bio import SeqIO
 from recordTypes import *
-from Tool_code.OOP_project.Director import SourceBuilder
+import subprocess
+from Director import SourceBuilder
+import os
+import pandas as pd
+import re
 
-
-class ffBuilder(SourceBuilder):
+class EnsemblBuilder(SourceBuilder):
     """
-    Download and parse Genebank flatfiles
+    Download and parse Ensembl domains tables
     """
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        self.savePath = '/data/{}/flatfiles/'.format(self.species)
-        # self.fileList = None
-        self.fileList = [os.getcwd() + self.savePath + i for i in
-                         os.listdir(os.getcwd() + self.savePath) if i.endswith(".gpff")]
+        self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
+                                 'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
+                                 'X_tropicalis': 'xtropicalis'}
+        self.savePath = os.getcwd() + '/data/{}/ensembl/'.format(self.species)
+        self.fileName = "{}.ensembl.domains.txt".format(self.species)
+        self.scriptPath = None
         self.gene2pro = dict()
         self.pro2gene = dict()
         self.genes = dict()
@@ -28,75 +29,59 @@ class ffBuilder(SourceBuilder):
     def setFileList(self, fileList):
         self.fileList = fileList
 
-    def downloader(self):
-        username = 'anonymous'
-        pswd = 'example@post.bgu.ac.il'
-        skey = self.species
-        ftp_address = 'ftp.ncbi.nlm.nih.gov'
-        print('connecting to: ' + ftp_address + '...')
-        ftp = ftplib.FTP(ftp_address)
-        print('logging in...')
-        ftp.login(user=username, passwd=pswd)
-        ftp_path = '/refseq/{}/mRNA_Prot/'
-        ftp.cwd(ftp_path.format(skey))
-        print('looking for gbff and gpff files for specie - ' + self.species + '...')
-        download_path = self.savePath
-        print('downloading files to : ' + self.savePath)
-        gbff_files = []
-        gpff_files = []
-        for f in ftp.nlst():
-            if 'gbff.gz' == f[-7:]:
-                gbff_files.append((f, os.getcwd() + self.savePath + f[:-3]))
-            elif 'gpff.gz' == f[-7:]:
-                gpff_files.append((f, os.getcwd() + self.savePath + f[:-3]))
-        # for file in gbff_files + gpff_files:
-        for file in gpff_files:  # Currently ignoring gbff as it is not used
-            os.makedirs(os.path.dirname(file[1]), exist_ok=True)
-            print('downloading: ', file[0], '...')
-            ftp.sendcmd("TYPE i")
-            # size = ftp.size(file[0])
-            with open(file[1] + '.gz', 'wb') as f:
-                def callback(chunk):
-                    f.write(chunk)
+    def createDownloadScript(self):
+        os.makedirs(self.savePath, exist_ok=True)
+        scriptPath = os.getcwd() + "/BioMart.ensembl.domains.{}.sh".format(self.species)
+        replaceDict = {"output.txt": self.savePath + self.fileName,
+                       "MainSpecies": self.speciesConvertor[self.species]}
+        with open(os.getcwd() + "/BioMart.ensembl.domains.template.sh", "r") as template:
+            with open(scriptPath, "w") as writo:
+                for line in template:
+                    for key in replaceDict:
+                        if key in line:
+                            line = line.replace(key, replaceDict[key])
+                    writo.write(line)
+        self.scriptPath = scriptPath
 
-                ftp.retrbinary("RETR " + file[0], callback)
-            print('extracting...')
-            inp = gzip.GzipFile(file[1] + '.gz', 'rb')
-            s = inp.read()
-            inp.close()
-            with open(file[1], 'wb') as f_out:
-                f_out.write(s)
-            print('removing compressed file...')
-            os.remove(file[1] + '.gz')
-        with open(os.path.dirname(file[1]) + '/README.txt', 'w') as readme:
-            print('Writing README description...')
-            readme.write('# Updated on: ' + str(datetime.datetime.now().date()) + '\n\n')
-            readme.write('# Files were downloaded from:\t' + ftp_address + ftp_path + '\n\n')
-            readme.write('# List of downloaded files:\n')
-            for file in gbff_files + gpff_files:
-                readme.write('\t' + file[0] + '\n')
-                readme.write('\n')
-            readme.write('# Files were extracted succsessfully!')
-        self.setFileList([f[1] for f in gpff_files])
+    def downloader(self):
+        runScript = subprocess.Popen([self.scriptPath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        output, err = runScript.communicate()
+        print("poll(): " + str(runScript.poll()))
+        check = None
+        while check is None:
+            print("Downloading...")
+            check = runScript.wait()
+        print("Download has finished!")
+        print("Validating successful downloads...")
+        if err is not '':
+            print(err)
+        else:
+            print("Download has finished without errors")
 
     def parser(self):
+        data = pd.DataFrame(self.savePath + self.fileName)
         for file in self.fileList:
             for rec in SeqIO.parse(file, 'gb'):
                 if rec.name in self.proteins.keys():
-                    print(rec.name)
-                    #raise ('redundancy err ' + rec.name)
+                    raise ('redundancy err ' + rec.name)
                 if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP':  # takes both proteins and predictions!
                     protein, gene, transcript = self.protein_info(rec)
                     transcriptKey = transcript.split('.')[0]
                     regions = self.regions_from_record(rec)
                     self.domains[rec.name] = regions
                     self.proteins[rec.name] = protein
-                    self.genes[transcriptKey] = gene
+                    for ogene in self.genes:
+                        if ogene.compareGenes(gene):
+                            newgene = ogene.addTranscript(transcript)
+                            self.genes[transcriptKey] = newgene
+                        else:
+                            self.genes[transcriptKey] = gene
                     self.pro2gene[rec.name] = transcript
                     self.gene2pro[transcriptKey] = rec.name
 
+
     def regions_from_record(self, record):
-        """
+        '''
         This functions takes a record from a gpff file and parse it by finding all the features defined Regions
         and put them in a list of tuples where each tuple include the following information about the region:
             1- start position in the protein + 1 as all records are 0-based start!!!)
@@ -105,9 +90,10 @@ class ffBuilder(SourceBuilder):
             4- note of the region - description
             5- id of the region based on the source (can start with pfam/smart/cl/cd etc...)
         The function returns a list of the regions in the record and a set of all the domains identified in this record.
-        """
+        '''
         regions = [feature for feature in record.features if feature.type == 'Region']
         parsed = []
+        # domains = set()
         for reg in regions:
             start = reg.location.start.position + 1  # all records are 0 based start!!!
             end = reg.location.end.position
@@ -134,20 +120,25 @@ class ffBuilder(SourceBuilder):
                     ext_id = None
                 if 'db_xref' not in reg.qualifiers:
                     if ext_id is None:
+                        # kicked.append(note)
                         continue
                     cdId = None
+                    # domains = domains.union({ext_id})
                 else:
                     xref = reg.qualifiers.get('db_xref', [])
                     cdId = [i.split(':')[-1] for i in xref if i.startswith('CDD')][0]
+                    # domains = domains.union({cdId})
                 try:
                     newDomain = Domain(ext_id=ext_id, start=start, end=end, cddId=cdId, name=name, note=note)
                     parsed.append(newDomain)
                 except ValueError:
                     self.ignoredDomains.update({'extId': ext_id, 'CDD': cdId})
-        return parsed
+                    # print("ignoring Unsupported external IDs: " + str(ext_id) + '; '+ str(cdId))
+                # parsed.append((start, end, name, note, ext_id, cdId))
+        return parsed # domains, kicked
 
     def protein_info(self, record):
-        """
+        '''
         This function takes s protein record of a gpff file and parse it to get all the protein information.
         it returns a tuple including the following information:
             1- refseq_id (not including the version)
@@ -155,7 +146,7 @@ class ffBuilder(SourceBuilder):
             3- product protein description
             4- length (number of aa)
         it also returns a string with the refseq_id of the gene
-        """
+        '''
         withversion = record.id  # with version
         # refseq_id = record.name  # without version
         descr = record.description
@@ -166,6 +157,9 @@ class ffBuilder(SourceBuilder):
         except Exception:
             note = None
         cds = [c for c in record.features if c.type == 'CDS'][0]
+
+        # gene_info = (cds.qualifiers.get('gene', [None])[0], cds.qualifiers.get('gene_synonym', [None])[0],
+        #             cds.qualifiers.get('db_xref', []))
         transcript = cds.qualifiers['coded_by'][0].split(':')[0]
         xref = cds.qualifiers.get('db_xref', [])
         GeneID = [i.split(':')[-1] for i in xref if i.startswith('GeneID')][0]
@@ -173,7 +167,7 @@ class ffBuilder(SourceBuilder):
         gene = Gene(GeneID=GeneID,
                     ensembl=None, symbol=cds.qualifiers.get('gene', [None])[0],
                     synonyms=cds.qualifiers.get('gene_synonym', [None])[0],
-                    chromosome=None, strand=None)
+                    chromosome=None, strand=None, transcripts=None)
         return protein, gene, transcript
 
     def records(self):

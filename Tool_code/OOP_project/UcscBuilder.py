@@ -1,6 +1,7 @@
 import ftplib
 import gzip
 import os
+from recordTypes import *
 
 from Director import SourceBuilder
 
@@ -72,14 +73,18 @@ class UcscBuilder(SourceBuilder):
             chromosome, strand, txStart, txEnd, cdsStart, cdsEnd, exonCount, exonStarts, exonEnds, geneSymbol
         """
         ncbiRefSeq = dict()
+        ncbiRefSeq = list()
         with open(table_path.format(self.species), 'r') as refS:
             for line in refS:
                 ll = line.strip().split('\t')
                 ex_starts = [int(start) for start in ll[9].split(',') if len(start) > 0]
                 ex_ends = [int(ends) for ends in ll[10].split(',') if len(ends) > 0]
-                ncbiRefSeq[ll[1]] = ncbiRefSeq.get(ll[1],
-                                                   [ll[2], ll[3]] + list(map(int, ll[4:9])) + [ex_starts, ex_ends,
-                                                                                               ll[12]])
+                #ncbiRefSeq[ll[1]] = ncbiRefSeq.get(ll[1],
+                #                                   [ll[2], ll[3]] + list(map(int, ll[4:9])) + [ex_starts, ex_ends,
+                #                                                                               ll[12]])
+                newT = Transcript(refseq=ll[1], ensembl=None, chrom=ll[2], strand=ll[3], tx=tuple(map(int,ll[4:6])), CDS=tuple(map(int,ll[6:8])),
+                                  gene=ll[12], prot_ref=None, exons_starts=ex_starts, exons_ends=ex_ends)
+                ncbiRefSeq.append(newT)
         return ncbiRefSeq
 
     def parse_knownGene(self, kgXref, knownGene_path=os.getcwd() + '/data/{}/from_ucsc/knownGene.txt'):
