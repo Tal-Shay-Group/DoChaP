@@ -42,14 +42,21 @@ Logo and navigation bars will be declared here for example.
     <script src="GraphicUtils.js"></script>
 
     <!-- load controllers -->
-    <script src="webService.js"></script>
-    <script src="compareSpeciesService.js"></script>
-    <script src="querySearchService.js"></script>
-    <script src="pages/home/homeController.js"></script>
-    <script src="pages/querySearch/querySearchController.js"></script>
+    <script src="services/webService.js"></script>
+    <script src="services/compareSpeciesService.js"></script>
+    <script src="services/querySearchService.js"></script>
+    <script src="modules/Domain.js"></script>
+    <script src="modules/Exon.js"></script>
+    <script src="modules/Transcript.js"></script>
+    <script src="modules/Gene.js"></script>
+    <script src="modules/GenomicScale.js"></script>
+    <script src="modules/ProteinScale.js"></script>
+    <script src="modules/DomainGroup.js"></script>
+
+    <script src="pages/home/querySearchController.js"></script>
     <script src="pages/results/resultsController.js"></script>
     <script src="pages/underConstruction/underConstructionController.js"></script>
-    <script src="pages/documentation/documentationController.js"></script>
+    <script src="pages/help/helpController.js"></script>
     <script src="pages/contactUs/contactUsController.js"></script>
     <script src="pages/compareSpecies/compareSpeciesController.js"></script>
     <script src="pages/about/aboutController.js"></script>
@@ -108,7 +115,7 @@ Logo and navigation bars will be declared here for example.
             <ul class="nav navbar-nav navbar-right" >
                 
                 <li><a href="#!about">About</a></li>
-                <li><a href="#!documentation">Help</a></li>
+                <li><a href="#!help">Help</a></li>
              <li><a href="#!contactUs"> <span style="font-size: 20px;" class="glyphicon glyphicon-envelope"></span> Contact Us</a></li>
             </ul>
           </div>
