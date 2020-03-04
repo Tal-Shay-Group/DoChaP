@@ -19,30 +19,29 @@ body {
 }
 
 .myModal {
-    background-color: rgb(226, 249, 251);
+    background-color: rgba(245,245,245,1);
     height: 250px;
     width: 320px;
 
     border-style: solid;
-    border-width: 3px;
+    border-width: 2px;
     border-radius: 5px;
     border-color: rgb(61, 61, 61);
 
     text-align: left;
     font-size: 16px;
-    /* overflow: auto; */
+     overflow: auto;
     box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
-    padding: 5px;
-    left: 50%;
-    top: 50%;
-    
-    margin: auto;
-    /*position: absolute;
-    z-index: 1000;*/
+    padding: 20px;
+    left: 45%;
+    top: 45%;
+    /*margin: auto; */
+    position: relative;
+    z-index: 3;
 
 }
 
-.searchButton {
+/* .searchButton {
     background-color: rgb(29, 20, 107);
     color: white;
     font-weight: bold;
@@ -58,7 +57,7 @@ body {
 .searchButton:hover {
     background-color: rgb(32, 44, 214);
 }
-
+ 
 .optionButton {
     background-color: rgb(29, 20, 107);
     color: white;
@@ -80,7 +79,7 @@ body {
 
 }
 
-/*.nav{
+.nav{
    
     box-shadow: inset 0px 1px 2px 0px rgba(255, 255, 255, 0.75);
     color: aliceblue;
@@ -88,9 +87,9 @@ body {
 
 
 .nav:hover{
-    background:rgb(71, 77, 168);
+    :rgb(71, 77, 168);
 }
-}*/
+}
 .navA:hover,
 .navA:visited,
 .navA:link,
@@ -103,35 +102,42 @@ body {
     font-size: 30px;
     color: white;
 }
+*/
 
+/*main textfield for each search*/
 .searchTextFieldClass {
     font-size: 16px;
     height: 35px;
     width: 300px;
 }
 
+/*result col genomic/transcript & protein title*/
 .resultTitle {
     font-size: 25px;
     text-align: center;
 }
 
+/*td where the hide transcript button is commented from 23.2 */
 .resultText {
-    width: 140px;
-    height: 105px;
+    /*width: 140px;
+    height: 105px;*/
     font-size: 16px;
 }
 
+/*td space between visualizations commented from 23.2 */
 .betweenVisualizationSpace {
-    width: 100px;
+    /*width: 100px;*/
 }
 
 .beforProteinTextSpace {
-    width: 20px;
+    /*width: 20px;*/
 }
 
+/*
 .loadingText {
     font-size: 30px;
 }
+*/
 
 .exonTableHeader {
     font-size: 23px;
@@ -205,10 +211,11 @@ td {
     text-align: left;
 }
 
+/*
 .fontChange {
     font-size: 15px;
 }
-
+*/
 
 
 label,

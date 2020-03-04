@@ -51,7 +51,7 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window,webS
         }
         return [specie1Gene,specie2Gene]
     }
-    this.filterUnreviewed=function(results,ignorePredictions){
-            return runGenesCreation(results,ignorePredictions,{colorByLength:true});       
+    this.filterUnreviewed=function(results,specie1,specie2,ignorePredictions){
+            return orderTheGenesBySpecie(runGenesCreation(results,ignorePredictions,{colorByLength:true}),specie1,specie2);       
     };
 })

@@ -11,24 +11,28 @@ app.config(function ($routeProvider) {
             /*
             templateUrl: 'pages/home/home.html',
             controller: 'homeController as homeCtrl'*/
-            templateUrl: 'pages/querySearch/querySearch.html',
+            templateUrl: 'pages/home/querySearch.html',
             controller: 'querySearchController as querySearchCtrl'
         })
         .when('/results', {
             templateUrl: 'pages/results/results.html',
             controller: 'resultsController as resultsCtrl'
         })
+        .when('/results/:specie/:query', {
+            templateUrl: 'pages/home/querySearch.html',
+            controller: 'querySearchController as querySearchCtrl'
+        })
         .when('/querySearch',{
-            templateUrl: 'pages/querySearch/querySearch.html',
+            templateUrl: 'pages/home/querySearch.html',
             controller: 'querySearchController as querySearchCtrl'
         })
         .when('/underConstruction',{
             templateUrl: 'pages/underConstruction/underConstruction.html',
             controller: 'underConstructionController as underConstructionCtrl'
         })
-        .when('/documentation',{
-            templateUrl: 'pages/documentation/documentation.html',
-            controller: 'documentationController as documentationCtrl'
+        .when('/help',{
+            templateUrl: 'pages/help/help.html',
+            controller: 'helpController as helpCtrl'
         })
         .when('/contactUs',{
             templateUrl: 'pages/contactUs/contactUs.html',

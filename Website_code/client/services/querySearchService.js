@@ -13,7 +13,7 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
         return await webService.queryHandler(query, specie, isReviewed)
             .then(function (response) {
                 var geneList = response.data.genes[0];
-                if (geneList.transcripts.length == 0) {
+                if (geneList==undefined || geneList.transcripts.length == 0) {
                     return ["error", "No results were found"];
                 } else {
                     if (response.data.isExact == true || response.data.genes.length == 1) {
