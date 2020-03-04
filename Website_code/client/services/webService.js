@@ -3,7 +3,7 @@
  * this service sends requests to the server.
  */
 
-angular.module("DoChaP").service("webService", function ($http, $window, $rootScope) {
+angular.module("DoChaP").service("webService", function ($http) {
     this.queryHandler =function (query,specie,isReviewed) {
         var req = {
             method: 'GET',
@@ -16,6 +16,14 @@ angular.module("DoChaP").service("webService", function ($http, $window, $rootSc
         var req = {
             method: 'GET',
             url: 'http://localhost:3000/querySearch/' + geneName+"/all/false",    
+        };
+        return $http(req);
+    }
+
+    this.userLog = function(msg){
+        var req = {
+            method: 'GET',
+            url: 'http://localhost:3000/userLog/' +msg,    
         };
         return $http(req);
     }

@@ -47,6 +47,14 @@ app.get('/sendMail/:name/:mail/:msg', (req, res) => {
     transporter.sendMail(mailOptions, function(error, info){ });
 });
 
+//userInterfaceLog
+app.get('/userLog/:msg', (req, res) => {
+    now=new Date();
+    fs.writeFile("userInterfaceLog.txt", req.params.msg+","+now + "\n", {
+        flag: 'a'
+    }, function (err) {});
+});
+
 //querySearch module constructor
 const querySearch = require("./querySearch");
 app.use('/', querySearch);

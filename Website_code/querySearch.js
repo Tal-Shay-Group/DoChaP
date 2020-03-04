@@ -6,40 +6,126 @@ const express = require("express");
 const app = express.Router();
 var DButils = require('./DButils');
 var fs = require('fs');
+var qCache = require('./QueryCache').qCache;
 
-//connects to the db using db module (DButils) and returns query answer
-function sqlQuery(query) {
-    var promise = new Promise(function (resolve, reject) {
-        DButils.db.all(query, [], async (err, rows) => {
-            if (err == undefined) {
-                resolve(rows);
-            } else {
-                reject(err);
-                console.log(err);
+//actual server handler. gets request and sends the final answer.
+app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
+    var finalAns = {};
+    finalAns.isExact = true;
+    var queryID = req.params.inputGene + "/" + req.params.specie + "/" + req.params.isReviewed;
+    
+    //check in cache
+    var elementFromCache = qCache.getIfExists(queryID);
+    if (elementFromCache != undefined) {
+        //return to client
+        res.status(200).send(elementFromCache);
+        writeToLog(elementFromCache);
+        return;
+    }
+
+    //find genes
+    finalAns.genes = await findGenes(req.params.inputGene);
+    
+    //try close genes 
+    if (finalAns.genes == undefined) {
+        finalAns.genes = await closeGenes(req.params.inputGene);
+        finalAns.isExact = false;
+    }
+
+    //filter by specie
+    if (req.params.specie!='all'){
+        temp=[]
+        for (var i=0; i<finalAns.genes.length;i++ ){
+            if(finalAns.genes[i].specie==req.params.specie){
+                temp.push(finalAns.genes[i]);
             }
-        });
-    });
-    return promise;
-}
-
-// searches for exact gene name. if not found searches for synonyms. returns the record found
-async function findGene(geneName, specie) {
-    var ans = undefined;
-    var sqlSpecie = "";
-    if (specie != "all") {
-        sqlSpecie = " AND (specie ='" + specie + "')";
-    }
-    var queryAns = await sqlQuery("SELECT gene_id , specie FROM Genes WHERE (UPPER(gene_symbol) = '" + geneName.toUpperCase() + "' or gene_id ='" + geneName + "' or ensembl_id ='" + geneName+ "')" + sqlSpecie);
-    if (queryAns.length != 0) {
-        return queryAns;
-    } else {
-        var geneByTranscriptOrProteinId = await sqlQuery("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id='" + geneName + "' or protein_id='" + geneName + "') as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-        if (geneByTranscriptOrProteinId.length > 0) {
-            return geneByTranscriptOrProteinId;
         }
+        finalAns.genes=temp;
     }
+    
+
+    //if nothing found
+    if (finalAns.genes.length == 0 ) {
+        res.status(200).send(finalAns);
+        console.log("No Results Found");
+        return;
+    }
+
+    //build gene info
+    await buildGeneInfo(finalAns);
+
+    //add to cache
+    qCache.addNewQuery(queryID, finalAns);
+    
+    //send back to client
+    res.status(200).send(finalAns);
+    writeToLog(finalAns);
+});
+
+function writeToLog(finalAns){
+    console.log("querySearch:");
+    console.log(finalAns);
+    if (finalAns.genes != undefined && finalAns.genes.length > 0) {
+        fs.writeFile("log.txt", "*res" + finalAns.genes[0].gene_id + "\n", {
+            flag: 'a'
+        }, function (err) {});
+    }
+
+}
+// searches for exact gene name. if not found searches for synonyms. returns the record found
+async function findGenes(geneName) {
+    var ans = undefined;
+
+    //search by gene_id/gene_symbol/ensembl_id
+    ans = await sqlQuery("SELECT gene_id , specie FROM Genes WHERE (UPPER(gene_symbol) = '" + geneName.toUpperCase() + "' or gene_id ='" + geneName + "' or ensembl_id ='" + geneName + "')");
+    if (ans.length > 0) {
+        return ans;
+    }
+
+    //search by refSeq transcript_id/protein_id
+    ans = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id='" + geneName + "' or protein_id='" + geneName + "') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id ");
+    if (ans.length > 0) {
+        return ans;
+    }
+
+    //search by other ID (they don't use versions)
+    var recordNonVersion = geneName.split(".")[0].toUpperCase();
+    ans = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Proteins WHERE UPPER (ensembl_id) LIKE '" + recordNonVersion + "%') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id ");
+    if (ans.length > 0) {
+        return ans;
+    }
+    ans = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Transcripts WHERE UPPER(ensembl_ID) LIKE '" + recordNonVersion + "%') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id ");
+    if (ans.length > 0) {
+        return ans;
+    }
+    ans = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Proteins WHERE UPPER(uniprot_id) LIKE '" + recordNonVersion + "%') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id ");
+    if (ans.length > 0) {
+        return ans;
+    }
+
+    //search by refSeq transcript_id/protein_id WITH NO VERSIONS
+    ans = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Proteins WHERE protein_id LIKE '" + recordNonVersion + "%') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id ");
+    if (ans.length > 0) {
+        return ans;
+    }
+
+    ans = await sqlQuery("SELECT Genes.gene_id, specie " +
+        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id LIKE '" + recordNonVersion + "%') as tmp1" +
+        ", Genes WHERE tmp1.gene_id=Genes.gene_id ");
+    if (ans.length > 0) {
+        return ans;
+    }
+
     return undefined;
 }
 
@@ -65,50 +151,40 @@ async function findTranscriptInfo(transcript) {
     return transcript;
 }
 
-//actual server handler. gets request and sends the final answer.
-app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
-    var finalAns = {};
-    var closeGene = "";
-    var isExact = true;
 
-    //finding gene
-    finalAns.genes = await findGene(req.params.inputGene, req.params.specie);
-    if (finalAns.genes == undefined) {
-            closeGene = await emsemblRecords(req.params.inputGene, req.params.specie);
-    
-        if(closeGene.length==0) {
-            closeGene = await closeGenes(req.params.inputGene, req.params.specie);
-        }
-        
-        if (closeGene.length == 0) {
-            //send error
-            res.status(400).send(finalAns);
-            console.log("No Results Found");
-            return;
-
-        } else {
-            if(closeGene.length>1){
-                isExact = false;
+//if regular search does not work we find genes that are similar 
+//because the user may have wanted them and searched for something wrong
+async function closeGenes(geneName) {
+    //find synonyms
+    var synonyms = [];
+    ans = await sqlQuery("SELECT gene_id, specie, synonyms FROM Genes WHERE (synonyms LIKE  '" + geneName + "%' OR synonyms LIKE  '%; " + geneName + "%')");
+    if (ans.length != 0) {
+        for (var i = 0; i < ans.length; i++) {
+            var geneSynonyms = ans[i].synonyms.split("; ");
+            for (var j = 0; j < geneSynonyms.length; j++) {
+                if (geneSynonyms[j].toLowerCase() == geneName.toLowerCase()) {
+                    synonyms.push(ans[i]);
+                }
             }
-            finalAns.genes = closeGene;
         }
-
     }
+    
+    return synonyms;
+   
+}
+
+async function buildGeneInfo(finalAns){
+    
     //after finding the genes, completing all information needed for results
     for (var i = 0; i < finalAns.genes.length; i++) {
         //get gene
         var gene = await sqlQuery("SELECT * FROM Genes WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
         finalAns.genes[i] = gene[0]; //first and only one who matches this id
-        var sqlReviewed = "";
-        
-        //because of new requirements- get all transcripts and filter on page
-        // if (req.params.isReviewed == "true") {
-        //     sqlReviewed = " AND transcript_id LIKE 'NM%' ";
-        // }
 
         //get transcripts
-        var transcripts = await sqlQuery("SELECT * FROM Transcripts WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'" + sqlReviewed);
+        var transcripts = await sqlQuery("SELECT * FROM Transcripts WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
         finalAns.genes[i].transcripts = transcripts;
+        
         //get exons
         var geneExons = await sqlQuery("SELECT * FROM Exons WHERE gene_id =  '" + finalAns.genes[i].gene_id + "'");
         finalAns.genes[i].geneExons = geneExons;
@@ -118,91 +194,22 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
             finalAns.genes[i].transcripts[j] = await findTranscriptInfo(finalAns.genes[i].transcripts[j]);
         }
     }
-    //send ans
-    finalAns.isExact = isExact;
-    res.status(200).send(finalAns);
-
-    console.log("querySearch:");
-    console.log(finalAns);
-    if (finalAns.genes != undefined && finalAns.genes.length > 0) {
-        fs.writeFile("log.txt", "*res" + finalAns.genes[0].gene_id + "\n", {
-            flag: 'a'
-        }, function (err) {});
-    }
+}
 
 
-});
-
-//if regular search does not work we find genes that are similar 
-//because the user may have wanted them and searched for something wrong
-async function closeGenes(geneName, specie) {
-    if (geneName.substring(0, 2).toUpperCase() == "NM" ||
-        geneName.substring(0, 2).toUpperCase() == "XM" ||
-        geneName.substring(0, 2).toUpperCase() == "NP" ||
-        geneName.substring(0, 2).toUpperCase() == "XP") {
-        return closeProteins(geneName, specie);
-    }
-    var sqlSpecie = "";
-    var synonyms = [];
-    if (specie != "all") {
-        sqlSpecie = " AND (specie ='" + specie + "')";
-    }
-    queryAns = await sqlQuery("SELECT gene_id , synonyms FROM Genes WHERE (synonyms LIKE  '" + geneName + "%' OR synonyms LIKE  '%; " + geneName + "%')" + sqlSpecie);
-    if (queryAns.length != 0) {
-        for (var i = 0; i < queryAns.length; i++) {
-            var geneSynonyms = queryAns[i].synonyms.split("; ");
-            for (var j = 0; j < geneSynonyms.length; j++) {
-                if (geneSynonyms[j].toLowerCase() == geneName.toLowerCase()) {
-                    synonyms.push(queryAns[i]);
-                }
+//connects to the db using db module (DButils) and returns query answer
+function sqlQuery(query,params) {
+    var promise = new Promise(function (resolve, reject) {
+        DButils.db.all(query, [], async (err, rows) => {
+            if (err == undefined) {
+                resolve(rows);
+            } else {
+                reject(err);
+                console.log(err);
             }
-        }
-    }
-    return synonyms;
+        });
+    });
+    return promise;
 }
-//by transcripts and proteins finding the gene that made them to be used for results
-async function closeProteins(geneName, specie) {
-    var sqlSpecie = "";
-    if (specie != "all") {
-        sqlSpecie = " AND (specie ='" + specie + "')";
-    }
-    var proteinNonVersion = geneName.split(".")[0].toUpperCase();
-    queryAns1 = await sqlQuery("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Proteins WHERE protein_id LIKE '" + proteinNonVersion + "%') as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-    queryAns2 = await sqlQuery("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id LIKE '" + proteinNonVersion + "%') as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-    if(queryAns1.length>0){
-        return queryAns1;
-    }
-    return queryAns2;
-}
-
-// added support for finding the gene by the Ensembl and Uniprot protein ID. returns the genes
-async function emsemblRecords(geneName, specie) {
-    var sqlSpecie = "";
-    if (specie != "all") {
-        sqlSpecie = " AND (specie ='" + specie + "')";
-    }
-    var recordNonVersion = geneName.split(".")[0].toUpperCase();
-    queryAns1 = await sqlQuery("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Proteins WHERE UPPER (ensembl_id) LIKE '" + recordNonVersion + "%') as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-    queryAns2 = await sqlQuery("SELECT Genes.gene_id, specie " +
-    "FROM (SELECT gene_id FROM Transcripts WHERE UPPER(ensembl_ID) LIKE '" + recordNonVersion + "%') as tmp1" +
-    ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-    queryAns3 = await sqlQuery("SELECT Genes.gene_id, specie " +
-    "FROM (SELECT gene_id FROM Proteins WHERE UPPER(uniprot_id) LIKE '" + recordNonVersion + "%') as tmp1" +
-    ", Genes WHERE tmp1.gene_id=Genes.gene_id " + sqlSpecie);
-    if (queryAns2.length>0){
-        return queryAns2;
-    }
-    if(queryAns3.length>0){
-        return queryAns3;
-    }
-    return queryAns1;
-}
-
 
 module.exports = app;
