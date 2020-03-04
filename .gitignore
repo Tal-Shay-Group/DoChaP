@@ -36,3 +36,5 @@ Website_code/userInterfaceLog.txt
 
 Tool_code/*.txt
 **/*.orthology.txt
+
+Downloads_refine/Downloads/**
