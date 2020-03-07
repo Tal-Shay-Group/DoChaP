@@ -15,10 +15,6 @@ angular.module("DoChaP")
         $scope.canvasSize = 550;
         $scope.viewMode = "all";
         self.toolTipManagerForCanvas = {
-            "canvas-protein0": [
-                [50, 0, 50, 70, " this is red"],
-                [150, 0, 50, 70, "this is blue"]
-            ]
         };
         if (loadedGene == undefined) {
             $scope.noSearch = true;
@@ -119,7 +115,7 @@ angular.module("DoChaP")
             self.geneInfo.scale.draw("canvas-scale");
 
             //=========GRIDLINES IMPORTANT==========
-            //self.geneInfo.scale.drawBehind("gridlines");
+            // self.geneInfo.scale.drawBehind("gridlines");
             
             self.geneInfo.proteinScale.draw("canvas-scale-protein");
             createTooltipManager();
@@ -299,14 +295,18 @@ angular.module("DoChaP")
         }
 
         function getURLfor(source) {
+            if(source.substring(0,5)=='smart'){
+                return "http://smart.embl-heidelberg.de/smart/do_annotation.pl?DOMAIN="+source;
+            }
+            if(source.substring(0,4)=='pfam'){
+                return "https://pfam.xfam.org/family/"+'PF'+source.substring(4);
+            }
+            if(source.substring(0,2)=='cd'){
+                return "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid="+source;
+            }
+            if(source.substring(0,4)=='TIGR'){
+                return "http://tigrfams.jcvi.org/cgi-bin/HmmReportPage.cgi?acc="+source;
+            }
             return "https://www.ncbi.nlm.nih.gov/Structure/cdd/" + source
-        }
-
-
-        function gridLines(){
-            var canvas= document.getElementById("gridlines");
-            var context= canvas.get
-
-
         }
     });

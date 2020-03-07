@@ -181,7 +181,7 @@ class DomainGroup {
         for(var i=0; i<this.domains.length;i++){
             text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
         }
-        return [domainX, domainY, domainWidth, domainHeight, text, "unknown"];
+        return [domainX, domainY, domainWidth, domainHeight, text, undefined];
     }
 
 
