@@ -268,7 +268,6 @@ class Domain {
                     finalDomains.push(new DomainGroup(tempDomainArr));
                 }
                 tempDomainArr=[domains[i]];
-                finalDomains.push(domains[i])
                 currCoordinate=domains[i].end;
 
             }
