@@ -19,8 +19,8 @@ app.config(function ($routeProvider) {
             controller: 'resultsController as resultsCtrl'
         })
         .when('/results/:specie/:query', {
-            templateUrl: 'pages/home/querySearch.html',
-            controller: 'querySearchController as querySearchCtrl'
+            templateUrl: 'pages/results/results.html',
+            controller: 'resultsController as resultsCtrl'
         })
         .when('/querySearch',{
             templateUrl: 'pages/home/querySearch.html',

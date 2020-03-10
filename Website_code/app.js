@@ -45,6 +45,7 @@ app.get('/sendMail/:name/:mail/:msg', (req, res) => {
     };
     
     transporter.sendMail(mailOptions, function(error, info){ });
+    res.status(200).send();
 });
 
 //userInterfaceLog
@@ -53,6 +54,7 @@ app.get('/userLog/:msg', (req, res) => {
     fs.writeFile("userInterfaceLog.txt", req.params.msg+","+now + "\n", {
         flag: 'a'
     }, function (err) {});
+    res.status(200).send();
 });
 
 //querySearch module constructor

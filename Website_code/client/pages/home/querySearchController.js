@@ -3,18 +3,11 @@ this controller is used by the search page and is used to collect input for the 
 */
 
 angular.module("DoChaP")
-    .controller("querySearchController", function ($scope,$routeParams,querySearchService) {
+    .controller("querySearchController", function ($scope,querySearchService) {
         // button click count
         self = this;
         $scope.loading = false;
         $scope.alert = "";
-
-        if($routeParams.specie!=undefined &&$routeParams.query!=undefined){
-            isReviewed=true;
-
-            querySearchService.queryHandler($routeParams.query, $routeParams.specie, isReviewed);
-            
-        }
 
         //runs on 'analyze' button click. checks for input in text or file and sends the right request for the server.
         self.search = async function () {
