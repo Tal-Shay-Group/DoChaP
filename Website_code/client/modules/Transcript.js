@@ -31,6 +31,8 @@ class Transcript {
         this.genomicView = true;
         this.transcriptView = true;
         this.proteinView = true;
+        this.proteinExtendView = false;
+
 
         //zoom in or out in canvas attributes
         this.shownLength = gene.proteinEnd - gene.proteinStart;
@@ -54,19 +56,25 @@ class Transcript {
 
         //domain sorts and attribute edits
         Domain.findOverlaps(this.domains);
+       this.domains=Domain.groupDomains(this.domains);
         this.domains.sort(Domain.compare); //so it is drawn in right order
         Domain.showNameOfDomains(this.domains);
+
     }
 
-    show(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager) {
-        this.tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager)
+    show(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager,proteinExtendCanvasID) {
+        this.tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID,proteinExtendCanvasID, tooltipManager)
         this.draw(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID);
+        this.drawExtended(proteinExtendCanvasID);
     }
 
-    tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager) {
+    tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID,proteinExtendCanvasID, tooltipManager) {
         tooltipManager[genomicViewCanvasID] = this.tooltipGenomicView(genomicViewCanvasID);
         tooltipManager[transcriptViewCanvasID] = this.tooltipTranscriptView(transcriptViewCanvasID);
         tooltipManager[proteinViewCanvasID] = this.tooltipProteinView(proteinViewCanvasID);
+        tooltipManager[proteinExtendCanvasID] = this.tooltipProteinExtendView(proteinExtendCanvasID);
+        tooltipManager[proteinViewCanvasID+"object"] = this;
+
     }
 
     tooltipGenomicView(genomicViewCanvasID) {
@@ -100,7 +108,7 @@ class Transcript {
     }
 
     tooltipProteinView(proteinViewCanvasID) {
-        var domains = Domain.groupDomains(this.domains);
+        var domains = this.domains;
         var startHeight = 25;
         var canvasP = document.getElementById(proteinViewCanvasID);
         var canvasWidth = canvasP.width;
@@ -110,6 +118,25 @@ class Transcript {
         for (var i = domains.length - 1; i >= 0; i--) {
             var tooltipData = domains[i].tooltip(coordinatesWidth, startHeight);
             tooltips.push(tooltipData);
+        }
+        return tooltips;
+    }
+
+    tooltipProteinExtendView(proteinExtendViewCanvasID) {
+        var domains = this.domains;
+        var startHeight = 25;
+        var canvasP = document.getElementById(proteinExtendViewCanvasID);
+        var canvasWidth = canvasP.width;
+        var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
+        var tooltips = []; //we will fill now
+
+        for (var i = domains.length - 1; i >= 0; i--) {
+            var tooltipArr = domains[i].proteinExtendTooltip(coordinatesWidth, startHeight);
+            
+            for(var j=0;j<tooltipArr.length; j++){
+                tooltips.push(tooltipArr[j]);
+            }
+            
         }
         return tooltips;
     }
@@ -228,7 +255,7 @@ class Transcript {
         var proteinLength = this.proteinLength;
         var lineThickness = 4;
         var startHeight = 25;
-        var domainsInProtein = Domain.groupDomains(this.domains);
+        var domainsInProtein = this.domains;
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
 
         //clear old drawings
@@ -285,6 +312,31 @@ class Transcript {
             return -1;
         }
         return 0;
+    }
+
+    drawExtended(canvasID){
+        //calculations
+        var exons = this.exons;
+        var canvas = document.getElementById(canvasID);
+        var context = canvas.getContext("2d");
+        var canvasHeight = canvas.height;
+        var canvasWidth = canvas.width;
+        var proteinLength = this.proteinLength;
+        var lineThickness = 4;
+        var startHeight = 25;
+        var domainsInProtein = this.domains;
+        var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
+
+        //clear old drawings
+        context.closePath();
+        context.beginPath();
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        context.closePath();
+
+        //actual drawings
+        for (var i = 0; i < domainsInProtein.length; i++) {
+            domainsInProtein[i].drawExtend(context, coordinatesWidth, startHeight, true, exons);
+        }
     }
 
 }

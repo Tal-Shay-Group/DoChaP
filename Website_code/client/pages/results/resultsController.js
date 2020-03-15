@@ -18,22 +18,16 @@ angular.module("DoChaP")
         
         if($routeParams.specie!=undefined &&$routeParams.query!=undefined){
             isReviewed=true;
-
-            querySearchService.queryHandler($routeParams.query, $routeParams.specie, isReviewed);
-            
+            querySearchService.queryHandler($routeParams.query, $routeParams.specie, isReviewed);   
         }
         if (loadedGene == undefined) {
             $scope.noSearch = true;
             return;
-
         }
-
-        
 
         //getting gene from results saved in site
         self.geneInfo = runGenesCreation(loadedGene, ignorePredictions)[0];
         $scope.transcripts = self.geneInfo.transcripts;
-        $scope.geneName = self.geneInfo.gene_symbol;
 
         /* the showCanvas property defines the demands to view or hide each of the domain graphics. its
         default is to view all views*/
@@ -48,10 +42,36 @@ angular.module("DoChaP")
             $scope.showCanvas.proteinView[i] = true;
         }
         //function that runs when the hide transcript button is clicked. its only hiding and not "re-showing" when clicked again
-        $scope.changeTranscriptView = function (index) { //hide transcript. change name later
+        $scope.hideTranscriptView = function (index) { //hide transcript. change name later
             $scope.showCanvas.genomicView[index] = false;
             $scope.showCanvas.transcriptView[index] = false;
             $scope.showCanvas.proteinView[index] = false;
+        };
+
+        //show according to mode
+        $scope.showTranscriptView = function (index) { 
+            var type=$scope.viewMode;
+            if (type === "genomic") {
+                $scope.showCanvas.genomicView[index] = true;
+                $scope.showCanvas.transcriptView[index] = false;
+                $scope.showCanvas.proteinView[index] = false;
+            } else if (type === "transcript") {
+                $scope.showCanvas.genomicView[index] = false;
+                $scope.showCanvas.transcriptView[index] = true;
+                $scope.showCanvas.proteinView[index] = false;
+            } else if (type === "protein") {
+                $scope.showCanvas.genomicView[index] = false;
+                $scope.showCanvas.transcriptView[index] = false;
+                $scope.showCanvas.proteinView[index] = true;
+            } else if (type === "all") {
+                $scope.showCanvas.genomicView[index] = true;
+                $scope.showCanvas.transcriptView[index] = true;
+                $scope.showCanvas.proteinView[index] = true;
+            } else if (type === "transcript_protein") {
+                $scope.showCanvas.genomicView[index] = false;
+                $scope.showCanvas.transcriptView[index] = true;
+                $scope.showCanvas.proteinView[index] = true;
+            }
         };
 
         //show only one view options. runs on the button "show only __"
@@ -118,7 +138,7 @@ angular.module("DoChaP")
         function updateCanvases() {
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
-                $scope.transcripts[i].show('canvas-genomic' + i, 'canvas-transcript' + i, 'canvas-protein' + i, self.toolTipManagerForCanvas);
+                $scope.transcripts[i].show('canvas-genomic' + i, 'canvas-transcript' + i, 'canvas-protein' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend' + i);
             }
             self.geneInfo.scale.draw("canvas-scale");
 
@@ -140,7 +160,6 @@ angular.module("DoChaP")
                 onFinish: function (data) {
                     self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
                     $scope.transcripts = self.geneInfo.transcripts;
-                    $scope.geneName = self.geneInfo.gene_symbol;
                     /*$scope.$apply();*/
                     $(document).ready(function () {
                         updateCanvases();
@@ -160,7 +179,6 @@ angular.module("DoChaP")
                 onFinish: function (data) {
                     self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
                     $scope.transcripts = self.geneInfo.transcripts;
-                    $scope.geneName = self.geneInfo.gene_symbol;
                     /*$scope.$apply();*/
                     $(document).ready(function () {
                         updateCanvases();
@@ -182,8 +200,14 @@ angular.module("DoChaP")
                     }
                 })
                 .click(function (event) {
+
                     showTextValues = showText(event);
                     if (showTextValues[0]) {
+                        if(self.toolTipManagerForCanvas[event.target.id+"object"] != undefined){
+                            self.toolTipManagerForCanvas[event.target.id+"object"].proteinExtendView=!self.toolTipManagerForCanvas[event.target.id+"object"].proteinExtendView;
+                            $scope.$apply();
+
+                        }
                         if (showTextValues[2] != undefined) {
                             $window.open(getURLfor(showTextValues[2]), '_blank');
                         }
@@ -228,7 +252,6 @@ angular.module("DoChaP")
         //     // })
         //     self.geneInfo=new Gene(loadedGene.genes[0], isReviewedCheckBox.checked,undefined,startWanted.value,endWanted.value,undefined,undefined);
         //     $scope.transcripts = self.geneInfo.transcripts;
-        //     $scope.geneName = self.geneInfo.gene_symbol;
         //     $(document).ready(function (self) {
         //         updateCanvases();
         //     });
@@ -260,7 +283,7 @@ angular.module("DoChaP")
         //         // self.toolTipManagerForCanvas[genomicCanvasID] = [];
 
         //         //protein (view) tooltip
-        //         // var domains = Domain.groupDomains($scope.transcripts[i].domains);
+        //         // var domains = $scope.transcripts[i].domains;
         //         // var startHeight = 25;
         //         // var canvasP = document.getElementById(proteinCanvasID);
         //         // var canvasWidth = canvasP.width;
@@ -318,4 +341,5 @@ angular.module("DoChaP")
             }
             return "https://www.ncbi.nlm.nih.gov/Structure/cdd/" + source
         }
+        $scope.numberToTextWithCommas=numberToTextWithCommas;
     });

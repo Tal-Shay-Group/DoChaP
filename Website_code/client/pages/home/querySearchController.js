@@ -3,7 +3,7 @@ this controller is used by the search page and is used to collect input for the 
 */
 
 angular.module("DoChaP")
-    .controller("querySearchController", function ($scope,querySearchService) {
+    .controller("querySearchController", function ($scope,querySearchService, $compile) {
         // button click count
         self = this;
         $scope.loading = false;
@@ -21,7 +21,16 @@ angular.module("DoChaP")
             var results=await querySearchService.queryHandler(query, specie, isReviewed);
             $scope.loading = false;
             if(results[0]=="error"){
-                $scope.alert=results[1];
+                if(results[2]!=undefined){
+                    document.getElementById("alertText").innerHTML = results[2];
+                    $compile($("#alertText").contents())($scope);
+                    $scope.alert="";
+                }
+                else{
+                    $scope.alert=results[1];
+                    $("#alertText").html("");
+                }
+                
             }
             $scope.$apply();
         }

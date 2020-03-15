@@ -27,11 +27,11 @@ class Domain {
 
     draw(context, coordinatesWidth, startHeight, isFullDraw, exons) {
         //position
-        var pos=this.position(coordinatesWidth, startHeight);
+        var pos = this.position(coordinatesWidth, startHeight);
         var domainWidth = pos.domainWidth;
         var domainX = pos.domainX;
-        var domainHeight =pos.domainHeight;
-        var domainY =pos.domainY;
+        var domainHeight = pos.domainHeight;
+        var domainY = pos.domainY;
         var shapeID = this.typeID % 4; //currently its by type ID 
 
         //choosing draw settings. if undefined it is background white so half transparent domain will look better 
@@ -41,7 +41,7 @@ class Domain {
             var overlap = false;
             var domainText = false;
         } else {
-            var gradient = this.getGradientForDomain( context,domainX, domainX + domainWidth, startHeight, exons);
+            var gradient = this.getGradientForDomain(context, domainX, domainX + domainWidth, startHeight, exons);
             context.fillStyle = gradient;
             var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
             var overlap = this.overlap;
@@ -70,7 +70,7 @@ class Domain {
 
         //fill by overlap choice
         if (overlap) {
-            context.globalAlpha = 0.5;
+            context.globalAlpha = 0.3;
             context.fill();
             context.globalAlpha = 1;
         } else {
@@ -107,29 +107,26 @@ class Domain {
     getGradientForDomain(context, start, end, height, exons) { //exons are absolute position for this to work
         var gradient = context.createLinearGradient(start, height, end, height); //contextP only for domains now
         var whiteLineRadius = 10;
-        var normalizer= 1 /(this.end - this.start);
+        var normalizer = 1 / (this.end - this.start);
         for (var i = 0; i < exons.length; i++) {
-            var exonStart=exons[i].transcriptViewStart;
-            var exonEnd=exons[i].transcriptViewEnd;
+            var exonStart = exons[i].transcriptViewStart;
+            var exonEnd = exons[i].transcriptViewEnd;
             if (exonStart <= this.start && this.start <= exonEnd && exonStart <= this.end && this.end <= exonEnd) {
                 //no junctions so only one color
                 return exons[i].color;
-            }
-            else if (exonStart <= this.start && this.start <= exonEnd) {
+            } else if (exonStart <= this.start && this.start <= exonEnd) {
                 //the starting color for the domain
                 gradient.addColorStop(0, exons[i].color);
                 var position = Math.max(0, (exonEnd - this.start - whiteLineRadius) * normalizer);
                 gradient.addColorStop(position, exons[i].color);
                 //white line (if wanted)
-                gradient.addColorStop((exonEnd - this.start) *normalizer, "white");
-            }
-            else if (exonStart <= this.end && this.end <= exonEnd) {
+                gradient.addColorStop((exonEnd - this.start) * normalizer, "white");
+            } else if (exonStart <= this.end && this.end <= exonEnd) {
                 //ending color for domain
-                var position = Math.min(1, (exonStart - this.start + whiteLineRadius)*normalizer);
+                var position = Math.min(1, (exonStart - this.start + whiteLineRadius) * normalizer);
                 gradient.addColorStop(position, exons[i].color);
                 gradient.addColorStop(1, exons[i].color);
-            }
-            else if (this.start <= exonStart && exonEnd <= this.end) {
+            } else if (this.start <= exonStart && exonEnd <= this.end) {
                 //color for exon in the middle (not starting or finishing)
 
                 //white lines (if wanted)
@@ -182,25 +179,39 @@ class Domain {
         }
     }
 
-    tooltip(coordinatesWidth,startHeight) {
+    tooltip(coordinatesWidth, startHeight) {
         //position
-        var pos=this.position(coordinatesWidth, startHeight);
+        var pos = this.position(coordinatesWidth, startHeight);
         var domainWidth = pos.domainWidth;
         var domainX = pos.domainX;
-        var domainHeight =pos.domainHeight;
-        var domainY =pos.domainY;
-        
-        //for tooltip text
-        var name=this.name;
-        var start=this.AAstart;
-        var end=this.AAend;
-        var length=end-start;
-        var source=this.source;
-        if(source==undefined){
-            source="unknown";
-        }
-        var text= "<u>"+name+"</u><br> positions: "+start+"-"+end+"<br>length: "+length+"<br>source: "+source;
+        var domainHeight = pos.domainHeight;
+        var domainY = pos.domainY;
 
+        //for tooltip text
+        var name = this.name;
+        var start = this.AAstart;
+        var end = this.AAend;
+        var length = end - start;
+        var source = this.source;
+        var sourceName = "";
+        if (source == undefined) {
+            sourceName = "Source";
+            source = "unknown";
+        }
+        if (source.substring(0, 5) == 'smart') {
+            sourceName = "Smart";
+        }
+        if (source.substring(0, 4) == 'pfam') {
+            sourceName = "Pfam";
+        }
+        if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
+            sourceName = "Cdd";
+        }
+        if (source.substring(0, 4) == 'TIGR') {
+            sourceName = "Tigr";
+        }
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": " + source;
+        //var text=name;
         return [domainX, domainY, domainWidth, domainHeight, text, this.source];
     }
 
@@ -234,7 +245,7 @@ class Domain {
     /*
     some domain overlap so we group them into the DomainGroup object
     */
-    static groupDomains(domains){
+    static groupDomains(domains) {
         //sorting is it correct (?)
         function compare(a, b) {
             if (a.start < b.start) {
@@ -254,46 +265,156 @@ class Domain {
         domains.sort(compare);
 
         //finding overlaps
-        var finalDomains=[];
-        var tempDomainArr=[];
-        var currCoordinate=-1;
-        for(var i=0; i<domains.length;i++){
-            if(domains[i].end <= currCoordinate || domains[i].start <= currCoordinate){
+        var finalDomains = [];
+        var tempDomainArr = [];
+        var currCoordinate = -1;
+        for (var i = 0; i < domains.length; i++) {
+            if (domains[i].end <= currCoordinate || domains[i].start <= currCoordinate) {
                 //case may overlap
                 tempDomainArr.push(domains[i]);
-                currCoordinate=Math.max(currCoordinate,domains[i].end);
-            }
-            else{
+                currCoordinate = Math.max(currCoordinate, domains[i].end);
+            } else {
                 //case not overlap
-                if(tempDomainArr.length==1){
+                if (tempDomainArr.length == 1) {
                     finalDomains.push(tempDomainArr[0]);
-                }
-                else if(tempDomainArr.length>1){
+                } else if (tempDomainArr.length > 1) {
                     finalDomains.push(new DomainGroup(tempDomainArr));
                 }
-                tempDomainArr=[domains[i]];
-                currCoordinate=domains[i].end;
+                tempDomainArr = [domains[i]];
+                currCoordinate = domains[i].end;
 
             }
         }
 
         //if something is left in the tempDomainArr we add them
-        if(tempDomainArr.length==1){
+        if (tempDomainArr.length == 1) {
             finalDomains.push(tempDomainArr[0]);
-        }
-        else if(tempDomainArr.length>1){
+        } else if (tempDomainArr.length > 1) {
             finalDomains.push(new DomainGroup(tempDomainArr));
         }
-        
+
         return finalDomains;
     }
-    position(coordinatesWidth,startHeight){
-        var pos=new Object();
+    position(coordinatesWidth, startHeight) {
+        var pos = new Object();
         pos.domainWidth = (this.end - this.start) * coordinatesWidth;
         pos.domainX = this.start * coordinatesWidth;
         pos.domainHeight = 45;
         pos.domainY = startHeight - pos.domainHeight / 2;
         return pos;
+    }
+
+    drawExtend(context, coordinatesWidth, startHeight, isFullDraw, exons, domainHeight, domainY, domainX, domainWidth) {
+        //position
+        var pos = this.position(coordinatesWidth, startHeight);
+        var domainWidth = pos.domainWidth;
+        var domainX = pos.domainX;
+        //var domainHeight =pos.domainHeight;
+        //var domainY =pos.domainY;
+        var shapeID = this.typeID % 4; //currently its by type ID 
+
+        //choosing draw settings. if undefined it is background white so half transparent domain will look better 
+        if (isFullDraw == false) {
+            context.fillStyle = "white";
+            var domainName = "";
+            var overlap = false;
+            var domainText = false;
+        } else {
+            var gradient = this.getGradientForDomain(context, domainX, domainX + domainWidth, startHeight, exons);
+            context.fillStyle = gradient;
+            var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
+            var overlap = this.overlap;
+            var domainText = this.showText;
+        }
+
+        //choose by shape
+        context.beginPath();
+        if (shapeID == 0 || true) {
+            context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
+        } else if (shapeID == 1) {
+            context.moveTo(domainX, domainY);
+            context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
+            context.lineTo(domainX + domainWidth, domainY);
+        } else if (shapeID == 2) {
+            context.moveTo(domainX, domainY);
+            context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
+            context.lineTo(domainX + domainWidth, domainY);
+        } else if (shapeID == 3) {
+            context.moveTo(domainX + domainWidth / 2, domainY);
+            context.lineTo(domainX + domainWidth, domainY + domainHeight / 2);
+            context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
+            context.lineTo(domainX, domainY + domainHeight / 2);
+        }
+        context.closePath();
+
+        //fill by overlap choice
+        if (false /*overlap*/ ) {
+            context.globalAlpha = 0.3;
+            context.fill();
+            context.globalAlpha = 1;
+        } else {
+            context.fill();
+        }
+
+        //border
+        context.strokeStyle = "grey";
+        context.lineWidth = 1;
+        context.stroke();
+
+        //show text if needed in diagonal
+        if (false /*domainText*/ ) {
+            context.save();
+            context.translate(domainX + domainWidth / 2, domainY + domainHeight + 8);
+            context.rotate(Math.PI / 16);
+            var lineheight = 15;
+            var lines = domainName.split('\n');
+            context.fillStyle = "black"; //for text
+            context.font = "20px Calibri"; //bold 
+
+            //we must draw each line saperatly because canvas can't draw '\n'
+            context.textAlign = "left";
+            for (var i = 0; i < lines.length; i++) {
+                context.fillText(lines[i], 0, 10 + (i * lineheight));
+            }
+            context.restore();
+        }
+
+
+    }
+
+    proteinExtendTooltip(coordinatesWidth, startHeight, domainHeight, domainY, domainX, domainWidth) {
+        //position
+        var pos = this.position(coordinatesWidth, startHeight);
+        var domainWidth = pos.domainWidth;
+        var domainX = pos.domainX;
+        var name = this.name;
+        var start = this.AAstart;
+        var end = this.AAend;
+        var length = end - start;
+        var source = this.source;
+        var sourceName = "Source";
+        if (source == undefined) {
+            source = "unknown";
+        }
+        if (source.substring(0, 5) == 'smart') {
+            sourceName = "Smart";
+        }
+        if (source.substring(0, 4) == 'pfam') {
+            sourceName = "Pfam";
+        }
+        if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
+            sourceName = "Cdd";
+        }
+        if (source.substring(0, 4) == 'TIGR') {
+            sourceName = "Tigr";
+        }
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": " + source;
+
+        return [
+            [domainX, domainY, domainWidth, domainHeight, text, this.source]
+        ];
+
+
     }
 
 }

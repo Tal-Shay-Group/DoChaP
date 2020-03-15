@@ -1,8 +1,8 @@
 <html>
 
 <body ng-app="DoChaP" ng-controller="compareSpeciesCtrl">
-    <div
-        style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+    <div class="backgroundForPage">
+        <span id="myTooltip">Tooltip text</span>
         <!-- modal creation -->
         <div id="BlackBackground"
             style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
@@ -135,7 +135,7 @@
                         <td>
                             <table class="resultTable">
                                 <tr>
-                                    <th style="width:130px"></th>
+                                    <th></th>
                                     <th colspan="3">
                                         <center><a href=""><b
                                                     ng-click="openWindow('gene',undefined,1)">{{compareSpeciesCtrl.specie1Gene.gene_symbol}}</b></a>:
@@ -159,7 +159,10 @@
                                     <td>
                                     </td>
                                     <td ng-show="viewMode=='all'|| viewMode=='genomic'">
-
+                                        <div style="width: {{canvasSize}}px;">
+                                            <input type="text" class="js-range-slider" id="genomic_range1" value="" />
+                                        </div>
+                                        <br>
                                         <canvas id="canvas-scale1" height="130" width="{{canvasSize}}">
                                         </canvas>
                                         <br>
@@ -167,6 +170,10 @@
                                     </td>
                                     <td ng-show="viewMode!='genomic'">
                                         <!-- scale view for proteins -->
+                                        <div style="width: {{canvasSize}}px;">
+                                            <input type="text" class="js-range-slider" id="protein_range1" value="" />
+                                        </div>
+                                        <br>
                                         <canvas id="canvas-scale-protein1" height="130" width="{{canvasSize}}">
                                         </canvas>
 
@@ -235,7 +242,10 @@
                                 </tr>
                                 <tr>
                                     <td ng-show="viewMode=='all'|| viewMode=='genomic'">
-
+                                        <div style="width: {{canvasSize}}px;">
+                                            <input type="text" class="js-range-slider" id="genomic_range2" value="" />
+                                        </div>
+                                        <br>
                                         <canvas id="canvas-scale2" height="130" width="{{canvasSize}}">
                                         </canvas>
                                         <br>
@@ -243,6 +253,10 @@
                                     </td>
                                     <td ng-show="viewMode!='genomic'">
                                         <!-- scale view for proteins -->
+                                        <div style="width: {{canvasSize}}px;">
+                                            <input type="text" class="js-range-slider" id="protein_range2" value="" />
+                                        </div>
+                                        <br>
                                         <canvas id="canvas-scale-protein2" height="130" width="{{canvasSize}}">
                                         </canvas>
 
