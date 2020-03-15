@@ -1,6 +1,7 @@
 class DomainGroup {
-    constructor(domains) {
+    constructor(domains,isExtend) {
         this.domains=domains //arr of Domain objects
+        this.isExtend=isExtend;
 
         //init attributes
         this.start=domains[0].start;
@@ -85,6 +86,22 @@ class DomainGroup {
 
 
     }
+
+    drawExtend(context, coordinatesWidth, startHeight, isFullDraw, exons) {
+        var domainWidth = (this.end - this.start) * coordinatesWidth;
+        var domainX = this.start * coordinatesWidth;
+        var domainHeight = 45;
+        var domainY = startHeight - domainHeight / 2;
+        var shapeID = 0; //currently its only circles 
+        var overlap = false; //all point is that overlapped is inside
+        var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
+
+        var oneDomainHeight=domainHeight/this.domains.length;
+        for(var i=0; i<this.domains.length;i++){
+            this.domains[i].drawExtend(context,coordinatesWidth,startHeight,isFullDraw,exons,oneDomainHeight-5,domainY+oneDomainHeight*i,domainX,domainWidth);
+        }
+    }
+
 
     //calculations of gradient color
     getGradientForDomain(context, start, end, height, exons) { //exons are absolute position for this to work
@@ -181,10 +198,27 @@ class DomainGroup {
         for(var i=0; i<this.domains.length;i++){
             text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
         }
+        var text=this.domains.length+" Domains";
         return [domainX, domainY, domainWidth, domainHeight, text, undefined];
     }
 
+    proteinExtendTooltip(coordinatesWidth,startHeight){
+        var domainWidth = (this.end - this.start) * coordinatesWidth;
+        var domainX = this.start * coordinatesWidth;
+        var domainHeight = 45;
+        var domainY = startHeight - domainHeight / 2;
+        var shapeID = 0; //currently its only circles 
+        var overlap = false; //all point is that overlapped is inside
+        var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
+        var oneDomainHeight=domainHeight/this.domains.length;
 
+        var tooltips=[];
+        for(var i=0; i<this.domains.length;i++){
+            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth,startHeight,oneDomainHeight-5,domainY+oneDomainHeight*i,domainX,domainWidth)[0]);
+        }
+        return tooltips;
+        
+    }
     //when seeing overlapping domains it choses which one to show text to
     /**
      * 

@@ -6,7 +6,7 @@ class GenomicGraphicLayout {
         this.canvasWidth = this.canvas.width;
         
         //default parameters for graphic layout
-        this.lineThickness = 2;
+        this.lineThickness = 4;
         this.startHeight = 50;
         this.beginningEmpty = 10; //in pixels
         this.endEmpty = 5; //in pixels

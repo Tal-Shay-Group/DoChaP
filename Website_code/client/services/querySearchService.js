@@ -7,6 +7,7 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
     //in case of text this function runs. it checks for invalid input before sending it to the server
     self.queryHandler =async function (query, specie, isReviewed) {
         var re = new RegExp("^[a-zA-Z0-9]");
+        query=query.trim(); //trim whitespaces from beginning or end
         if (!re.test(query)) {
             return ["error", "Please fix your query"];
         }
@@ -23,11 +24,16 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
                         return ["success"];
                     } else {
                         message = "";
+                        var messageForHomePage="";
                         for (var i = 0; i < response.data.genes.length - 1; i++) {
                             message = message + response.data.genes[i].gene_symbol + ", ";
+                            messageForHomePage=messageForHomePage+
+                            "<a ng-click=\"querySearchCtrl.exmaple('"+response.data.genes[i].gene_symbol+"')\">"+
+                            response.data.genes[i].gene_symbol+"</a>"+", ";
                         }
                         message = "We couldn't find an exact match for your query. Did you mean:\n" +message + response.data.genes[response.data.genes.length - 1].gene_symbol;
-                        return ["error", message];
+                        messageForHomePage = "We couldn't find an exact match for your query. Did you mean:\n"+messageForHomePage  + "<a ng-click=\"querySearchCtrl.exmaple('"+response.data.genes[response.data.genes.length - 1].gene_symbol+"')\">"+response.data.genes[response.data.genes.length - 1].gene_symbol+"</a>";
+                        return ["error", message,messageForHomePage];
                     }
                 }
             })

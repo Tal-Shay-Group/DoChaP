@@ -32,7 +32,6 @@
             <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
                 <span class="glyphicon glyphicon-search"></span>  Search
             </button>
-            <button class="btn blackButton helpButton">?</button>
             &nbsp;
             <!--
  <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
@@ -51,7 +50,7 @@
             <button class="btn blackButton" type="button"
                 ng-click="querySearchCtrl.exmaple('NP_001230673.1')">NP_001230673.1</button>
             <br>
-            <span style="color:red">{{alert}}</span>
+            <span style="color:red"><span id="alertText"></span>{{alert}}</span>
         </div>
         <br>
         <br>

@@ -5,22 +5,25 @@
 <!-- this contact us form for e-mails -->
 
 <body ng-app="DoChaP" ng-controller="contactUsCtrl">
-        <div style="background-image: url('/resources/contactUs.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+        <div class="backgroundForPage">
                 <br>    
-            <div class="searchItems" style="background-color:rgb(140, 193, 202); padding: 30px;  border-radius: 10px;" >
+            <div  class="greyArea" style="text-align: center;">
             <form id="waterform" action="mailto:galozs@post.bgu.ac.il" method="post">
                     <div class="formgroup" id="name-form">
                         <label for="name">Your name*</label>
+                        <br>
                         <input class="contactUs" type="text" id="name" name="name" />
                     </div>
                     
                     <div class="formgroup" id="email-form">
                         <label for="email">Your e-mail*</label>
+                        <br>
                         <input class="contactUs" type="email" id="email" name="email" />
                     </div>
                     
                     <div class="formgroup" id="message-form">
                         <label for="message">Your message</label>
+                        <br>
                         <textarea class="contactUs" id="message" name="message"></textarea>
                     </div>
                     <br>

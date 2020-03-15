@@ -159,8 +159,8 @@ body {
 
 td {
     vertical-align: top;
-    margin: 10px;
-    padding: 10px;
+    margin: 2px;
+    padding: 2px;
 }
 
 .searchBySpecie {
@@ -175,6 +175,21 @@ td {
     text-align: left;
 
 
+}
+
+/*
+middle grey area with rounded corners and 
+text aligned to left
+*/
+.greyArea {
+    margin-right: auto;
+    margin-left: auto;
+    display: table;
+    text-align: left;
+    background-color:rgb(235, 235, 235);
+    padding: 30px;
+    border-radius: 10px;
+    width: 800px
 }
 
 .selectMode {
@@ -217,17 +232,17 @@ td {
 }
 */
 
-
+/*
 label,
 textarea {
     display: block;
 }
 form {
     color: white;
-}
+}*/
 .contactUs {
-    width: 500px;
-    border: none;
+    width: 400px;
+    /* border: none;
     border-radius: 20px;
     outline: none;
     padding: 10px;
@@ -239,7 +254,7 @@ form {
     border: solid 3px #98d4f3;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
-    box-sizing: border-box;
+    box-sizing: border-box; */
 
 }
 
@@ -271,6 +286,13 @@ textarea {
     width: 30px;
     height: 30px;
 
+}
+.backgroundForPage{
+    background-image: url('/resources/dna100.jpg');
+    height: 1000px;
+    background-repeat: no-repeat; 
+    background-size: cover;
+    background-position: center center;"
 }
 
 /*label {

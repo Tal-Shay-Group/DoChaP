@@ -107,8 +107,8 @@ Logo and navigation bars will be declared here for example.
                         <option value="D_rerio">Zebrafish</option>
                         <option value="X_tropicalis">Frog</option>
                     </select>
-                    <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField">
-                   &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="indexCtrl.search()">
+                    <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField" ng-keydown="$event.which == 13 && search()">
+                   &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="search()">
                    <span class="glyphicon glyphicon-search"></span></button>
                    <span style="color: white;" ng-show="indexLoading"> loading...</span>
                 </li>
