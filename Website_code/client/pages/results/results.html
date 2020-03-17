@@ -100,7 +100,7 @@
         -->
         <!-- list of transcripts -->
         <center>
-           
+
             <table class="resultTable">
                 <tr>
                     <th style="width:130px"></th>
@@ -110,14 +110,14 @@
                     <th class="beforProteinTextSpace"></th>
                     <th></th>
                 </tr>
-                <tr >
-                    
+                <tr>
                     <td>
                     </td>
                     <td style="position: absolute;" ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
                         Genomic
-                        <canvas id="gridlines" style="left:0px; position: absolute; z-index: -3;" height="1000" width="{{canvasSize}}">
-                         </canvas>
+                        <canvas id="gridlines" style="left:0px; position: absolute; z-index: -3;" height="1000"
+                            width="{{canvasSize}}">
+                        </canvas>
                     </td>
                     <td></td>
                     <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
@@ -136,10 +136,10 @@
                             <input type="text" class="js-range-slider" id="genomic_range" value="" />
                         </div>
                         <br>
-                       <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
+                        <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                         </canvas>
                         <br>
-                         <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
+                        <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
                     </td>
                     <td>
 
@@ -167,7 +167,9 @@
                     </td>
                     <td ng-show="showCanvas.genomicView[$index]">
                         <!-- genomic view --> <a href="" ng-show="showCanvas.genomicView[$index]"
-                            ng-click="openWindow('transcript',$index)">{{transcript.id}}</a> <br>
+                            ng-click="openWindow('transcript',$index)">{{transcript.id}}</a><button
+                            class="btn blackButton helpButton" ng-click="openWindow('transcript',$index)">!</button>
+                        <br>
                         <canvas id="canvas-genomic{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="showCanvas.genomicView[$index]"></canvas>
                     </td>

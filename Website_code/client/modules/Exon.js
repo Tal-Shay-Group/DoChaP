@@ -32,18 +32,19 @@ class Exon {
 
     }
     //draw rectangle, border and text or polygon if not all exon is in cds. note that utrStart and utrEnd are bases in the beginning or end that are out of the cds. if all is out utrAll is true
-    drawExonInGenomicView(context, spacing, coordinatesWidth, beginningEmpty, endEmpty, canvasWidth, isStrandNegative, spaceAfterCut) {
-        const exonWidth = Math.max(3, (this.genomicViewEnd - this.genomicViewStart + 1) * coordinatesWidth);
-        const exonHeight = 70;
-        var spaceAfterCut=this.cutLength>0? spaceAfterCut :0;
-        var exonX = (this.genomicViewStart - this.cutLength )* coordinatesWidth + beginningEmpty+spaceAfterCut;
-        const exonY = spacing - exonHeight / 2;
+    drawExonInGenomicView(context, startHeight, coordinatesWidth, beginningEmpty, endEmpty, canvasWidth, isStrandNegative, spaceAfterCut) {
+        var position=this.genomicViewPosition(coordinatesWidth, startHeight, spaceAfterCut, beginningEmpty, canvasWidth, endEmpty, isStrandNegative);
+        
+        const exonWidth =position.exonWidth;
+        const exonHeight = position.exonHeight;
+        var exonX = position.exonX;
+        const exonY = position.exonY;
+        
         var utrLeft = this.isUTRStart;
         var utrRight = this.isUTREnd;
         const utrAll = this.isUTRAll;
 
         if (isStrandNegative) {
-            var exonX = canvasWidth - (this.genomicViewStart - this.cutLength ) * coordinatesWidth - endEmpty - exonWidth -spaceAfterCut;
             var utrLeft = this.isUTREnd;
             var utrRight = this.isUTRStart;
         }
@@ -100,18 +101,18 @@ class Exon {
 
     //draw rectangle, border and text
     drawExonInTranscriptView(context, coordinatesWidth, canvasWidth, startHeight) {
+        //if not in cds so it does not show in *transcript view*
         if (this.transcriptViewStart == 0) {
             return;
         }
-
-        var exonWidth = (this.transcriptViewEnd - this.transcriptViewStart + 1) * coordinatesWidth;
-        var exonHeight = 25;
-        var exonX = this.transcriptViewStart * coordinatesWidth; //currX;
-        var exonY = startHeight - exonHeight / 2;
-        if (exonX + exonWidth >= canvasWidth) {
-            exonWidth = Math.max(1, canvasWidth - exonX - 2);
-        }
-
+        
+        //position
+        var position=this.transcriptViewPosition(coordinatesWidth, startHeight);
+        var exonWidth = position.exonWidth;
+        var exonHeight = position.exonHeight;
+        var exonX = position.exonX;
+        var exonY = position.exonY;
+        
         //background color
         context.fillStyle = this.color;
         context.fillRect(exonX, exonY, exonWidth, exonHeight);
@@ -120,30 +121,53 @@ class Exon {
         context.strokeRect(exonX, exonY, exonWidth, exonHeight);
     }
 
-    genomicTooltip(startHeight, coordinatesWidth, beginningEmpty, endEmpty, canvasWidth, isStrandNegative) {
-        var spaceAfterCut=50;
-        const exonWidth = Math.max(3, (this.genomicViewEnd - this.genomicViewStart + 1) * coordinatesWidth);
-        const exonHeight = 70;
-        var spaceAfterCut=this.cutLength>0? spaceAfterCut :0;
-        var exonX = (this.genomicViewStart - this.cutLength )* coordinatesWidth + beginningEmpty+spaceAfterCut;
-        const exonY = startHeight - exonHeight / 2;
-
-        if (isStrandNegative) {
-            var exonX = canvasWidth - (this.genomicViewStart - this.cutLength ) * coordinatesWidth - endEmpty - exonWidth -spaceAfterCut;
-        }
+    genomicTooltip(startHeight, coordinatesWidth, beginningEmpty, endEmpty, canvasWidth, isStrandNegative,spaceAfterCut) {
+        const position=this.genomicViewPosition(coordinatesWidth, startHeight, spaceAfterCut, beginningEmpty, canvasWidth, endEmpty,isStrandNegative);
+        const exonWidth =position.exonWidth;
+        const exonHeight = position.exonHeight;
+        const exonX = position.exonX;
+        const exonY = position.exonY;
         return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript];
 
     }
 
     transcriptTooltip(coordinatesWidth,canvasWidth,startHeight) {
-        var exonWidth = (this.transcriptViewEnd - this.transcriptViewStart + 1) * coordinatesWidth;
-        var exonHeight = 25;
-        var exonX = this.transcriptViewStart * coordinatesWidth;
-        var exonY = startHeight - exonHeight / 2;
-        if (exonX + exonWidth >= canvasWidth) {
-            exonWidth = Math.max(1, canvasWidth - exonX - 2);
-        }
+        const position=this.transcriptViewPosition(coordinatesWidth, startHeight);
+        const exonWidth = position.exonWidth;
+        const exonHeight = position.exonHeight;
+        const exonX = position.exonX;
+        const exonY = position.exonY;
         return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript]
     }
+
+    transcriptViewPosition(coordinatesWidth, startHeight){
+        var pos=new Object();
+        pos.exonWidth = (this.transcriptViewEnd - this.transcriptViewStart + 1) * coordinatesWidth;
+        pos.exonHeight = 25;
+        pos.exonX = this.transcriptViewStart * coordinatesWidth; //currX;
+        pos.exonY = startHeight - pos.exonHeight / 2;
+        
+        // if (pos.exonX + pos.exonWidth >= canvasWidth) {
+        //     pos.exonWidth = Math.max(1, canvasWidth - pos.exonX - 2);
+        // }
+
+        return pos;
+    }
+
+    genomicViewPosition(coordinatesWidth, startHeight, spaceAfterCut, beginningEmpty, canvasWidth, endEmpty, isStrandNegative){
+        var pos=new Object();
+        pos.spaceAfterCut=this.cutLength>0? spaceAfterCut :0;
+        pos.exonWidth = Math.max(3, (this.genomicViewEnd - this.genomicViewStart + 1) * coordinatesWidth);
+        pos.exonHeight = 70;
+        pos.exonX = (this.genomicViewStart - this.cutLength )* coordinatesWidth + beginningEmpty+pos.spaceAfterCut;
+        pos.exonY = startHeight - pos.exonHeight / 2;
+        
+        if(isStrandNegative){
+            pos.exonX=canvasWidth - (this.genomicViewStart - this.cutLength ) * coordinatesWidth - endEmpty - pos.exonWidth -pos.spaceAfterCut;
+        }
+
+        return pos;
+    }
+        
 
 }

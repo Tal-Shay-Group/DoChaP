@@ -38,5 +38,6 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
                     return ["error", "Error! We ran into a problem.\nIf you keep seeing this error you can contact us for help"];
                 }
             });
+            
 }
 })

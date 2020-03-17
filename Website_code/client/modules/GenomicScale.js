@@ -13,36 +13,40 @@ class GenomicScale {
      */
     draw(canvasID) {
         //calculations
-        var canvas = document.getElementById(canvasID);
-        var context = canvas.getContext("2d");
-        var canvasHeight = canvas.height;
-        var canvasWidth = canvas.width;
+        // var canvas = document.getElementById(canvasID);
+        // var context = canvas.getContext("2d");
+        // var canvasHeight = canvas.height;
+        // var canvasWidth = canvas.width;
+        // var lengthOfScale = this.end - this.start; //both in noclutides
+        // var beginningEmpty = 10; //in pixels
+        // var endEmpty = 5; //in pixels
+        // var coordinatesWidth = (canvas.width - beginningEmpty - endEmpty) / lengthOfScale;
+        // if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
+        //     coordinatesWidth = (canvas.width - beginningEmpty - endEmpty - this.spaceAfterCut) / (lengthOfScale - this.gene.cutOffLength);
+        // }
+        // var skip = getSkipSize(lengthOfScale, coordinatesWidth);
+        // var strand = this.strand;
+
+        var graphicLayout=new GenomicGraphicLayout(canvasID,this.gene);
+        var strand= this.gene.strand;
+        var context=graphicLayout.context;
         var lineThickness = 8;
         var startHeight = 70; //px from top
-        var lengthOfScale = this.end - this.start; //both in noclutides
-        var beginningEmpty = 10; //in pixels
-        var endEmpty = 5; //in pixels
-        var coordinatesWidth = (canvas.width - beginningEmpty - endEmpty) / lengthOfScale;
-        if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
-            coordinatesWidth = (canvas.width - beginningEmpty - endEmpty - this.spaceAfterCut) / (lengthOfScale - this.gene.cutOffLength);
-        }
-        var skip = getSkipSize(lengthOfScale, coordinatesWidth);
-        var strand = this.strand;
 
 
         //clear all from before
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        context.clearRect(0, 0, graphicLayout.canvasWidth, graphicLayout.canvasHeight);
 
         //line graphics
-        createBaseLine(context, 0, startHeight, canvasWidth, lineThickness);
+        createBaseLine(context, 0, startHeight, graphicLayout.canvasWidth, lineThickness);
 
         //calculate gridlines
-        var Xcoordinates = gridCoordinates(this.start, skip, coordinatesWidth, canvasWidth, beginningEmpty, endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, this.spaceAfterCut);
+        var Xcoordinates = gridCoordinates(this.start, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, this.spaceAfterCut);
 
 
         //draw gridlines
         for (var i = 0; i < Xcoordinates.length; i++) {
-            this.drawGridLine(context, Xcoordinates[i].x, startHeight, Xcoordinates[i].text, canvasWidth, beginningEmpty, coordinatesWidth)
+            this.drawGridLine(context, Xcoordinates[i].x, startHeight, Xcoordinates[i].text, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.coordinatesWidth)
         }
         //====draw gridlines from before====
         // createGridLines(context, beginningEmpty, coordinatesWidth, startHeight, canvasWidth, lengthOfScale, this.start, false, canvasHeight);
@@ -50,14 +54,10 @@ class GenomicScale {
 
         //draw skip explanation
         if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
-            var cutX = (this.gene.cutOffStart - this.gene.start) * coordinatesWidth + beginningEmpty;
-
-            if (this.gene.strand == '-') {
-                cutX = canvasWidth - (this.gene.cutOffStart - this.gene.start) * coordinatesWidth - endEmpty -this.spaceAfterCut;
-            }
+            var cutX = graphicLayout.cutX;
             context.beginPath();
             context.fillStyle = "white";
-            context.rect(cutX + 4, startHeight - 15 + lineThickness / 2, this.spaceAfterCut - 8, 30);
+            context.rect(cutX + 4, startHeight - 15 +lineThickness / 2, this.spaceAfterCut - 8, 30);
             context.fill();
             context.closePath();
             context.beginPath();
@@ -77,7 +77,7 @@ class GenomicScale {
         }
 
         //draw arrow 
-        this.drawArrow(context, strand, 100, (canvasWidth - 100) / 2, 105);
+        this.drawArrow(context, strand, 100, (graphicLayout.canvasWidth - 100) / 2, 105);
     }
 
 

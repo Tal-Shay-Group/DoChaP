@@ -56,7 +56,7 @@ class DomainGroup {
         context.stroke();
 
         context.beginPath();
-        context.ellipse(domainX + domainWidth / 2 , domainY + domainHeight / 2 , domainWidth / 2 -10, domainHeight / 2 -10, 0, 0, 2 * Math.PI);
+        context.ellipse(domainX + domainWidth / 2 , domainY + domainHeight / 2 , Math.max(domainWidth / 2 -10,0.1),  Math.max( domainHeight / 2 -10,0.1), 0, 0, 2 * Math.PI);
         context.closePath();
         context.fill();
         
@@ -181,7 +181,7 @@ class DomainGroup {
         for(var i=0; i<this.domains.length;i++){
             text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
         }
-        return [domainX, domainY, domainWidth, domainHeight, text, "unknown"];
+        return [domainX, domainY, domainWidth, domainHeight, text, undefined];
     }
 
 

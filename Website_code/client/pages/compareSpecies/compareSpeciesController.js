@@ -49,7 +49,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
     for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
       $('#fadeinDiv2' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
-      self.specie2Gene.transcripts[i].draw('canvas-genomic2' + i,'canvas-transcript2' + i,'canvas-protein2' + i);
+      self.specie2Gene.transcripts[i].draw('canvas-genomic2' + i, 'canvas-transcript2' + i, 'canvas-protein2' + i);
 
     }
     self.specie2Gene.scale.draw("canvas-scale2");
@@ -65,9 +65,14 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
   $(document).ready(function () {
     document.addEventListener("keypress", function (event) {
-      if (event.code == "Enter") {
-        self.geneSearch();
+      try {
+        if (event.code == "Enter") {
+          self.geneSearch();
+        }
+      } catch (err) {
+
       }
+
     });
     document.getElementById("compareGeneSearchTextField").focus();
   });
@@ -163,7 +168,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   }
   $scope.filterUnreviewed = function () {
     $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
-    var newResults = compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")),self.specie1Gene.specie,self.specie2Gene.specie, isReviewedCheckBox.checked);
+    var newResults = compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")), self.specie1Gene.specie, self.specie2Gene.specie, isReviewedCheckBox.checked);
     self.specie1Gene = newResults[0];
     self.specie2Gene = newResults[1];
     selectModeComboBox.value = 'all'; //update canvas+all biews shown

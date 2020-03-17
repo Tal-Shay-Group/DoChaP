@@ -26,10 +26,12 @@ class Domain {
 
 
     draw(context, coordinatesWidth, startHeight, isFullDraw, exons) {
-        var domainWidth = (this.end - this.start) * coordinatesWidth;
-        var domainX = this.start * coordinatesWidth;
-        var domainHeight = 45;
-        var domainY = startHeight - domainHeight / 2;
+        //position
+        var pos=this.position(coordinatesWidth, startHeight);
+        var domainWidth = pos.domainWidth;
+        var domainX = pos.domainX;
+        var domainHeight =pos.domainHeight;
+        var domainY =pos.domainY;
         var shapeID = this.typeID % 4; //currently its by type ID 
 
         //choosing draw settings. if undefined it is background white so half transparent domain will look better 
@@ -181,10 +183,12 @@ class Domain {
     }
 
     tooltip(coordinatesWidth,startHeight) {
-        var domainWidth = (this.end - this.start) * coordinatesWidth;
-        var domainHeight = 45;
-        var domainX = this.start * coordinatesWidth;
-        var domainY = startHeight - domainHeight / 2;
+        //position
+        var pos=this.position(coordinatesWidth, startHeight);
+        var domainWidth = pos.domainWidth;
+        var domainX = pos.domainX;
+        var domainHeight =pos.domainHeight;
+        var domainY =pos.domainY;
         
         //for tooltip text
         var name=this.name;
@@ -268,7 +272,6 @@ class Domain {
                     finalDomains.push(new DomainGroup(tempDomainArr));
                 }
                 tempDomainArr=[domains[i]];
-                finalDomains.push(domains[i])
                 currCoordinate=domains[i].end;
 
             }
@@ -283,6 +286,14 @@ class Domain {
         }
         
         return finalDomains;
+    }
+    position(coordinatesWidth,startHeight){
+        var pos=new Object();
+        pos.domainWidth = (this.end - this.start) * coordinatesWidth;
+        pos.domainX = this.start * coordinatesWidth;
+        pos.domainHeight = 45;
+        pos.domainY = startHeight - pos.domainHeight / 2;
+        return pos;
     }
 
 }
