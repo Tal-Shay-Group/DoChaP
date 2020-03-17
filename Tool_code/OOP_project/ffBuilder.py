@@ -3,8 +3,9 @@ import gzip
 import os
 import datetime
 from Bio import SeqIO
-from recordTypes import *
-from Tool_code.OOP_project.Director import SourceBuilder
+import re
+from OOP_project.recordTypes import *
+from OOP_project.Director import SourceBuilder
 
 
 class ffBuilder(SourceBuilder):

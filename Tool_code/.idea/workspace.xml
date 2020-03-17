@@ -2,22 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/biomartDownloader.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order_domains_V2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/try_OOP.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ucscParser_OOP.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Code.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Code.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/galozs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/galozs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build_db_complete.py" beforeDir="false" afterPath="$PROJECT_DIR$/build_db_complete.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ffDownloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/ffDownloader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ffParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/ffParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order_domains.py" beforeDir="false" afterPath="$PROJECT_DIR$/order_domains.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ucscParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/ucscParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/Collector.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Collector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/ffBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/ffBuilder.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,7 +89,26 @@
       <recent name="C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.build_db_complete">
+  <component name="RunManager" selected="Python.Collector">
+    <configuration name="Collector" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/Collector.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -192,6 +201,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Collector" />
+        <item itemvalue="Python.Collector" />
+        <item itemvalue="Python.Collector" />
         <item itemvalue="Python.build_db_complete" />
       </list>
     </recent_temporary>
@@ -218,6 +230,7 @@
       <workItem from="1580633231032" duration="882000" />
       <workItem from="1580634150179" duration="1304000" />
       <workItem from="1580635475988" duration="30881000" />
+      <workItem from="1584443430064" duration="9900000" />
     </task>
     <servers />
   </component>
@@ -250,28 +263,28 @@
     </state>
     <state x="2609" y="217" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376651923" />
     <state x="551" y="172" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1581321943218" />
-    <state width="1479" height="100" key="GridCell.Tab.0.bottom" timestamp="1581321946098">
-      <screen x="0" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.bottom" timestamp="1584456568206">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state width="1479" height="100" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1580656289101" />
+    <state width="1483" height="100" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568206" />
     <state width="1863" height="267" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058984" />
     <state width="1479" height="100" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
-    <state width="1479" height="100" key="GridCell.Tab.0.center" timestamp="1581321946098">
-      <screen x="0" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.center" timestamp="1584456568206">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state width="1479" height="100" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1580656289101" />
+    <state width="1483" height="100" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568206" />
     <state width="1863" height="267" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058983" />
     <state width="1479" height="100" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
-    <state width="1479" height="100" key="GridCell.Tab.0.left" timestamp="1581321946098">
-      <screen x="0" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.left" timestamp="1584456568205">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state width="1479" height="100" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1580656289101" />
+    <state width="1483" height="100" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568205" />
     <state width="1863" height="267" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058983" />
     <state width="1479" height="100" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
-    <state width="1479" height="100" key="GridCell.Tab.0.right" timestamp="1581321946098">
-      <screen x="0" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.right" timestamp="1584456568206">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state width="1479" height="100" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1580656289101" />
+    <state width="1483" height="100" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568206" />
     <state width="1863" height="267" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058984" />
     <state width="1479" height="100" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
     <state width="1865" height="243" key="GridCell.Tab.1.bottom" timestamp="1580387374054">
@@ -307,9 +320,10 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376187631" />
-    <state x="2511" y="302" key="com.intellij.ide.util.TipDialog" timestamp="1580635476898">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1584443431884">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
+    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584443431884" />
     <state x="473" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580633015913" />
     <state x="2511" y="302" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580635476898" />
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1580382692442">
@@ -330,5 +344,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Tool_code$build_db_complete.coverage" NAME="build_db_complete Coverage Results" MODIFIED="1580642058965" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tool_code$Collector.coverage" NAME="Collector Coverage Results" MODIFIED="1584456550407" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/OOP_project" />
   </component>
 </project>
