@@ -261,6 +261,18 @@ textarea {
     display: none;
   }
 
+.helpButton {
+    margin: 5px;
+    border-radius: 15px;
+    font-size: 15px;
+    font-weight: bolder;
+    border:3px;
+    border-color: gray;
+    width: 30px;
+    height: 30px;
+
+}
+
 /*label {
     font-size: 1.5em;
     margin-top: 5px;
