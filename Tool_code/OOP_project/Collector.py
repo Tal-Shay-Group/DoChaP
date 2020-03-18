@@ -10,29 +10,29 @@ from OOP_project.UcscBuilder import UcscBuilder
 from OOP_project.ffBuilder import ffBuilder
 from OOP_project.IDconverterBuilder import ConverterBuilder
 
+
 class Collector:
 
     def __init__(self, species):
         self.species = species
-        self.refGene = []
+        self.director = Director()
         self.ucsc_acc = []
         self.ff = None
         self.gene2ensembl = None
 
     def collectAll(self):
-        director = Director()
 
         ucsc = UcscBuilder(self.species)
-        director.setBuilder(ucsc)
-        director.collectFromSource()
+        self.director.setBuilder(ucsc)
+        self.director.collectFromSource()
 
         ff = ffBuilder(self.species)
-        director.setBuilder(ff)
-        director.collectFromSource()
+        self.director.setBuilder(ff)
+        self.director.collectFromSource()
 
         idConv = ConverterBuilder(self.species)
-        director.setBuilder(idConv)
-        director.collectFromSource()
+        self.director.setBuilder(idConv)
+        self.director.collectFromSource()
 
     #director.setBuilder(ffbuilder)
     # ff = director.collectFromSource()

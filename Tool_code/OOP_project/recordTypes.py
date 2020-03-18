@@ -27,7 +27,8 @@ class Gene:
 
 class Transcript:
 
-    def __init__(self, refseq, ensembl, chrom, strand, tx, CDS, gene, prot_ref, exons_starts, exons_ends):
+    def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
+                 gene=None, prot_refseq=None, protein_ensembl=None, exons_starts=None, exons_ends=None):
         self.refseq = refseq
         self.ensembl = ensembl
         self.chrom = chrom
@@ -35,7 +36,8 @@ class Transcript:
         self.tx = tx
         self.CDS = CDS
         self.gene = gene
-        self.prot_ref = prot_ref
+        self.prot_refseq = prot_refseq
+        self.protein_ensembl = protein_ensembl
         if len(exons_starts) == len(exons_ends):
             self.exon_starts = exons_starts
             self.exon_ends = exons_ends
@@ -99,6 +101,16 @@ class Transcript:
                    self.exon_starts == other.exon_starts and \
                    self.exon_ends == other.exon_ends
 
+    def mergeTranscripts(self, other):
+        mergedT = Transcript()
+        attr = ['refseq', 'ensembl', 'chrom', 'strand', 'tx', 'CDS',
+                'gene', 'prot_refseq', 'protein_ensembl', 'exons_starts', 'exons_ends']
+        for atribute in attr:
+            if self.__getattribute__(atribute) is None:
+                mergedT.__setattr__(atribute, other.__getattribute__(atribute))
+            else:
+                mergedT.__setattr__(atribute, self.__getattribute__(atribute))
+        return mergedT
 
 class Domain:
 
