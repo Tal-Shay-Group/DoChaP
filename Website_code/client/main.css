@@ -18,7 +18,7 @@ body {
     align-self: center;
 }
 
-.myModal {
+#myModal {
     background-color: rgba(245,245,245,1);
     height: 250px;
     width: 320px;

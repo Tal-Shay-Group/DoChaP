@@ -29,26 +29,6 @@ function runGenesCreation(result, ignorePredictions, preferences) {
     return geneList;
 }
 
-//this function returns the right specie name as it is in Ensembl
-function ensembleSpecieName(specie) {
-    if (specie == "M_musculus") {
-        return "Mus_musculus";
-    } else if (specie == "H_sapiens") {
-        return "Homo_sapiens";
-    } else if (specie == "X_tropicalis") {
-        return "Xenopus_tropicalis";
-    } else if (specie == "D_rerio") {
-        return "Danio_rerio";
-    } else if (specie == "R_norvegicus") {
-        return "Rattus_norvegicus";
-    }
-    return undefined;
-}
-
-
-
-
-
 
 //select a totally random color 
 function getRandomColor() {

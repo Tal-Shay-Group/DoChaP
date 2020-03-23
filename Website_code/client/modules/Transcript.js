@@ -56,25 +56,59 @@ class Transcript {
 
         //domain sorts and attribute edits
         Domain.findOverlaps(this.domains);
-       this.domains=Domain.groupDomains(this.domains);
+        this.domains = Domain.groupDomains(this.domains);
         this.domains.sort(Domain.compare); //so it is drawn in right order
         Domain.showNameOfDomains(this.domains);
 
     }
 
-    show(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager,proteinExtendCanvasID) {
-        this.tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID,proteinExtendCanvasID, tooltipManager)
+    show(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager, proteinExtendCanvasID) {
+        this.tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, proteinExtendCanvasID, tooltipManager)
         this.draw(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID);
         this.drawExtended(proteinExtendCanvasID);
     }
 
-    tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID,proteinExtendCanvasID, tooltipManager) {
+    tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, proteinExtendCanvasID, tooltipManager) {
         tooltipManager[genomicViewCanvasID] = this.tooltipGenomicView(genomicViewCanvasID);
         tooltipManager[transcriptViewCanvasID] = this.tooltipTranscriptView(transcriptViewCanvasID);
         tooltipManager[proteinViewCanvasID] = this.tooltipProteinView(proteinViewCanvasID);
         tooltipManager[proteinExtendCanvasID] = this.tooltipProteinExtendView(proteinExtendCanvasID);
-        tooltipManager[proteinViewCanvasID+"object"] = this;
+        tooltipManager[proteinViewCanvasID + "object"] = this;
+       
+        //binding to canvas
+        $("canvas").unbind();
+        $("canvas")
+            .mousemove(function (event) {
+                var showTextValues = Transcript.showText(event,tooltipManager);
+                if (showTextValues[0]) {
+                    $("#myTooltip").show();
+                    $("#myTooltip").css("top", event.pageY + 5);
+                    $("#myTooltip").css("left", event.pageX + 5);
+                    $("#myTooltip").html(showTextValues[1]);
+                    if (showTextValues[2] != undefined) {
+                        $('canvas').css('cursor', 'pointer');
+                    }
+                } else {
+                    $("#myTooltip").hide();
+                    $('canvas').css('cursor', 'default');
+                }
+            });
+    }
 
+    //for tooltips- checks if mouse on domain.
+    static showText(event,tooltipManager){
+        var res = [false, ""];
+        if (tooltipManager[event.target.id] != undefined) {
+            var offset = event.target.getBoundingClientRect();
+            var exon = tooltipManager[event.target.id];
+            for (var i = 0; i < exon.length; i++) {
+                if (event.clientX - offset.left >= exon[i][0] && event.clientX - offset.left <= exon[i][0] + exon[i][2] &&
+                    event.clientY - offset.top >= exon[i][1] && event.clientY - offset.top <= exon[i][1] + exon[i][3]) {
+                    return [true, exon[i][4], exon[i][5]];
+                }
+            }
+        }
+        return res;
     }
 
     tooltipGenomicView(genomicViewCanvasID) {
@@ -83,7 +117,7 @@ class Transcript {
         var tooltips = []; //we will fill now
 
         for (i = 0; i < this.exons.length; i++) {
-            var tooltipData = this.exons[i].genomicTooltip(graphicLayout.startHeight, graphicLayout.coordinatesWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, graphicLayout.canvasWidth, isStrandNegative, graphicLayout.canvasWidth,graphicLayout.spaceAfterCut)
+            var tooltipData = this.exons[i].genomicTooltip(graphicLayout.startHeight, graphicLayout.coordinatesWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, graphicLayout.canvasWidth, isStrandNegative, graphicLayout.canvasWidth, graphicLayout.spaceAfterCut)
             tooltips.push(tooltipData);
         }
 
@@ -132,11 +166,11 @@ class Transcript {
 
         for (var i = domains.length - 1; i >= 0; i--) {
             var tooltipArr = domains[i].proteinExtendTooltip(coordinatesWidth, startHeight);
-            
-            for(var j=0;j<tooltipArr.length; j++){
+
+            for (var j = 0; j < tooltipArr.length; j++) {
                 tooltips.push(tooltipArr[j]);
             }
-            
+
         }
         return tooltips;
     }
@@ -281,12 +315,12 @@ class Transcript {
 
     //calculating ensemble transcript link
     getEnsemblTranscriptLink(ensembl_id, specie) {
-        return "https://www.ensembl.org/" + ensembleSpecieName(specie) + "/Transcript/Summary?db=core;t=" + ensembl_id;
+        return "https://www.ensembl.org/" + Species.ensembleSpecieName(specie) + "/Transcript/Summary?db=core;t=" + ensembl_id;
     }
 
     //calculating ensemble protein link
     getEnsemblProteinLink(ensembl_id, specie) {
-        return "https://www.ensembl.org/" + ensembleSpecieName(specie) + "/Transcript/ProteinSummary?db=core;p=" + ensembl_id;
+        return "https://www.ensembl.org/" + Species.ensembleSpecieName(specie) + "/Transcript/ProteinSummary?db=core;p=" + ensembl_id;
     }
 
     drawGridLine(context, x, y) {
@@ -314,7 +348,7 @@ class Transcript {
         return 0;
     }
 
-    drawExtended(canvasID){
+    drawExtended(canvasID) {
         //calculations
         var exons = this.exons;
         var canvas = document.getElementById(canvasID);

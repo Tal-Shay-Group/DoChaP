@@ -7,12 +7,9 @@
         <div id="BlackBackground"
             style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
             ng-show="showWindow" ng-click="closeModalFromBackground($event)">
-
-
-
-            <div class="myModal">
-                <span width="200" ng-click="showWindow=false"
-                    style="font-size: 25px; text-align: right;">&times;</span><br>
+            <div id="myModal">
+                <div width="200" ng-click="showWindow=false" style="font-size: 25px; text-align: right;">&times;</div>
+                <br>
                 <span ng-if="showWindow=='gene'">
                     GeneID: <a href="https://www.ncbi.nlm.nih.gov/gene/{{compareSpeciesCtrl.currSpecies.gene_id}}"
                         target="_blank"></a>{{compareSpeciesCtrl.currSpecies.gene_id}}<br>
@@ -209,6 +206,11 @@
                                             ng-click="openWindow('protein',$index,1)">{{transcript.proteinId}}</a><br>
                                         <canvas ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView"
                                             id="canvas-protein1{{$index}}" height="100" width="{{canvasSize}}"></canvas>
+
+                                        <!-- extend protein view-->
+                                        <br>
+                                        <canvas id="canvas-protein-extend1{{$index}}" height="100" width="{{canvasSize}}"
+                                            ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinExtendView"></canvas>
                                     </td>
 
                                 </tr>
@@ -286,7 +288,13 @@
                                             ng-click="openWindow('protein',$index,2)">{{transcript.proteinId}}</a><br>
                                         <canvas ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView"
                                             id="canvas-protein2{{$index}}" height="100" width="{{canvasSize}}"></canvas>
-                                    </td>
+                                         <!-- extend protein view-->
+                                         <br>
+                                         <canvas id="canvas-protein-extend2{{$index}}" height="100" width="{{canvasSize}}"
+                                             ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinExtendView"></canvas>
+                                     
+                                    
+                                        </td>
                                     <td class="resultText">
                                         <input type="button" value="hide" ng-click="changeTranscriptView($index,2)"
                                             class="btn blackButton" style="width: auto;"
@@ -300,6 +308,26 @@
 
                     </tr>
                 </table>
+
+                 <!-- exon positions for exons-->
+            <table class="exonColorTable">
+                <tr>
+                    <th class="exonTableHeader">
+                        Color
+                    </th>
+                    <th class="exonTableHeader">
+                        Length
+                    </th>
+                </tr>
+                <tr class="exonTable" ng-repeat="(key,val) in compareSpeciesCtrl.specie1Gene.colorByLength">
+                    <td>
+                        <div height="10" width="10" style="background-color:{{val}}">&nbsp;&nbsp;&nbsp;</div>
+                    </td>
+                    <td>
+                        {{key}}
+                    </td>
+                </tr>
+            </table>
             </center>
         </div>
     </div>
