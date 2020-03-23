@@ -5,6 +5,8 @@ from recordTypes import *
 
 from Director import SourceBuilder
 
+from OOP_project.recordTypes import Transcript
+
 
 class UcscBuilder(SourceBuilder):
     """
@@ -16,6 +18,7 @@ class UcscBuilder(SourceBuilder):
         ucsc_conversion = {'M_musculus': 'mm10', 'H_sapiens': 'hg38', 'R_norvegicus': 'rn6', 'D_rerio': 'danRer11',
                            'X_tropicalis': 'xenTro9'}
         self.ucscSpecies = ucsc_conversion[self.species]
+        self.refGene = tuple()
 
     def downloader(self):
         specie = self.species
@@ -72,7 +75,7 @@ class UcscBuilder(SourceBuilder):
         To a dictionary with refseqID as keys and he following list as the value:
             chromosome, strand, txStart, txEnd, cdsStart, cdsEnd, exonCount, exonStarts, exonEnds, geneSymbol
         """
-        ncbiRefSeq = dict()
+        #ncbiRefSeq = dict()
         ncbiRefSeq = list()
         with open(table_path.format(self.species), 'r') as refS:
             for line in refS:
@@ -85,7 +88,7 @@ class UcscBuilder(SourceBuilder):
                 newT = Transcript(refseq=ll[1], ensembl=None, chrom=ll[2], strand=ll[3], tx=tuple(map(int,ll[4:6])), CDS=tuple(map(int,ll[6:8])),
                                   gene=ll[12], prot_ref=None, exons_starts=ex_starts, exons_ends=ex_ends)
                 ncbiRefSeq.append(newT)
-        return ncbiRefSeq
+        self.refGene = tuple(ncbiRefSeq)
 
     def parse_knownGene(self, kgXref, knownGene_path=os.getcwd() + '/data/{}/from_ucsc/knownGene.txt'):
         """
@@ -105,6 +108,7 @@ class UcscBuilder(SourceBuilder):
                 knownGene[ll[0]] = knownGene.get(ll[0],
                                                  ll[1:3] + list(map(int, ll[3:8])) + [ex_starts, ex_ends, geneSymb,
                                                                                       ucsc])
+
         return knownGene
 
     def MatchAcc_ucsc(self, ensembl, kgXref):
@@ -116,9 +120,11 @@ class UcscBuilder(SourceBuilder):
         return all_aliases
 
     def parser(self):
-        kgXref = self.parse_kgXref()
-        aliases = self.MatchAcc_ucsc(self.parse_knownGene(kgXref), kgXref)
-        return self.parse_ncbiRefSeq(), aliases
+        #kgXref = self.parse_kgXref()
+        #aliases = self.MatchAcc_ucsc(self.parse_knownGene(kgXref), kgXref)
+        self.parse_ncbiRefSeq()
+        #, aliases
+        return self.refGene
 
     def records(self):
         """

@@ -1,9 +1,8 @@
 import ftplib
 import gzip
 import os
-from recordTypes import *
-
-from Director import SourceBuilder
+from OOP_project.recordTypes import Transcript
+from OOP_project.Director import SourceBuilder
 
 
 class ConverterBuilder(SourceBuilder):

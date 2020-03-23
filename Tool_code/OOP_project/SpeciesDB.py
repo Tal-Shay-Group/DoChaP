@@ -2,6 +2,7 @@ from sqlite3 import connect
 import Tool_code.ucscParser
 
 #from Tool_code import ffParser, ffDownloader, order_domains
+from OOP_project.Collector import Collector
 
 
 class dbBuilder:
@@ -14,13 +15,14 @@ class dbBuilder:
             self.species = species
             self.dbName = 'DB_' + species
         elif self.merged:
-            if type(species) is not list or tuple or set:
+            if type(species) not in [list, tuple, set]:
                 raise ValueError(
                     'When building a merged database, species expects list/tuple/set of species to include.')
             self.species = species
             self.dbName = 'DB_merged'
         if dbName is not None:
             self.dbName = dbName
+        self.AllDomains = None
 
     def create_tables_db(self):
         """
@@ -34,43 +36,45 @@ class dbBuilder:
             print('Creating the table: Genes')
             cur.execute('''
                         CREATE TABLE Genes(
-                                gene_id TEXT,
-                                ensembl_id TEXT,
+                                gene_refseq_id TEXT,
+                                gene_ensembl_id TEXT,
                                 gene_symbol TEXT,
                                 synonyms TEXT,
                                 chromosome TEXT,
                                 strand TEXT,
                                 specie TEXT, 
-                                PRIMARY KEY(gene_id, ensembl_id, gene_symbol)
+                                PRIMARY KEY(gene_refseq_id, gene_ensembl_id, gene_symbol)
                                 );'''
                         )
             cur.executescript("DROP TABLE IF EXISTS transcripts;")
             print('Creating the table: Transcripts')
             cur.execute('''
                         CREATE TABLE Transcripts(
-                                transcript_id TEXT NOT NULL PRIMARY KEY UNIQUE,
+                                transcript_refseq_id TEXT NOT NULL PRIMARY KEY UNIQUE,
+                                transcript_ensembl_id TEXT NOT NULL PRIMARY KEY UNIQUE,
                                 tx_start INTEGER,
                                 tx_end INTEGER,
                                 cds_start INTEGER,
                                 cds_end INTEGER,
-                                gene_id TEXT,                        
+                                gene_refseq_id TEXT,                        
                                 exon_count INTEGER,
-                                ensembl_ID TEXT,
-                                protein_id INTEGER,
-                                FOREIGN KEY(gene_id, ensembl_id) REFERENCES Genes(gene_id, ensembl_id),
-                                FOREIGN KEY(protein_id) REFERENCES Proteins(protein_id)
+                                gene_ensembl_id TEXT,
+                                protein_refseq_id INTEGER,
+                                protein_ensembl_id INTEGER,
+                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id),
+                                FOREIGN KEY(protein_refseq_id,protein_ensembl_id) REFERENCES Proteins(protein_refseq_id,protein_ensembl_id)
                                 );'''
                         )
             cur.executescript("DROP TABLE IF EXISTS Exons;")
             print('Creating the table: Exons')
             cur.execute('''
                         CREATE TABLE Exons(
-                                gene_id TEXT,
-                                ensembl_id TEXT,        
+                                gene_refseq_id TEXT,
+                                gene_ensembl_id TEXT,        
                                 genomic_start_tx INTEGER,
                                 genomic_end_tx INTEGER,
-                                PRIMARY KEY (gene_id, , ensembl_id, genomic_start_tx, genomic_end_tx),
-                                FOREIGN KEY(gene_id, ensembl_id) REFERENCES Genes(gene_id, ensembl_id)
+                                PRIMARY KEY (gene_refseq_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx),
+                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id)
                                 );'''
                         )
 
@@ -78,14 +82,16 @@ class dbBuilder:
             print('Creating the table: Transcript_Exon')
             cur.execute('''
                         CREATE TABLE Transcript_Exon(
-                                transcript_id TEXT,
+                                transcript_refseq_id TEXT,
+                                transcript_ensembl_id TEXT,
                                 order_in_transcript INTEGER,
                                 genomic_start_tx INTEGER,
                                 genomic_end_tx INTEGER,
                                 abs_start_CDS INTEGER,
                                 abs_end_CDS INTEGER,
-                                PRIMARY KEY(transcript_id, order_in_transcript),
-                                FOREIGN KEY(transcript_id) REFERENCES Transcripts(transcript_id),
+                                PRIMARY KEY(transcript_refseq_id, transcript_ensembl_id, order_in_transcript),
+                                FOREIGN KEY(transcript_refseq_id, transcript_ensembl_id) 
+                                 REFERENCES Transcripts(transcript_refseq_id, transcript_ensembl_id),
                                 FOREIGN KEY(genomic_start_tx, genomic_end_tx)\
                                  REFERENCES Exons(genomic_start_tx, genomic_end_tx)
                                 );'''
@@ -95,18 +101,19 @@ class dbBuilder:
             print('Creating the table: Proteins')
             cur.execute('''
                         CREATE TABLE Proteins(
-                                protein_id TEXT,
-                                ensembl_id TEXT,
+                                protein_refseq_id TEXT,
+                                protein_ensembl_id TEXT,
                                 description TEXT,
                                 synonyms TEXT,
                                 length INTEGER,
                                 uniprot_id TEXT,
-                                gene_id TEXT,
+                                gene_refseq_id TEXT,
                                 gene_ensembl_id TEXT,
-                                transcript_id TEXT,
-                                PRIMARY KEY(protein_id, ensembl_id),
-                                FOREIGN KEY(gene_id, gene_ensembl_id) REFERENCES Genes(gene_id, ensembl_id),
-                                FOREIGN KEY(transcript_id) REFERENCES Transcripts(transcript_id)
+                                transcript_refseq_id TEXT,
+                                transcript_ensembl_id TEXT,
+                                PRIMARY KEY(protein_refseq_id, protein_ensembl_id),
+                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id),
+                                FOREIGN KEY(transcript_refseq_id, transcript_ensembl_id) REFERENCES Transcripts(transcript_refseq_id, transcript_ensembl_id)
                                 );'''
                         )
             cur.executescript("DROP TABLE IF EXISTS DomainType;")
@@ -130,7 +137,8 @@ class dbBuilder:
             print('Creating the table: DomainEvent')
             cur.execute('''
                         CREATE TABLE DomainEvent(
-                                protein_id TEXT,
+                                protein_refseq_id TEXT,
+                                protein_ensembl_id TEXT,
                                 type_id INTEGER,
                                 AA_start INTEGER,
                                 AA_end INTEGER,
@@ -140,71 +148,77 @@ class dbBuilder:
                                 ext_id TEXT,
                                 splice_junction BOOLEAN,
                                 complete_exon BOOLEAN,
-                                PRIMARY KEY(protein_id, type_id, AA_start, total_length, ext_id),
+                                PRIMARY KEY(protein_refseq_id, protein_ensembl_id, type_id, AA_start, total_length, ext_id),
                                 FOREIGN KEY(type_id) REFERENCES DomainType(type_id),
-                                FOREIGN KEY(protein_id) REFERENCES Proteins(protein_id)
+                                FOREIGN KEY(protein_refseq_id, protein_ensembl_id) 
+                                 REFERENCES Proteins(protein_refseq_id, protein_ensembl_id)
                                 );'''
                         )
             cur.executescript("DROP TABLE IF EXISTS SpliceInDomains;")
             print('Creating the table: SpliceInDomains')
             cur.execute("""
                         CREATE TABLE SpliceInDomains(
-                                transcript_id TEXT,
+                                transcript_refseq_id TEXT,
+                                transcript_ensembl_id TEXT,
                                 exon_order_in_transcript INTEGER,
                                 type_id INTEGER,
                                 total_length INTEGER,
                                 domain_nuc_start INTEGER,
                                 included_len INTEGER,
                                 exon_num_in_domain INTEGER,
-                                PRIMARY KEY (transcript_id, exon_order_in_transcript, type_id,\
+                                PRIMARY KEY (transcript_refseq_id, transcript_ensembl_id, exon_order_in_transcript, type_id,\
                                 total_length, domain_nuc_start),
-                                FOREIGN KEY(transcript_id) REFERENCES Transcripts(transcript_id),
+                                FOREIGN KEY(transcript_refseq_id, transcript_ensembl_id) 
+                                 REFERENCES Transcripts(transcript_refseq_id, transcript_ensembl_id),
                                 FOREIGN KEY(exon_order_in_transcript) REFERENCES Transcript_Exon(order_in_transcript),
                                 FOREIGN KEY(type_id) REFERENCES DomainType(type_id),
                                 FOREIGN KEY(domain_nuc_start, total_length) REFERENCES DomainEvent(Nuc_start, total_length)
                                 );"""
                         )
-            cur.executescript("DROP TABLE IF EXISTS Orthology;")
-            print('Creating the table: Orthology')
-            cur.execute("""
-                                CREATE TABLE Orthology(
-                                        H_sapiens_id TEXT,
-                                        H_sapiens_name TEXT,
-                                        M_musculus_id TEXT,
-                                        M_musculus_name TEXT,
-                                        R_norvegicus_id TEXT,
-                                        R_norvegicus_name TEXT,
-                                        D_rerio_id TEXT,
-                                        D_rerio_name TEXT,
-                                        X_tropicalis_id TEXT,
-                                        X_tropicalis_name TEXT,
-                                        PRIMARY KEY (H_sapiens_id, M_musculus_id, R_norvegicus_id,\
-                                        D_rerio_id, X_tropicalis_id)
-                                        );"""
-                        )
+            if self.merged:
+                cur.executescript("DROP TABLE IF EXISTS Orthology;")
+                print('Creating the table: Orthology')
+                cur.execute("""
+                            CREATE TABLE Orthology(
+                                    H_sapiens_id TEXT,
+                                    H_sapiens_name TEXT,
+                                    M_musculus_id TEXT,
+                                    M_musculus_name TEXT,
+                                    R_norvegicus_id TEXT,
+                                    R_norvegicus_name TEXT,
+                                    D_rerio_id TEXT,
+                                    D_rerio_name TEXT,
+                                    X_tropicalis_id TEXT,
+                                    X_tropicalis_name TEXT,
+                                    PRIMARY KEY (H_sapiens_id, M_musculus_id, R_norvegicus_id,\
+                                    D_rerio_id, X_tropicalis_id)
+                                    );"""
+                            )
 
     def create_index(self):
         with connect(self.dbName+'.sqlite') as con:
             cur = con.cursor()
             cur.execute('''CREATE INDEX geneTableIndexBySpecies ON Genes(specie);''')
-            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_id) ;''')
+            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_refseq_id) ;''')
             cur.execute(
-                '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_id) ;''')
-            cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_id) ;''')
+                '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
+            cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
 
     def addSpeciesToMerged(self):
+        # define self.AllDomains
         return
 
-    def fill_in_db(self):
+    def fill_in_db(self, specie):
         """
-        ** the function is using global variables:
-            - from flatfile parser: region_dict, p_info, g_info, pro2gene, gene2pro, all_domains
-            - from the refGene parser: refGene
+        This function in for unique species. for more than ine use add Species To Merged
         """
 
         # if name is not 'merged':
         #    con2 = connect('DB_merged.sqlite')
         #    cur2 = con2.cursor()
+
+        data = Collector(specie)
+
 
         with connect(self.dbName + '.sqlite') as con:
             print("Connected to " + self.dbName + "...")
