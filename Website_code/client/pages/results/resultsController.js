@@ -131,6 +131,11 @@ angular.module("DoChaP")
                 self.currTranscript = $scope.transcripts[id];
             }
             webService.userLog("open_window");
+            $(document).ready(function () {
+                dragElement(document.getElementById("myModal"));
+                $scope.$apply();
+            });
+            
         }
 
         //after every page-load or configuration change we create updated graphics 
@@ -143,7 +148,7 @@ angular.module("DoChaP")
             self.geneInfo.scale.draw("canvas-scale");
 
             //=========GRIDLINES IMPORTANT==========
-            // self.geneInfo.scale.drawBehind("gridlines");
+            self.geneInfo.scale.drawBehind("gridlines");
             
             self.geneInfo.proteinScale.draw("canvas-scale-protein");
             // createTooltipManager();
@@ -187,49 +192,20 @@ angular.module("DoChaP")
                 }
 
             });
-            $("canvas")
-                .mousemove(function (event) {
-                    showTextValues = showText(event);
-                    if (showTextValues[0]) {
-                        $("#myTooltip").show();
-                        $("#myTooltip").css("top", event.pageY + 2);
-                        $("#myTooltip").css("left", event.pageX + 2);
-                        $("#myTooltip").html(showTextValues[1]);
-                    } else {
-                        $("#myTooltip").hide();
-                    }
-                })
-                .click(function (event) {
-
-                    showTextValues = showText(event);
-                    if (showTextValues[0]) {
-                        if(self.toolTipManagerForCanvas[event.target.id+"object"] != undefined){
-                            self.toolTipManagerForCanvas[event.target.id+"object"].proteinExtendView=!self.toolTipManagerForCanvas[event.target.id+"object"].proteinExtendView;
-                            $scope.$apply();
-
-                        }
-                        if (showTextValues[2] != undefined) {
-                            $window.open(getURLfor(showTextValues[2]), '_blank');
-                        }
+            $('canvas').click(function (event) {
+                var tooltipManager=self.toolTipManagerForCanvas;
+                var showTextValues = Transcript.showText(event,tooltipManager);
+                if (showTextValues[0]) {
+                     if (showTextValues[2] != undefined) {
+                        $window.open(Species.getURLfor(showTextValues[2]), '_blank');
+                    } else if (tooltipManager[event.target.id + "object"] != undefined) {
+                        tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
+                       $scope.$apply();
 
                     }
-                });
-            //when to show modal
-            function showText(event) {
-                res = [false, ""];
-                if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
-                    offset = event.target.getBoundingClientRect();
-                    exon = self.toolTipManagerForCanvas[event.target.id];
-                    for (var i = 0; i < exon.length; i++) {
-                        if (event.clientX - offset.left >= exon[i][0] && event.clientX - offset.left <= exon[i][0] + exon[i][2] &&
-                            event.clientY - offset.top >= exon[i][1] && event.clientY - offset.top <= exon[i][1] + exon[i][3]) {
-                            return [true, exon[i][4], exon[i][5]];
-                        }
-                    }
+
                 }
-                return res;
-            }
-
+            });
         }
 
         $scope.closeModalFromBackground = function (event) {
@@ -326,20 +302,5 @@ angular.module("DoChaP")
         //     }
         // }
 
-        function getURLfor(source) {
-            if(source.substring(0,5)=='smart'){
-                return "http://smart.embl-heidelberg.de/smart/do_annotation.pl?DOMAIN="+source;
-            }
-            if(source.substring(0,4)=='pfam'){
-                return "https://pfam.xfam.org/family/"+'PF'+source.substring(4);
-            }
-            if(source.substring(0,2)=='cd'){
-                return "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid="+source;
-            }
-            if(source.substring(0,4)=='TIGR'){
-                return "http://tigrfams.jcvi.org/cgi-bin/HmmReportPage.cgi?acc="+source;
-            }
-            return "https://www.ncbi.nlm.nih.gov/Structure/cdd/" + source
-        }
         $scope.numberToTextWithCommas=numberToTextWithCommas;
     });

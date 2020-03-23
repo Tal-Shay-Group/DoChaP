@@ -98,7 +98,7 @@ class DomainGroup {
 
         var oneDomainHeight=domainHeight/this.domains.length;
         for(var i=0; i<this.domains.length;i++){
-            this.domains[i].drawExtend(context,coordinatesWidth,startHeight,isFullDraw,exons,oneDomainHeight-5,domainY+oneDomainHeight*i,domainX,domainWidth);
+            this.domains[i].drawExtend(context,coordinatesWidth,startHeight,isFullDraw,exons,oneDomainHeight,domainY+oneDomainHeight*i,domainX,domainWidth);
         }
     }
 
@@ -214,7 +214,7 @@ class DomainGroup {
 
         var tooltips=[];
         for(var i=0; i<this.domains.length;i++){
-            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth,startHeight,oneDomainHeight-5,domainY+oneDomainHeight*i,domainX,domainWidth)[0]);
+            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth,startHeight,oneDomainHeight,domainY+oneDomainHeight*i,domainX,domainWidth)[0]);
         }
         return tooltips;
         

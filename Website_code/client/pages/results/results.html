@@ -11,8 +11,8 @@
     <div id="BlackBackground"
         style="position: fixed; z-index: 2; display: none; height: 100%; width: 100%; top: 0px; left: 0px;"
         ng-show="showWindow" ng-click="closeModalFromBackground($event)">
-        <div class="myModal">
-            <span width="200" ng-click="showWindow=false" style="font-size: 25px; text-align: right;">&times;</span><br>
+        <div id="myModal">
+            <div width="200" ng-click="showWindow=false" style="font-size: 25px;text-align: right; padding: 0px;">&times;</div><br>
             <span ng-if="showWindow=='gene'">
                 GeneID: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_id}}"
                     target="_blank"></a>{{::resultsCtrl.geneInfo.gene_id}}<br>
@@ -178,7 +178,7 @@
                             ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a><br>
                         <canvas id="canvas-protein{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="showCanvas.proteinView[$index]"></canvas>
-
+                        <!-- extend protein view-->
                         <br>
                         <canvas id="canvas-protein-extend{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="transcripts[$index].proteinExtendView"></canvas>
