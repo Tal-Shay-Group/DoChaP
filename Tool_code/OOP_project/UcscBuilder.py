@@ -2,6 +2,7 @@ import ftplib
 import gzip
 import os
 from OOP_project.Director import SourceBuilder
+
 from OOP_project.recordTypes import Transcript
 
 
@@ -74,11 +75,8 @@ class UcscBuilder(SourceBuilder):
                 ll = line.strip().split('\t')
                 ex_starts = [int(start) for start in ll[9].split(',') if len(start) > 0]
                 ex_ends = [int(ends) for ends in ll[10].split(',') if len(ends) > 0]
-                # ncbiRefSeq[ll[1]] = ncbiRefSeq.get(ll[1],
-                #                                   [ll[2], ll[3]] + list(map(int, ll[4:9])) + [ex_starts, ex_ends,
-                #                                                                               ll[12]])
                 newT = Transcript(refseq=ll[1], ensembl=None, chrom=ll[2], strand=ll[3], tx=tuple(map(int, ll[4:6])),
-                                  CDS=tuple(map(int, ll[6:8])), gene=ll[12], prot_refseq=None,
+                                  CDS=tuple(map(int, ll[6:8])), geneSymb=ll[12], prot_refseq=None,
                                   protein_ensembl=None, exons_starts=ex_starts, exons_ends=ex_ends)
                 ncbiRefSeq[ll[1]] = ncbiRefSeq.get(ll[1], newT)
         self.refseq = ncbiRefSeq
@@ -108,51 +106,46 @@ class UcscBuilder(SourceBuilder):
                 ex_starts = [int(start) for start in ll[8].split(',') if len(start) > 0]
                 ex_ends = [int(ends) for ends in ll[9].split(',') if len(ends) > 0]
                 geneSymb = kgXref.get(ll[0], [None] * 4)[3]
-                refseq = kgXref.get(ll[0], [None] * 5)[4]
+                refseq = None
                 newT = Transcript(refseq=refseq, ensembl=ll[0], chrom=ll[1], strand=ll[2], tx=tuple(map(int, ll[3:5])),
-                                  CDS=tuple(map(int, ll[5:7])), gene=geneSymb, prot_refseq=None,
-                                  protein_ensembl=ll[10], exons_starts=ex_starts, exons_ends=ex_ends)
+                                  CDS=tuple(map(int, ll[5:7])), geneSymb=geneSymb, prot_refseq=None,
+                                  protein_ensembl=None, exons_starts=ex_starts, exons_ends=ex_ends)
                 knownGene[ll[0]] = knownGene.get(ll[0], newT)
         # self.aliases(knownGene, kgXref)
         self.ensembl = knownGene
 
+    def parse_ensemblToGeneName(self, ens2Name_path=os.getcwd() + '/data/{}/from_ucsc/ensemblToGeneName.txt'):
+        ens2name = {}
+        with open(ens2Name_path.format(self.species), 'r') as Xref:
+            for line in Xref:
+                ll = line.strip().split('\t')
+                ens2name[ll[0]] = ll[1]
+        return ens2name
+
+    def parse_ensGene(self, ensGene_path=os.getcwd() + '/data/{}/from_ucsc/ensGene.txt'):
+        """
+        """
+        ens2name = self.parse_ensemblToGeneName()
+        ensGene = dict()
+        with open(ensGene_path.format(self.species), 'r') as known:
+            for line in known:
+                ll = line.strip().split('\t')[1:]
+                ex_starts = [int(start) for start in ll[8].split(',') if len(start) > 0]
+                ex_ends = [int(ends) for ends in ll[9].split(',') if len(ends) > 0]
+                geneSymb = ens2name.get(ll[0], None)
+                refseq = None
+                newT = Transcript(refseq=refseq, ensembl=ll[0], chrom=ll[1], strand=ll[2], tx=tuple(map(int, ll[3:5])),
+                                  CDS=tuple(map(int, ll[5:7])), geneSymb=geneSymb, prot_refseq=None,
+                                  protein_ensembl=None, exons_starts=ex_starts, exons_ends=ex_ends)
+                ensGene[ll[0]] = ensGene.get(ll[0], newT)
+        self.ensembl = ensGene
+
     def parser(self):
         self.parse_ncbiRefSeq()
-        self.parse_knownGene()
-        combine = dict()
-        added_id = set()
-        for ref, trans in self.refseq.items():
-            if trans.ensembl in self.ensembl.keys():
-                merged = trans.mergeTranscripts(self.ensembl[trans.ensembl])
-            else:
-                merged = trans
-            if ref not in added_id:
-                if trans.ensembl not in added_id:
-                    combine[(merged.refseq, merged.ensembl)] = merged
-                    added_id.add(merged.refseq)
-                    added_id.add(merged.ensembl)
-                    added_id.remove(None)
-                else:
-                    raise ValueError("ref not in added id and ens in added id!!")
-        for ens, trans in self.ensembl.items():
-            if ens not in added_id:
-                if trans.refseq not in added_id:
-                    if trans.refseq in self.refseq.keys():
-                        merged = trans.mergeTranscripts(self.refseq[trans.refseq])
-                    else:
-                        merged = trans
-                else:
-                    if (trans.refseq, ens) not in combine.keys():
-                        raise ValueError(print("Inconsistent records!" +
-                                               " current ensembl: {}".format(ens) +
-                                               " (not in added_id), " +
-                                               " linked refseq : {}".format(trans.refseq) +
-                                               " (in added_id)." +
-                                               "The ensembl of the record is : {}".format(
-                                                   self.refseq[trans.refseq].ensembl)
-                                               ))
-                    else:
-                        merged = combine[(trans.refseq, ens)]
-                        merged = merged.mergeTranscripts(trans)
-            combine[(trans.refseq, ens)] = merged
-        self.combined = combine
+        if self.species in ['M_musculus', 'H_sapiens']:
+            self.parse_knownGene()
+        elif self.species in ['D_rerio', 'R_norvegicus']:
+            self.parse_ensGene()
+        else:
+            self.combined = self.refseq
+            return

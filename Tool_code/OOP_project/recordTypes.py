@@ -11,7 +11,7 @@ class Gene:
         self.chromosome = chromosome
         self.strand = strand
 
-    #def __repr__(self):
+    # def __repr__(self):
     #    print('GeneID: ' + self.GeneID + ' / ' + self.ensembl)
 
     def compareGenes(self, other):
@@ -28,14 +28,17 @@ class Gene:
 class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
-                 gene=None, prot_refseq=None, protein_ensembl=None, exons_starts=None, exons_ends=None):
+                 GeneID=None, gene_ensembl=None, geneSymb=None, prot_refseq=None, protein_ensembl=None, exons_starts=[],
+                 exons_ends=[]):
         self.refseq = refseq
         self.ensembl = ensembl
         self.chrom = chrom
         self.strand = strand
         self.tx = tx
         self.CDS = CDS
-        self.gene = gene
+        self.gene_GeneID = GeneID
+        self.gene_ensembl = gene_ensembl
+        self.geneSymb = geneSymb
         self.prot_refseq = prot_refseq
         self.protein_ensembl = protein_ensembl
         if len(exons_starts) == len(exons_ends):
@@ -53,6 +56,13 @@ class Transcript:
     def __repr__(self):
         rep = (self.refseq, self.ensembl)
         return str(rep)
+
+    def idNoVersion(self, idType='refseq'):
+        tid = self.__getattribute__(idType)
+        if tid is not None:
+            return tid.split(".")[0]
+        else:
+            return None
 
     def exons2abs(self):
         if len(self.exon_starts) != len(self.exon_ends):
@@ -103,14 +113,22 @@ class Transcript:
 
     def mergeTranscripts(self, other):
         mergedT = Transcript()
-        attr = ['refseq', 'ensembl', 'chrom', 'strand', 'tx', 'CDS',
-                'gene', 'prot_refseq', 'protein_ensembl', 'exons_starts', 'exons_ends']
+        attr = ['refseq', 'ensembl', 'chrom', 'strand', 'tx', 'CDS', 'gene_GeneID', 'gene_ensembl',
+                'geneSymb', 'prot_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends']
         for atribute in attr:
             if self.__getattribute__(atribute) is None:
                 mergedT.__setattr__(atribute, other.__getattribute__(atribute))
+            elif other.__getattribute__(atribute) is not None:
+                o = [other.__getattribute__(atribute).split('.')[1] if
+                     type(other.__getattribute__(atribute)) is str else None][0]
+                s = [self.__getattribute__(atribute).split('.')[1] if
+                     type(self.__getattribute__(atribute)) is str else None][0]
+                chosen = [other.__getattribute__(atribute) if int(o) > int(s) else self.__getattribute__(atribute)]
+                mergedT.__setattr__(atribute, chosen)
             else:
                 mergedT.__setattr__(atribute, self.__getattribute__(atribute))
         return mergedT
+
 
 class Domain:
 
@@ -153,7 +171,7 @@ class Domain:
                             flag = 1
                             length.append(domain_nuc_positions[1] - exon_starts[jj] + 1)
                         else:
-                            length.append(exon_ends[jj] - exon_startsn[jj] + 1)
+                            length.append(exon_ends[jj] - exon_starts[jj] + 1)
                         jj += 1
                     return 'splice_junction', list(range(ii + 1, jj + 1)), length
         return None, None, None

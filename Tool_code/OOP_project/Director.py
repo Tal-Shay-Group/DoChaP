@@ -27,9 +27,6 @@ class SourceBuilder:
     def parser(self):
         pass
 
-    def records(self):
-        pass
-
 
 class EnsembleBuilder(SourceBuilder):
     """

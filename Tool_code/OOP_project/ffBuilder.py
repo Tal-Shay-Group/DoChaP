@@ -16,11 +16,10 @@ class ffBuilder(SourceBuilder):
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
         self.savePath = '/data/{}/flatfiles/'.format(self.species)
-        # self.fileList = None
         self.fileList = [os.getcwd() + self.savePath + i for i in
                          os.listdir(os.getcwd() + self.savePath) if i.endswith(".gpff")]
-        self.gene2pro = dict()
-        self.pro2gene = dict()
+        self.trans2pro = dict()
+        self.pro2trans = dict()
         self.genes = dict()
         self.proteins = dict()
         self.domains = dict()
@@ -41,16 +40,14 @@ class ffBuilder(SourceBuilder):
         ftp_path = '/refseq/{}/mRNA_Prot/'
         ftp.cwd(ftp_path.format(skey))
         print('looking for gbff and gpff files for specie - ' + self.species + '...')
-        download_path = self.savePath
         print('downloading files to : ' + self.savePath)
-        gbff_files = []
+        #gbff_files = []
         gpff_files = []
         for f in ftp.nlst():
-            if 'gbff.gz' == f[-7:]:
-                gbff_files.append((f, os.getcwd() + self.savePath + f[:-3]))
-            elif 'gpff.gz' == f[-7:]:
+            #if 'gbff.gz' == f[-7:]:
+                #gbff_files.append((f, os.getcwd() + self.savePath + f[:-3]))
+            if 'gpff.gz' == f[-7:]:
                 gpff_files.append((f, os.getcwd() + self.savePath + f[:-3]))
-        # for file in gbff_files + gpff_files:
         for file in gpff_files:  # Currently ignoring gbff as it is not used
             os.makedirs(os.path.dirname(file[1]), exist_ok=True)
             print('downloading: ', file[0], '...')
@@ -59,7 +56,6 @@ class ffBuilder(SourceBuilder):
             with open(file[1] + '.gz', 'wb') as f:
                 def callback(chunk):
                     f.write(chunk)
-
                 ftp.retrbinary("RETR " + file[0], callback)
             print('extracting...')
             inp = gzip.GzipFile(file[1] + '.gz', 'rb')
@@ -74,7 +70,7 @@ class ffBuilder(SourceBuilder):
             readme.write('# Updated on: ' + str(datetime.datetime.now().date()) + '\n\n')
             readme.write('# Files were downloaded from:\t' + ftp_address + ftp_path + '\n\n')
             readme.write('# List of downloaded files:\n')
-            for file in gbff_files + gpff_files:
+            for file in gpff_files:
                 readme.write('\t' + file[0] + '\n')
                 readme.write('\n')
             readme.write('# Files were extracted succsessfully!')
@@ -83,9 +79,8 @@ class ffBuilder(SourceBuilder):
     def parser(self):
         for file in self.fileList:
             for rec in SeqIO.parse(file, 'gb'):
-                if rec.name in self.proteins.keys():
-                    print(rec.name)
-                    #raise ('redundancy err ' + rec.name)
+                #if rec.name in self.proteins.keys():
+                    #print(rec.name)
                 if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP':  # takes both proteins and predictions!
                     protein, gene, transcript = self.protein_info(rec)
                     transcriptKey = transcript.split('.')[0]
@@ -93,8 +88,8 @@ class ffBuilder(SourceBuilder):
                     self.domains[rec.name] = regions
                     self.proteins[rec.name] = protein
                     self.genes[transcriptKey] = gene
-                    self.pro2gene[rec.name] = transcript
-                    self.gene2pro[transcriptKey] = rec.name
+                    self.pro2trans[rec.name] = transcript
+                    self.trans2pro[transcriptKey] = protein.refseq
 
     def regions_from_record(self, record):
         """
@@ -177,5 +172,4 @@ class ffBuilder(SourceBuilder):
                     chromosome=None, strand=None)
         return protein, gene, transcript
 
-    def records(self):
-        return self.parser()
+
