@@ -14,11 +14,16 @@ class ConverterBuilder(SourceBuilder):
         SourceBuilder.__init__(self, species)
         self.ftp_address = 'ftp.ncbi.nlm.nih.gov'
         self.savePath = os.getcwd() + '/data/'
-        taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955, 'X_tropicalis': 8364}
+        taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955,
+                     'X_tropicalis': 8364}
         self.taxID = taxIDdict[self.species]
         self.geneCon = {}
         self.transcriptCon = {}
         self.proteinCon = {}
+        self.t2p = {}
+        self.p2t = {}
+        self.t2g = {}
+        self.idNov = {}
 
     def downloader(self, username='anonymous', pswd='example@post.bgu.ac.il'):
         print('connecting to: ' + self.ftp_address + '...')
@@ -66,14 +71,31 @@ class ConverterBuilder(SourceBuilder):
                     self.transcriptCon[ll[4]] = ll[3]
                     self.proteinCon[ll[5]] = ll[6]
                     self.proteinCon[ll[6]] = ll[5]
-        #return gene_con, trans_con, protein_con
+                    self.t2p[ll[3]] = ll[5]
+                    self.p2t[ll[5]] = ll[3]
+                    self.t2g[ll[3]] = ll[1]
+                    self.t2g[ll[4]] = ll[2]
+                    for i in range(1,7):
+                        self.idNov[ll[i].split(".")[0]] = ll[i]
 
     def findConversion(self, inp, transcript=False, gene=False, protein=False):
         if transcript:
-            return self.transcriptCon[inp]
+            return self.transcriptCon.get(inp, self.transcriptCon.get(self.idNov.get(inp.split(".")[0], None), None))
         elif gene:
-            return self.geneCon[inp]
+            return self.geneCon.get(inp, self.geneCon.get(self.idNov.get(inp.split(".")[0], None), None))
         elif protein:
-            return self.proteinCon[inp]
+            return self.proteinCon.get(inp, self.proteinCon.get(self.idNov.get(inp.split(".")[0], None), None))
         else:
             raise ValueError('Must declare input type transcript/gene/protein=True')
+
+    def TranscriptProtein(self, inp):
+        if inp in self.t2p.keys():
+            return self.t2p[inp]
+        elif inp in self.p2t.keys():
+            return self.p2t[inp]
+        elif self.transcriptCon.get(inp, None) in self.t2p.keys():
+            return self.t2p[self.transcriptCon[inp]]
+        elif self.proteinCon.get(inp, None) in self.p2t.keys():
+            return self.p2t[self.proteinCon[inp]]
+        else:
+            return None
