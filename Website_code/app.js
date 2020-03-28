@@ -8,14 +8,14 @@
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
-//var nodemailer = require('nodemailer');
-// var transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: 'youremail@gmail.com',
-//       pass: 'yourpassword'
-//     }
-//   });
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'dochapmail',
+      pass: '/*fill in*/'
+    }
+  });
 const express = require("express");
 const app = express();
 var bodyParser = require('body-parser');
@@ -38,13 +38,13 @@ app.use(express.static('client'));
 //mail sender for contact us requests
 app.get('/sendMail/:name/:mail/:msg', (req, res) => {
     var mailOptions = {
-      from: '',
-      to: '', //add on server the e-mail
-      subject: 'new Message via DoChaP Contact Us.',
-      text: "reply to: "+req.params.mail +"\nmessage: \n"+req.params.msg
+      from: 'dochapmail@gmail.com',
+      to: 'galozs@post.bgu.ac.il', //add on server the e-mail
+      subject: 'new Message via DoChaP. From '+req.params.name,
+      text: "reply to:\n"+req.params.mail +"\nmessage: \n"+req.params.msg
     };
     
-    transporter.sendMail(mailOptions, function(error, info){ });
+    transporter.sendMail(mailOptions, function(error, info){});
     res.status(200).send();
 });
 

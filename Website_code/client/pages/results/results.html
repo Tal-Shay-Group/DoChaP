@@ -104,41 +104,50 @@
 
             <table class="resultTable">
                 <tr>
-                    <td>
-                    </td>
+                    
                     <!-- titles-->
-                    <td style="position: absolute;" ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
+                    <td class="resultTitle"  ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
                         Genomic
-                        <canvas id="gridlines" style="left:0px; position: absolute; z-index: -3;" height="1000"
-                            width="{{canvasSize}}">
-                        </canvas>
+                        <!--  -->
+                        <div style="position: absolute;">
+                            <canvas id="gridlines" style="left:0px; position: absolute; z-index: -3;" height="1000"
+                                                        width="{{canvasSize}}">
+                                                    </canvas>
+                        </div>
+                        
+                    </td>
+                    <td width="30">
+
                     </td>
                     <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                         class="resultTitle">
-                        Transcript & Protein
+                        <span ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript & Protein</span>
+                        <span ng-show="viewMode=='transcript'">Transcript</span>
+                        <span ng-show="viewMode=='protein'">Protein</span>
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                    </td>
+        
                     <!--range-slider and scales-->
                     <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                         <!-- scale view for transcripts -->
+                        <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
                         <div style="width: {{canvasSize}}px;">
                             <input type="text" class="js-range-slider" id="genomic_range" value="" />
                         </div>
-                        <br>
                         <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                         </canvas>
-                        <br>
-                        <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
+                        
+                    </td>
+                    <td width="30">
+
                     </td>
                     <td ng-show="viewMode!='genomic'">
+                        <br> 
                         <!-- scale view for proteins -->
-                        <div style="width: {{canvasSize}}px;">
+                        <div style="width: {{canvasSize-50}}px;">
                             <input type="text" class="js-range-slider" id="protein_range" value="" />
                         </div>
-                        <br>
                         <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                         </canvas>
 
@@ -146,36 +155,35 @@
                 </tr>
                 <tr id="fadeinDiv{{$index}}" ng-repeat="transcript in transcripts track by $index">
                     <td>
-                        <!-- hide button -->
-                        <button ng-click="hideTranscriptView($index)" class="btn blackButton" style="width: auto;"
-                            ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]">
-                            <span class="glyphicon glyphicon-eye-close"></span>
-                        </button>
+                           <!-- hide button -->
+                           <button ng-click="hideTranscriptView($index)" class="btn blackButton" style="width: auto;"
+                           ng-show="showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index]">
+                           <span class="glyphicon glyphicon-eye-close"></span>
+                       </button>
 
-                        <!-- show button -->
-                        <button ng-click="showTranscriptView($index)" class="btn blackButton" style="width: auto;"
-                            ng-show="!(showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index])">
-                            <span class="glyphicon glyphicon-eye-open"></span>
-                        </button>
-                    </td>
-                    <td ng-show="showCanvas.genomicView[$index]">
-                        <br>
+                       <!-- show button -->
+                       <button ng-click="showTranscriptView($index)" class="btn blackButton" style="width: auto;"
+                           ng-show="!(showCanvas.genomicView[$index] ||showCanvas.transcriptView[$index]||showCanvas.proteinView[$index])">
+                           <span class="glyphicon glyphicon-eye-open"></span>
+                       </button>
                         <!-- genomic view -->
-                        <a href="" ng-show="showCanvas.genomicView[$index]"
-                            ng-click="openWindow('transcript',$index)">{{transcript.id}}</a>
+                        <a href="" ng-show="viewMode=='protein'" ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a>
+                        <a href="" ng-show="viewMode=='genomic'||viewMode=='transcript'||viewMode=='all'||viewMode=='transcript_protein'" ng-click="openWindow('transcript',$index)">{{transcript.id}}</a>
                         <br>
                         <canvas id="canvas-genomic{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="showCanvas.genomicView[$index]"></canvas>
                     </td>
+                    <td width="30"  ng-show="showCanvas.genomicView[$index]  && (showCanvas.transcriptView[$index]||showCanvas.proteinView[$index])">
+                    </td>
                     <td ng-show="showCanvas.transcriptView[$index] || showCanvas.proteinView[$index]">
                         <!-- transcript view -->
-                        <a href="" ng-show="showCanvas.transcriptView[$index]"
+                        <a href="" ng-show="showCanvas.transcriptView[$index] &&  viewMode!='transcript'&&  viewMode!='transcript_protein'"
                             ng-click="openWindow('transcript',$index)">{{transcript.id}}</a><br>
                         <canvas id="canvas-transcript{{$index}}" height="30" width="{{canvasSize}}"
                             ng-show="showCanvas.transcriptView[$index]"></canvas><br>
                         <!-- protein view -->
-                        <a href="" ng-show="showCanvas.proteinView[$index]"
-                            ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a><br>
+                        <a href="" ng-show="showCanvas.proteinView[$index] && viewMode!='protein'&& viewMode!='transcript_protein'"
+                        ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a><br>
                         <canvas id="canvas-protein{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="showCanvas.proteinView[$index]"></canvas>
                         <!-- extend protein view-->

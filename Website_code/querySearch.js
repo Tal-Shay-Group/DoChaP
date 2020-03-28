@@ -218,7 +218,7 @@ async function buildGeneInfo(finalAns){
 
 
 //connects to the db using db module (DButils) and returns query answer
-/*function sqlQuery(query,params) {
+/*function sqlQuery(query) {
     var promise = new Promise(function (resolve, reject) {
         DButils.db.all(query, [], async (err, rows) => {
             if (err == undefined) {

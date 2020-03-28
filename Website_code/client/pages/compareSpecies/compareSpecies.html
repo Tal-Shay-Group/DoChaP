@@ -167,7 +167,7 @@
                                     </td>
                                     <td ng-show="viewMode!='genomic'">
                                         <!-- scale view for proteins -->
-                                        <div style="width: {{canvasSize}}px;">
+                                        <div style="width: {{canvasSize-50}}px;">
                                             <input type="text" class="js-range-slider" id="protein_range1" value="" />
                                         </div>
                                         <br>
@@ -251,11 +251,11 @@
                                         <canvas id="canvas-scale2" height="130" width="{{canvasSize}}">
                                         </canvas>
                                         <br>
-                                        <span class="chromosomeLocation">{{chromosomeLocation1}}</span>
+                                        <span class="chromosomeLocation">{{chromosomeLocation2}}</span>
                                     </td>
                                     <td ng-show="viewMode!='genomic'">
                                         <!-- scale view for proteins -->
-                                        <div style="width: {{canvasSize}}px;">
+                                        <div style="width: {{canvasSize-50}}px;">
                                             <input type="text" class="js-range-slider" id="protein_range2" value="" />
                                         </div>
                                         <br>
@@ -308,26 +308,7 @@
 
                     </tr>
                 </table>
-
-                 <!-- exon positions for exons-->
-            <table class="exonColorTable">
-                <tr>
-                    <th class="exonTableHeader">
-                        Color
-                    </th>
-                    <th class="exonTableHeader">
-                        Length
-                    </th>
-                </tr>
-                <tr class="exonTable" ng-repeat="(key,val) in compareSpeciesCtrl.specie1Gene.colorByLength">
-                    <td>
-                        <div height="10" width="10" style="background-color:{{val}}">&nbsp;&nbsp;&nbsp;</div>
-                    </td>
-                    <td>
-                        {{key}}
-                    </td>
-                </tr>
-            </table>
+           
             </center>
         </div>
     </div>

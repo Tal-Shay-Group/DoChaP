@@ -205,12 +205,12 @@ class Domain {
             sourceName = "Pfam";
         }
         if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
-            sourceName = "Cdd";
+            sourceName = "CDD";
         }
         if (source.substring(0, 4) == 'TIGR') {
             sourceName = "Tigr";
         }
-        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": " + source;
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": <a href='"+Species.getURLfor(source)+"' target='_blank' >" + source+"</a>";
         //var text=name;
         return [domainX, domainY, domainWidth, domainHeight, text, this.source];
     }
@@ -387,13 +387,15 @@ class Domain {
         var pos = this.position(coordinatesWidth, startHeight);
         var domainWidth = pos.domainWidth;
         var domainX = pos.domainX;
+        //for tooltip text
         var name = this.name;
         var start = this.AAstart;
         var end = this.AAend;
         var length = end - start;
         var source = this.source;
-        var sourceName = "Source";
+        var sourceName = "";
         if (source == undefined) {
+            sourceName = "Source";
             source = "unknown";
         }
         if (source.substring(0, 5) == 'smart') {
@@ -403,13 +405,13 @@ class Domain {
             sourceName = "Pfam";
         }
         if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
-            sourceName = "Cdd";
+            sourceName = "CDD";
         }
         if (source.substring(0, 4) == 'TIGR') {
             sourceName = "Tigr";
         }
-        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": " + source;
-
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": <a href='"+Species.getURLfor(source)+"' target='_blank' >" + source+"</a>";
+        
         return [
             [domainX, domainY, domainWidth, domainHeight, text, this.source]
         ];

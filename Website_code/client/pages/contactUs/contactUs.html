@@ -8,11 +8,11 @@
         <div class="backgroundForPage">
                 <br>    
             <div  class="greyArea" style="text-align: center;">
-            <form id="waterform" action="mailto:galozs@post.bgu.ac.il" method="post">
+            <form ng-submit="sendMail(name,email,message)">
                     <div class="formgroup" id="name-form">
                         <label for="name">Your name*</label>
                         <br>
-                        <input class="contactUs" type="text" id="name" name="name" />
+                        <input class="contactUs" type="text" id="Uname" name="name" ng-model="name"/>
                     </div>
                     
                     <div class="formgroup" id="email-form">
