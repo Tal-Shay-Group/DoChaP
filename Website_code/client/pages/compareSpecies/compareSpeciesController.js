@@ -114,7 +114,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       from: self.specie1Gene.scale.start,
       to: self.specie1Gene.scale.end,
       drag_interval: true,
-      grid: true,
+      skin: "square",
       onFinish: function (data) {
         var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
         self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, undefined, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
@@ -134,7 +134,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       from: 0,
       to: self.specie1Gene.proteinScale.length,
       drag_interval: true,
-      grid: true,
+      skin: "square",
       onFinish: function (data) {
         var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
         self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, undefined, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
@@ -154,7 +154,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       from: self.specie2Gene.scale.start,
       to: self.specie2Gene.scale.end,
       drag_interval: true,
-      grid: true,
+      skin: "square",
       onFinish: function (data) {
         var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
         self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, undefined, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
@@ -174,7 +174,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       from: 0,
       to: self.specie2Gene.proteinScale.length,
       drag_interval: true,
-      grid: true,
+      skin: "square",
       onFinish: function (data) {
         var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
         self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, undefined, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);

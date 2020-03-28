@@ -72,6 +72,7 @@ class GenomicScale {
             context.closePath();
             context.font = "60px Calibri";
             context.fillStyle = "black";
+            context.textAlign = "left";
             context.fillText("...", cutX + 2, startHeight + lineThickness / 2);
 
         }

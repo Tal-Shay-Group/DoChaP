@@ -5,7 +5,7 @@ angular.module("DoChaP")
 
         //needed in case of failure css wont show. if not fail it will reach here
         $('#searchExists').css("display", "block");
-
+        var isStart=true;
         self = this;
         $scope.noSearch = false;
         $scope.loadingText = false;
@@ -142,7 +142,9 @@ angular.module("DoChaP")
         //a function which its purpose is to load the canvases' graphics only after the elements finished loading
         function updateCanvases() {
             for (var i = 0; i < $scope.transcripts.length; i++) {
-                $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
+                if(isStart){
+                    $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
+                }
                 $scope.transcripts[i].show('canvas-genomic' + i, 'canvas-transcript' + i, 'canvas-protein' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend' + i);
             }
             self.geneInfo.scale.draw("canvas-scale");
@@ -151,17 +153,20 @@ angular.module("DoChaP")
             self.geneInfo.scale.drawBehind("gridlines");
             
             self.geneInfo.proteinScale.draw("canvas-scale-protein");
-            // createTooltipManager();
-            $('#canvas-scale').hide().fadeIn(1000);
-            $('#canvas-scale-protein').hide().fadeIn(1000);
+            if(isStart){
+                $('#canvas-scale').hide().fadeIn(1000);
+                $('#canvas-scale-protein').hide().fadeIn(1000);
+            }
+            isStart=false;
             $('#genomic_range').ionRangeSlider({
                 type: "double",
+                skin: "square",
                 min: self.geneInfo.scale.start,
                 max: self.geneInfo.scale.end,
                 from: self.geneInfo.scale.start,
                 to: self.geneInfo.scale.end,
                 drag_interval: true,
-                grid: true,
+                // grid: true,
                 onFinish: function (data) {
                     self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
                     $scope.transcripts = self.geneInfo.transcripts;
@@ -180,7 +185,7 @@ angular.module("DoChaP")
                 from: 0,
                 to: self.geneInfo.proteinScale.length,
                 drag_interval: true,
-                grid: true,
+                skin: "square",
                 onFinish: function (data) {
                     self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
                     $scope.transcripts = self.geneInfo.transcripts;
@@ -196,9 +201,11 @@ angular.module("DoChaP")
                 var tooltipManager=self.toolTipManagerForCanvas;
                 var showTextValues = Transcript.showText(event,tooltipManager);
                 if (showTextValues[0]) {
-                     if (showTextValues[2] != undefined) {
-                        $window.open(Species.getURLfor(showTextValues[2]), '_blank');
-                    } else if (tooltipManager[event.target.id + "object"] != undefined) {
+                    //  if (showTextValues[2] != undefined) {
+                    //     $window.open(Species.getURLfor(showTextValues[2]), '_blank');
+                    // } 
+                    // else 
+                    if (showTextValues[2] == undefined && tooltipManager[event.target.id + "object"] != undefined) {
                         tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
                        $scope.$apply();
 

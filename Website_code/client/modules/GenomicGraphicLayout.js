@@ -16,14 +16,17 @@ class GenomicGraphicLayout {
         //compution attributes
         this.coordinatesWidth = (this.canvasWidth - this.beginningEmpty -  this.endEmpty) /length;
         this.skip = getSkipSize(length, this.coordinatesWidth);
-        if(gene.cutOffStart != -1 && gene.cutOffLength!=-1){
-            this.coordinatesWidth = (this.canvasWidth - this.beginningEmpty - this.endEmpty - this.spaceAfterCut) / (length-gene.cutOffLength);
-        }
-
+        
         //cut-off if needed
-        this.cutX=(gene.cutOffStart-gene.start)*this.coordinatesWidth+ this.beginningEmpty ;
-        if(gene.strand=='-'){
-            this.cutX=this.canvasWidth- (gene.cutOffStart-gene.start)*this.coordinatesWidth-this.endEmpty-this.spaceAfterCut;
+        if(gene.cutOffStart != -1 && gene.cutOffLength!=-1){
+            this.coordinatesWidth = (this.canvasWidth - this.beginningEmpty -  this.endEmpty) /(length-gene.cutOffLength);
+            this.skip = getSkipSize(length-gene.cutOffLength, this.coordinatesWidth);
+            this.coordinatesWidth = (this.canvasWidth - this.beginningEmpty - this.endEmpty - this.spaceAfterCut) / (length-gene.cutOffLength);
+            this.cutX=(gene.cutOffStart-gene.start)*this.coordinatesWidth+ this.beginningEmpty;
+            if(gene.strand=='-'){
+                this.cutX=this.canvasWidth- (gene.cutOffStart-gene.start)*this.coordinatesWidth-this.endEmpty-this.spaceAfterCut;
+            }
         }
+   
     }
 }
