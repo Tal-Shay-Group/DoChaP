@@ -76,7 +76,7 @@ class UcscBuilder(SourceBuilder):
                 ex_starts = [int(start) for start in ll[9].split(',') if len(start) > 0]
                 ex_ends = [int(ends) for ends in ll[10].split(',') if len(ends) > 0]
                 newT = Transcript(refseq=ll[1], ensembl=None, chrom=ll[2], strand=ll[3], tx=tuple(map(int, ll[4:6])),
-                                  CDS=tuple(map(int, ll[6:8])), geneSymb=ll[12], prot_refseq=None,
+                                  CDS=tuple(map(int, ll[6:8])), geneSymb=ll[12], protein_refseq=None,
                                   protein_ensembl=None, exons_starts=ex_starts, exons_ends=ex_ends)
                 ncbiRefSeq[ll[1]] = ncbiRefSeq.get(ll[1], newT)
         self.refseq = ncbiRefSeq
@@ -108,7 +108,7 @@ class UcscBuilder(SourceBuilder):
                 geneSymb = kgXref.get(ll[0], [None] * 4)[3]
                 refseq = None
                 newT = Transcript(refseq=refseq, ensembl=ll[0], chrom=ll[1], strand=ll[2], tx=tuple(map(int, ll[3:5])),
-                                  CDS=tuple(map(int, ll[5:7])), geneSymb=geneSymb, prot_refseq=None,
+                                  CDS=tuple(map(int, ll[5:7])), geneSymb=geneSymb, protein_refseq=None,
                                   protein_ensembl=None, exons_starts=ex_starts, exons_ends=ex_ends)
                 knownGene[ll[0]] = knownGene.get(ll[0], newT)
         # self.aliases(knownGene, kgXref)
@@ -135,7 +135,7 @@ class UcscBuilder(SourceBuilder):
                 geneSymb = ens2name.get(ll[0], None)
                 refseq = None
                 newT = Transcript(refseq=refseq, ensembl=ll[0], chrom=ll[1], strand=ll[2], tx=tuple(map(int, ll[3:5])),
-                                  CDS=tuple(map(int, ll[5:7])), geneSymb=geneSymb, prot_refseq=None,
+                                  CDS=tuple(map(int, ll[5:7])), geneSymb=geneSymb, protein_refseq=None,
                                   protein_ensembl=None, exons_starts=ex_starts, exons_ends=ex_ends)
                 ensGene[ll[0]] = ensGene.get(ll[0], newT)
         self.ensembl = ensGene
