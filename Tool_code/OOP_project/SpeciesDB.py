@@ -33,14 +33,14 @@ class dbBuilder:
             print('Creating the table: Genes')
             cur.execute('''
                         CREATE TABLE Genes(
-                                gene_refseq_id TEXT,
+                                gene_GeneID_id TEXT,
                                 gene_ensembl_id TEXT,
                                 gene_symbol TEXT,
                                 synonyms TEXT,
                                 chromosome TEXT,
                                 strand TEXT,
                                 specie TEXT, 
-                                PRIMARY KEY(gene_refseq_id, gene_ensembl_id, gene_symbol)
+                                PRIMARY KEY(gene_GeneID_id, gene_ensembl_id, gene_symbol)
                                 );'''
                         )
             cur.executescript("DROP TABLE IF EXISTS transcripts;")
@@ -54,12 +54,12 @@ class dbBuilder:
                                 cds_start INTEGER,
                                 cds_end INTEGER,
                                 exon_count INTEGER,
-                                gene_refseq_id TEXT,                        
+                                gene_GeneID_id TEXT,                        
                                 gene_ensembl_id TEXT,
                                 protein_refseq_id TEXT,
                                 protein_ensembl_id TEXT,
                                 PRIMARY KEY (transcript_refseq_id, transcript_ensembl_id),
-                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id),
+                                FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id),
                                 FOREIGN KEY(protein_refseq_id,protein_ensembl_id) REFERENCES Proteins(protein_refseq_id,protein_ensembl_id)
                                 );'''
                         )
@@ -67,12 +67,12 @@ class dbBuilder:
             print('Creating the table: Exons')
             cur.execute('''
                         CREATE TABLE Exons(
-                                gene_refseq_id TEXT,
+                                gene_GeneID_id TEXT,
                                 gene_ensembl_id TEXT,        
                                 genomic_start_tx INTEGER,
                                 genomic_end_tx INTEGER,
-                                PRIMARY KEY (gene_refseq_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx),
-                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id)
+                                PRIMARY KEY (gene_GeneID_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx),
+                                FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id)
                                 );'''
                         )
 
@@ -193,7 +193,7 @@ class dbBuilder:
         with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
             cur.execute('''CREATE INDEX geneTableIndexBySpecies ON Genes(specie);''')
-            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_refseq_id) ;''')
+            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_GeneID_id) ;''')
             cur.execute(
                 '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
             cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
@@ -219,35 +219,38 @@ class dbBuilder:
 
             for transcript in self.data.Transcripts.values():
                 refseqNov = transcript.idNoVersion()
+                print(refseqNov)
                 ensNov = transcript.idNoVersion("ensembl")
+                print(ensNov)
                 GeneID = str(transcript.gene_GeneID)
+                print(GeneID)
                 ensGene = transcript.gene_ensembl
-                prot_refseq = transcript.prot_refseq
+                print(ensGene)
+                protein_refseq = transcript.protein_refseq
+                print(protein_refseq)
                 prot_ens = transcript.protein_ensembl
-                if refseqNov is not None and refseqNov not in self.data.Genes.keys():
+                print(prot_ens)
+                if refseqNov not in self.data.Genes.keys():
                     self.TrnascriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
                     continue
+
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
                 values = (transcript.refseq, transcript.ensembl,) +\
                           transcript.tx + transcript.CDS +\
-                          (e_counts, GeneID, ensGene, prot_refseq, prot_ens,)
+                          (e_counts, GeneID, ensGene, protein_refseq, prot_ens,)
                 cur.execute('''INSERT INTO Transcripts
                             (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start,\
-                             cds_end, exon_count, gene_refseq_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) 
+                             cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) 
                             VALUES(?,?,?,?,?,?,?,?,?,?,?)''', values)
 
                 # insert into Genes table (unique GeneID as primary key)
-                if (GeneID is not None and GeneID not in geneSet) or \
-                        (ensGene is not None and ensGene not in geneSet):
-                    if refseqNov is not None:
-                        syno = self.data.Genes[refseqNov].synonyms
-                    else:
-                        syno = None
+                if GeneID is not geneSet and ensGene not in geneSet:
+                    syno = [self.data.Genes[refseqNov].synonyms if refseqNov is not None else None][0]
                     values = (GeneID, ensGene, transcript.geneSymb,
                               syno, transcript.chrom, transcript.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
-                                (gene_refseq_id, gene_ensembl_id, gene_symbol, synonyms, chromosome,\
+                                (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome,\
                                  strand, specie)
                                 VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
                     geneSet.add(GeneID)
@@ -275,54 +278,54 @@ class dbBuilder:
                     if values not in uExon:
                         uExon.add(values)
                         cur.execute('''INSERT INTO Exons
-                                    (gene_refseq_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx)
+                                    (gene_GeneID_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx)
                                     VALUES (?, ?, ?, ?)''', values)
 
                 # insert into Proteins table
-                protID = [prot_refseq.split(".")[0] if prot_refseq is not None else None][0]
-                if protID in self.data.Proteins.keys() and protID not in prot:
-                    protein = self.data.Proteins[protID]
-                    print("protein {}, ensembl {}".format(protID, protein.ensembl))
-                    values = (protein.refseq, protein.ensembl, protein.description, protein.length,
-                              protein.note, transcript.refseq, transcript.ensembl,)
-                    cur.execute(''' INSERT INTO Proteins
-                                    (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
-                    if protID in self.data.Domains.keys():
-                        splicin = set()
-                        for reg in self.data.Domains[protID]:
-                            regID = DomainOrg.addDomain(reg)
-                            relevantDomains.add(regID)
-                            relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
-                            total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!
-                            splice_junction = 0
-                            complete = 0
-                            if relation == 'splice_junction':
-                                splice_junction = 1
-                                for i in range(len(exon_list)):
-                                    values = (transcript.refseq, transcript.ensembl,
-                                              exon_list[i], reg.nucStart, DomainOrg.internalID,
-                                              total_length, length[i], i + 1,)
-                                    if values not in splicin:
-                                        cur.execute(''' INSERT INTO SpliceInDomains
-                                            (transcript_refseq_id, transcript_ensembl_id,\
-                                             exon_order_in_transcript, domain_nuc_start, type_id,\
-                                             total_length, included_len, exon_num_in_domain)
-                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                                        splicin.add(values)
-                            elif relation == 'complete_exon':
-                                complete = 1
-                            # insert into domain event table
-                            values = (prot_refseq, prot_ens, DomainOrg.internalID,
-                                      reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
-                                      reg.extID, splice_junction, complete,)
-                            if values not in domeve:
-                                cur.execute(''' INSERT INTO DomainEvent
-                                            (protein_refseq_id, protein_ensembl_id, type_id,\
-                                            AA_start, AA_end, nuc_start, nuc_end, total_length,\
-                                            ext_id, splice_junction, complete_exon)
-                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                                domeve.add(values)
+                protID = [protein_refseq.split(".")[0] if protein_refseq is not None or '-' else None][0]
+                protein = self.data.Proteins[protID]
+                #print("protein {}, ensembl {}".format(protID, protein.ensembl))
+                values = (protein.refseq, protein.ensembl, protein.description, protein.length,
+                          protein.note, transcript.refseq, transcript.ensembl,)
+                cur.execute(''' INSERT INTO Proteins
+                                (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
+                if protID in self.data.Domains.keys():
+                    splicin = set()
+                    for reg in self.data.Domains[protID]:
+                        regID = DomainOrg.addDomain(reg)
+                        relevantDomains.add(regID)
+                        relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
+                        total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!
+                        splice_junction = 0
+                        complete = 0
+                        if relation == 'splice_junction':
+                            splice_junction = 1
+                            for i in range(len(exon_list)):
+                                values = (transcript.refseq, transcript.ensembl,
+                                          exon_list[i], reg.nucStart, DomainOrg.internalID,
+                                          total_length, length[i], i + 1,)
+                                if values not in splicin:
+                                    cur.execute(''' INSERT INTO SpliceInDomains
+                                        (transcript_refseq_id, transcript_ensembl_id,\
+                                         exon_order_in_transcript, domain_nuc_start, type_id,\
+                                         total_length, included_len, exon_num_in_domain)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                                    splicin.add(values)
+                        elif relation == 'complete_exon':
+                            complete = 1
+
+                        # insert into domain event table
+                        values = (protein_refseq, prot_ens, DomainOrg.internalID,
+                                  reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
+                                  reg.extID, splice_junction, complete,)
+                        if values not in domeve:
+                            cur.execute(''' INSERT INTO DomainEvent
+                                        (protein_refseq_id, protein_ensembl_id, type_id,\
+                                        AA_start, AA_end, nuc_start, nuc_end, total_length,\
+                                        ext_id, splice_junction, complete_exon)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                            domeve.add(values)
 
             if self.merged:
                 relevantDomains = set(DomainOrg.allDomains.keys())
@@ -345,9 +348,8 @@ class dbBuilder:
                                     );'''
                             )
             # insert into domain type table
-            for typeID, domain in DomainOrg.allDomains.items():
-                if typeID in relevantDomains:
-                    values = (typeID,) + domain
+            for typeID in relevantDomains:
+                    values = (typeID,) + DomainOrg.allDomains[typeID]
                     cur.execute(''' INSERT INTO DomainType
                                     (type_id, name, other_name, description, CDD_id, cd, cl,\
                                     pfam, smart, tigr, interpro)

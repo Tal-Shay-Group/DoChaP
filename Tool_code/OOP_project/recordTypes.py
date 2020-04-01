@@ -28,7 +28,7 @@ class Gene:
 class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
-                 GeneID=None, gene_ensembl=None, geneSymb=None, prot_refseq=None, protein_ensembl=None, exons_starts=[],
+                 GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None, exons_starts=[],
                  exons_ends=[]):
         self.refseq = refseq
         self.ensembl = ensembl
@@ -39,7 +39,7 @@ class Transcript:
         self.gene_GeneID = GeneID
         self.gene_ensembl = gene_ensembl
         self.geneSymb = geneSymb
-        self.prot_refseq = prot_refseq
+        self.protein_refseq = protein_refseq
         self.protein_ensembl = protein_ensembl
         if len(exons_starts) == len(exons_ends):
             self.exon_starts = exons_starts
@@ -61,6 +61,13 @@ class Transcript:
         tid = self.__getattribute__(idType)
         if tid is not None:
             return tid.split(".")[0]
+        else:
+            return None
+
+    def idVersion(self, idType='refseq'):
+        tid = self.__getattribute__(idType)
+        if tid is not None:
+            return tid.split(".")[1]
         else:
             return None
 
@@ -112,18 +119,26 @@ class Transcript:
                    self.exon_ends == other.exon_ends
 
     def mergeTranscripts(self, other):
-        mergedT = Transcript()
         attr = ['refseq', 'ensembl', 'chrom', 'strand', 'tx', 'CDS', 'gene_GeneID', 'gene_ensembl',
-                'geneSymb', 'prot_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends']
+                'geneSymb', 'protein_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends']
+        if (self.idVersion() is not None and other.idVersion() is not None) and \
+                (self.idVersion("ensembl") is not None and other.idVersion("ensembl") is not None):
+            if self.idVersion() > other.idVersion() or self.idVersion("ensembl") > other.idVersion("ensembl"):
+                return self
+            elif self.idVersion() < other.idVersion() or self.idVersion("ensembl") < other.idVersion("ensembl"):
+                return other
+            else:
+                mergedT = self
         for atribute in attr:
             if self.__getattribute__(atribute) is None:
                 mergedT.__setattr__(atribute, other.__getattribute__(atribute))
-            elif other.__getattribute__(atribute) is not None:
-                o = [other.__getattribute__(atribute).split('.')[1] if
-                     type(other.__getattribute__(atribute)) is str else None][0]
-                s = [self.__getattribute__(atribute).split('.')[1] if
-                     type(self.__getattribute__(atribute)) is str else None][0]
-                chosen = [other.__getattribute__(atribute) if int(o) > int(s) else self.__getattribute__(atribute)]
+            elif (atribute in ['refseq', 'ensembl', 'protein_refseq', 'protein_ensembl']) and\
+                    self.__getattribute__(atribute) is not None and\
+                    other.__getattribute__(atribute) is not None:
+                print("attribute: {}, in self: {}; other: {}".format(atribute, self, other))
+                o = other.idVersion(atribute)
+                s = self.idVersion(atribute)
+                chosen = [other.__getattribute__(atribute) if int(o) > int(s) else self.__getattribute__(atribute)][0]
                 mergedT.__setattr__(atribute, chosen)
             else:
                 mergedT.__setattr__(atribute, self.__getattribute__(atribute))
