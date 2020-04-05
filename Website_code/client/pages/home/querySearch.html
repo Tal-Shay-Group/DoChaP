@@ -7,16 +7,43 @@
 <!-- display all categories -->
 
 <body ng-app="DoChaP" ng-controller="querySearchCtrl">
-    <div style="background-image: url('/resources/dna100.jpg'); height: 1000px;background-repeat: no-repeat; background-size: cover; background-position: center center;">
+    <br>
+    <!--
+            small explanation on the website
+        -->
+    <div class="greyArea">
+        <!-- <img class="logo" src="resources/logo.jpeg" /> -->
+        <div style="background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px;
+        color: red;
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        font-weight: bold;
+        font-size: 100px;
+        font-family: arial, helvetica;
+        width: 600px;
+        text-align: center;">
+            DoChaP
+        </div>
+        <div style="background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px;
+        color: red;
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        font-weight: bold;
+        font-size: 25px;
+        font-family: arial, helvetica;
+        width: 600px;
+        text-align: center;">
+           Domain Change Predictor
+        </div>
+        <br>
         <div class="searchItems form-inline">
             <!--
                 searching for domains here
             -->
-            <center>
-               <i> <h2>Search for exon-domain associations</h2></i>
-            </center>
-
-            
+            <div class="resultTitle">
+                <i> Search for exon-domain associations</i>
+            </div>
+            <br>
             <i> Species&nbsp;&nbsp;</i>
             <select id="searchBySpecie" class="form-control searchBySpecie">
                 <option value="H_sapiens">Human</option>
@@ -26,19 +53,15 @@
                 <option value="X_tropicalis">Frog</option>
             </select>&nbsp;&nbsp;
             <i>Search Term&nbsp;&nbsp;</i>
-            <input placeholder="  enter gene symbol, geneID or RefSeq Id" class="searchTextFieldClass"
+            <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass"
                 id="searchTextField">&nbsp;&nbsp;
 
             <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
-                <span class="glyphicon glyphicon-search"></span>  Search
+                <span class="glyphicon glyphicon-search"></span> Search
             </button>
             &nbsp;
-            <!--
- <input type="checkbox" value="isReviewed" id="isReviewedCheckBox"><i>hide predicted records</i>
-
-            -->
-           
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
+            <br>
             <br>
             <br>
             <i>Examples&nbsp;&nbsp;</i>
@@ -53,33 +76,33 @@
             <span style="color:red"><span id="alertText"></span>{{alert}}</span>
         </div>
         <br>
-        <br>
-        <!--
-            small explanation on the website
-        -->
-        <div class="searchItems"
-            style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px">
-            <p><strong>Overview:</strong></p>
-            <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
-                    sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
-            </p>
-            <p><strong>Search DoChaP:</strong></p>
-            <ul>
-                <li><strong>Choose a species from the list:&nbsp;</strong>Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish (danRer11), Frog (xenTro9). To request
-                    another species, contact us! <a href="mailto:galozs@post.bgu.ac.il" target="_blank">galozs@post.bgu.ac.il</a></li>
-                <li><strong>Enter a search term:</strong>
-                    <ol>
-                        <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene
-                            ID or RefSeq transcript or protein ID / ENSEMBL gene, transcript or protein ID)</li>
-                        <li>See examples or Help page for more info</li>
-                    </ol>
-                </li>
-                <li><strong>Ignore predicted genes (shown by default)</strong> – check box to show or hide predictions
-                </li>
-            </ul>
-            <p><strong>&nbsp;</strong></p>
-        </div>
     </div>
+    <br>
+    <div class="greyArea">
+         <!-- style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px" -->
+        <!-- <p><strong>Overview:</strong></p> -->
+        <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
+            sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
+    </p>
+    </div>
+    <br>
+    <div  class="greyArea">
+        <!-- <p><strong>Search DoChaP:</strong></p> -->
+        <ul style="font-size: 17px;">
+            <li><strong>Choose a species from the list:&nbsp;</strong>Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish
+                (danRer11), Frog (xenTro9). To request
+                another species, contact us! <a href="mailto:galozs@post.bgu.ac.il"
+                    target="_blank">galozs@post.bgu.ac.il</a></li>
+            <li><strong>Enter a search term:</strong>
+                <ol>
+                    <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene
+                        ID or RefSeq transcript or protein ID / ENSEMBL gene, transcript or protein ID)</li>
+                    <li>See examples or Help page for more info</li>
+                </ol>
+            </li>
+        </ul>
+    </div>
+    <br>
 
 </body>
 

@@ -91,8 +91,17 @@ class Exon {
             context.lineTo(exonX + utrLeft * coordinatesWidth, exonY + (exonHeight / 4));
         }
         context.closePath();
+
+        context.save();
+        context.translate(0,0);
+        context.shadowColor = "#898";
+        context.shadowBlur = 4;
+        context.shadowOffsetX = 2;
+        context.shadowOffsetY = 3;
         context.fillStyle = this.color;
         context.fill();
+        context.restore();
+        
         context.strokeStyle = "grey";
         context.stroke();
 
@@ -127,7 +136,7 @@ class Exon {
         const exonHeight = position.exonHeight;
         const exonX = position.exonX;
         const exonY = position.exonY;
-        return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript];
+        return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript,undefined];
 
     }
 
@@ -137,7 +146,7 @@ class Exon {
         const exonHeight = position.exonHeight;
         const exonX = position.exonX;
         const exonY = position.exonY;
-        return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript]
+        return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript, undefined]
     }
 
     transcriptViewPosition(coordinatesWidth, startHeight){

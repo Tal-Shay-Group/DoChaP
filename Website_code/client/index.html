@@ -53,6 +53,7 @@ Logo and navigation bars will be declared here for example.
     <script src="modules/ProteinScale.js"></script>
     <script src="modules/DomainGroup.js"></script>
     <script src="modules/GenomicGraphicLayout.js"></script>
+    <script src="modules/ProteinGraphicLayout.js"></script>
     <script src="modules/Species.js"></script>
 
     <script src="pages/home/querySearchController.js"></script>
@@ -68,23 +69,27 @@ Logo and navigation bars will be declared here for example.
 
     <!-- style. will later be in css file -->
     <link rel="stylesheet" type="text/css" href="main.css">
+
+
+    <meta name="description" content="visualization of exon–domain relationships in different transcripts">
+    <meta name="keywords" content="gene, genes, transcripts, transcript, proteins, protein, domain, domains, bilogy, alternative, splicing, science">
+    <meta name="robots" content="index, follow">
 </head>
 <!-- actual tags that will be visible. currently only links for search/result pages. -->
 <body ng-app="DoChaP" align="left">
   <!--
     LOGO
   -->
-  <a href="#!querySearch">
-    <img class="logo" src="resources/logo.jpeg" /></a><a href="#!querySearch"></a>
       <!--
         <img style="height: 100px" src="resources/bgu-sig-en.png" />
       -->
   <!--
     navigation bar
   -->
-    <br />
-    <nav class="navbar navbar-inverse container-fluid" style="margin: 0;" ng-controller="indexController as indexCtrl">
-    
+    <!-- <br /> -->
+        
+    <nav class="navbar navbar-inverse container-fluid" ng-controller="indexController as indexCtrl" style="font-size: 20px;">
+          <!-- for mobile - hamburger button-->
           <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
               <span class="icon-bar"></span>
@@ -93,14 +98,19 @@ Logo and navigation bars will be declared here for example.
             </button>
           </div>
           <div class="collapse navbar-collapse" id="myNavbar">
+            <!-- Home -->
             <ul class="nav navbar-nav">
-              <li ><a href="#!querySearch">Home</a></li>
+                  <a href="#!querySearch">
+
+                <!-- <img src="resources/smallLogo.png" height="45" width="200" style="border-radius: 3px; margin: 3px;"/> -->
+              <span class="logoText">
+                  DoChaP
+              </span>
+              </a>
+            </ul>
+        
+              <ul class="nav navbar-nav" style="display: inline;">
               <li><a href="#!compareSpecies"> Compare Species</a></li>
-              <!--
-              <li><a href="#!results">Result Example</a></li>
-              
-              <li><a href="#!underConstruction">Tool Result Upload</a></li>
-              -->
              <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
                     <select class="form-control searchBySpecie" id="indexSpecies">
                         <option value="H_sapiens">Human</option>
@@ -112,7 +122,9 @@ Logo and navigation bars will be declared here for example.
                     <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField" ng-keydown="$event.which == 13 && search()">
                    &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="search()">
                    <span class="glyphicon glyphicon-search"></span></button>
-                   <span style="color: white;" ng-show="indexLoading"> loading...</span>
+                   <span style="color: white;" ng-show="indexLoading">
+                    <img ng-src="/resources/loading_2.gif" width="38" height="38" />
+                  </span>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right" >

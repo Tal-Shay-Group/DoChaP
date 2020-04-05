@@ -26,8 +26,19 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
         } else {
           $scope.alert = "";
+          $('#bg1').css("background-image", "none");
+          $('#bg1').css("background-color", "white");
+          // $('body').css("background-image", "none");
+
           self.specie1Gene = response[1][0];
           self.specie2Gene = response[1][1];
+
+          $scope.shownTranscripts1 = self.specie1Gene.transcripts.length;
+          $scope.hiddenTranscripts1 = 0;
+          $scope.shownTranscripts2 = self.specie2Gene.transcripts.length;
+          $scope.hiddenTranscripts2 = 0;
+
+
           $(document).ready(function (self) {
             updateCanvases();
           });
@@ -45,67 +56,34 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
     for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
       $('#fadeinDiv1' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
-      self.specie1Gene.transcripts[i].show('canvas-genomic1' + i, 'canvas-transcript1' + i, 'canvas-protein1' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend1'+ i);
+      self.specie1Gene.transcripts[i].show('canvas-genomic1' + i, 'canvas-transcript1' + i, 'canvas-protein1' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend1' + i);
     }
     self.specie1Gene.scale.draw("canvas-scale1");
     self.specie1Gene.proteinScale.draw("canvas-scale-protein1");
+    self.specie1Gene.proteinScale.drawBehind("proteinGridlines1");
+    self.specie1Gene.scale.drawBehind("genomicGridlines1");
 
     for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
       $('#fadeinDiv2' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
-      self.specie2Gene.transcripts[i].show('canvas-genomic2' + i, 'canvas-transcript2' + i, 'canvas-protein2' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend2'+ i);
+      self.specie2Gene.transcripts[i].show('canvas-genomic2' + i, 'canvas-transcript2' + i, 'canvas-protein2' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend2' + i);
 
     }
     self.specie2Gene.scale.draw("canvas-scale2");
     self.specie2Gene.proteinScale.draw("canvas-scale-protein2");
+    self.specie2Gene.proteinScale.drawBehind("proteinGridlines2");
+    self.specie2Gene.scale.drawBehind("genomicGridlines2");
+
     $('#canvas-scale1').hide().fadeIn(1000);
     $('#canvas-scale-protein1').hide().fadeIn(1000);
     $('#canvas-scale2').hide().fadeIn(1000);
     $('#canvas-scale-protein2').hide().fadeIn(1000);
     $scope.chromosomeLocation1 = self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
     $scope.chromosomeLocation2 = self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
-    // $("canvas").unbind();
     $("canvas")
-      /*.mousemove(function (event) {
-        showTextValues = showText(event);
-        if (showTextValues[0]) {
-          $("#myTooltip").show();
-          $("#myTooltip").css("top", event.pageY + 2);
-          $("#myTooltip").css("left", event.pageX + 2);
-          $("#myTooltip").html(showTextValues[1]);
-        } else {
-          $("#myTooltip").hide();
-        }
-      })*/
       .click(function (event) {
-        showTextValues = showText(event);
-        if (showTextValues[0]) {
-          
-          if (showTextValues[2] != undefined) {
-            $window.open(Species.getURLfor(showTextValues[2]), '_blank');
-          }
-          else if (self.toolTipManagerForCanvas[event.target.id + "object"] != undefined) {
-            self.toolTipManagerForCanvas[event.target.id + "object"].proteinExtendView = !self.toolTipManagerForCanvas[event.target.id + "object"].proteinExtendView;
-            $scope.$apply();
-
-          }
-
-        }
+        Domain.domainClick(self.toolTipManagerForCanvas, event);
+        $scope.$apply();
       });
-    //when to show modal
-    function showText(event) {
-      res = [false, ""];
-      if (self.toolTipManagerForCanvas[event.target.id] != undefined) {
-        offset = event.target.getBoundingClientRect();
-        exon = self.toolTipManagerForCanvas[event.target.id];
-        for (var i = 0; i < exon.length; i++) {
-          if (event.clientX - offset.left >= exon[i][0] && event.clientX - offset.left <= exon[i][0] + exon[i][2] &&
-            event.clientY - offset.top >= exon[i][1] && event.clientY - offset.top <= exon[i][1] + exon[i][3]) {
-            return [true, exon[i][4], exon[i][5]];
-          }
-        }
-      }
-      return res;
-    }
 
     $('#genomic_range1').ionRangeSlider({
       type: "double",
@@ -116,8 +94,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
-        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, undefined, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
         $scope.transcripts = self.specie1Gene.transcripts;
         /*$scope.$apply();*/
         $(document).ready(function () {
@@ -136,8 +116,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
-        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, undefined, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
+        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
         $scope.transcripts = self.specie1Gene.transcripts;
         /*$scope.$apply();*/
         $(document).ready(function () {
@@ -156,8 +138,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
-        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, undefined, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
         $scope.transcripts = self.specie2Gene.transcripts;
         /*$scope.$apply();*/
         $(document).ready(function () {
@@ -176,8 +160,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var genes = JSON.parse($window.sessionStorage.getItem("currCompareSpecies")).genes;
-        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, undefined, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
+        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
         $scope.transcripts = self.specie2Gene.transcripts;
         /*$scope.$apply();*/
         $(document).ready(function () {
@@ -308,7 +294,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     });
   }
 
-  $scope.changeTranscriptView = function (index, species) { //hide transcript. change name later
+  $scope.hideTranscriptView = function (index, species) { //hide transcript. change name later
     var specieToChange = undefined;
     if (species == 1) {
       specieToChange = self.specie1Gene;
@@ -318,6 +304,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     specieToChange.transcripts[index].genomicView = false;
     specieToChange.transcripts[index].transcriptView = false;
     specieToChange.transcripts[index].proteinView = false;
+
+    countShownTranscripts();
 
   };
   self.exmaple = function (input) {
@@ -329,5 +317,79 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     }, 500);
 
   }
+
+  function countShownTranscripts() {
+    var counter = 0;
+    for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
+      if (self.specie1Gene.transcripts[i].genomicView ||
+        self.specie1Gene.transcripts[i].transcriptView ||
+        self.specie1Gene.transcripts[i].proteinView) {
+        counter = counter + 1;
+      }
+    }
+    $scope.shownTranscripts1 = counter;
+    $scope.hiddenTranscripts1 = self.specie1Gene.transcripts.length - counter;
+
+    counter = 0;
+    for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
+      if (self.specie2Gene.transcripts[i].genomicView ||
+        self.specie2Gene.transcripts[i].transcriptView ||
+        self.specie2Gene.transcripts[i].proteinView) {
+        counter = counter + 1;
+      }
+    }
+    $scope.shownTranscripts2 = counter;
+    $scope.hiddenTranscripts2 = self.specie2Gene.transcripts.length - counter;
+
+
+
+    $(document).ready(function () {
+      if ($scope.shownTranscripts1 > 0) {
+        self.specie1Gene.scale.drawBehind("genomicGridlines1");
+        self.specie1Gene.proteinScale.drawBehind("proteinGridlines1");
+      }
+      if ($scope.shownTranscripts2 > 0) {
+        self.specie2Gene.scale.drawBehind("genomicGridlines2");
+        self.specie2Gene.proteinScale.drawBehind("proteinGridlines2");
+      }
+
+    });
+
+  }
+
+  //show according to mode
+  $scope.showTranscriptView = function (index,species) {
+    var specieToChange = undefined;
+    if (species == 1) {
+      specieToChange = self.specie1Gene;
+    } else if (species == 2) {
+      specieToChange = self.specie2Gene;
+    }
+    var type = $scope.viewMode;
+    if (type === "genomic") {
+      specieToChange.transcripts[index].genomicView = true;
+      specieToChange.transcripts[index].transcriptView = false;
+      specieToChange.transcripts[index].proteinView = false;
+    } else if (type === "transcript") {
+      specieToChange.transcripts[index].genomicView = false;
+      specieToChange.transcripts[index].transcriptView = true;
+      specieToChange.transcripts[index].proteinView = false;
+    } else if (type === "protein") {
+      specieToChange.transcripts[index].genomicView = false;
+      specieToChange.transcripts[index].transcriptView = false;
+      specieToChange.transcripts[index].proteinView = true;
+    } else if (type === "all") {
+      specieToChange.transcripts[index].genomicView = true;
+      specieToChange.transcripts[index].transcriptView = true;
+      specieToChange.transcripts[index].proteinView = true;
+    } else if (type === "transcript_protein") {
+      specieToChange.transcripts[index].genomicView = false;
+      specieToChange.transcripts[index].transcriptView = true;
+      specieToChange.transcripts[index].proteinView = true;
+    }
+
+    countShownTranscripts();
+
+  };
 
 });
