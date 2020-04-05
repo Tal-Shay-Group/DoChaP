@@ -12,9 +12,9 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
       var currAddress = "#!" + $location.path().substring(1);
       $('li a').each(function (i) {
          if ($(this).attr('href') == currAddress) {
-            $(this).css("color", "white");
+            $(this).css("color", "#52c0ff");
          } else {
-            $(this).css("color", "rgb(170, 169, 169)");
+            $(this).css("color", "white");
          }
       });
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" && currAddress != "#!");

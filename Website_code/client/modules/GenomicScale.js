@@ -24,12 +24,12 @@ class GenomicScale {
         // if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
         //     coordinatesWidth = (canvas.width - beginningEmpty - endEmpty - this.spaceAfterCut) / (lengthOfScale - this.gene.cutOffLength);
         // }
-        // var skip = getSkipSize(lengthOfScale, coordinatesWidth);
+        // var skip = getSkipSize(coordinatesWidth);
         // var strand = this.strand;
 
-        var graphicLayout=new GenomicGraphicLayout(canvasID,this.gene);
-        var strand= this.gene.strand;
-        var context=graphicLayout.context;
+        var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
+        var strand = this.gene.strand;
+        var context = graphicLayout.context;
         var lineThickness = 8;
         var startHeight = 70; //px from top
 
@@ -41,8 +41,7 @@ class GenomicScale {
         createBaseLine(context, 0, startHeight, graphicLayout.canvasWidth, lineThickness);
 
         //calculate gridlines
-        var Xcoordinates = gridCoordinates(this.start, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, this.spaceAfterCut);
-
+        var Xcoordinates = this.gridCoordinates(this.start, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, this.spaceAfterCut);
 
         //draw gridlines
         for (var i = 0; i < Xcoordinates.length; i++) {
@@ -57,7 +56,7 @@ class GenomicScale {
             var cutX = graphicLayout.cutX;
             context.beginPath();
             context.fillStyle = "white";
-            context.rect(cutX + 4, startHeight - 15 +lineThickness / 2, this.spaceAfterCut - 8, 30);
+            context.rect(cutX + 4, startHeight - 15 + lineThickness / 2, this.spaceAfterCut - 8, 30);
             context.fill();
             context.closePath();
             context.beginPath();
@@ -116,41 +115,6 @@ class GenomicScale {
         context.fillText("strand " + strand, width + (arrowLength / 2), height - 5);
     }
 
-    //currently not in use?
-    gridCoordinates(skip, coordinatesWidth, canvasWidth, beginningEmpty, endEmpty, strand) {
-        var Xcoordinates = [];
-        var geneCoordinate = this.start - (this.start % skip) + skip;
-        var secondCoordinate = skip - (this.start % skip); //the length till the next rounded after start
-        for (var i = secondCoordinate;
-            (i * coordinatesWidth) + 2 < canvasWidth; i = i + skip) {
-            var grid = new Object();
-            grid.text = numberToTextWithCommas(geneCoordinate);
-            if (strand == '+') {
-                grid.x = (i * coordinatesWidth) + beginningEmpty;
-            } else if (strand == '-') {
-                grid.x = canvasWidth - endEmpty - (i * coordinatesWidth)
-            }
-            Xcoordinates.push(grid);
-            geneCoordinate = geneCoordinate + skip;
-        }
-        return Xcoordinates
-    }
-
-    // negativeStrandGridCoordinats(skip, coordinatesWidth, canvasWidth, endEmpty){
-    //     var Xcoordinates = [];
-    //     var geneCoordinate = this.start - (this.start % skip) + skip;
-    //     var secondCoordinate = skip - (this.start % skip); //the length till the next rounded after start
-    //     for (var i = secondCoordinate;
-    //         (i * coordinatesWidth) + 2 < canvasWidth; i = i + skip) {
-    //         Xcoordinates.push({
-    //             'x': canvasWidth -endEmpty -(i * coordinatesWidth),
-    //             'text': numberToTextWithCommas(geneCoordinate)
-    //         });
-    //         geneCoordinate = geneCoordinate + skip;
-    //     }
-    //     return Xcoordinates
-    // }
-
     drawGridLine(context, x, y, text, canvasWidth, beginningEmpty, coordinatesWidth) {
         var gridLength = 5;
         var emptyFromTextInTheEnd = 50;
@@ -173,31 +137,21 @@ class GenomicScale {
 
 
     drawBehind(canvasID) {
-        //calculations
-        var canvas = document.getElementById(canvasID);
-        var context = canvas.getContext("2d");
-        var canvasHeight = canvas.height;
-        var canvasWidth = canvas.width;
-        var lineThickness = 8;
-        var startHeight = 70; //px from top
-        var lengthOfScale = this.end - this.start; //both in noclutides
-        var beginningEmpty = 10; //in pixels
-        var endEmpty = 5; //in pixels
-        var coordinatesWidth = (canvas.width - beginningEmpty - endEmpty) / lengthOfScale;
-        var skip = getSkipSize(lengthOfScale, coordinatesWidth);
-        var strand = this.strand;
+        var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
+        var strand = this.gene.strand;
+        var context = graphicLayout.context;
 
         //clear all from before
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        context.clearRect(0, 0, graphicLayout.canvasWidth, graphicLayout.canvasHeight);
 
         //calculate gridlines
-        var Xcoordinates = gridCoordinates(this.start, skip, coordinatesWidth, canvasWidth, beginningEmpty, endEmpty, strand);
+        var Xcoordinates = this.gridCoordinates(this.start, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, this.spaceAfterCut);
 
         //draw gridlines
         context.fillStyle = "#e1e1e1";
         for (var i = 0; i < Xcoordinates.length; i++) {
             //draw line
-            context.fillRect(Xcoordinates[i].x, 200, 1, canvasHeight);
+            context.fillRect(Xcoordinates[i].x, 150, 1, graphicLayout.canvasHeight);
         }
     }
 
@@ -210,12 +164,45 @@ class GenomicScale {
         var cutStartX = (this.gene.cutOffStart - this.start) * coordinatesWidth + beginningEmpty;
         if (cutStartX - x < emptyFromTextInTheEnd && cutStartX - x > 0) {
             return false;
-        }
-        else if (cutStartX - x > -55 && cutStartX - x < 0) {
+        } else if (cutStartX - x > -55 && cutStartX - x < 0) {
             return false;
         }
 
         return true;
+    }
+
+
+    gridCoordinates(start, skip, coordinatesWidth, canvasWidth, beginningEmpty, endEmpty, strand, cutOffStart, cutOffLength, spaceAfterCut) {
+        var Xcoordinates = [];
+        var geneCoordinate = start - (start % skip) + skip;
+        var secondCoordinate = skip - (start % skip); //the length till the next rounded after start
+        var needCut = (cutOffStart != -1 && cutOffLength != -1); // checks if we need cut
+        var hasSpaceOfSkip=false;
+
+        for (var i = secondCoordinate;
+            (i * coordinatesWidth) + 2 < canvasWidth; i = i + skip) {
+
+            if (needCut && geneCoordinate > cutOffStart) {
+                //doing cut
+                needCut = false;
+                hasSpaceOfSkip=true;
+                var afterCut = cutOffStart + cutOffLength;
+                geneCoordinate = afterCut - (afterCut % skip) + skip
+                i = i + spaceAfterCut/coordinatesWidth  - (afterCut % skip) + skip; //so the line is where the after *skip* is also applied and *cut* is applied
+            }
+            var grid = new Object();
+            grid.text = numberToTextWithCommas(geneCoordinate);
+            if (strand == '+') {
+                grid.x = (i * coordinatesWidth) + beginningEmpty;
+            // } else if (strand == '-' && hasSpaceOfSkip) {
+            //     grid.x = canvasWidth - endEmpty - (i * coordinatesWidth) -hasSpaceOfSkip;
+            } else if (strand == '-') {
+                grid.x = canvasWidth - endEmpty - (i * coordinatesWidth)
+            }
+            Xcoordinates.push(grid);
+            geneCoordinate = geneCoordinate + skip;
+        }
+        return Xcoordinates
     }
 
 }

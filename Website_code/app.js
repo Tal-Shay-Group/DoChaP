@@ -48,6 +48,25 @@ app.get('/sendMail/:name/:mail/:msg', (req, res) => {
     res.status(200).send();
 });
 
+//mail sender for contact us requests
+app.get('/sendAlert', (req, res) => {
+    var today=new Date();
+    var lastAlert=new Date();
+    if (Math.round((today-lastAlert)/(1000*60*60*24))>90){
+        var mailOptions = {
+            from: 'dochapmail@gmail.com',
+            to: 'galozs@post.bgu.ac.il', //add on server the e-mail
+            subject: "DoChaP alert. Update the database",
+            text: "The last update was before 90 days."
+          };
+          
+          transporter.sendMail(mailOptions, function(error, info){});
+          /*write to files date ... */
+    }
+
+    res.status(200).send();
+});
+
 //userInterfaceLog
 app.get('/userLog/:msg', (req, res) => {
     now=new Date();

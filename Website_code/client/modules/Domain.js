@@ -68,7 +68,13 @@ class Domain {
         }
         context.closePath();
 
-        //fill by overlap choice
+        context.save();
+        context.translate(0, 0);
+        context.shadowColor = "#898";
+        context.shadowBlur = 6;
+        context.shadowOffsetX = 2;
+        context.shadowOffsetY = 2;
+        //fill by overlap choice -not overlapping since domainGroup exists so it is not in use
         if (overlap) {
             context.globalAlpha = 0.3;
             context.fill();
@@ -77,9 +83,10 @@ class Domain {
             context.fill();
         }
 
+        context.restore();
         //border
         context.strokeStyle = "grey";
-        context.lineWidth = 1;
+        context.lineWidth = 2;
         context.stroke();
 
         //show text if needed in diagonal
@@ -91,7 +98,10 @@ class Domain {
             var lines = domainName.split('\n');
             context.fillStyle = "black"; //for text
             context.font = "20px Calibri"; //bold 
-
+            context.shadowColor = "#898";
+            context.shadowBlur = 4;
+            context.shadowOffsetX = 2;
+            context.shadowOffsetY = 3;
             //we must draw each line saperatly because canvas can't draw '\n'
             context.textAlign = "left";
             for (var i = 0; i < lines.length; i++) {
@@ -210,9 +220,9 @@ class Domain {
         if (source.substring(0, 4) == 'TIGR') {
             sourceName = "Tigr";
         }
-        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": <a href='"+Species.getURLfor(source)+"' target='_blank' >" + source+"</a>";
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": <a href='" + Species.getURLfor(source) + "' target='_blank' >" + source + "</a>";
         //var text=name;
-        return [domainX, domainY, domainWidth, domainHeight, text, this.source];
+        return [domainX, domainY, domainWidth, domainHeight, text, undefined];
     }
 
 
@@ -382,41 +392,21 @@ class Domain {
 
     }
 
-    proteinExtendTooltip(coordinatesWidth, startHeight, domainHeight, domainY, domainX, domainWidth) {
-        //position
-        var pos = this.position(coordinatesWidth, startHeight);
-        var domainWidth = pos.domainWidth;
-        var domainX = pos.domainX;
-        //for tooltip text
-        var name = this.name;
-        var start = this.AAstart;
-        var end = this.AAend;
-        var length = end - start;
-        var source = this.source;
-        var sourceName = "";
-        if (source == undefined) {
-            sourceName = "Source";
-            source = "unknown";
-        }
-        if (source.substring(0, 5) == 'smart') {
-            sourceName = "Smart";
-        }
-        if (source.substring(0, 4) == 'pfam') {
-            sourceName = "Pfam";
-        }
-        if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
-            sourceName = "CDD";
-        }
-        if (source.substring(0, 4) == 'TIGR') {
-            sourceName = "Tigr";
-        }
-        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": <a href='"+Species.getURLfor(source)+"' target='_blank' >" + source+"</a>";
-        
-        return [
-            [domainX, domainY, domainWidth, domainHeight, text, this.source]
-        ];
+    proteinExtendTooltip(coordinatesWidth, startHeight, domainHeight, domainY) {
+        var regulartooltip = this.tooltip(coordinatesWidth, startHeight);
+        regulartooltip[1] = domainY;
+        regulartooltip[3] = domainHeight;
+        return [regulartooltip]; //saved in array because we take arrays of domains when it comes from domain group. here is a case where domain like a domainGroup of size 1
+    }
 
+    static domainClick(tooltipManager,event) {
+        var showTextValues = Transcript.showText(event, tooltipManager);
+        if (showTextValues[0]) {
+            if (showTextValues[2] == 'click' && tooltipManager[event.target.id + "object"] != undefined) {
+                tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
+            }
 
+        }
     }
 
 }

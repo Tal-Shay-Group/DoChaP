@@ -49,21 +49,34 @@ class DomainGroup {
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
         context.closePath();
+
+        context.save();
+        context.translate(0,0);
+        context.shadowColor = "#898";
+        context.shadowBlur = 6;
+        context.shadowOffsetX = 2;
+        context.shadowOffsetY = 2;
+        
         context.fill();
+
+        context.restore();
+
+        
         
         //border
         context.strokeStyle = "grey";
-        context.lineWidth = 1;
+        context.lineWidth = 2;
         context.stroke();
 
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2 , domainY + domainHeight / 2 , Math.max(domainWidth / 2 -10,0.1),  Math.max( domainHeight / 2 -10,0.1), 0, 0, 2 * Math.PI);
         context.closePath();
-        context.fill();
         
+        context.fill();
+
         //border
         context.strokeStyle = "grey";
-        context.lineWidth = 1;
+        context.lineWidth = 2;
         context.stroke();
 
         //show text if needed in diagonal
@@ -75,7 +88,10 @@ class DomainGroup {
             var lines = domainName.split('\n');
             context.fillStyle = "black"; //for text
             context.font = "20px Calibri"; //bold 
-
+            context.shadowColor = "#898";
+            context.shadowBlur = 4;
+            context.shadowOffsetX = 2;
+            context.shadowOffsetY = 3;
             //we must draw each line saperatly because canvas can't draw '\n'
             context.textAlign = "left";
             for (var i = 0; i < lines.length; i++) {
@@ -193,13 +209,13 @@ class DomainGroup {
         var start=this.AAstart;
         var end=this.AAend;
         var length=end-start;
-        var text= ""+this.domains.length+" DOMAINS:";
+        // var text= ""+this.domains.length+" DOMAINS:";
 
-        for(var i=0; i<this.domains.length;i++){
-            text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
-        }
-        var text=this.domains.length+" Domains";
-        return [domainX, domainY, domainWidth, domainHeight, text, undefined];
+        // for(var i=0; i<this.domains.length;i++){
+        //     text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
+        // }
+        var text=this.domains.length+" Domains. Click to view them.";
+        return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
     }
 
     proteinExtendTooltip(coordinatesWidth,startHeight){
@@ -214,7 +230,7 @@ class DomainGroup {
 
         var tooltips=[];
         for(var i=0; i<this.domains.length;i++){
-            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth,startHeight,oneDomainHeight,domainY+oneDomainHeight*i,domainX,domainWidth)[0]);
+            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth,startHeight,oneDomainHeight,domainY+oneDomainHeight*i)[0]);
         }
         return tooltips;
         

@@ -85,14 +85,17 @@ class Transcript {
                     $("#myTooltip").css("top", event.pageY + 5);
                     $("#myTooltip").css("left", event.pageX + 5);
                     $("#myTooltip").html(showTextValues[1]);
-                    if (showTextValues[2] != undefined) {
+                    if (showTextValues[2] == 'click') {
                         $('canvas').css('cursor', 'pointer');
                     }
                 } else {
                     $("#myTooltip").hide();
                     $('canvas').css('cursor', 'default');
                 }
-            });
+            }).mouseleave(function () {
+                    $("#myTooltip").hide();
+                    $('canvas').css('cursor', 'default');
+                });
     }
 
     //for tooltips- checks if mouse on domain.
@@ -117,7 +120,7 @@ class Transcript {
         var tooltips = []; //we will fill now
 
         for (i = 0; i < this.exons.length; i++) {
-            var tooltipData = this.exons[i].genomicTooltip(graphicLayout.startHeight, graphicLayout.coordinatesWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, graphicLayout.canvasWidth, isStrandNegative, graphicLayout.canvasWidth, graphicLayout.spaceAfterCut)
+            var tooltipData = this.exons[i].genomicTooltip(graphicLayout.startHeight, graphicLayout.coordinatesWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, graphicLayout.canvasWidth, isStrandNegative, graphicLayout.spaceAfterCut);
             tooltips.push(tooltipData);
         }
 
@@ -201,7 +204,7 @@ class Transcript {
         //     coordinatesWidth = (canvas.width - beginningEmpty - endEmpty - spaceAfterCut) / (lengthOfGene-this.gene.cutOffLength);
         // }
 
-        // var skip = getSkipSize(lengthOfGene, coordinatesWidth);
+        // var skip = getSkipSize(coordinatesWidth);
         var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
         var strand = this.gene.strand;
         var startCoordinate = this.startCoordinate;
@@ -215,15 +218,15 @@ class Transcript {
 
         // createGridLines(context, beginningEmpty, coordinatesWidth, canvasHeight, canvasWidth, lengthOfGene, startCoordinate, true, startHeight);
 
-        var Xcoordinates = gridCoordinates(startCoordinate, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, graphicLayout.spaceAfterCut);
-        for (var i = 0; i < Xcoordinates.length; i++) {
-            this.drawGridLine(graphicLayout.context, Xcoordinates[i].x, graphicLayout.startHeight)
-        }
+        // var Xcoordinates = .gridCoordinates(startCoordinate, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, graphicLayout.spaceAfterCut);
+        // for (var i = 0; i < Xcoordinates.length; i++) {
+        //     this.drawGridLine(graphicLayout.context, Xcoordinates[i].x, graphicLayout.startHeight)
+        // }
 
         //base line
         createBaseLine(graphicLayout.context, 0, graphicLayout.startHeight, graphicLayout.canvasWidth, graphicLayout.lineThickness);
 
-        //draw skip explanation
+        //draw cut-off symbol
         if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
             var cutX = graphicLayout.cutX;
             context.beginPath();
