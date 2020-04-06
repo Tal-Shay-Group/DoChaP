@@ -9,6 +9,10 @@ body {
    
 }
 
+.container-fluid{
+    padding-left: 80px;
+    padding-right: 80px;
+}
 .logo {
     height: 100px;
     width: 200px;
@@ -119,6 +123,7 @@ body {
 /*main textfield for each search*/
 .searchTextFieldClass {
     font-size: 16px;
+    color:black;
     height: 35px;
     width: 300px;
 }
