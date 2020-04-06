@@ -93,7 +93,7 @@ class Transcript {
                     $('canvas').css('cursor', 'default');
                 }
             }).mouseleave(function () {
-                    $("#myTooltip").hide();
+                    // $("#myTooltip").hide();
                     $('canvas').css('cursor', 'default');
                 });
     }

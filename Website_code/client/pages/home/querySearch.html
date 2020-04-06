@@ -7,36 +7,21 @@
 <!-- display all categories -->
 
 <body ng-app="DoChaP" ng-controller="querySearchCtrl">
-    <br>
     <!--
             small explanation on the website
         -->
-    <div class="greyArea">
+    <div class="greyArea"
+        style="width: 1200px; background-image: url(resources/fish_half.jpg); background-size: cover; color: white;">
         <!-- <img class="logo" src="resources/logo.jpeg" /> -->
-        <div style="background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px;
-        color: red;
-        -webkit-text-fill-color: transparent;
-        -webkit-background-clip: text;
-        font-weight: bold;
-        font-size: 100px;
-        font-family: arial, helvetica;
-        width: 600px;
-        text-align: center;">
-            DoChaP
-        </div>
-        <div style="background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px;
-        color: red;
-        -webkit-text-fill-color: transparent;
-        -webkit-background-clip: text;
-        font-weight: bold;
-        font-size: 25px;
-        font-family: arial, helvetica;
-        width: 600px;
-        text-align: center;">
-           Domain Change Predictor
+
+        <div style="text-align: center;color: white;
+        font-family: arial, helvetica; ">
+            <div style="font-size: 80px;">DoChaP</div>
+            <div  style="font-size: 19px;">Domain Change Predictor</div>
         </div>
         <br>
-        <div class="searchItems form-inline">
+        <br>
+        <div class="searchItems form-inline" style="padding: 20px;border-style: solid; border-radius: 5px;border-color: white; border-width: 2px;">
             <!--
                 searching for domains here
             -->
@@ -56,7 +41,7 @@
             <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass"
                 id="searchTextField">&nbsp;&nbsp;
 
-            <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()">
+            <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()" style="background-color: rgb(10, 103, 224); color:rgb(216, 216, 216)">
                 <span class="glyphicon glyphicon-search"></span> Search
             </button>
             &nbsp;
@@ -79,14 +64,14 @@
     </div>
     <br>
     <div class="greyArea">
-         <!-- style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px" -->
+        <!-- style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px" -->
         <!-- <p><strong>Overview:</strong></p> -->
         <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
-            sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
-    </p>
+                sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
+        </p>
     </div>
     <br>
-    <div  class="greyArea">
+    <div class="greyArea">
         <!-- <p><strong>Search DoChaP:</strong></p> -->
         <ul style="font-size: 17px;">
             <li><strong>Choose a species from the list:&nbsp;</strong>Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish
