@@ -3,11 +3,11 @@ from OOP_project.Collector import Collector
 from OOP_project.DomainOrganizer import DomainOrganizer
 from OOP_project.Director import Director
 from OOP_project.recordTypes import Protein
-
+import pandas
 
 class dbBuilder:
 
-    def __init__(self, species, merged=True, dbName=None):
+    def __init__(self, species, download=False, merged=True, dbName=None):
         self.merged = merged
         self.species = species
         if self.merged:
@@ -17,9 +17,10 @@ class dbBuilder:
         if dbName is not None:
             self.dbName = dbName
         self.data = Collector(self.species)
-        self.data.collectAll()
+        self.data.collectAll(completeMissings=True, download=download)
         self.TrnascriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
+        self.DomainOrg = DomainOrganizer()
 
     def create_tables_db(self):
         """
@@ -203,9 +204,8 @@ class dbBuilder:
         This function in for unique species. for more than ine use add Species To Merged
         """
 
-        DomainOrg = DomainOrganizer()
         if self.merged:
-            DomainOrg.collectDatafromDB(self.DomainsSourceDB)
+            self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
 
         with connect(self.dbName + '.sqlite') as con:
             print("Connected to " + self.dbName + "...")
@@ -218,27 +218,18 @@ class dbBuilder:
             relevantDomains = set()
 
             for transcript in self.data.Transcripts.values():
-                refseqNov = transcript.idNoVersion()
-                print(refseqNov)
-                ensNov = transcript.idNoVersion("ensembl")
-                print(ensNov)
                 GeneID = str(transcript.gene_GeneID)
-                print(GeneID)
                 ensGene = transcript.gene_ensembl
-                print(ensGene)
                 protein_refseq = transcript.protein_refseq
-                print(protein_refseq)
                 prot_ens = transcript.protein_ensembl
-                print(prot_ens)
-                if refseqNov not in self.data.Genes.keys():
+                if transcript.refseq not in self.data.Genes.keys():
                     self.TrnascriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
                     continue
-
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
-                values = (transcript.refseq, transcript.ensembl,) +\
-                          transcript.tx + transcript.CDS +\
-                          (e_counts, GeneID, ensGene, protein_refseq, prot_ens,)
+                values = (transcript.refseq, transcript.ensembl,) + \
+                         transcript.tx + transcript.CDS + \
+                         (e_counts, GeneID, ensGene, protein_refseq, prot_ens,)
                 cur.execute('''INSERT INTO Transcripts
                             (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start,\
                              cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) 
@@ -246,7 +237,7 @@ class dbBuilder:
 
                 # insert into Genes table (unique GeneID as primary key)
                 if GeneID is not geneSet and ensGene not in geneSet:
-                    syno = [self.data.Genes[refseqNov].synonyms if refseqNov is not None else None][0]
+                    syno = [self.data.Genes[transcript.refseq].synonyms if transcript.refseq is not None else None][0]
                     values = (GeneID, ensGene, transcript.geneSymb,
                               syno, transcript.chrom, transcript.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
@@ -282,10 +273,9 @@ class dbBuilder:
                                     VALUES (?, ?, ?, ?)''', values)
 
                 # insert into Proteins table
-                protID = [protein_refseq.split(".")[0] if protein_refseq is not None or '-' else None][0]
+                protID = [protein_refseq if protein_refseq is not None or '-' else None][0]
                 protein = self.data.Proteins[protID]
-                #print("protein {}, ensembl {}".format(protID, protein.ensembl))
-                values = (protein.refseq, protein.ensembl, protein.description, protein.length,
+                values = (protein.refseq, prot_ens, protein.description, protein.length,
                           protein.note, transcript.refseq, transcript.ensembl,)
                 cur.execute(''' INSERT INTO Proteins
                                 (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
@@ -293,7 +283,7 @@ class dbBuilder:
                 if protID in self.data.Domains.keys():
                     splicin = set()
                     for reg in self.data.Domains[protID]:
-                        regID = DomainOrg.addDomain(reg)
+                        regID = self.DomainOrg.addDomain(reg)
                         relevantDomains.add(regID)
                         relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
                         total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!
@@ -303,7 +293,7 @@ class dbBuilder:
                             splice_junction = 1
                             for i in range(len(exon_list)):
                                 values = (transcript.refseq, transcript.ensembl,
-                                          exon_list[i], reg.nucStart, DomainOrg.internalID,
+                                          exon_list[i], reg.nucStart, regID,
                                           total_length, length[i], i + 1,)
                                 if values not in splicin:
                                     cur.execute(''' INSERT INTO SpliceInDomains
@@ -314,9 +304,8 @@ class dbBuilder:
                                     splicin.add(values)
                         elif relation == 'complete_exon':
                             complete = 1
-
                         # insert into domain event table
-                        values = (protein_refseq, prot_ens, DomainOrg.internalID,
+                        values = (protein_refseq, prot_ens, self.DomainOrg.internalID,
                                   reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
                                   reg.extID, splice_junction, complete,)
                         if values not in domeve:
@@ -328,7 +317,7 @@ class dbBuilder:
                             domeve.add(values)
 
             if self.merged:
-                relevantDomains = set(DomainOrg.allDomains.keys())
+                relevantDomains = set(self.DomainOrg.allDomains.keys())
                 print('Recreating the table: DomainType and update domains')
                 cur.executescript("DROP TABLE IF EXISTS DomainType;")
                 print('Creating the table: DomainType')
@@ -349,8 +338,13 @@ class dbBuilder:
                             )
             # insert into domain type table
             for typeID in relevantDomains:
-                    values = (typeID,) + DomainOrg.allDomains[typeID]
-                    cur.execute(''' INSERT INTO DomainType
-                                    (type_id, name, other_name, description, CDD_id, cd, cl,\
-                                    pfam, smart, tigr, interpro)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                values = (typeID,) + self.DomainOrg.allDomains[typeID]
+                cur.execute(''' INSERT INTO DomainType
+                                (type_id, name, other_name, description, CDD_id, cd, cl,\
+                                pfam, smart, tigr, interpro)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+        con.commit()
+
+    def AddOrthology(self, Orthology_df):
+        with connect(self.dbName + '.sqlite') as con:
+            Orthology_df.to_sql("Orthology", con, if_exists="replace")

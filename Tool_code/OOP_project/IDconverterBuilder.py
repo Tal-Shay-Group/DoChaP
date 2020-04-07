@@ -1,6 +1,8 @@
 import ftplib
 import gzip
 import os
+
+from OOP_project.ftpDownload import ftpDownload
 from OOP_project.recordTypes import Transcript
 from OOP_project.Director import SourceBuilder
 
@@ -12,7 +14,6 @@ class ConverterBuilder(SourceBuilder):
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        self.ftp_address = 'ftp.ncbi.nlm.nih.gov'
         self.savePath = os.getcwd() + '/data/'
         taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955,
                      'X_tropicalis': 8364}
@@ -25,32 +26,39 @@ class ConverterBuilder(SourceBuilder):
         self.t2g = {}
         self.idNov = {}
 
-    def downloader(self, username='anonymous', pswd='example@post.bgu.ac.il'):
-        print('connecting to: ' + self.ftp_address + '...')
-        ftp = ftplib.FTP(self.ftp_address)
-        print('logging in...')
-        ftp.login(user=username, passwd=pswd)
+    def downloader(self):
+        ftp_address = 'ftp.ncbi.nlm.nih.gov'
         ftp_path = '/gene/DATA/'
-        ftp.cwd(ftp_path)
-        print('downloading files to : ' + self.savePath)
-        os.makedirs(self.savePath, exist_ok=True)
         filename = 'gene2ensembl'
-        print('downloading: ', filename, '...')
-        ftp.sendcmd("TYPE i")
-        # size = ftp.size(file[0])
-        with open(self.savePath + filename + '.txt.gz', 'wb') as f:
-            def callback(chunk):
-                f.write(chunk)
+        files2down = [[filename, filename + ".txt"]]
+        down = ftpDownload(species=None, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+                           files2Download=files2down)
+        down.Download()
 
-            ftp.retrbinary("RETR " + filename + '.gz', callback)
-        print('extracting...')
-        inp = gzip.GzipFile(self.savePath + filename + '.txt.gz', 'rb')
-        s = inp.read()
-        inp.close()
-        with open(self.savePath + filename + '.txt', 'wb') as f_out:
-            f_out.write(s)
-        print('removing compressed file...')
-        os.remove(self.savePath + filename + '.txt.gz')
+        # print('connecting to: ' + self.ftp_address + '...')
+        # ftp = ftplib.FTP(self.ftp_address)
+        # print('logging in...')
+        # ftp.login(user=username, passwd=pswd)
+        # ftp_path = '/gene/DATA/'
+        # ftp.cwd(ftp_path)
+        # print('downloading files to : ' + self.savePath)
+        # os.makedirs(self.savePath, exist_ok=True)
+        # filename = 'gene2ensembl'
+        # print('downloading: ', filename, '...')
+        # ftp.sendcmd("TYPE i")
+        # with open(self.savePath + filename + '.txt.gz', 'wb') as f:
+        #   def callback(chunk):
+        #      f.write(chunk)
+
+        # ftp.retrbinary("RETR " + filename + '.gz', callback)
+        # print('extracting...')
+        # inp = gzip.GzipFile(self.savePath + filename + '.txt.gz', 'rb')
+        # s = inp.read()
+        # inp.close()
+        # with open(self.savePath + filename + '.txt', 'wb') as f_out:
+        #    f_out.write(s)
+        # print('removing compressed file...')
+        # os.remove(self.savePath + filename + '.txt.gz')
 
     def parser(self):
         """

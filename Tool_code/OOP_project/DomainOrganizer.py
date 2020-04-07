@@ -78,19 +78,23 @@ class DomainOrganizer:
                 existExt = self.allDomains[currReg][4:]
                 cdname, oname = self.mainNameOtherName(domain, currReg)
         else:
-            raise ValueError('ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
-        #try:
+            raise ValueError(
+                'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
+        # try:
         external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
         pos = external.index(domain.extType)
-        if existExt[pos] is None or domain.extID is existExt[pos]:
-            existExt[pos] = domain.extID
+        if existExt[pos] is None:
+            tempexist = list(existExt).copy()
+            tempexist[pos] = domain.extID
+            existExt = tuple(tempexist)
+        elif domain.extID == existExt[pos]:
+            pass
         elif existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)):
             tempexist = list(existExt).copy()
             tempexist[pos] = existExt[pos] + '; ' + domain.extID
             existExt = tuple(tempexist)
         else:
             raise ValueError('External id type not in correct location!')
-
         self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
         self.allExt[domain.extID] = currReg
         self.allNames[domain.name] = currReg
