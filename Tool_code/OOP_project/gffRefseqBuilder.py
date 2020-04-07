@@ -2,12 +2,44 @@ import ftplib
 import gzip
 import os
 import datetime
-from Bio import SeqIO
-import re
 from OOP_project.recordTypes import *
 from OOP_project.Director import SourceBuilder
 import gffutils
 from Bio import SeqIO
+from OOP_project.ftpDownload import ftpDownload
+
+
+def protein_info(record):
+    """
+    This function takes s protein record of a gpff file and parse it to get all the protein information.
+    it returns a tuple including the following information:
+        1- refseq_id (not including the version)
+        2- version of the sequence (full id will be refseq_id.version)
+        3- product protein description
+        4- length (number of aa)
+    it also returns a string with the refseq_id of the gene
+    """
+    withversion = record.id  # with version
+    # refseq_id = record.name  # without version
+    descr = record.description
+    pro = [p for p in record.features if p.type == 'Protein'][0]
+    length = pro.location.end.position  # length!!!
+    try:
+        note = pro.qualifiers['note'][0]
+    except Exception:
+        note = None
+    cds = [c for c in record.features if c.type == 'CDS'][0]
+    transcript = cds.qualifiers['coded_by'][0].split(':')[0]
+    if transcript.startswith("join("):
+        transcript.strip("join(")
+    xref = cds.qualifiers.get('db_xref', [])
+    GeneID = [i.split(':')[-1] for i in xref if i.startswith('GeneID')][0]
+    protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, note=note)
+    gene = Gene(GeneID=GeneID,
+                ensembl=None, symbol=cds.qualifiers.get('gene', [None])[0],
+                synonyms=cds.qualifiers.get('gene_synonym', [None])[0],
+                chromosome=None, strand=None)
+    return protein, gene, transcript
 
 
 class RefseqBuilder(SourceBuilder):
@@ -23,89 +55,70 @@ class RefseqBuilder(SourceBuilder):
         self.species = species
         self.speciesTaxonomy = {"Mus_musculus": "vertebrate_mammalian", "Homo_sapiens": "vertebrate_mammalian"}
         self.savePath = os.getcwd() + '/data/{}/refseq/'.format(self.species)
-        self.gff = self.savePath + "genomic.gff"
-        self.gpff = self.savePath + "protein.gpff"
+        self.gff = self.FilesNoDownload("gff")
+        # self.gpff = self.savePath + "protein.gpff"
+        self.gpff = self.FilesNoDownload("gpff")
         self.Transcripts = {}
         self.Domains = {}
+        self.ignoredDomains = {}
         self.Proteins = {}
         self.Genes = {}
         self.pro2trans = {}
         self.trans2pro = {}
 
     def downloader(self):
-        username = 'anonymous'
-        pswd = 'example@post.bgu.ac.il'
         skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
-        print('connecting to: ' + ftp_address + '...')
-        ftp = ftplib.FTP(ftp_address)
-        print('logging in...')
-        ftp.login(user=username, passwd=pswd)
         ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
-        ftp.cwd(ftp_path.format(skey))
-        print('looking for latest assembly version for - ' + self.species + '...')
-        print('downloading files to : ' + self.savePath)
-        filesInDir = ftp.nlst()
-        if len(filesInDir) > 1:
-            raise ValueError("More than 1 file in dir")
-        else:
-            genomeVersion = filesInDir[0]
-        ftp.cwd(genomeVersion + "/")
-        gff = [genomeVersion + "_genomic.gff", "genomic.gff"]
-        gpff = [genomeVersion + "_protein.gpff", "protein.gpff"]
-        for file in [gff, gpff]:
-            filePath = self.savePath + file[1]
-            os.makedirs(os.path.dirname(filePath), exist_ok=True)
-            print('downloading: ', file[0], '...')
-            ftp.sendcmd("TYPE i")
-            # size = ftp.size(file[0])
-            with open(filePath + '.gz', 'wb') as f:
-                def callback(chunk):
-                    f.write(chunk)
 
-                ftp.retrbinary("RETR " + file[0] + '.gz', callback)
-            print('extracting...')
-            inp = gzip.GzipFile(filePath + '.gz', 'rb')
-            s = inp.read()
-            inp.close()
-            with open(filePath, 'wb') as f_out:
-                f_out.write(s)
-            print('removing compressed file...')
-            os.remove(filePath + '.gz')
-        self.gff = self.savePath + gff[1]
-        self.gpff = self.savePath + gpff[1]
-        with open(os.path.dirname(self.savePath) + '/README.txt', 'w') as readme:
-            print('Writing README description...')
-            readme.write('# Updated on: ' + str(datetime.datetime.now().date()) + '\n\n')
-            readme.write('# Files were downloaded from:\t' + ftp_address + ftp_path + '\n\n')
-            readme.write('# List of downloaded files:\n')
-            for file in [gff, gpff]:
-                readme.write('\t' + file[0] + 'saved as :' + file[1] + '\n')
-                readme.write('\n')
-            readme.write('# Files were extracted succsessfully!')
+        def FindFile(listOfFiles):
+            for file in listOfFiles:
+                if len(listOfFiles) > 1:
+                    raise ValueError("More than 1 file in dir")
+                else:
+                    genomeVersion = listOfFiles[0]
+                gff = [genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]
+                # gpff = [genomeVersion + "/" + genomeVersion + "_protein.gpff", "protein.gpff"]
+                return [gff]  # , gpff]
+
+        down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+                           specifyPathFunc=FindFile)
+        filesDownloaded = down.Download()
+        self.gff = filesDownloaded[0]
+        ftp_path = '/refseq/{}/mRNA_Prot/'.format(self.species)
+
+        def FindFile(listOfFiles):
+            return [[f[:-3], f[:-3]] for f in listOfFiles if "protein.gpff.gz" in f]
+
+        down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+                           specifyPathFunc=FindFile)
+        self.gpff = down.Download()
+
+    def FilesNoDownload(self, suffix):
+        le = len(suffix)
+        files = [self.savePath + file for file in os.listdir(self.savePath) if file[-le:] == suffix]
+        return files
 
     def parser(self):
         self.ParseGffRefseq()
-        print("Collecting Proteins and Domains data from gpff file...")
-        for rec in SeqIO.parse(self.gpff, 'gb'):
-            if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP':  # takes both proteins and predictions!
-                protein, gene, transcript = self.protein_info(rec)
-                transcriptKey = transcript  # .split('.')[0]
-                regions = self.regions_from_record(rec)
-                self.Domains[protein.refseq] = regions
-                self.Proteins[protein.refseq] = protein
-                self.Genes[transcriptKey] = gene
-                self.pro2trans[protein.refseq] = transcript
-                self.trans2pro[transcriptKey] = protein.refseq
+        for gpff_file in self.gpff:
+            self.parseSingleGpff(gpff_file)
 
     def ParseGffRefseq(self):
-        fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="warning")
+        # fn = gffutils.example_filename(self.gff)
+        db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique")
+        # gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
+        # db = gffutils.FeatureDB("DB.Refseq.db")
         print("Collecting Transcripts data from gff file...")
         self.Transcripts = {}
+        regionChr = {}
+        for r in db.features_of_type("region"):
+            if "Name" in r.attributes:
+                regionChr[r.chrom] = r["Name"][0]
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
-            newT.tx = (t.start, t.end,)
+            newT.chrom = regionChr[t.chrom]
+            newT.tx = (t.start - 1, t.end,)
             newT.strand = t.strand
             newT.refseq = t["transcript_id"][0]
             newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
@@ -117,7 +130,14 @@ class RefseqBuilder(SourceBuilder):
             if ref[0] == '0':
                 continue
             self.Transcripts[ref].protein_refseq = cds["Name"][0]
-            self.Transcripts[ref].CDS = (cds.start, cds.end,)
+            current_CDS = self.Transcripts[ref].CDS
+            if current_CDS is not None:
+                cds_start = cds.start - 1 if cds.start < current_CDS[0] else current_CDS[0]
+                cds_end = cds.end if cds.end > current_CDS[1] else current_CDS[1]
+            else:
+                cds_start = cds.start - 1  # gff format is 1 based start, the entire code is for 0 based start
+                cds_end = cds.end
+            self.Transcripts[ref].CDS = (cds_start, cds_end,)
         print("Collecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
             if e["gbkey"][0] != "mRNA":
@@ -127,8 +147,25 @@ class RefseqBuilder(SourceBuilder):
             l_orig = len(self.Transcripts[ref].exon_starts)
             self.Transcripts[ref].exon_starts = self.Transcripts[ref].exon_starts + [None] * (orderInT - l_orig)
             self.Transcripts[ref].exon_ends = self.Transcripts[ref].exon_ends + [None] * (orderInT - l_orig)
-            self.Transcripts[ref].exon_starts[orderInT - 1] = e.start
+            self.Transcripts[ref].exon_starts[orderInT - 1] = e.start - 1
             self.Transcripts[ref].exon_ends[orderInT - 1] = e.end
+        for t in self.Transcripts.values():
+            if t.strand == "-":
+                t.exon_starts = t.exon_starts[::-1]
+                t.exon_ends = t.exon_ends[::-1]
+
+    def parseSingleGpff(self, gpff_file):
+        print("Collecting Proteins and Domains data from gpff file...")
+        for rec in SeqIO.parse(gpff_file, 'gb'):
+            if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP':  # takes both proteins and predictions!
+                protein, gene, transcript = protein_info(rec)
+                transcriptKey = transcript  # .split('.')[0]
+                regions = self.regions_from_record(rec)
+                self.Domains[protein.refseq] = regions
+                self.Proteins[protein.refseq] = protein
+                self.Genes[transcriptKey] = gene
+                self.pro2trans[protein.refseq] = transcript
+                self.trans2pro[transcriptKey] = protein.refseq
 
     def regions_from_record(self, record):
         """
@@ -179,36 +216,4 @@ class RefseqBuilder(SourceBuilder):
                     parsed.append(newDomain)
                 except ValueError:
                     self.ignoredDomains.update({'extId': ext_id, 'CDD': cdId})
-        return parsed
-
-    def protein_info(self, record):
-        """
-        This function takes s protein record of a gpff file and parse it to get all the protein information.
-        it returns a tuple including the following information:
-            1- refseq_id (not including the version)
-            2- version of the sequence (full id will be refseq_id.version)
-            3- product protein description
-            4- length (number of aa)
-        it also returns a string with the refseq_id of the gene
-        """
-        withversion = record.id  # with version
-        # refseq_id = record.name  # without version
-        descr = record.description
-        pro = [p for p in record.features if p.type == 'Protein'][0]
-        length = pro.location.end.position  # length!!!
-        try:
-            note = pro.qualifiers['note'][0]
-        except Exception:
-            note = None
-        cds = [c for c in record.features if c.type == 'CDS'][0]
-        transcript = cds.qualifiers['coded_by'][0].split(':')[0]
-        if transcript.startswith("join("):
-            transcript.strip("join(")
-        xref = cds.qualifiers.get('db_xref', [])
-        GeneID = [i.split(':')[-1] for i in xref if i.startswith('GeneID')][0]
-        protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, note=note)
-        gene = Gene(GeneID=GeneID,
-                    ensembl=None, symbol=cds.qualifiers.get('gene', [None])[0],
-                    synonyms=cds.qualifiers.get('gene_synonym', [None])[0],
-                    chromosome=None, strand=None)
-        return protein, gene, transcript
+        return tuple(parsed)

@@ -21,11 +21,14 @@
 **/DB_M_musculus.sqlite
 **/DB_M_musculus_small.sqlite
 
+**/*.gff
+**/*.gff3
+
 **/*.sqlite 
 **/DB_merged.sqlite 
 example_gtf/*
 **/*.csv
-data/*
+**/data/*
 
 # log should be on server and not be updated externally
 Website_code/log.txt

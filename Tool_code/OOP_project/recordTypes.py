@@ -132,14 +132,6 @@ class Transcript:
         for atribute in attr:
             if self.__getattribute__(atribute) is None:
                 mergedT.__setattr__(atribute, other.__getattribute__(atribute))
-            elif (atribute in ['refseq', 'ensembl', 'protein_refseq', 'protein_ensembl']) and\
-                    self.__getattribute__(atribute) is not None and\
-                    other.__getattribute__(atribute) is not None:
-                print("attribute: {}, in self: {}; other: {}".format(atribute, self, other))
-                o = other.idVersion(atribute)
-                s = self.idVersion(atribute)
-                chosen = [other.__getattribute__(atribute) if int(o) > int(s) else self.__getattribute__(atribute)][0]
-                mergedT.__setattr__(atribute, chosen)
             else:
                 mergedT.__setattr__(atribute, self.__getattribute__(atribute))
         return mergedT

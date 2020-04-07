@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="changes in SpeciesDB, collector and builders. on the way to finish refactoring">
-      <change afterPath="$PROJECT_DIR$/OOP_project/gffParser.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" afterDir="false" />
+    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Species">
+      <change afterPath="$PROJECT_DIR$/OOP_project/ftpDownload.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/Collector.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Collector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/recordTypes.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/recordTypes.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -75,8 +79,8 @@
       <recent name="C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.gffRefseqBuilder">
-    <configuration name="Collector" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.main">
+    <configuration name="OrthologsBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -86,7 +90,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/Collector.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -99,9 +103,6 @@
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -161,28 +162,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="db_build" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Code" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/db_build.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="gffRefseqBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -194,6 +173,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -228,11 +226,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.gffRefseqBuilder" />
-        <item itemvalue="Python.gffRefseqBuilder" />
-        <item itemvalue="Python.gffRefseqBuilder" />
-        <item itemvalue="Python.gffRefseqBuilder" />
-        <item itemvalue="Python.gffRefseqBuilder" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.OrthologsBuilder" />
+        <item itemvalue="Python.OrthologsBuilder" />
+        <item itemvalue="Python.OrthologsBuilder" />
       </list>
     </recent_temporary>
   </component>
@@ -262,7 +260,7 @@
       <workItem from="1584951744770" duration="48625000" />
       <workItem from="1585061785491" duration="23397000" />
       <workItem from="1585210186349" duration="18119000" />
-      <workItem from="1585554470069" duration="35879000" />
+      <workItem from="1585554470069" duration="100943000" />
     </task>
     <task id="LOCAL‎00001" summary="Refactoring updates">
       <created>1584460305428</created>
@@ -282,7 +280,13 @@
       <option name="presentableId" value="LOCAL‎00003" />
       <updated>1585127576352</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL‎00004" summary="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues">
+      <created>1585720396793</created>
+      <option name="number" value="LOCAL‎00004" />
+      <option name="presentableId" value="LOCAL‎00004" />
+      <updated>1585720396793</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -305,7 +309,8 @@
     <MESSAGE value="Refactoring updates" />
     <MESSAGE value="Updated UcscBuilder" />
     <MESSAGE value="changes in SpeciesDB, collector and builders. on the way to finish refactoring" />
-    <option name="LAST_COMMIT_MESSAGE" value="changes in SpeciesDB, collector and builders. on the way to finish refactoring" />
+    <MESSAGE value="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues" />
+    <option name="LAST_COMMIT_MESSAGE" value="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2372" y="95" key="#Notifications" timestamp="1580373525262">
@@ -325,10 +330,10 @@
     </state>
     <state x="2362" y="128" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062367352" />
     <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376656727" />
-    <state x="2089" y="0" key="CommitChangelistDialog2" timestamp="1585127575140">
+    <state x="2089" y="0" key="CommitChangelistDialog2" timestamp="1586242905832">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2089" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585127575140" />
+    <state x="2089" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586242905832" />
     <state x="2650" y="162" key="ExecutionTargetDialog" timestamp="1580376374951">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -411,18 +416,18 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580382692442" />
-    <state x="423" y="0" width="1127" height="625" maximized="true" key="dock-window-1" timestamp="1585045710063">
+    <state x="305" y="23" width="1245" height="561" maximized="true" key="dock-window-1" timestamp="1586072319492">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="423" y="0" width="1127" height="625" maximized="true" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585045710063" />
+    <state x="305" y="23" width="1245" height="561" maximized="true" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586072319492" />
     <state x="423" y="59" width="1127" height="529" maximized="true" key="dock-window-2" timestamp="1585060206410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="423" y="59" width="1127" height="529" maximized="true" key="dock-window-2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585060206410" />
-    <state x="2267" y="-1" width="840" height="1034" key="search.everywhere.popup" timestamp="1585574438965">
+    <state x="2267" y="0" width="840" height="822" key="search.everywhere.popup" timestamp="1586163782419">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2267" y="-1" width="840" height="1034" key="search.everywhere.popup/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585574438965" />
+    <state x="2267" y="0" width="840" height="822" key="search.everywhere.popup/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586163782419" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
