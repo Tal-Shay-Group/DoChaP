@@ -29,26 +29,6 @@ function runGenesCreation(result, ignorePredictions, preferences) {
     return geneList;
 }
 
-//this function returns the right specie name as it is in Ensembl
-function ensembleSpecieName(specie) {
-    if (specie == "M_musculus") {
-        return "Mus_musculus";
-    } else if (specie == "H_sapiens") {
-        return "Homo_sapiens";
-    } else if (specie == "X_tropicalis") {
-        return "Xenopus_tropicalis";
-    } else if (specie == "D_rerio") {
-        return "Danio_rerio";
-    } else if (specie == "R_norvegicus") {
-        return "Rattus_norvegicus";
-    }
-    return undefined;
-}
-
-
-
-
-
 
 //select a totally random color 
 function getRandomColor() {
@@ -63,10 +43,10 @@ function getRandomColor() {
 //selecting color from list (deterministic yet not in order)
 function getcolorFromList(colorArr) {
     if (colorArr.length <= 1) {
-        colorArr.push.apply(colorArr, ["#DACCFF", "#BBABF3", "#B627FC", "#DE3D3D", "#FF6262", "#f5b0cb", "#ffccd8", "#E8A089",
+        colorArr.push.apply(colorArr, ["#DACCFF", "#BBABF3", "#B627FC", "#DE3D3D", "#FF6262", "#f5b0cb", "#ffccd8",
 
         "#deb881", "#c8965d", "#FD9900", "#ffb90f", "#ffd700", "#FFFC3B", "#FFF599", "#FFFED3", "#d1d797", "#ccff00", "#20F876", "#63C37F",
-        "#beebe9", "#00ccff", "#A6B9B4", "#7BEAD2", "#180CF5"
+        "#beebe9", "#00ccff", "#7BEAD2", "#180CF5"
     ]);
     }
         i = colorArr.length % 4;

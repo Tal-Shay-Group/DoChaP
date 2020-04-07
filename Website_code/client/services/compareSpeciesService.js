@@ -54,4 +54,16 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window,webS
     this.filterUnreviewed=function(results,specie1,specie2,ignorePredictions){
             return orderTheGenesBySpecie(runGenesCreation(results,ignorePredictions,{colorByLength:true}),specie1,specie2);       
     };
+
+    this.getGeneForSpecie=function(genes,specie){
+        for(var i=0; i<genes.length;i++){
+            if(genes[i].specie==specie){
+               return genes[i];
+            }
+        }
+        return undefined;
+           
+};
+
+    
 })

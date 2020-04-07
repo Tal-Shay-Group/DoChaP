@@ -26,7 +26,7 @@
 //         contextT.fillStyle = "black";
 //     }
 
-//     var skip = getSkipSize(lengthOfGene, coordinatesWidth);
+//     var skip = getSkipSize(coordinatesWidth);
 //     // contextT.fillRect(beginningEmpty, startHeight, 1,gridLength);
 //     var secondCoordinate = skip - (startCoordinate % skip); //the length till the next rounded after start
 //     for (var i = secondCoordinate;
@@ -36,41 +36,12 @@
 
 // }
 
-function gridCoordinates(start,skip, coordinatesWidth, canvasWidth, beginningEmpty, endEmpty, strand ,cutOffStart, cutOffLength, spaceAfterCut) {
-    var Xcoordinates = [];
-    var geneCoordinate = start - (start % skip) + skip;
-    var secondCoordinate = skip - (start % skip); //the length till the next rounded after start
-    var needCut= (cutOffStart!=-1 && cutOffLength!=-1) ; // checks if we need cut
-    
-    for (var i = secondCoordinate;
-        (i * coordinatesWidth) + 2 < canvasWidth; i = i + skip) {
-            
-            if(needCut && geneCoordinate>cutOffStart){
-                //doing cut
-                needCut=false;
-                var afterCut=cutOffStart+cutOffLength;
-                geneCoordinate= afterCut- (afterCut % skip) + skip
-                i=i+50+skip - (afterCut % skip); //so the line is where the after *skip* is also applied and *cut* is applied
-            }
-            var grid=new Object();
-            grid.text=numberToTextWithCommas(geneCoordinate);
-            if(strand=='+'){
-                grid.x=(i * coordinatesWidth) + beginningEmpty;
-            }
-            else if (strand=='-'){
-                grid.x=canvasWidth -endEmpty -(i * coordinatesWidth)
-            }
-        Xcoordinates.push(grid);
-        geneCoordinate = geneCoordinate + skip;
-    }
-    return Xcoordinates
-}
 
 
 /** 
  * selecting how musch is for skip. depends on proportions between the canvas size and protein size
  */
-function getSkipSize(lengthOfScale, coordinatesWidth) { ///length in base units, cw is the convertor
+function getSkipSize(coordinatesWidth) { ///length in base units, cw is the convertor
     var skip = 1000; //skip is in genomic units
     if (skip * coordinatesWidth < 0.005) {
         skip = 50000000; //fifty million

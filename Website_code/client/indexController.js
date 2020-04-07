@@ -2,7 +2,7 @@
  * this controller manages the top part of the site that stays there for everypage.
  * includes logo and navigation bar
  */
-angular.module("DoChaP").controller('indexController', function ($scope, $location, querySearchService, $window, $route) {
+angular.module("DoChaP").controller('indexController', function ($scope, $location, querySearchService, $window, $route,$rootScope) {
    self = this;
    $scope.showQuickSearch = false;
 
@@ -12,17 +12,16 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
       var currAddress = "#!" + $location.path().substring(1);
       $('li a').each(function (i) {
          if ($(this).attr('href') == currAddress) {
-            $(this).css("color", "white");
+            $(this).css("color", "#52c0ff");
          } else {
-            $(this).css("color", "rgb(170, 169, 169)");
+            $(this).css("color", "white");
          }
       });
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" && currAddress != "#!");
    });
 
    //searching for query using the navigation text field
-   self.search = async function () {
-      $window.alert('1.5');
+   $rootScope.search = async function () {
       var query = indexTextField.value;
       var specie = indexSpecies.value;
       var isReviewed = true;
@@ -41,7 +40,7 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
          }
       }
    }
-
+/*
    $(document).ready(function () {
       document.getElementById("indexTextField").addEventListener("keypress", function (event) {
          
@@ -50,15 +49,18 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
                // $window.alert('1');
                // $window.alert(JSON.stringify(self));
                // $window.alert(JSON.stringify(self.search));
-               self.search();
+               $rootScope.search();
                // $window.alert('2');
             }
             catch(err){
+               $window.alert(JSON.stringify(err));
             }
             
         }
 
       });
+
     });
+    */
 
 });
