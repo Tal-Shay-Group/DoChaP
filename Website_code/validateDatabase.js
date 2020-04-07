@@ -7,7 +7,8 @@
 var DButils = require('./DButils');
 
 ///main: !!
-runTestsOnDB();
+//runTestsOnDB();
+findAllowedIntervalForExonInSpecies(30);
 //end main
 
 
@@ -25,7 +26,7 @@ function sqlQuery(query) {
             }
         });
     });
-    return promise;
+    return promise.then(function(val){return val});
 }
 
 async function runTestsOnDB(){
@@ -388,4 +389,34 @@ async function runSmallSizedDomains(){
     console.log("domain size 901+: "+count4);
     console.log("total: "+(count1+count2+count3+count4));
 
+}
+
+async function findAllowedIntervalForExonInSpecies(space=0){
+    var results=await sqlQuery("select UPPER(gene_symbol) as gene_symbol,count(*) as cnt from Genes Group by UPPER(gene_symbol) having cnt>1");
+    var score=0;
+    //for each gene symbol
+    for(var i=0; i<results.length; i++){
+        var genes=await sqlQuery("select gene_id from Genes where UPPER(gene_symbol)='"+results[i].gene_symbol+"' limit 2");
+        var exons1=await sqlQuery("select genomic_end_tx-genomic_start_tx as length from Exons where gene_id='"+genes[0].gene_id+"'");
+        var exons2=await sqlQuery("select genomic_end_tx-genomic_start_tx as length from Exons where gene_id='"+genes[1].gene_id+"'");
+        var succesful=0;
+        var totalPossibleMatches=(exons1.length+exons2.length)/2; //perfect score
+        
+        for(var j=0; j<exons1.length;j++){
+            var found=false;
+            for(var k=0; k<exons2.length;k++){
+                if(exons2[k]!=undefined && exons1[j].length-space<=exons2[k].length && exons1[j].length+space>=exons2[k].length){
+                    found=true;
+                    delete exons2[k];
+                    break;
+                }
+            }
+            if(found){
+                succesful=succesful+1;
+            }
+        }
+        score=score+ (succesful/totalPossibleMatches);
+    }
+    console.log("interval: "+space+" score: "+score/results.length);
+    
 }

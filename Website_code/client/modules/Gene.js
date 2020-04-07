@@ -14,6 +14,7 @@ class Gene {
         this.MGI_id = dbGene.MGI_id;
         this.ensembl_id = dbGene.ensembl_id;
         this.specie = dbGene.specie;
+        this.colorByLength=colorByLength;
 
         //calculated attributes
         this.specieName = this.getSpecieName();
@@ -131,7 +132,7 @@ class Gene {
 
     //calculating ensemble gene link
     getEnsemblGeneLink() {
-        return "https://www.ensembl.org/" + ensembleSpecieName(this.specie) + "/Gene/Summary?db=core;g=" + this.ensembl_id;
+        return "https://www.ensembl.org/" + Species.ensembleSpecieName(this.specie) + "/Gene/Summary?db=core;g=" + this.ensembl_id;
     }
 
     getSpecieName() {

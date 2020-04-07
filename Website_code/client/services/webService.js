@@ -27,4 +27,12 @@ angular.module("DoChaP").service("webService", function ($http) {
         };
         return $http(req);
     }
+
+    this.sendMail = function(name,email,message){
+        var req = {
+            method: 'GET',
+            url: 'http://localhost:3000/sendMail/' +name+"/"+email+"/"+message,    
+        };
+        return $http(req);
+    }
 })

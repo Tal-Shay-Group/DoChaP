@@ -1,24 +1,40 @@
 body {
     font-size: 19px;
-    background-color: rgb(255, 255, 255);
+    /* background-color: rgb(255, 255, 255); */
     font-family: "Calibri";
-    /*background-color: rgb(196, 221, 217);*/
-    /* background-image: url("resources/dna100.jpg");
+    background-image: url('/resources/dna100.jpg');
     background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center;
-    background-size: cover;
-    
-    font-weight: bold;*/
+    /* background-size: cover; */
+    /* background-position: center center;*/
+   
 }
 
+.container-fluid{
+    padding-left: 80px;
+    padding-right: 80px;
+}
 .logo {
     height: 100px;
     width: 200px;
     align-self: center;
+    border-radius: 5px;
 }
 
-.myModal {
+.logoText {
+    /* background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px; */
+    background: url(https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500) -80px -80px;
+    color: red;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    font-weight: bold;
+    font-size: 40px;
+    font-family: arial, helvetica;
+    width: 600px;
+    margin: 50px auto;
+    text-align: center;
+  }
+
+#myModal {
     background-color: rgba(245,245,245,1);
     height: 250px;
     width: 320px;
@@ -107,6 +123,7 @@ body {
 /*main textfield for each search*/
 .searchTextFieldClass {
     font-size: 16px;
+    color:black;
     height: 35px;
     width: 300px;
 }
@@ -124,20 +141,6 @@ body {
     font-size: 16px;
 }
 
-/*td space between visualizations commented from 23.2 */
-.betweenVisualizationSpace {
-    /*width: 100px;*/
-}
-
-.beforProteinTextSpace {
-    /*width: 20px;*/
-}
-
-/*
-.loadingText {
-    font-size: 30px;
-}
-*/
 
 .exonTableHeader {
     font-size: 23px;
@@ -159,8 +162,8 @@ body {
 
 td {
     vertical-align: top;
-    margin: 10px;
-    padding: 10px;
+    margin: 2px;
+    padding: 2px;
 }
 
 .searchBySpecie {
@@ -175,16 +178,29 @@ td {
     text-align: left;
 
 
+} 
+
+/*
+middle grey area with rounded corners and 
+text aligned to left
+*/
+.greyArea {
+    margin-right: auto;
+    margin-left: auto;
+    display: table;
+    text-align: left;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 5px;
+    width: 800px;
+    background-color: white;
+    /* background-color:rgb(235, 235, 235);  */
+    /* background-color: #B8B4FF ;  */
 }
 
 .selectMode {
-    /*margin-right: auto;
-    margin-left: auto;
-    display: table;
-    */
     width: 210px;
     align-self: left;
-
 }
 
 .exonColorTable {
@@ -211,36 +227,8 @@ td {
     text-align: left;
 }
 
-/*
-.fontChange {
-    font-size: 15px;
-}
-*/
-
-
-label,
-textarea {
-    display: block;
-}
-form {
-    color: white;
-}
 .contactUs {
-    width: 500px;
-    border: none;
-    border-radius: 20px;
-    outline: none;
-    padding: 10px;
-    color: #676767;
-    transition: border 0.5s;
-    -webkit-transition: border 0.5s;
-    -moz-transition: border 0.5s;
-    -o-transition: border 0.5s;
-    border: solid 3px #98d4f3;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-
+    width: 400px;
 }
 
 textarea {
@@ -272,23 +260,17 @@ textarea {
     height: 30px;
 
 }
-
-/*label {
-    font-size: 1.5em;
-    margin-top: 5px;
-    padding-left: 20px;
+.backgroundForPage{
+    /* background-image: url('/resources/dna100.jpg');
+    height: 1000px;
+    background-repeat: no-repeat; 
+    background-size: cover;
+    background-position: center center; */
+    /* position: relative;
+    z-index:-2; */
+    background-color: white;
 }
 
-.formgroup,
-.formgroup-active,
-.formgroup-error {
-    background-repeat: no-repeat;
-    background-position: right bottom;
-    background-size: 10.5%;
-    transition: background-image 0.7s;
-    -webkit-transition: background-image 0.7s;
-    -moz-transition: background-image 0.7s;
-    -o-transition: background-image 0.7s;
-    width: 566px;
-    padding-top: 2px;
-}*/
+#compareGeneSearchTextField{
+    width: 200px;
+}
