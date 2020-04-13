@@ -1,11 +1,23 @@
-from OOP_project.Director import *
+#!/usr/bin/python
+import sys
+from OOP_project.Director import Director
 from OOP_project.OrthologsBuilder import *
 from OOP_project.SpeciesDB import *
 
 if __name__ == "__main__":
-
+    inputDict = {}
+    for inarg in sys.argv[1:]:
+        try:
+            splitArg = inarg.strip("-").split("=")
+            if splitArg[0] in ("download", "withEns"):
+                inputDict[splitArg[0]] = splitArg[1]
+            else:
+                raise ValueError("Wrong input arguments. only accepts arguments 'download' and 'withEns'")
+        except AttributeError or IndexError:
+            raise ValueError("Make sure that input arguments are argumentName=argumentValue")
     species = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
-    download = False
+    download = inputDict['download']
+    withEns = inputDict['withEns']
 
     director = Director()
     orthologs = OrthologsBuilder(species=['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'])
@@ -16,7 +28,7 @@ if __name__ == "__main__":
     spnum = 1
     for sp in species:
         print("===========Current Species: {}===========".format(sp))
-        dbBuild = dbBuilder(sp, download=download)
+        dbBuild = dbBuilder(sp, download=download, withEns=withEns)
         dbBuild.create_tables_db(merged=False)
         dbBuild.fill_in_db(merged=False)
         print("Filling {} completed!".format(dbBuild.dbName))

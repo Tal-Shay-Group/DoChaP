@@ -25,12 +25,14 @@ class Collector:
         self.director.setBuilder(self.__getattribute__(attrName))
         self.director.collectFromSource(download)
 
-    def collectAll(self, completeMissings=True, download=False):
-        # for builder in ['ucsc', 'idConv', 'ff']:
-        for builder in ['refseq', 'idConv']:  # 'ensembl',
+    def collectAll(self, completeMissings=True, download=False, withEns=True):
+        BuildersList = ['refseq', 'idConv']
+        if withEns:
+            BuildersList.append('ensembl')
+        for builder in BuildersList:
             self.CollectSingle(builder, download)
         if completeMissings:
-            self.MergeTranscripts(withEns=False)
+            self.MergeTranscripts(withEns=withEns)
             # self.CompleteProteinData()
             # self.CompleteGenesData()
         else:

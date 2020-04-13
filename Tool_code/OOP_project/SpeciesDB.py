@@ -8,11 +8,11 @@ import pandas
 
 class dbBuilder:
 
-    def __init__(self, species, download=False):
+    def __init__(self, species, download=False, withEns=True):
         self.species = species
         self.dbName = None
         self.data = Collector(self.species)
-        self.data.collectAll(completeMissings=True, download=download)
+        self.data.collectAll(completeMissings=True, download=download, withEns=withEns)
         self.TrnascriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
         self.DomainOrg = DomainOrganizer()
