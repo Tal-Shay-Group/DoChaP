@@ -24,7 +24,7 @@ class OrthologsBuilder(SourceBuilder):
                                  'X_tropicalis': 'xtropicalis'}
         self.speciesConvertorShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
                                       'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
-        self.scriptsList = None
+        self.scriptsList = ()
         self.downloadPath = os.getcwd() + "/data/orthology/"
         self.OrthoTable = None
 
@@ -59,6 +59,7 @@ class OrthologsBuilder(SourceBuilder):
     def downloader(self):
         output = dict()
         err = dict()
+        self.createDownloadScripts()
         iterlen = len(self.scriptsList)
         n = 0
         for shellCommand in self.scriptsList:

@@ -21,9 +21,10 @@ if __name__ == "__main__":
     species = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
     download = inputDict['download']
     withEns = inputDict['withEns']
+    print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
 
     director = Director()
-    orthologs = OrthologsBuilder(species=['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'])
+    orthologs = OrthologsBuilder(species=species)
     director.setBuilder(orthologs)
     director.collectFromSource(download=download)
 
