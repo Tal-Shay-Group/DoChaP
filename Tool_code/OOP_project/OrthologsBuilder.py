@@ -59,6 +59,7 @@ class OrthologsBuilder(SourceBuilder):
     def downloader(self):
         output = dict()
         err = dict()
+        self.createDownloadScripts()
         iterlen = len(self.scriptsList)
         n = 0
         for shellCommand in self.scriptsList:
