@@ -13,19 +13,20 @@ class OrthologsBuilder(SourceBuilder):
     Dowload and parse Orthology tables
     """
 
-    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')):
+    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'), download=False):
         """
         @type species: tuple
         """
-        super().__init__(species)
         self.species = species
         self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
                                  'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
                                  'X_tropicalis': 'xtropicalis'}
         self.speciesConvertorShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
                                       'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
-        self.scriptsList = ()
         self.downloadPath = os.getcwd() + "/data/orthology/"
+        if not download:
+            self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
+        self.scriptsList = ()
         self.OrthoTable = None
 
     def setSpecies(self, speciesTuple):
@@ -59,7 +60,8 @@ class OrthologsBuilder(SourceBuilder):
     def downloader(self):
         output = dict()
         err = dict()
-        self.createDownloadScripts()
+        if self.scriptsList == ():
+            self.createDownloadScripts()
         iterlen = len(self.scriptsList)
         n = 0
         for shellCommand in self.scriptsList:
