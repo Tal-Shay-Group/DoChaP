@@ -46,8 +46,8 @@ class EnsemblBuilder(SourceBuilder):
         down.Download()
 
     def parser(self):
-        # fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique")
+        fn = gffutils.example_filename(self.gff)
+        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
         # db = gffutils.FeatureDB("DB.Ensembl.db")
         print("Collecting Transcripts data from gff file...")

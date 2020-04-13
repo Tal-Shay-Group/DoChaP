@@ -49,13 +49,15 @@ class RefseqBuilder(SourceBuilder):
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        self.SpeciesConvertor = {'M_musculus': 'Mus_musculus', 'H_sapiens': 'Homo_sapiens', 'R_norvegicus': 'rn6',
-                                 'D_rerio': 'danRer11',
-                                 'X_tropicalis': 'xenTro9'}
+        self.SpeciesConvertor = {'M_musculus': 'Mus_musculus', 'H_sapiens': 'Homo_sapiens',
+                                 'R_norvegicus': 'Rattus_norvegicus',
+                                 'D_rerio': 'Danio_rerio', 'X_tropicalis': 'Xenopus_tropicalis'}
         self.species = species
-        self.speciesTaxonomy = {"Mus_musculus": "vertebrate_mammalian", "Homo_sapiens": "vertebrate_mammalian"}
+        self.speciesTaxonomy = {"Mus_musculus": "vertebrate_mammalian", "Homo_sapiens": "vertebrate_mammalian",
+                                'Danio_rerio': "vertebrate_other", "Xenopus_tropicalis": "vertebrate_other",
+                                "Rattus_norvegicus": "vertebrate_mammalian"}
         self.savePath = os.getcwd() + '/data/{}/refseq/'.format(self.species)
-        self.gff = self.FilesNoDownload("gff")
+        self.gff = self.FilesNoDownload("gff")[0]
         # self.gpff = self.savePath + "protein.gpff"
         self.gpff = self.FilesNoDownload("gpff")
         self.Transcripts = {}
@@ -69,7 +71,10 @@ class RefseqBuilder(SourceBuilder):
     def downloader(self):
         skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
-        ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
+        if skey in ["Rattus_norvegicus", "Xenopus_tropicalis"]:
+            ftp_path = '/genomes/refseq/{}/{}/representative/'.format(self.speciesTaxonomy[skey], skey)
+        else:
+            ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
 
         def FindFile(listOfFiles):
             for file in listOfFiles:
@@ -96,7 +101,7 @@ class RefseqBuilder(SourceBuilder):
 
     def FilesNoDownload(self, suffix):
         le = len(suffix)
-        files = [self.savePath + file for file in os.listdir(self.savePath) if file[-le:] == suffix]
+        files = [self.savePath + "/" + file for file in os.listdir(self.savePath) if file[-le:] == suffix]
         return files
 
     def parser(self):
@@ -105,8 +110,8 @@ class RefseqBuilder(SourceBuilder):
             self.parseSingleGpff(gpff_file)
 
     def ParseGffRefseq(self):
-        # fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique")
+        fn = gffutils.example_filename(self.gff)
+        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
         # db = gffutils.FeatureDB("DB.Refseq.db")
         print("Collecting Transcripts data from gff file...")

@@ -5,27 +5,28 @@ from OOP_project.Director import Director
 from OOP_project.recordTypes import Protein
 import pandas
 
+
 class dbBuilder:
 
-    def __init__(self, species, download=False, merged=True, dbName=None):
-        self.merged = merged
+    def __init__(self, species, download=False):
         self.species = species
-        if self.merged:
-            self.dbName = 'DB_merged'
-        else:
-            self.dbName = 'DB_' + species
-        if dbName is not None:
-            self.dbName = dbName
+        self.dbName = None
         self.data = Collector(self.species)
         self.data.collectAll(completeMissings=True, download=download)
         self.TrnascriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
         self.DomainOrg = DomainOrganizer()
 
-    def create_tables_db(self):
+    def create_tables_db(self, merged=True, dbName=None):
         """
         Create a transcripts table in the specie database and fills with ucsc transcripts data
         """
+        if dbName is not None:
+            self.dbName = dbName
+        elif merged:
+            self.dbName = 'DB_merged'
+        else:
+            self.dbName = 'DB_' + self.species
 
         print("Creating database: {}...".format(self.dbName))
         with connect(self.dbName + '.sqlite') as con:
@@ -170,7 +171,7 @@ class dbBuilder:
                                 FOREIGN KEY(domain_nuc_start, total_length) REFERENCES DomainEvent(Nuc_start, total_length)
                                 );"""
                         )
-            if self.merged:
+            if merged:
                 cur.executescript("DROP TABLE IF EXISTS Orthology;")
                 print('Creating the table: Orthology')
                 cur.execute("""
@@ -199,12 +200,17 @@ class dbBuilder:
                 '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
             cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
 
-    def fill_in_db(self):
+    def fill_in_db(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
         """
         This function in for unique species. for more than ine use add Species To Merged
         """
-
-        if self.merged:
+        if dbName is not None:
+            self.dbName = dbName
+        elif merged:
+            self.dbName = 'DB_merged'
+        else:
+            self.dbName = 'DB_' + self.species
+        if CollectDomainsFromMerged:
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
 
         with connect(self.dbName + '.sqlite') as con:
@@ -227,6 +233,8 @@ class dbBuilder:
                     continue
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
+                if transcript.CDS is None:
+                    transcript.CDS = transcript.tx
                 values = (transcript.refseq, transcript.ensembl,) + \
                          transcript.tx + transcript.CDS + \
                          (e_counts, GeneID, ensGene, protein_refseq, prot_ens,)
@@ -305,7 +313,7 @@ class dbBuilder:
                         elif relation == 'complete_exon':
                             complete = 1
                         # insert into domain event table
-                        values = (protein_refseq, prot_ens, self.DomainOrg.internalID,
+                        values = (protein_refseq, prot_ens, regID,
                                   reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
                                   reg.extID, splice_junction, complete,)
                         if values not in domeve:
@@ -316,7 +324,7 @@ class dbBuilder:
                                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
                             domeve.add(values)
 
-            if self.merged:
+            if merged:
                 relevantDomains = set(self.DomainOrg.allDomains.keys())
                 print('Recreating the table: DomainType and update domains')
                 cur.executescript("DROP TABLE IF EXISTS DomainType;")
@@ -338,11 +346,12 @@ class dbBuilder:
                             )
             # insert into domain type table
             for typeID in relevantDomains:
-                values = (typeID,) + self.DomainOrg.allDomains[typeID]
-                cur.execute(''' INSERT INTO DomainType
-                                (type_id, name, other_name, description, CDD_id, cd, cl,\
-                                pfam, smart, tigr, interpro)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                if typeID in self.DomainOrg.allDomains.keys():
+                    values = (typeID,) + self.DomainOrg.allDomains[typeID]
+                    cur.execute(''' INSERT INTO DomainType
+                                    (type_id, name, other_name, description, CDD_id, cd, cl,\
+                                    pfam, smart, tigr, interpro)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
         con.commit()
 
     def AddOrthology(self, Orthology_df):

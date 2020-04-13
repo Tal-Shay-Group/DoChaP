@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Species">
-      <change afterPath="$PROJECT_DIR$/OOP_project/ftpDownload.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species">
+      <change afterPath="$PROJECT_DIR$/OOP_project/TestDB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/Collector.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Collector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/data/M_musculus/flatfiles/README.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/data/M_musculus/mouseDomains.300lines.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/ensemblBuilder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/ffBuilder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/recordTypes.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/recordTypes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/tempCaller.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -228,9 +229,9 @@
       <list>
         <item itemvalue="Python.main" />
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.OrthologsBuilder" />
-        <item itemvalue="Python.OrthologsBuilder" />
-        <item itemvalue="Python.OrthologsBuilder" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
@@ -260,7 +261,7 @@
       <workItem from="1584951744770" duration="48625000" />
       <workItem from="1585061785491" duration="23397000" />
       <workItem from="1585210186349" duration="18119000" />
-      <workItem from="1585554470069" duration="100943000" />
+      <workItem from="1585554470069" duration="120246000" />
     </task>
     <task id="LOCAL‎00001" summary="Refactoring updates">
       <created>1584460305428</created>
@@ -286,7 +287,13 @@
       <option name="presentableId" value="LOCAL‎00004" />
       <updated>1585720396793</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL‎00005" summary="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species">
+      <created>1586243006770</created>
+      <option name="number" value="LOCAL‎00005" />
+      <option name="presentableId" value="LOCAL‎00005" />
+      <updated>1586243006770</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,7 +317,9 @@
     <MESSAGE value="Updated UcscBuilder" />
     <MESSAGE value="changes in SpeciesDB, collector and builders. on the way to finish refactoring" />
     <MESSAGE value="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues" />
-    <option name="LAST_COMMIT_MESSAGE" value="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues" />
+    <MESSAGE value="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2372" y="95" key="#Notifications" timestamp="1580373525262">
@@ -330,10 +339,10 @@
     </state>
     <state x="2362" y="128" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062367352" />
     <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376656727" />
-    <state x="2089" y="0" key="CommitChangelistDialog2" timestamp="1586242905832">
+    <state x="2089" y="0" key="CommitChangelistDialog2" timestamp="1586243005116">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2089" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586242905832" />
+    <state x="2089" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586243005116" />
     <state x="2650" y="162" key="ExecutionTargetDialog" timestamp="1580376374951">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -398,10 +407,10 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="250" height="531" key="SqlResolveConfigurable/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376142053" />
-    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1584460321541">
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1586243023442">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584460321541" />
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586243023442" />
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1580376187631">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
