@@ -1,8 +1,11 @@
 import subprocess
-from Director import SourceBuilder
+import sys
 import os
 import pandas as pd
 import re
+
+sys.path.append(os.getcwd())
+from Director import SourceBuilder
 
 
 class OrthologsBuilder(SourceBuilder):
