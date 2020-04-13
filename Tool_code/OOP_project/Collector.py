@@ -27,10 +27,10 @@ class Collector:
 
     def collectAll(self, completeMissings=True, download=False):
         # for builder in ['ucsc', 'idConv', 'ff']:
-        for builder in ['refseq', 'ensembl', 'idConv']:
+        for builder in ['refseq', 'idConv']:  # 'ensembl',
             self.CollectSingle(builder, download)
         if completeMissings:
-            self.MergeTranscripts()
+            self.MergeTranscripts(withEns=False)
             # self.CompleteProteinData()
             # self.CompleteGenesData()
         else:
@@ -39,7 +39,7 @@ class Collector:
         self.Genes = self.refseq.Genes
         self.Domains = self.refseq.Domains
 
-    def MergeTranscripts(self):
+    def MergeTranscripts(self, withEns=True):
         recombine = {}
         ensembls = set()
         refseqs = set()
@@ -47,15 +47,14 @@ class Collector:
             if idt[1] == "R":
                 continue
             newT = self.idConv.FillInMissingsTranscript(record)
-            # if newT.gene_GeneID is None:
-            #    newT.gene_GeneID = [self.ff.genes[newT.idNoVersion()].GeneID if
-            #                        newT.idNoVersion() in self.ff.genes else
-            #                        newT.gene_GeneID][0]
             if newT.protein_refseq is None or '-':
                 newT.protein_refseq = self.refseq.trans2pro.get(newT.refseq, None)
             recombine[newT.refseq] = newT
             ensembls.add(newT.ensembl)
             refseqs.add(newT.refseq)
+        if not withEns:
+            self.Transcripts = recombine
+            return
         for idt, record in self.ensembl.Transcripts.items():
             if idt in ensembls:
                 continue
