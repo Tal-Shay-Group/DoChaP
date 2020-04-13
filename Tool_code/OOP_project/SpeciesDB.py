@@ -1,33 +1,32 @@
 from sqlite3 import connect
-import Tool_code.ucscParser
-
-#from Tool_code import ffParser, ffDownloader, order_domains
 from OOP_project.Collector import Collector
+from OOP_project.DomainOrganizer import DomainOrganizer
+from OOP_project.Director import Director
+from OOP_project.recordTypes import Protein
+import pandas
 
 
 class dbBuilder:
 
-    def __init__(self, species, merged=True, dbName=None):
-        self.merged = merged
-        if not self.merged:
-            if type(species) is not str:
-                raise ValueError('When merged == False, species expects single species provided as str value.')
-            self.species = species
-            self.dbName = 'DB_' + species
-        elif self.merged:
-            if type(species) not in [list, tuple, set]:
-                raise ValueError(
-                    'When building a merged database, species expects list/tuple/set of species to include.')
-            self.species = species
-            self.dbName = 'DB_merged'
-        if dbName is not None:
-            self.dbName = dbName
-        self.AllDomains = None
+    def __init__(self, species, download=False):
+        self.species = species
+        self.dbName = None
+        self.data = Collector(self.species)
+        self.data.collectAll(completeMissings=True, download=download)
+        self.TrnascriptNoProteinRec = {}
+        self.DomainsSourceDB = 'DB_merged.sqlite'
+        self.DomainOrg = DomainOrganizer()
 
-    def create_tables_db(self):
+    def create_tables_db(self, merged=True, dbName=None):
         """
         Create a transcripts table in the specie database and fills with ucsc transcripts data
         """
+        if dbName is not None:
+            self.dbName = dbName
+        elif merged:
+            self.dbName = 'DB_merged'
+        else:
+            self.dbName = 'DB_' + self.species
 
         print("Creating database: {}...".format(self.dbName))
         with connect(self.dbName + '.sqlite') as con:
@@ -36,32 +35,33 @@ class dbBuilder:
             print('Creating the table: Genes')
             cur.execute('''
                         CREATE TABLE Genes(
-                                gene_refseq_id TEXT,
+                                gene_GeneID_id TEXT,
                                 gene_ensembl_id TEXT,
                                 gene_symbol TEXT,
                                 synonyms TEXT,
                                 chromosome TEXT,
                                 strand TEXT,
                                 specie TEXT, 
-                                PRIMARY KEY(gene_refseq_id, gene_ensembl_id, gene_symbol)
+                                PRIMARY KEY(gene_GeneID_id, gene_ensembl_id, gene_symbol)
                                 );'''
                         )
             cur.executescript("DROP TABLE IF EXISTS transcripts;")
             print('Creating the table: Transcripts')
             cur.execute('''
                         CREATE TABLE Transcripts(
-                                transcript_refseq_id TEXT NOT NULL PRIMARY KEY UNIQUE,
-                                transcript_ensembl_id TEXT NOT NULL PRIMARY KEY UNIQUE,
+                                transcript_refseq_id TEXT,
+                                transcript_ensembl_id TEXT,
                                 tx_start INTEGER,
                                 tx_end INTEGER,
                                 cds_start INTEGER,
                                 cds_end INTEGER,
-                                gene_refseq_id TEXT,                        
                                 exon_count INTEGER,
+                                gene_GeneID_id TEXT,                        
                                 gene_ensembl_id TEXT,
-                                protein_refseq_id INTEGER,
-                                protein_ensembl_id INTEGER,
-                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id),
+                                protein_refseq_id TEXT,
+                                protein_ensembl_id TEXT,
+                                PRIMARY KEY (transcript_refseq_id, transcript_ensembl_id),
+                                FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id),
                                 FOREIGN KEY(protein_refseq_id,protein_ensembl_id) REFERENCES Proteins(protein_refseq_id,protein_ensembl_id)
                                 );'''
                         )
@@ -69,12 +69,12 @@ class dbBuilder:
             print('Creating the table: Exons')
             cur.execute('''
                         CREATE TABLE Exons(
-                                gene_refseq_id TEXT,
+                                gene_GeneID_id TEXT,
                                 gene_ensembl_id TEXT,        
                                 genomic_start_tx INTEGER,
                                 genomic_end_tx INTEGER,
-                                PRIMARY KEY (gene_refseq_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx),
-                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id)
+                                PRIMARY KEY (gene_GeneID_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx),
+                                FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id)
                                 );'''
                         )
 
@@ -106,13 +106,9 @@ class dbBuilder:
                                 description TEXT,
                                 synonyms TEXT,
                                 length INTEGER,
-                                uniprot_id TEXT,
-                                gene_refseq_id TEXT,
-                                gene_ensembl_id TEXT,
                                 transcript_refseq_id TEXT,
                                 transcript_ensembl_id TEXT,
                                 PRIMARY KEY(protein_refseq_id, protein_ensembl_id),
-                                FOREIGN KEY(gene_refseq_id, gene_ensembl_id) REFERENCES Genes(gene_refseq_id, gene_ensembl_id),
                                 FOREIGN KEY(transcript_refseq_id, transcript_ensembl_id) REFERENCES Transcripts(transcript_refseq_id, transcript_ensembl_id)
                                 );'''
                         )
@@ -175,7 +171,7 @@ class dbBuilder:
                                 FOREIGN KEY(domain_nuc_start, total_length) REFERENCES DomainEvent(Nuc_start, total_length)
                                 );"""
                         )
-            if self.merged:
+            if merged:
                 cur.executescript("DROP TABLE IF EXISTS Orthology;")
                 print('Creating the table: Orthology')
                 cur.execute("""
@@ -196,29 +192,26 @@ class dbBuilder:
                             )
 
     def create_index(self):
-        with connect(self.dbName+'.sqlite') as con:
+        with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
             cur.execute('''CREATE INDEX geneTableIndexBySpecies ON Genes(specie);''')
-            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_refseq_id) ;''')
+            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_GeneID_id) ;''')
             cur.execute(
                 '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
             cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
 
-    def addSpeciesToMerged(self):
-        # define self.AllDomains
-        return
-
-    def fill_in_db(self, specie):
+    def fill_in_db(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
         """
         This function in for unique species. for more than ine use add Species To Merged
         """
-
-        # if name is not 'merged':
-        #    con2 = connect('DB_merged.sqlite')
-        #    cur2 = con2.cursor()
-
-        data = Collector(specie)
-
+        if dbName is not None:
+            self.dbName = dbName
+        elif merged:
+            self.dbName = 'DB_merged'
+        else:
+            self.dbName = 'DB_' + self.species
+        if CollectDomainsFromMerged:
+            self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
 
         with connect(self.dbName + '.sqlite') as con:
             print("Connected to " + self.dbName + "...")
@@ -227,136 +220,115 @@ class dbBuilder:
             geneSet = set()
             uExon = set()
             domeve = set()
-            dTypeDict = {}
-            dNames = {}
-            dExt = {}
-            dCDD = {}
-
-            # if name is 'merged':
-            #   cur2 = cur
-
-            dTypeID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
-            cur.execute('SELECT * FROM DomainType')
-            for ud in cur.fetchall():
-                c_ud = tuple(ud)
-                dTypeDict[c_ud[0]] = c_ud[1:]
-                dNames[c_ud[1]] = c_ud[0]
-                for u_ext in c_ud[5:]:
-                    if u_ext is not None:
-                        dExt[u_ext] = c_ud[0]
-                dCDD[c_ud[4]] = c_ud[0]
-            # if name is not 'merged':
-            #    con2.close()
-
+            prot = set()
             relevantDomains = set()
-            for t, d in refGene.items():
-                # print(t)
-                # break
-                tnov = t.split('.')[0]
-                if tnov not in g_info.keys():
-                    # print('continue')
+
+            for transcript in self.data.Transcripts.values():
+                GeneID = str(transcript.gene_GeneID)
+                ensGene = transcript.gene_ensembl
+                protein_refseq = transcript.protein_refseq
+                prot_ens = transcript.protein_ensembl
+                if transcript.refseq not in self.data.Genes.keys():
+                    self.TrnascriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
                     continue
-                GeneID = [i.split(':')[-1] for i in g_info[tnov][2] if i.startswith('GeneID')]
-                pr = gene2pro[tnov]
-                ensID = trans_con.get(t, None)
+                e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
-                values = tuple([t] + d[2:6] + GeneID + [d[6], ensID, p_info[pr][0]])
+                if transcript.CDS is None:
+                    transcript.CDS = transcript.tx
+                values = (transcript.refseq, transcript.ensembl,) + \
+                         transcript.tx + transcript.CDS + \
+                         (e_counts, GeneID, ensGene, protein_refseq, prot_ens,)
                 cur.execute('''INSERT INTO Transcripts
-                            (transcript_id, tx_start, tx_end, cds_start, cds_end, gene_id,
-                             exon_count, ensembl_id, protein_id) 
-                            VALUES(?,?,?,?,?,?,?,?,?)''', values)
+                            (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start,\
+                             cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) 
+                            VALUES(?,?,?,?,?,?,?,?,?,?,?)''', values)
 
                 # insert into Genes table (unique GeneID as primary key)
-                if GeneID[0] not in geneSet:
-                    MGI = [i.split(':')[-1] for i in g_info[tnov][2] if i.startswith('MGI')]
-                    if len(MGI) == 0:
-                        MGI = [None]
-                    values = tuple(GeneID) + g_info[tnov][0:2] + \
-                             tuple(d[0:2] + MGI + [gene_con.get(GeneID[0], None)]) + tuple([specie], )
+                if GeneID is not geneSet and ensGene not in geneSet:
+                    syno = [self.data.Genes[transcript.refseq].synonyms if transcript.refseq is not None else None][0]
+                    values = (GeneID, ensGene, transcript.geneSymb,
+                              syno, transcript.chrom, transcript.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
-                                (gene_id, gene_symbol, synonyms, chromosome, strand, MGI_id, ensembl_id, specie)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                    geneSet.add(GeneID[0])
-
-                # insert into Proteins table
-                ensID = protein_con.get(p_info[pr][0], None)
-                values = p_info[pr][0:4] + tuple(
-                    [ensID, ucsc_acc.get(ensID, [None, None, None, None])[3]] + GeneID + [t])
-                # print(values)
-                cur.execute(''' INSERT INTO Proteins
-                                (protein_id, description, length, synonyms, ensembl_id, uniprot_id, gene_id, transcript_id)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                                (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome,\
+                                 strand, specie)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
+                    geneSet.add(GeneID)
+                    geneSet.add(ensGene)
 
                 # insert into Transcript_Exon table
-                start_abs, stop_abs = Tool_code.ucscParser.exons2abs(d[7].copy(), d[8].copy(), d[4:6].copy(), d[1])
+                start_abs, stop_abs = transcript.exons2abs()
                 ex_num = 0
-                if d[1] == '-':
-                    starts = d[7].copy()[::-1]
-                    ends = d[8].copy()[::-1]
-                else:
-                    starts = d[7].copy()
-                    ends = d[8].copy()
-                # print(len(starts), len(ends), len(start_abs), len(stop_abs))
-                for iEx in range(d[6]):
-                    # print(iEx)
+                starts = transcript.exon_starts.copy()
+                ends = transcript.exon_ends.copy()
+                if transcript.strand == '-':
+                    starts = starts[::-1]
+                    ends = ends[::-1]
+                for iEx in range(e_counts):
                     ex_num += 1
-                    values = (t, ex_num, starts[iEx], ends[iEx], start_abs[iEx], stop_abs[iEx],)
+                    values = (transcript.refseq, transcript.ensembl, ex_num, starts[iEx], ends[iEx],
+                              start_abs[iEx], stop_abs[iEx],)
                     cur.execute(''' INSERT INTO Transcript_Exon
-                                (transcript_id, order_in_transcript, genomic_start_tx,\
-                                genomic_end_tx, abs_start_CDS, abs_end_CDS)
-                                VALUES (?, ?, ?, ?, ?, ?)''', values)
+                                (transcript_refseq_id, transcript_ensembl_id, order_in_transcript,\
+                                genomic_start_tx, genomic_end_tx, abs_start_CDS, abs_end_CDS)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
 
                     # insert into Exons table
-                    values = tuple(GeneID) + (starts[iEx], ends[iEx],)
+                    values = (GeneID, ensGene, starts[iEx], ends[iEx],)
                     if values not in uExon:
                         uExon.add(values)
                         cur.execute('''INSERT INTO Exons
-                                    (gene_id, genomic_start_tx, genomic_end_tx)
-                                    VALUES (?, ?, ?)''', values)
+                                    (gene_GeneID_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx)
+                                    VALUES (?, ?, ?, ?)''', values)
 
-                if pr in region_dict.keys():
+                # insert into Proteins table
+                protID = [protein_refseq if protein_refseq is not None or '-' else None][0]
+                protein = self.data.Proteins[protID]
+                values = (protein.refseq, prot_ens, protein.description, protein.length,
+                          protein.note, transcript.refseq, transcript.ensembl,)
+                cur.execute(''' INSERT INTO Proteins
+                                (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
+                if protID in self.data.Domains.keys():
                     splicin = set()
-                    for reg in region_dict[pr]:
-                        currReg, currExt, dTypeDict, dTypeID, dExt, dNames, dCDD = order_domains.order_domains(reg,
-                                                                                                               dTypeDict,
-                                                                                                               dTypeID,
-                                                                                                               dExt,
-                                                                                                               dNames,
-                                                                                                               dCDD)
-                        relevantDomains.add(currReg)
-                        nucStart, nucEnd = ffParser.domain_pos_calc(reg[0], reg[1])
-                        # print(nucStart, nucEnd, t)
-                        relation, exon_list, length = domain_exon_relationship([nucStart, nucEnd], start_abs, stop_abs)
-
-                        total_length = nucEnd - nucStart + 1  # adding one because coordinates are full-closed!
+                    for reg in self.data.Domains[protID]:
+                        regID = self.DomainOrg.addDomain(reg)
+                        relevantDomains.add(regID)
+                        relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
+                        total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!
                         splice_junction = 0
                         complete = 0
                         if relation == 'splice_junction':
                             splice_junction = 1
                             for i in range(len(exon_list)):
-                                values = (t, exon_list[i], nucStart, currReg, total_length,
-                                          length[i], i + 1,)
+                                values = (transcript.refseq, transcript.ensembl,
+                                          exon_list[i], reg.nucStart, regID,
+                                          total_length, length[i], i + 1,)
                                 if values not in splicin:
                                     cur.execute(''' INSERT INTO SpliceInDomains
-                                        (transcript_id, exon_order_in_transcript, domain_nuc_start, type_id,\
+                                        (transcript_refseq_id, transcript_ensembl_id,\
+                                         exon_order_in_transcript, domain_nuc_start, type_id,\
                                          total_length, included_len, exon_num_in_domain)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
                                     splicin.add(values)
                         elif relation == 'complete_exon':
                             complete = 1
                         # insert into domain event table
-                        values = (p_info[pr][0], currReg, reg[0], reg[1], total_length,
-                                  nucStart, nucEnd, currExt, splice_junction, complete,)
+                        values = (protein_refseq, prot_ens, regID,
+                                  reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
+                                  reg.extID, splice_junction, complete,)
                         if values not in domeve:
                             cur.execute(''' INSERT INTO DomainEvent
-                                        (protein_id, type_id, AA_start, AA_end, total_length,\
-                                        nuc_start, nuc_end, ext_id, splice_junction, complete_exon)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                                        (protein_refseq_id, protein_ensembl_id, type_id,\
+                                        AA_start, AA_end, nuc_start, nuc_end, total_length,\
+                                        ext_id, splice_junction, complete_exon)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
                             domeve.add(values)
 
-            if add:
+            if merged:
+                relevantDomains = set(self.DomainOrg.allDomains.keys())
                 print('Recreating the table: DomainType and update domains')
                 cur.executescript("DROP TABLE IF EXISTS DomainType;")
+                print('Creating the table: DomainType')
                 cur.execute('''
                             CREATE TABLE DomainType(
                                     type_id INTEGER NOT NULL PRIMARY KEY UNIQUE,
@@ -368,30 +340,20 @@ class dbBuilder:
                                     cl TEXT,
                                     pfam TEXT,
                                     smart TEXT,
-                                    nf TEXT,
-                                    cog TEXT,
-                                    kog TEXT,
-                                    prk TEXT,
                                     tigr TEXT,
-                                    other TEXT
+                                    interpro TEXT
                                     );'''
                             )
-                # insert into domain type table
-                for dom, inf in dTypeDict.items():
-                    values = tuple([dom]) + inf
+            # insert into domain type table
+            for typeID in relevantDomains:
+                if typeID in self.DomainOrg.allDomains.keys():
+                    values = (typeID,) + self.DomainOrg.allDomains[typeID]
                     cur.execute(''' INSERT INTO DomainType
-                                    (type_id, name, other_name, description, CDD_id, cd,cl,\
-                                    pfam,smart,nf,cog,kog,prk,tigr,other)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-            else:
-                # insert into domain type table
-                for dom in relevantDomains:
-                    values = tuple([dom]) + dTypeDict[dom]
-                    # print(values)
-                    cur.execute(''' INSERT INTO DomainType
-                                    (type_id, name, other_name, description,\
-                                     CDD_id, cd,cl,pfam,smart,nf,cog,kog,prk,tigr,other)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                                    (type_id, name, other_name, description, CDD_id, cd, cl,\
+                                    pfam, smart, tigr, interpro)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+        con.commit()
 
-
-
+    def AddOrthology(self, Orthology_df):
+        with connect(self.dbName + '.sqlite') as con:
+            Orthology_df.to_sql("Orthology", con, if_exists="replace")
