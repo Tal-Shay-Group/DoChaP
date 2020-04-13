@@ -1,9 +1,13 @@
 from sqlite3 import connect
-from OOP_project.Collector import Collector
-from OOP_project.DomainOrganizer import DomainOrganizer
-from OOP_project.Director import Director
-from OOP_project.recordTypes import Protein
 import pandas
+import sys
+import os
+
+sys.path.append(os.getcwd())
+from Collector import Collector
+from DomainOrganizer import DomainOrganizer
+from Director import Director
+from recordTypes import Protein
 
 
 class dbBuilder:

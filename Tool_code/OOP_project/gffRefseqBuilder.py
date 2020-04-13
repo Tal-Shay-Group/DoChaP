@@ -1,12 +1,15 @@
-import ftplib
-import gzip
+# import ftplib
+# import gzip
 import os
-import datetime
-from OOP_project.recordTypes import *
-from OOP_project.Director import SourceBuilder
+import sys
+# import datetime
 import gffutils
 from Bio import SeqIO
-from OOP_project.ftpDownload import ftpDownload
+
+sys.path.append(os.getcwd())
+from recordTypes import *
+from Director import SourceBuilder
+from ftpDownload import ftpDownload
 
 
 def protein_info(record):

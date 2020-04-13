@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Creating all DBs from main.py, fixed bugs&#10;Added LOGO files.">
+    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Make main.py accept input arguments from commandline">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/Collector.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Collector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/Director.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Director.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -76,6 +81,9 @@
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -95,6 +103,9 @@
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -158,6 +169,9 @@
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -252,7 +266,7 @@
       <workItem from="1584951744770" duration="48625000" />
       <workItem from="1585061785491" duration="23397000" />
       <workItem from="1585210186349" duration="18119000" />
-      <workItem from="1585554470069" duration="124419000" />
+      <workItem from="1585554470069" duration="125682000" />
     </task>
     <task id="LOCAL‎00001" summary="Refactoring updates">
       <created>1584460305428</created>
@@ -290,7 +304,13 @@
       <option name="presentableId" value="LOCAL‎00006" />
       <updated>1586764099329</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL‎00007" summary="Make main.py accept input arguments from commandline">
+      <created>1586771305237</created>
+      <option name="number" value="LOCAL‎00007" />
+      <option name="presentableId" value="LOCAL‎00007" />
+      <updated>1586771305237</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -316,7 +336,8 @@
     <MESSAGE value="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues" />
     <MESSAGE value="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species" />
     <MESSAGE value="Creating all DBs from main.py, fixed bugs&#10;Added LOGO files." />
-    <option name="LAST_COMMIT_MESSAGE" value="Creating all DBs from main.py, fixed bugs&#10;Added LOGO files." />
+    <MESSAGE value="Make main.py accept input arguments from commandline" />
+    <option name="LAST_COMMIT_MESSAGE" value="Make main.py accept input arguments from commandline" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="WindowStateProjectService">
@@ -332,15 +353,15 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2372" y="95" key="#SQL_Resolution_Scopes/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376146596" />
-    <state x="2362" y="128" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585062367352">
+    <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586772010680">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2362" y="128" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062367352" />
+    <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586772010680" />
     <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376656727" />
-    <state x="1920" y="0" key="CommitChangelistDialog2" timestamp="1586764097520">
+    <state x="1920" y="0" key="CommitChangelistDialog2" timestamp="1586771304219">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="1920" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586764097520" />
+    <state x="1920" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586771304219" />
     <state x="2650" y="162" key="ExecutionTargetDialog" timestamp="1580376374951">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -405,10 +426,10 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="250" height="531" key="SqlResolveConfigurable/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376142053" />
-    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1586764103494">
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1586771307356">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586764103494" />
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586771307356" />
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1580376187631">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>

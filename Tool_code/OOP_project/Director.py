@@ -28,9 +28,3 @@ class SourceBuilder:
         pass
 
 
-class EnsembleBuilder(SourceBuilder):
-    """
-    Download and Parse Ensembl data
-    """
-
-

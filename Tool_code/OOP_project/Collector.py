@@ -1,9 +1,11 @@
-from OOP_project.Director import Director
-from OOP_project.UcscBuilder import UcscBuilder
-from OOP_project.ffBuilder import ffBuilder
-from OOP_project.IDconverterBuilder import ConverterBuilder
-from OOP_project.gffRefseqBuilder import RefseqBuilder
-from OOP_project.gffEnsemblBuilder import EnsemblBuilder
+import sys
+import os
+
+sys.path.append(os.getcwd())
+from Director import Director
+from IDconverterBuilder import ConverterBuilder
+from gffRefseqBuilder import RefseqBuilder
+from gffEnsemblBuilder import EnsemblBuilder
 
 
 class Collector:

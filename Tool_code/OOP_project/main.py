@@ -1,8 +1,11 @@
 #!/usr/bin/python
 import sys
-from OOP_project.Director import Director
-from OOP_project.OrthologsBuilder import *
-from OOP_project.SpeciesDB import *
+import os
+
+sys.path.append(os.getcwd())
+from Director import Director
+from OrthologsBuilder import *
+from SpeciesDB import *
 
 if __name__ == "__main__":
     inputDict = {}
