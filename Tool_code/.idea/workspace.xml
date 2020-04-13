@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="">
+    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species">
+      <change afterPath="$PROJECT_DIR$/OOP_project/TestDB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/Collector.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Collector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/IDconverterBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/ffBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/ffBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/UcscBuilder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/data/M_musculus/flatfiles/README.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/data/M_musculus/mouseDomains.300lines.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/ensemblBuilder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/ffBuilder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffEnsemblBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/tempCaller.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,23 +35,7 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="DB_merged" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="DB_merged" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="DB_merged" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="main: schema" type="981a47c2:SqliteImplModel$Schema" />
-      </path>
-    </expand>
+    <expand />
     <select />
   </component>
   <component name="ExecutionTargetDialog">
@@ -89,8 +80,8 @@
       <recent name="C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Collector">
-    <configuration name="Collector" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.main">
+    <configuration name="OrthologsBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -100,7 +91,48 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/Collector.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="SpeciesDB" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/SpeciesDB.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UcscBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/UcscBuilder.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -131,44 +163,38 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="build_db_complete" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="gffRefseqBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/build_db_complete.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="db_build" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/db_build.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/main.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -201,10 +227,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Collector" />
-        <item itemvalue="Python.Collector" />
-        <item itemvalue="Python.Collector" />
-        <item itemvalue="Python.build_db_complete" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
@@ -230,12 +257,69 @@
       <workItem from="1580633231032" duration="882000" />
       <workItem from="1580634150179" duration="1304000" />
       <workItem from="1580635475988" duration="30881000" />
-      <workItem from="1584443430064" duration="9900000" />
+      <workItem from="1584443430064" duration="34810000" />
+      <workItem from="1584951744770" duration="48625000" />
+      <workItem from="1585061785491" duration="23397000" />
+      <workItem from="1585210186349" duration="18119000" />
+      <workItem from="1585554470069" duration="120246000" />
     </task>
+    <task id="LOCAL‎00001" summary="Refactoring updates">
+      <created>1584460305428</created>
+      <option name="number" value="LOCAL‎00001" />
+      <option name="presentableId" value="LOCAL‎00001" />
+      <updated>1584460305428</updated>
+    </task>
+    <task id="LOCAL‎00002" summary="Updated UcscBuilder">
+      <created>1584549516718</created>
+      <option name="number" value="LOCAL‎00002" />
+      <option name="presentableId" value="LOCAL‎00002" />
+      <updated>1584549516718</updated>
+    </task>
+    <task id="LOCAL‎00003" summary="changes in SpeciesDB, collector and builders. on the way to finish refactoring">
+      <created>1585127576352</created>
+      <option name="number" value="LOCAL‎00003" />
+      <option name="presentableId" value="LOCAL‎00003" />
+      <updated>1585127576352</updated>
+    </task>
+    <task id="LOCAL‎00004" summary="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues">
+      <created>1585720396793</created>
+      <option name="number" value="LOCAL‎00004" />
+      <option name="presentableId" value="LOCAL‎00004" />
+      <updated>1585720396793</updated>
+    </task>
+    <task id="LOCAL‎00005" summary="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species">
+      <created>1586243006770</created>
+      <option name="number" value="LOCAL‎00005" />
+      <option name="presentableId" value="LOCAL‎00005" />
+      <updated>1586243006770</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Refactoring updates" />
+    <MESSAGE value="Updated UcscBuilder" />
+    <MESSAGE value="changes in SpeciesDB, collector and builders. on the way to finish refactoring" />
+    <MESSAGE value="gffRefseqBuilder - Downloading Refseq gff from ftp site (without using USCS) To avoid version issues" />
+    <MESSAGE value="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finish refactoring, and add orthology, db build working for mouse. this commit before running for all species" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2372" y="95" key="#Notifications" timestamp="1580373525262">
@@ -250,43 +334,49 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2372" y="95" key="#SQL_Resolution_Scopes/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376146596" />
-    <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1580376656727">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="2362" y="128" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585062367352">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
+    <state x="2362" y="128" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062367352" />
     <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376656727" />
+    <state x="2089" y="0" key="CommitChangelistDialog2" timestamp="1586243005116">
+      <screen x="1920" y="0" width="1536" height="824" />
+    </state>
+    <state x="2089" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586243005116" />
     <state x="2650" y="162" key="ExecutionTargetDialog" timestamp="1580376374951">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2650" y="162" key="ExecutionTargetDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376374951" />
-    <state x="551" y="172" key="FileChooserDialogImpl" timestamp="1581321943219">
-      <screen x="0" y="0" width="1536" height="824" />
+    <state x="2471" y="172" key="FileChooserDialogImpl" timestamp="1585062571867">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
+    <state x="2471" y="172" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062571867" />
     <state x="2609" y="217" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376651923" />
     <state x="551" y="172" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1581321943218" />
-    <state width="1483" height="100" key="GridCell.Tab.0.bottom" timestamp="1584456568206">
-      <screen x="1920" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.bottom" timestamp="1584629143085">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1483" height="100" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568206" />
     <state width="1863" height="267" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058984" />
-    <state width="1479" height="100" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
-    <state width="1483" height="100" key="GridCell.Tab.0.center" timestamp="1584456568206">
-      <screen x="1920" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1584629143085" />
+    <state width="1483" height="100" key="GridCell.Tab.0.center" timestamp="1584629143084">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1483" height="100" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568206" />
     <state width="1863" height="267" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058983" />
-    <state width="1479" height="100" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
-    <state width="1483" height="100" key="GridCell.Tab.0.left" timestamp="1584456568205">
-      <screen x="1920" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1584629143084" />
+    <state width="1483" height="100" key="GridCell.Tab.0.left" timestamp="1584629143084">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1483" height="100" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568205" />
     <state width="1863" height="267" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058983" />
-    <state width="1479" height="100" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
-    <state width="1483" height="100" key="GridCell.Tab.0.right" timestamp="1584456568206">
-      <screen x="1920" y="0" width="1536" height="824" />
+    <state width="1483" height="100" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1584629143084" />
+    <state width="1483" height="100" key="GridCell.Tab.0.right" timestamp="1584629143084">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1483" height="100" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584456568206" />
     <state width="1863" height="267" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580642058984" />
-    <state width="1479" height="100" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1581321946098" />
+    <state width="1483" height="100" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1584629143084" />
     <state width="1865" height="243" key="GridCell.Tab.1.bottom" timestamp="1580387374054">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -303,9 +393,10 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="1865" height="243" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580387374054" />
-    <state width="238" height="549" key="HiddenNamespacesPopup" timestamp="1580376555385">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state width="343" height="435" key="HiddenNamespacesPopup" timestamp="1585062378684">
+      <screen x="1920" y="0" width="1536" height="824" />
     </state>
+    <state width="343" height="435" key="HiddenNamespacesPopup/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062378684" />
     <state width="238" height="549" key="HiddenNamespacesPopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376555385" />
     <state x="2062" y="0" width="1282" height="824" key="SettingsEditor" timestamp="1580660567981">
       <screen x="1920" y="0" width="1536" height="824" />
@@ -316,20 +407,36 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="250" height="531" key="SqlResolveConfigurable/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376142053" />
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1586243023442">
+      <screen x="1920" y="0" width="1536" height="824" />
+    </state>
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586243023442" />
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1580376187631">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376187631" />
-    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1584443431884">
+    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1585554534500">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1584443431884" />
+    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585554534500" />
     <state x="473" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580633015913" />
     <state x="2511" y="302" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580635476898" />
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1580382692442">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580382692442" />
+    <state x="305" y="23" width="1245" height="561" maximized="true" key="dock-window-1" timestamp="1586072319492">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="305" y="23" width="1245" height="561" maximized="true" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586072319492" />
+    <state x="423" y="59" width="1127" height="529" maximized="true" key="dock-window-2" timestamp="1585060206410">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="423" y="59" width="1127" height="529" maximized="true" key="dock-window-2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585060206410" />
+    <state x="2267" y="0" width="840" height="822" key="search.everywhere.popup" timestamp="1586163782419">
+      <screen x="1920" y="0" width="1536" height="824" />
+    </state>
+    <state x="2267" y="0" width="840" height="822" key="search.everywhere.popup/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586163782419" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

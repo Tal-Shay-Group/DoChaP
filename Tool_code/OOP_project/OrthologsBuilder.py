@@ -23,6 +23,7 @@ class OrthologsBuilder(SourceBuilder):
                                       'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
         self.scriptsList = None
         self.downloadPath = os.getcwd() + "/data/orthology/"
+        self.OrthoTable = None
 
     def setSpecies(self, speciesTuple):
         """adds species to the species tuple"""
@@ -112,4 +113,4 @@ class OrthologsBuilder(SourceBuilder):
             subset = subset.groupby([column], as_index=False)[restColumns].agg(lambda x: '; '.join(set(map(str, x))))
         subset = subset.replace({'; nan': '', 'nan; ': ''}, regex=True)
         subset = subset.replace({'nan': None})
-        return subset
+        self.OrthoTable = subset

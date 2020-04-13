@@ -11,9 +11,12 @@
       <w>interpro</w>
       <w>musculus</w>
       <w>ncbi</w>
+      <w>norvegicus</w>
       <w>prot</w>
       <w>refseq</w>
+      <w>rerio</w>
       <w>sapiens</w>
+      <w>tropicalis</w>
       <w>ucsc</w>
     </words>
   </dictionary>

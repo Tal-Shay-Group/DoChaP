@@ -1,4 +1,5 @@
 import re
+from sqlite3 import connect
 
 
 class DomainOrganizer:
@@ -10,6 +11,20 @@ class DomainOrganizer:
         self.allNames = dict()
         self.allCDD = dict()
 
+    def collectDatafromDB(self, dbname='DB_merged.sqlite'):
+        con = connect(dbname)
+        cur = con.cursor()
+        self.internalID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
+        cur.execute('SELECT * FROM DomainType')
+        for ud in cur.fetchall():
+            c_ud = tuple(ud)
+            self.allDomains[c_ud[0]] = c_ud[1:]
+            self.allNames[c_ud[1]] = c_ud[0]
+            for u_ext in c_ud[5:]:
+                if u_ext is not None:
+                    self.allExt[u_ext] = c_ud[0]
+            self.allCDD[c_ud[4]] = c_ud[0]
+
     def addDomain(self, domain):
         ncdd = None
         ndesc = None
@@ -17,10 +32,10 @@ class DomainOrganizer:
         cdname = None
         currReg = None
         existExt = [None] * 6
+        if domain.extID is None:
+            return
         if domain.extID is not None and domain.extID not in self.allExt:
-            # print('extID not  exist')
             if domain.name not in self.allNames:
-                # print('name exist 1')
                 if domain.cdd is None or domain.cdd not in self.allCDD:
                     self.internalID += 1
                     cdname = domain.name
@@ -35,14 +50,12 @@ class DomainOrganizer:
                     cdname, oname = self.mainNameOtherName(domain, currReg)
                     ncdd = str(self.allDomains[currReg][3])
             elif domain.name in self.allNames:
-                # print('name exist 2')
                 existExt = list(self.allDomains[self.allNames[domain.name]][4:])
                 currReg = self.allNames[domain.name]
                 ncdd = self.cddAdd(domain, currReg)
                 ndesc = self.noteAdd(domain, currReg)
                 cdname, oname = self.mainNameOtherName(domain, currReg)
         elif domain.extID in self.allExt and domain.extID is not None:
-            # print('extID exist')
             currReg = self.allExt[domain.extID]
             if domain.name.lower() == self.allDomains[currReg][0].lower() or \
                     domain.name.lower() in self.allDomains[currReg][1].lower():
@@ -60,29 +73,33 @@ class DomainOrganizer:
                     oname = oname + '; ' + domain.name
                 existExt = self.allDomains[currReg][4:]
             else:
-                # print('here 6')
                 ncdd = self.cddAdd(domain, currReg)
                 ndesc = self.noteAdd(domain, currReg)
                 existExt = self.allDomains[currReg][4:]
                 cdname, oname = self.mainNameOtherName(domain, currReg)
-                # self.allDomains[self.allExt[currExt]] = (self.allDomains[self.allExt[currExt]][0], ndesc, ncdd,) + extIDs
         else:
-            raise ValueError('ERROR done: domain: ' + str(domain))
-        try:
-            external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
-            pos = external.index(domain.extType)
-            if existExt[pos] is None or domain.extID is existExt[pos]:
-                existExt[pos] = domain.extID
-            elif existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)):
-                existExt[pos] = existExt[pos] + '; ' + domain.extID
-            else:
-                raise ValueError('External id type not in correct location!')
-            self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
-            self.allExt[domain.extID] = currReg
-            self.allNames[domain.name] = currReg
-            self.allCDD[domain.cdd] = currReg
-        except Exception:
-            raise Exception(str(domain))
+            raise ValueError(
+                'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
+        # try:
+        external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
+        pos = external.index(domain.extType)
+        if existExt[pos] is None:
+            tempexist = list(existExt).copy()
+            tempexist[pos] = domain.extID
+            existExt = tuple(tempexist)
+        elif domain.extID == existExt[pos]:
+            pass
+        elif existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)):
+            tempexist = list(existExt).copy()
+            tempexist[pos] = existExt[pos] + '; ' + domain.extID
+            existExt = tuple(tempexist)
+        else:
+            raise ValueError('External id type not in correct location!')
+        self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
+        self.allExt[domain.extID] = currReg
+        self.allNames[domain.name] = currReg
+        self.allCDD[domain.cdd] = currReg
+        return currReg
 
     def mainNameOtherName(self, domain, currReg):
         cdname = self.allDomains[currReg][0]

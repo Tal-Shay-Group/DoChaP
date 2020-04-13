@@ -1,32 +1,30 @@
-from Director import *
-from UcscBuilder import *
-from ffBuilder import *
-from SpeciesDB import *
+from OOP_project.Director import *
+from OOP_project.OrthologsBuilder import *
+from OOP_project.SpeciesDB import *
 
-species = 'M_musculus'
-ucscbuilder = UcscBuilder(species)
-ffbuilder = ffBuilder(species)
+if __name__ == "__main__":
 
-director = Director()
+    species = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    download = False
 
-director.setBuilder(ucscbuilder)
-refGene, ucsc_acc = director.collectFromSource()
+    director = Director()
+    orthologs = OrthologsBuilder(species=['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'])
+    director.setBuilder(orthologs)
+    director.collectFromSource(download=download)
 
-director.setBuilder(ffbuilder)
-#ff = director.collectFromSource()
-
-#download_refseq_ensemble_connection()
-region_dict, p_info, g_info, pro2gene, gene2pro, all_domains, kicked = director.collectFromSource()
-gene_con, trans_con, protein_con = gene2ensembl_parser(species)
-
-dbBuild = dbBuilder(species, merged=False)
-dbBuild.create_tables_db()
-dbBuild.fill_in_db()
-
-
-
-
-
-
-
-
+    spl = len(species)
+    spnum = 1
+    for sp in species:
+        print("===========Current Species: {}===========".format(sp))
+        dbBuild = dbBuilder(sp, download=download)
+        dbBuild.create_tables_db(merged=False)
+        dbBuild.fill_in_db(merged=False)
+        print("Filling {} completed!".format(dbBuild.dbName))
+        if spnum == 1:
+            dbBuild.create_tables_db(merged=True)
+        dbBuild.fill_in_db(merged=True)
+        if spnum == spl:
+            dbBuild.create_index()
+            dbBuild.AddOrthology(orthologs.OrthoTable)
+        spnum += 1
+        print("Filling {} completed!".format(dbBuild.dbName))
