@@ -7,8 +7,7 @@
 var DButils = require('./DButils');
 
 ///main: !!
-//runTestsOnDB();
-findAllowedIntervalForExonInSpecies(30);
+runTestsOnDB();
 //end main
 
 
@@ -31,17 +30,17 @@ function sqlQuery(query) {
 
 async function runTestsOnDB(){
     console.log("running a program to find unusual data in our db");
-    await runExonsInTranscriptsStatistics();
-    console.log("**********\n");
-    await runTranscriptsInGeneStatistics();
-    console.log("**********\n");
-    await runDomainFrequencyStatistics();
-    console.log("**********\n");
     await runCdsAndTxCheck();
     console.log("**********\n");
     await runStartAndEndCheck(); //exons 
     console.log("**********\n");
     await runProteinSizeCheck();
+    console.log("**********\n");
+    await runExonsInTranscriptsStatistics();
+    console.log("**********\n");
+    await runTranscriptsInGeneStatistics();
+    console.log("**********\n");
+    await runDomainFrequencyStatistics();
     console.log("**********\n");
     await runSmallSizedDomains();
     console.log("**********\n");
