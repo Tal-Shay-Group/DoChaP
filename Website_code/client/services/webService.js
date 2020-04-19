@@ -35,4 +35,13 @@ angular.module("DoChaP").service("webService", function ($http) {
         };
         return $http(req);
     }
+
+    this.getOrthologyGenes=function(species,gene){
+        var req = {
+            method: 'GET',
+            url: 'http://localhost:3000/getOrthologyGenes/' +species+"/"+gene,    
+        };
+        return $http(req);
+
+    }
 })
