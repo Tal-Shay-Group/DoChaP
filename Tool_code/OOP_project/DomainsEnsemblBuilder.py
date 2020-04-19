@@ -8,12 +8,12 @@ sys.path.append(os.getcwd())
 from Director import SourceBuilder
 
 
-class OrthologsBuilder(SourceBuilder):
+class DomainsEnsemblBuilder(SourceBuilder):
     """
-    Dowload and parse Orthology tables
+    Dowload and parse Domains tables
     """
 
-    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'), download=False):
+    def __init__(self,species, download=False):
         """
         @type species: tuple
         """
@@ -21,41 +21,30 @@ class OrthologsBuilder(SourceBuilder):
         self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
                                  'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
                                  'X_tropicalis': 'xtropicalis'}
-        self.speciesConvertorShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
-                                      'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
-        self.downloadPath = os.getcwd() + "/data/orthology/"
-        if not download:
-            self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
+        self.ExtSources = ("pfam", "smart", "cdd", "tigrfam")
+        self.downloadPath = os.getcwd() + '/data/{}/ensembl/BioMart/'.format(self.species)
+        #if not download:
+        #    self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
         self.scriptsList = ()
         self.OrthoTable = None
-
-    def setSpecies(self, speciesTuple):
-        """adds species to the species tuple"""
-        self.species = self.species + speciesTuple
-
-    def setScriptsList(self, scriptsList):
-        self.scriptsList = scriptsList
 
     def createDownloadScripts(self):
         scriptList = tuple()
         os.makedirs(self.downloadPath, exist_ok=True)
-        for species in self.species:
-            replaceDict = {"output.txt": self.downloadPath + "{}.orthology.txt".format(species),
-                           "MainSpecies": self.speciesConvertor[species] + "_gene_ensembl"}
-            addcomps = 1
-            for compSpec in self.species:
-                if compSpec is not species:
-                    replaceDict["Comp" + str(addcomps)] = self.speciesConvertor[compSpec]
-                    addcomps += 1
-            with open(os.getcwd() + "/BioMart.orthologs.template.sh", "r") as template:
-                with open(os.getcwd() + "/BioMart.orthologs.{}.sh".format(species), "w") as writo:
+        for extDB in self.ExtSources:
+            replaceDict = {"output.txt": self.downloadPath + "{}.Domains.{}.txt".format(self.species, extDB),
+                            "MainSpecies": self.speciesConvertor[self.species],
+                           "extDB": extDB}
+            with open(os.getcwd() + "/BioMart.ensembl.domains.template2.sh", "r") as template:
+                with open(os.getcwd() +
+                          "/BioMart.ensembl.domains.{}.{}.sh".format(self.species, extDB), "w") as writo:
                     for line in template:
                         for key in replaceDict:
                             if key in line:
                                 line = line.replace(key, replaceDict[key])
                         writo.write(line)
-                    scriptList = scriptList + (os.getcwd() + "/BioMart.orthologs.{}.sh".format(species),)
-        self.setScriptsList(scriptList)
+                    scriptList = scriptList + (os.getcwd() + "/BioMart.ensembl.domains.{}.{}.sh".format(self.species, extDB),)
+        self.scriptsList = scriptList
 
     def downloader(self):
         output = dict()
@@ -84,6 +73,8 @@ class OrthologsBuilder(SourceBuilder):
                 print(err[key])
             else:
                 print("script: " + key + " has finished running without errors")
+        for script in self.scriptsList:
+            os.remove(script)
 
     def parser(self):
         spdL = []

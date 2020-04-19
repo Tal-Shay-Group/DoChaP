@@ -1,18 +1,22 @@
 from sqlite3 import connect
-from OOP_project.Collector import Collector
-from OOP_project.DomainOrganizer import DomainOrganizer
-from OOP_project.Director import Director
-from OOP_project.recordTypes import Protein
 import pandas
+import sys
+import os
+
+sys.path.append(os.getcwd())
+from Collector import Collector
+from DomainOrganizer import DomainOrganizer
+from Director import Director
+from recordTypes import Protein
 
 
 class dbBuilder:
 
-    def __init__(self, species, download=False):
+    def __init__(self, species, download=False, withEns=True):
         self.species = species
         self.dbName = None
         self.data = Collector(self.species)
-        self.data.collectAll(completeMissings=True, download=download)
+        self.data.collectAll(completeMissings=True, download=download, withEns=withEns)
         self.TrnascriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
         self.DomainOrg = DomainOrganizer()
@@ -292,6 +296,8 @@ class dbBuilder:
                     splicin = set()
                     for reg in self.data.Domains[protID]:
                         regID = self.DomainOrg.addDomain(reg)
+                        if regID is None:
+                            continue
                         relevantDomains.add(regID)
                         relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
                         total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!

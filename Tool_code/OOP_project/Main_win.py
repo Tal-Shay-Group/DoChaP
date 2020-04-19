@@ -8,24 +8,14 @@ from OrthologsBuilder import *
 from SpeciesDB import *
 
 if __name__ == "__main__":
-    inputDict = {}
-    for inarg in sys.argv[1:]:
-        try:
-            splitArg = inarg.strip("-").split("=")
-            if splitArg[0] in ("download", "withEns"):
-                inputDict[splitArg[0]] = splitArg[1]
-            else:
-                raise ValueError("Wrong input arguments. only accepts arguments 'download' and 'withEns'")
-        except AttributeError or IndexError:
-            raise ValueError("Make sure that input arguments are argumentName=argumentValue")
+    download = False
+    withEns = False
     species = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
-    download = inputDict['download'] == 'True'
-    withEns = inputDict['withEns'] == 'True'
+
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
-    print(type(download))
-    print(type(withEns))
+
     director = Director()
-    orthologs = OrthologsBuilder(species=species, download=download)
+    orthologs = OrthologsBuilder(species=species)
     director.setBuilder(orthologs)
     director.collectFromSource(download=download)
 
