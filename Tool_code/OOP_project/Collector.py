@@ -1,9 +1,11 @@
-from OOP_project.Director import Director
-from OOP_project.UcscBuilder import UcscBuilder
-from OOP_project.ffBuilder import ffBuilder
-from OOP_project.IDconverterBuilder import ConverterBuilder
-from OOP_project.gffRefseqBuilder import RefseqBuilder
-from OOP_project.gffEnsemblBuilder import EnsemblBuilder
+import sys
+import os
+
+sys.path.append(os.getcwd())
+from Director import Director
+from IDconverterBuilder import ConverterBuilder
+from gffRefseqBuilder import RefseqBuilder
+from gffEnsemblBuilder import EnsemblBuilder
 
 
 class Collector:
@@ -25,12 +27,14 @@ class Collector:
         self.director.setBuilder(self.__getattribute__(attrName))
         self.director.collectFromSource(download)
 
-    def collectAll(self, completeMissings=True, download=False):
-        # for builder in ['ucsc', 'idConv', 'ff']:
-        for builder in ['refseq', 'idConv']:  # 'ensembl',
+    def collectAll(self, completeMissings=True, download=False, withEns=True):
+        BuildersList = ['refseq', 'idConv']
+        if withEns:
+            BuildersList.append('ensembl')
+        for builder in BuildersList:
             self.CollectSingle(builder, download)
         if completeMissings:
-            self.MergeTranscripts(withEns=False)
+            self.MergeTranscripts(withEns=withEns)
             # self.CompleteProteinData()
             # self.CompleteGenesData()
         else:

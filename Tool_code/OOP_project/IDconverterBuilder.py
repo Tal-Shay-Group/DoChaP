@@ -1,10 +1,12 @@
-import ftplib
-import gzip
+# import ftplib
+# import gzip
 import os
+import sys
 
-from OOP_project.ftpDownload import ftpDownload
-from OOP_project.recordTypes import Transcript
-from OOP_project.Director import SourceBuilder
+sys.path.append(os.getcwd())
+from ftpDownload import ftpDownload
+from recordTypes import Transcript
+from Director import SourceBuilder
 
 
 class ConverterBuilder(SourceBuilder):
