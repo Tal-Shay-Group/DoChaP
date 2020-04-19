@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="minor Changes to download from main, added Main_Win - a version for not command line running">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.template.sh" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.template.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/Main_win.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/Main_win.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -81,11 +83,14 @@
       <recent name="C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.DomainsEnsemblBuilder">
+  <component name="RunManager" selected="Python.OrthologsBuilder">
     <configuration name="DomainsEnsemblBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -105,12 +110,9 @@
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
@@ -237,11 +239,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.OrthologsBuilder" />
+        <item itemvalue="Python.OrthologsBuilder" />
+        <item itemvalue="Python.OrthologsBuilder" />
         <item itemvalue="Python.DomainsEnsemblBuilder" />
         <item itemvalue="Python.DomainsEnsemblBuilder" />
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
@@ -274,6 +276,7 @@
       <workItem from="1585554470069" duration="133401000" />
       <workItem from="1586788657168" duration="719000" />
       <workItem from="1587041452555" duration="9168000" />
+      <workItem from="1587305848231" duration="6561000" />
     </task>
     <task id="LOCAL‎00001" summary="Refactoring updates">
       <created>1584460305428</created>
@@ -400,10 +403,10 @@
     </state>
     <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587043774222" />
     <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376656727" />
-    <state x="1920" y="0" key="CommitChangelistDialog2" timestamp="1586788755770">
+    <state x="1920" y="0" key="CommitChangelistDialog2" timestamp="1587315854719">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="1920" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586788755770" />
+    <state x="1920" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587315854719" />
     <state x="2650" y="162" key="ExecutionTargetDialog" timestamp="1580376374951">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -486,10 +489,10 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580382692442" />
-    <state x="1051" y="-7" width="492" height="838" key="dock-window-1" timestamp="1587054916888">
+    <state x="1051" y="-7" width="492" height="838" key="dock-window-1" timestamp="1587305864931">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="1051" y="-7" width="492" height="838" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587054916888" />
+    <state x="1051" y="-7" width="492" height="838" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587305864931" />
     <state x="423" y="59" width="1127" height="529" maximized="true" key="dock-window-2" timestamp="1585060206410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

@@ -297,6 +297,7 @@ class dbBuilder:
                     for reg in self.data.Domains[protID]:
                         regID = self.DomainOrg.addDomain(reg)
                         if regID is None:
+                            print(regID)
                             continue
                         relevantDomains.add(regID)
                         relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
