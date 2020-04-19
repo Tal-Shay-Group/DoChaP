@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="Add path of working dir to make more straightforward imports">
-      <change afterPath="$PROJECT_DIR$/OOP_project/Main_win.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Code.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Code.iml" afterDir="false" />
+    <list default="true" id="f41b0973-74c8-48a0-a858-5db567f2f134" name="Default" comment="minor Changes to download from main, added Main_Win - a version for not command line running">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.D_rerio.sh" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.D_rerio.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.H_sapiens.sh" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.H_sapiens.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.M_musculus.sh" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.M_musculus.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.R_norvegicus.sh" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.R_norvegicus.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.X_tropicalis.sh" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/BioMart.orthologs.X_tropicalis.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/OrthologsBuilder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OOP_project/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/DomainOrganizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" beforeDir="false" afterPath="$PROJECT_DIR$/OOP_project/SpeciesDB.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +26,17 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand />
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="DB_merged" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="DB_merged" type="feb32156:DbDataSourceImpl" />
+        <item name="collations" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+    </expand>
     <select />
   </component>
   <component name="ExecutionTargetDialog">
@@ -69,15 +73,34 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/OOP_project" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.DomainsEnsemblBuilder">
+    <configuration name="DomainsEnsemblBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/DomainsEnsemblBuilder.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="OrthologsBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -166,28 +189,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="gffRefseqBuilder" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Code" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OOP_project" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OOP_project/gffRefseqBuilder.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -236,8 +237,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.main" />
+        <item itemvalue="Python.DomainsEnsemblBuilder" />
+        <item itemvalue="Python.DomainsEnsemblBuilder" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.main" />
@@ -271,6 +272,8 @@
       <workItem from="1585061785491" duration="23397000" />
       <workItem from="1585210186349" duration="18119000" />
       <workItem from="1585554470069" duration="133401000" />
+      <workItem from="1586788657168" duration="719000" />
+      <workItem from="1587041452555" duration="9168000" />
     </task>
     <task id="LOCAL‎00001" summary="Refactoring updates">
       <created>1584460305428</created>
@@ -338,7 +341,13 @@
       <option name="presentableId" value="LOCAL‎00011" />
       <updated>1586780582366</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL‎00012" summary="minor Changes to download from main, added Main_Win - a version for not command line running">
+      <created>1586788756997</created>
+      <option name="number" value="LOCAL‎00012" />
+      <option name="presentableId" value="LOCAL‎00012" />
+      <updated>1586788756997</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -369,7 +378,8 @@
     <MESSAGE value="Updated the &quot;downloader&quot; method of OrthologsBuilder.py to create the scripts within the downloader" />
     <MESSAGE value="Indicating argument status" />
     <MESSAGE value="Change None type to empty tuple (script list)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Change None type to empty tuple (script list)" />
+    <MESSAGE value="minor Changes to download from main, added Main_Win - a version for not command line running" />
+    <option name="LAST_COMMIT_MESSAGE" value="minor Changes to download from main, added Main_Win - a version for not command line running" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="WindowStateProjectService">
@@ -385,23 +395,23 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2372" y="95" key="#SQL_Resolution_Scopes/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376146596" />
-    <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586772010680">
+    <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1587043774223">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586772010680" />
+    <state x="2055" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587043774222" />
     <state x="2472" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376656727" />
-    <state x="1920" y="0" key="CommitChangelistDialog2" timestamp="1586780581507">
+    <state x="1920" y="0" key="CommitChangelistDialog2" timestamp="1586788755770">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="1920" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586780581507" />
+    <state x="1920" y="0" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586788755770" />
     <state x="2650" y="162" key="ExecutionTargetDialog" timestamp="1580376374951">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2650" y="162" key="ExecutionTargetDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376374951" />
-    <state x="2471" y="172" key="FileChooserDialogImpl" timestamp="1586788595641">
+    <state x="2522" y="92" key="FileChooserDialogImpl" timestamp="1587044630231">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2471" y="172" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586788595641" />
+    <state x="2522" y="92" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587044630231" />
     <state x="2609" y="217" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376651923" />
     <state x="551" y="172" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1581321943218" />
     <state width="1483" height="100" key="GridCell.Tab.0.bottom" timestamp="1584629143085">
@@ -444,42 +454,42 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="1865" height="243" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580387374054" />
-    <state width="343" height="435" key="HiddenNamespacesPopup" timestamp="1585062378684">
+    <state width="343" height="435" key="HiddenNamespacesPopup" timestamp="1587041667688">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state width="343" height="435" key="HiddenNamespacesPopup/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1585062378684" />
+    <state width="343" height="435" key="HiddenNamespacesPopup/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587041667688" />
     <state width="238" height="549" key="HiddenNamespacesPopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376555385" />
-    <state x="2062" y="0" width="1282" height="824" key="SettingsEditor" timestamp="1586788602589">
+    <state x="2301" y="91" width="1139" height="824" key="SettingsEditor" timestamp="1587044597010">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2062" y="0" width="1282" height="824" key="SettingsEditor/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586788602589" />
+    <state x="2301" y="91" width="1139" height="824" key="SettingsEditor/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587044597010" />
     <state x="2330" y="23" width="1215" height="993" key="SettingsEditor/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580637338947" />
     <state width="250" height="531" key="SqlResolveConfigurable" timestamp="1580376142053">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="250" height="531" key="SqlResolveConfigurable/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376142053" />
-    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1586780625536">
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2" timestamp="1586788759286">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586780625536" />
+    <state x="2181" y="81" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586788759286" />
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1580376187631">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2530" y="71" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580376187631" />
-    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1586788674438">
+    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1587041454171">
       <screen x="1920" y="0" width="1536" height="824" />
     </state>
-    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586788674438" />
+    <state x="2393" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587041454171" />
     <state x="473" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580633015913" />
     <state x="2511" y="302" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580635476898" />
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1580382692442">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2345" y="195" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580382692442" />
-    <state x="305" y="23" width="1245" height="561" maximized="true" key="dock-window-1" timestamp="1586072319492">
+    <state x="1051" y="-7" width="492" height="838" key="dock-window-1" timestamp="1587054916888">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="305" y="23" width="1245" height="561" maximized="true" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1586072319492" />
+    <state x="1051" y="-7" width="492" height="838" key="dock-window-1/0.0.1536.824/1920.0.1536.824@1920.0.1536.824" timestamp="1587054916888" />
     <state x="423" y="59" width="1127" height="529" maximized="true" key="dock-window-2" timestamp="1585060206410">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
