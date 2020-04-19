@@ -89,11 +89,11 @@ class OrthologsBuilder(SourceBuilder):
         spdL = []
         for spec in self.species:
             spd = pd.read_table(os.getcwd() + "/data/orthology/" + spec + ".orthology.txt", sep='\t',
-                                names=[spec + "_ID", spec + "_Trans", "O1_ID", "O1_name", "O1_p", "O1_type",
-                                       "O2_ID", "O2_name", "O2_p", "O2_type",
-                                       "O3_ID", "O3_name", "O3_p", "O3_type",
-                                       "O4_ID", "O4_name", "O4_p", "O4_type",
-                                       spec + "_name", spec + "_p"])
+                                names=[spec + "_ID", "O1_ID", "O1_name", "O1_type",
+                                       "O2_ID", "O2_name", "O2_type",
+                                       "O3_ID", "O3_name", "O3_type",
+                                       "O4_ID", "O4_name", "O4_type",
+                                       spec + "_name"])
             for col in ["O1", "O2", "O3", "O4"]:
                 for record in spd[col + "_ID"]:
                     if type(record) is float:
@@ -103,7 +103,7 @@ class OrthologsBuilder(SourceBuilder):
                             otherShort = self.speciesConvertorShort[otherSpecies]
                             if re.match(rf'ENS{otherShort}[0-9]', record):
                                 changeCol = {col + "_ID": otherSpecies + "_ID", col + "_name": otherSpecies + "_name",
-                                             col + "_p": otherSpecies + "_p", col + "_type": otherSpecies + "_type"}
+                                             col + "_type": otherSpecies + "_type"}
                                 spd = spd.rename(columns=changeCol, errors="raise")
                                 break
                         break
@@ -113,6 +113,7 @@ class OrthologsBuilder(SourceBuilder):
                       'R_norvegicus_ID', 'R_norvegicus_name', 'D_rerio_ID', 'D_rerio_name',
                       'X_tropicalis_ID', 'X_tropicalis_name']].copy()
         subset = subset.drop_duplicates(ignore_index=True)
+        #return subset
         for column in map(lambda x: x + '_ID', self.species):
             restColumns = list(subset.columns)
             restColumns.remove(column)
