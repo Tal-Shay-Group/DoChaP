@@ -1,20 +1,27 @@
 body {
     font-size: 19px;
     /* background-color: rgb(255, 255, 255); */
-    font-family: "Calibri";
-    background-image: url('/resources/dna100.jpg');
-    background-repeat: no-repeat;
+    font-family:Nunito, Calibri; /*Raleway*/
+    /* background-image: url('/resources/fish_bg.jpg'); */
+    background-image: url('/resources/dark_mosaic.png');
+    
+    /* background-repeat: repeat; */
+    /* background-size: auto; */
     /* background-size: cover; */
-    /* background-position: center center;*/
+    background-position: center center;
    
 }
 
+html {
+    height: 100%;
+}
+
 .container-fluid{
-    padding-left: 80px;
-    padding-right: 80px;
+    padding-left: 5%;
+    padding-right: 5%;
 }
 .logo {
-    height: 100px;
+    height: 150px;
     width: 200px;
     align-self: center;
     border-radius: 5px;
@@ -36,24 +43,24 @@ body {
 
 #myModal {
     background-color: rgba(245,245,245,1);
-    height: 250px;
     width: 320px;
-
-    border-style: solid;
-    border-width: 2px;
     border-radius: 5px;
-    border-color: rgb(61, 61, 61);
-
+    /* border-style: solid;
+    border-width: 2px;
+    
+    border-color: rgb(61, 61, 61); */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.9);
+ 
     text-align: left;
     font-size: 16px;
      overflow: auto;
-    box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75);
+    /* box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75); */
     padding: 20px;
     left: 45%;
     top: 45%;
     /*margin: auto; */
     position: relative;
-    z-index: 3;
+    z-index: 10;
 
 }
 
@@ -125,7 +132,7 @@ body {
     font-size: 16px;
     color:black;
     height: 35px;
-    width: 300px;
+    width: 200px;
 }
 
 /*result col genomic/transcript & protein title*/
@@ -192,7 +199,7 @@ text aligned to left
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
     padding: 30px;
     border-radius: 5px;
-    width: 800px;
+    width: 90%; /*800*/
     background-color: white;
     /* background-color:rgb(235, 235, 235);  */
     /* background-color: #B8B4FF ;  */

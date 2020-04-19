@@ -27,8 +27,8 @@ angular.module("DoChaP")
         //getting gene from results saved in site
         self.geneInfo = runGenesCreation(loadedGene, ignorePredictions)[0];
         $scope.transcripts = self.geneInfo.transcripts;
-        $scope.shownTranscripts= $scope.transcripts.length;
-        $scope.hiddenTranscripts=0;
+        $scope.shownTranscripts = $scope.transcripts.length;
+        $scope.hiddenTranscripts = 0;
 
 
         //when "hide transcript" button is clicked.
@@ -66,28 +66,28 @@ angular.module("DoChaP")
             }
 
             countShownTranscripts();
-            
+
         };
 
-        function countShownTranscripts(){
-            var counter=0;
+        function countShownTranscripts() {
+            var counter = 0;
             for (var i = 0; i < $scope.transcripts.length; i++) {
-                if($scope.transcripts[i].genomicView ||
-                    $scope.transcripts[i].transcriptView  ||
-                    $scope.transcripts[i].proteinView){
-                    counter=counter+1;
+                if ($scope.transcripts[i].genomicView ||
+                    $scope.transcripts[i].transcriptView ||
+                    $scope.transcripts[i].proteinView) {
+                    counter = counter + 1;
                 }
             }
-            $scope.shownTranscripts=counter;
-            $scope.hiddenTranscripts= $scope.transcripts.length-counter;
+            $scope.shownTranscripts = counter;
+            $scope.hiddenTranscripts = $scope.transcripts.length - counter;
             $(document).ready(function () {
-                if($scope.shownTranscripts>0){
+                if ($scope.shownTranscripts > 0) {
                     self.geneInfo.scale.drawBehind("genomicGridlines");
-                self.geneInfo.proteinScale.drawBehind("proteinGridlines");
+                    self.geneInfo.proteinScale.drawBehind("proteinGridlines");
                 }
-                
+
             });
-            
+
         }
 
         //change view mode. When selecting from chociebox "show only __"
@@ -123,10 +123,6 @@ angular.module("DoChaP")
                 self.currTranscript = $scope.transcripts[id];
             }
             webService.userLog("open_window");
-            $(document).ready(function () {
-                dragElement(document.getElementById("myModal"));
-                $scope.$apply();
-            });
 
         }
 
@@ -141,7 +137,7 @@ angular.module("DoChaP")
             $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
             $route.reload();
         }
-       
+
         $scope.numberToTextWithCommas = numberToTextWithCommas;
 
         //after every page-load or configuration change we create updated graphics 
@@ -217,4 +213,35 @@ angular.module("DoChaP")
         $(document).ready(function () {
             updateCanvases();
         });
+
+        $scope.downloadPDF = function () {
+            var doc = new jsPDF();
+            var space = 5;
+            var width = 90;
+            var height = 10;
+            var rowHeight = 30;
+            var startY = 40;
+            doc.text(space * 2, 2 * space, "Species: " + self.geneInfo.specieName + " Gene: " + self.geneInfo.gene_symbol + " total number of transcripts: " + $scope.transcripts.length);
+            doc.text(space * 2, 4 * space, self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end));
+            for (var i = 0; i < $scope.transcripts.length; i++) {
+                var canvasGenomic = document.getElementById("canvas-genomic" + i);
+                var imgGenomic = canvasGenomic.toDataURL("image/png");
+                var canvasTranscript = document.getElementById("canvas-transcript" + i);
+                var imgTranscript = canvasTranscript.toDataURL("image/png");
+                var canvasProtein = document.getElementById("canvas-protein" + i);
+                var imgProtein = canvasProtein.toDataURL("image/png");
+                doc.setFontSize(10);
+                doc.text(space, startY + rowHeight * (i % 8), "Transcript: " + $scope.transcripts[i].name + " Protein: " + $scope.transcripts[i].protein_name);
+                //x,y,width,height
+                doc.addImage(imgGenomic, space, startY + space + rowHeight * (i % 8), width, height);
+                doc.addImage(imgTranscript, space + width + space, startY + space + rowHeight * (i % 8), width, height / 2);
+                doc.addImage(imgProtein, space + width + space, startY + space + rowHeight * (i % 8) + height, width, height);
+
+                if ((i + 1) % 8 == 0) {
+                    doc.addPage();
+                }
+
+            }
+            doc.save(self.geneInfo.gene_symbol+".pdf");
+        }
     });

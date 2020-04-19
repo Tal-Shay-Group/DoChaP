@@ -15,10 +15,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   self.currSpecies = 0;
   $scope.canvasSize = $(window).width() / 5;
   self.toolTipManagerForCanvas = {};
+  $scope.orthologyList = undefined;
 
   self.geneSearch = function () {
     $scope.loading = true;
-    compareSpeciesService.geneSearch(compareGeneSearchTextField.value, specie1ComboBox.value, specie2ComboBox.value)
+    compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, specie2ComboBox.value, orthologyComboBox.value)
       .then(function (response) {
         $scope.loading = false;
         if (response[0] == "error") {
@@ -84,6 +85,12 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
         Domain.domainClick(self.toolTipManagerForCanvas, event);
         $scope.$apply();
       });
+    if ($('#genomic_range1').data("ionRangeSlider") != undefined) {
+      $('#genomic_range1').data("ionRangeSlider").destroy();
+      $('#protein_range1').data("ionRangeSlider").destroy();
+      $('#genomic_range2').data("ionRangeSlider").destroy();
+      $('#protein_range2').data("ionRangeSlider").destroy();
+    }
 
     $('#genomic_range1').ionRangeSlider({
       type: "double",
@@ -94,32 +101,15 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
         var colors = getColorForLength(results, isReviewedCheckBox.checked);
         var genes = results.genes;
         self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-        $scope.transcripts = self.specie1Gene.transcripts;
-        /*$scope.$apply();*/
-        $(document).ready(function () {
-          updateCanvases();
-        });
-
-      }
-
-    });
-    $('#protein_range1').ionRangeSlider({
-      type: "double",
-      min: 0,
-      max: self.specie1Gene.proteinScale.length,
-      from: 0,
-      to: self.specie1Gene.proteinScale.length,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
         $scope.transcripts = self.specie1Gene.transcripts;
         /*$scope.$apply();*/
         $(document).ready(function () {
@@ -138,11 +128,43 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
         var colors = getColorForLength(results, isReviewedCheckBox.checked);
         var genes = results.genes;
         self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
         $scope.transcripts = self.specie2Gene.transcripts;
+        /*$scope.$apply();*/
+        $(document).ready(function () {
+          updateCanvases();
+        });
+
+      }
+
+    });
+    $('#protein_range1').ionRangeSlider({
+      type: "double",
+      min: 0,
+      max: self.specie1Gene.proteinScale.length,
+      from: 0,
+      to: self.specie1Gene.proteinScale.length,
+      drag_interval: true,
+      skin: "square",
+      onFinish: function (data) {
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
+        $scope.transcripts = self.specie1Gene.transcripts;
         /*$scope.$apply();*/
         $(document).ready(function () {
           updateCanvases();
@@ -160,7 +182,12 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       drag_interval: true,
       skin: "square",
       onFinish: function (data) {
-        var results = JSON.parse($window.sessionStorage.getItem("currCompareSpecies"));
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
         var colors = getColorForLength(results, isReviewedCheckBox.checked);
         var genes = results.genes;
         self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
@@ -358,7 +385,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   }
 
   //show according to mode
-  $scope.showTranscriptView = function (index,species) {
+  $scope.showTranscriptView = function (index, species) {
     var specieToChange = undefined;
     if (species == 1) {
       specieToChange = self.specie1Gene;
@@ -391,5 +418,23 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     countShownTranscripts();
 
   };
+
+  self.searchForOrthology = function () {
+    compareSpeciesService.fillOrthologyCombox(specie1ComboBox.value, compareGeneSearchTextField.value)
+      .then(function (response) {
+        var results = response.data;
+        $scope.orthologyList = results;
+        self.fillOrthologyCombox();
+      });
+  }
+  self.fillOrthologyCombox = function () {
+    var options = $scope.orthologyList[specie2ComboBox.value + "_name"].split("; ");
+    $('#orthologyComboBox').empty();
+    $.each(options, function (i, p) {
+      $('#orthologyComboBox').append($('<option></option>').val(p).html(p));
+    });
+  }
+
+
 
 });

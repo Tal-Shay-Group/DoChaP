@@ -1,8 +1,10 @@
 class Transcript {
     constructor(dbTranscript, gene) {
-
         //regular db attributes
         this.gene = gene;
+        this.id=dbTranscript.transcript_refseq_id!=undefined?dbTranscript.transcript_refseq_id:dbTranscript.transcript_ensembl_id;
+        this.transcript_refseq_id=dbTranscript.transcript_refseq_id;
+        this.transcript_ensembl_id=dbTranscript.transcript_ensembl_id;
         this.id = dbTranscript.transcript_id;
         this.cds_start = dbTranscript.cds_start;
         this.cds_end = dbTranscript.cds_end;
@@ -10,23 +12,24 @@ class Transcript {
         this.tx_end = dbTranscript.tx_end;
         this.exonCount = dbTranscript.exon_count;
         this.ucsc_id = dbTranscript.ucsc_id;
-        this.ensembl_id = dbTranscript.ensembl_ID;
         this.length = gene.end - gene.start;
         this.maxProteinLength = gene.maxProteinLength;
         this.startCoordinate = gene.start;
         this.transcriptEnsemblLink = this.getEnsemblTranscriptLink(dbTranscript.ensembl_ID, gene.specie);
         this.isStrandNegative = (gene.strand == '-');
+        this.name=this.getName(dbTranscript.transcript_refseq_id,dbTranscript.transcript_ensembl_id)
 
         //protein attributes
-        this.proteinId = dbTranscript.protein.protein_id;
+        this.proteinId = dbTranscript.protein.protein_refseq_id!=undefined?dbTranscript.protein.protein_refseq_id:dbTranscript.protein.protein_ensembl_id;
+        this.protein_refseq_id=dbTranscript.protein.protein_refseq_id;
         this.proteinLength = dbTranscript.protein.length * 3; // in base units
         this.proteinLengthInAA = dbTranscript.protein.length;
         this.description = dbTranscript.protein.description;
         this.proteinSynonyms = dbTranscript.protein.synonyms;
-        this.proteinEnsemblID = dbTranscript.protein.ensembl_id;
-        this.proteinUniprotID = dbTranscript.protein.uniprot_id;
-        this.proteinEnsemblLink = this.getEnsemblProteinLink(dbTranscript.protein.ensembl_id, gene.specie);
-
+        this.protein_ensembl_id = dbTranscript.protein.protein_ensembl_id;
+        // this.proteinUniprotID = dbTranscript.protein.uniprot_id;
+        this.proteinEnsemblLink = this.getEnsemblProteinLink(dbTranscript.protein.protein_ensembl_id, gene.specie);
+        this.protein_name=this.getName(dbTranscript.protein.protein_refseq_id,dbTranscript.protein.protein_ensembl_id)
         // show or hide mode attributes
         this.genomicView = true;
         this.transcriptView = true;
@@ -374,6 +377,18 @@ class Transcript {
         for (var i = 0; i < domainsInProtein.length; i++) {
             domainsInProtein[i].drawExtend(context, coordinatesWidth, startHeight, true, exons);
         }
+    }
+    getName(refseq_id,ensembl_id){
+        if(refseq_id!=undefined && ensembl_id==undefined){
+            return refseq_id;
+        }
+        if(refseq_id==undefined && ensembl_id!=undefined){
+            return ensembl_id
+        }
+        if(refseq_id!=undefined && ensembl_id!=undefined){
+            return refseq_id+" / "+ensembl_id;
+        }
+        return undefined;
     }
 
 }

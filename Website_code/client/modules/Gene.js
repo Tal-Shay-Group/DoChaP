@@ -1,18 +1,17 @@
 class Gene {
 
     constructor(dbGene, ignorePredictions, colorByLength, start, end, proteinStart, proteinEnd) {
-
         //gene symbol where only the first letter is capitalized
         this.gene_symbol = dbGene.gene_symbol.toUpperCase().substring(0, 1) + dbGene.gene_symbol.toLowerCase().substring(1);
 
         //basic attributes from db
-        this.gene_id = dbGene.gene_id;
+        this.gene_GeneID_id = dbGene.gene_GeneID_id;
         this.strand = dbGene.strand;
         this.synonyms = dbGene.synonyms;
         this.chromosome = dbGene.chromosome;
         this.description = dbGene.description;
         this.MGI_id = dbGene.MGI_id;
-        this.ensembl_id = dbGene.ensembl_id;
+        this.gene_ensembl_id = dbGene.gene_ensembl_id;
         this.specie = dbGene.specie;
         this.colorByLength=colorByLength;
 
@@ -36,7 +35,7 @@ class Gene {
         //push transcripts
         this.transcripts = [];
         for (var i = 0; i < dbGene.transcripts.length; i++) {
-            if (ignorePredictions == false || dbGene.transcripts[i].transcript_id.substring(0, 2) == "NM") {
+            if (ignorePredictions == false || dbGene.transcripts[i].transcript_refseq_id.substring(0, 2) == "NM") {
                 this.transcripts.push(new Transcript(dbGene.transcripts[i],this));
             }
         }
@@ -119,10 +118,14 @@ class Gene {
         for (var i = 0; i < transcripts.length; i++) {
             for (var j = 0; j < transcripts[i].transcriptExons.length; j++) {
                 if (transcripts[i].transcriptExons[j].genomic_start_tx == start && transcripts[i].transcriptExons[j].genomic_end_tx == end) {
+                    var name=transcripts[i].transcript_refseq_id;
+                    if(name==undefined){
+                        name=transcripts[i].transcript_ensembl_id;
+                    }
                     if (ans == "") {
-                        ans = transcripts[i].transcript_id;
+                        ans = name;
                     } else {
-                        ans = ans + ", " + transcripts[i].transcript_id;
+                        ans = ans + ", " + name;
                     }
                 }
             }
@@ -132,7 +135,7 @@ class Gene {
 
     //calculating ensemble gene link
     getEnsemblGeneLink() {
-        return "https://www.ensembl.org/" + Species.ensembleSpecieName(this.specie) + "/Gene/Summary?db=core;g=" + this.ensembl_id;
+        return "https://www.ensembl.org/" + Species.ensembleSpecieName(this.specie) + "/Gene/Summary?db=core;g=" + this.gene_ensembl_id;
     }
 
     getSpecieName() {
