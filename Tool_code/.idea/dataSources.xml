@@ -49,5 +49,11 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="mergedDB" uuid="251199e9-4205-496d-8d97-ff26fbb11dbb">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/OOP_project/DB_merged.sqlite</jdbc-url>
+    </data-source>
   </component>
 </project>
