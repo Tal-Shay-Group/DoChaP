@@ -41,3 +41,6 @@ Tool_code/*.txt
 **/*.orthology.txt
 
 Downloads_refine/Downloads/**
+
+**/.idea
+**/__pycache__
