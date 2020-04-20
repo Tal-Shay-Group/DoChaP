@@ -10,14 +10,6 @@ var db = undefined;
 var fs = require('fs');
 var qCache = require('./QueryCache').qCache;
 
-/*
-
-
-var stmt = db.prepare('SELECT * FROM users WHERE id=?');
-var row = stmt.get(userId);
-console.log(row.name, row.email);
-
-*/
 
 
 function sql(query,params) {
@@ -43,11 +35,11 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
     }
 
     //find genes
-    finalAns.genes = await findGenes(req.params.inputGene);
+    finalAns.genes = findGenes(req.params.inputGene);
     
     //try close genes 
     if (finalAns.genes == undefined) {
-        finalAns.genes = await closeGenes(req.params.inputGene);
+        finalAns.genes = closeGenes(req.params.inputGene);
         finalAns.isExact = false;
     }
 
@@ -71,7 +63,7 @@ app.get("/querySearch/:inputGene/:specie/:isReviewed", async (req, res) => {
     }
 
     //build gene info
-    await buildGeneInfo(finalAns);
+    buildGeneInfo(finalAns);
 
     //add to cache
     qCache.addNewQuery(queryID, finalAns);
@@ -86,83 +78,89 @@ function writeToLog(finalAns){
     console.log("querySearch:");
     console.log(finalAns);
     if (finalAns.genes != undefined && finalAns.genes.length > 0) {
-        fs.writeFile("log.txt", "*res" + finalAns.genes[0].gene_id + "\n", {
+        fs.writeFile("log.txt", "*res" + finalAns.genes[0].gene_GeneID_id + "\n", {
             flag: 'a'
         }, function (err) {});
     }
 
 }
 // searches for exact gene name. if not found searches for synonyms. returns the record found
-async function findGenes(geneName) {
+function findGenes(geneName) {
     var ans = undefined;
 
     //search by gene_id/gene_symbol/ensembl_id
-    ans = sql("SELECT gene_id , specie FROM Genes WHERE (UPPER(gene_symbol) = ? or gene_id = ? or ensembl_id =?)",[geneName.toUpperCase(),geneName,geneName]);
+    ans = sql("SELECT gene_GeneID_id , specie FROM Genes WHERE (UPPER(gene_symbol) = ? or gene_GeneID_id = ? or gene_ensembl_id =?)",[geneName.toUpperCase(),geneName,geneName]);
     if (ans.length > 0) {
         return ans;
     }
 
     //search by refSeq transcript_id/protein_id
-    ans = sql("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id=? or protein_id=?) as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id ",[geneName,geneName]);
+    ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+        "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE transcript_refseq_id=? or transcript_ensembl_id=? or protein_refseq_id=? or protein_ensembl_id=?) as tmp1" +
+        ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[geneName,geneName,geneName,geneName]);
     if (ans.length > 0) {
         return ans;
     }
 
-    //search by other ID (they don't use versions)
+
+    //search by refSeq with no version
     var recordNonVersion = geneName.split(".")[0].toUpperCase();
-    ans = sql("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Proteins WHERE UPPER (ensembl_id) LIKE ?) as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id ",[recordNonVersion + '%']);
-    if (ans.length > 0) {
-        return ans;
-    }
-    ans = sql("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Transcripts WHERE UPPER(ensembl_ID) LIKE ?) as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id ",[recordNonVersion + '%']);
-    if (ans.length > 0) {
-        return ans;
-    }
-    ans = sql("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Proteins WHERE UPPER(uniprot_id) LIKE ?) as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id ",[recordNonVersion + '%']);
+    ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+        "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE transcript_refseq_id=? or protein_refseq_id=?) as tmp1" +
+        ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[recordNonVersion,recordNonVersion]);
     if (ans.length > 0) {
         return ans;
     }
 
+    // //search by other ID (they don't use versions)
+    // var recordNonVersion = geneName.split(".")[0].toUpperCase();
+    // ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+    //     "FROM (SELECT gene_GeneID_id FROM Proteins WHERE UPPER (ensembl_id) LIKE ?) as tmp1" +
+    //     ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[recordNonVersion + '%']);
+    // if (ans.length > 0) {
+    //     return ans;
+    // }
+    // ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+    //     "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE UPPER(ensembl_ID) LIKE ?) as tmp1" +
+    //     ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[recordNonVersion + '%']);
+    // if (ans.length > 0) {
+    //     return ans;
+    // }
+    // ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+    //     "FROM (SELECT gene_GeneID_id FROM Proteins WHERE UPPER(uniprot_id) LIKE ?) as tmp1" +
+    //     ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[recordNonVersion + '%']);
+    // if (ans.length > 0) {
+    //     return ans;
+    // }
+    
     //search by refSeq transcript_id/protein_id WITH NO VERSIONS
-    ans = sql("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Proteins WHERE protein_id LIKE ?) as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id ",[recordNonVersion + '%']);
-    if (ans.length > 0) {
-        return ans;
-    }
+    // ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+    //     "FROM (SELECT gene_GeneID_id FROM Proteins WHERE protein_id LIKE ?) as tmp1" +
+    //     ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[recordNonVersion + '%']);
+    // if (ans.length > 0) {
+    //     return ans;
+    // }
 
-    ans = sql("SELECT Genes.gene_id, specie " +
-        "FROM (SELECT gene_id FROM Transcripts WHERE transcript_id LIKE ?) as tmp1" +
-        ", Genes WHERE tmp1.gene_id=Genes.gene_id ",[recordNonVersion + '%']);
-    if (ans.length > 0) {
-        return ans;
-    }
-
+    // ans = sql("SELECT Genes.gene_GeneID_id, specie " +
+    //     "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE transcript_id LIKE ?) as tmp1" +
+    //     ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ",[recordNonVersion + '%']);
+    // if (ans.length > 0) {
+    //     return ans;
+    // }
     return undefined;
 }
 
 // for each transcripts looks for protein, exons, domains
-async function findTranscriptInfo(transcript) {
-    var transcriptExons = sql("SELECT * FROM Transcript_Exon WHERE transcript_id =  ?",[transcript.transcript_id]);
+function findTranscriptInfo(transcript) {
+    var transcriptExons = sql("SELECT * FROM Transcript_Exon WHERE transcript_refseq_id =  ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_ensembl_id]);
     transcript.transcriptExons = transcriptExons;
-
-    var protein = sql("SELECT * FROM Proteins WHERE transcript_id = ?",[transcript.transcript_id]);
+    var protein = sql("SELECT * FROM Proteins WHERE transcript_refseq_id =  ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_ensembl_id]);
     transcript.protein = protein[0];
-
-    var domains = sql("SELECT * FROM DomainEvent WHERE protein_id = ?",[transcript.protein_id]);
+    var domains = sql("SELECT * FROM DomainEvent WHERE protein_refseq_id = ? or protein_ensembl_id = ?",[transcript.protein_refseq_id, transcript.protein_ensembl_id]);
     transcript.domains = domains;
 
-    var spliceInDomains = sql("SELECT * FROM SpliceInDomains WHERE transcript_id = ?",[transcript.transcript_id]);
-    transcript.spliceInDomains = spliceInDomains;
-
+    // var spliceInDomains = sql("SELECT * FROM SpliceInDomains WHERE transcript_refseq_id = ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_refseq_id]);
+    // transcript.spliceInDomains = spliceInDomains;
     //info on each domain
     for (var j = 0; j < transcript.domains.length; j++) {
         var domainType = sql("SELECT * FROM DomainType WHERE type_id = ?",[transcript.domains[j].type_id]);
@@ -174,10 +172,10 @@ async function findTranscriptInfo(transcript) {
 
 //if regular search does not work we find genes that are similar 
 //because the user may have wanted them and searched for something wrong
-async function closeGenes(geneName) {
+function closeGenes(geneName) {
     //find synonyms
     var synonyms = [];
-    ans = await sql("SELECT gene_id, specie, synonyms FROM Genes WHERE (synonyms LIKE ? OR synonyms LIKE ?)",[ geneName+'%', '%; '+geneName+'%']);
+    ans = sql("SELECT gene_GeneID_id, specie, synonyms FROM Genes WHERE (synonyms LIKE ? OR synonyms LIKE ?)",[ geneName+'%', '%; '+geneName+'%']);
     if (ans.length != 0) {
         for (var i = 0; i < ans.length; i++) {
             var geneSynonyms = ans[i].synonyms.split("; ");
@@ -188,48 +186,40 @@ async function closeGenes(geneName) {
             }
         }
     }
-    
     return synonyms;
    
 }
 
-async function buildGeneInfo(finalAns){
-    
+function buildGeneInfo(finalAns){
     //after finding the genes, completing all information needed for results
     for (var i = 0; i < finalAns.genes.length; i++) {
         //get gene
-        var gene = sql("SELECT * FROM Genes WHERE gene_id = ?",[finalAns.genes[i].gene_id]);
+        var gene = sql("SELECT * FROM Genes WHERE gene_GeneID_id = ?",[finalAns.genes[i].gene_GeneID_id]);
         finalAns.genes[i] = gene[0]; //first and only one who matches this id
 
         //get transcripts
-        var transcripts = sql("SELECT * FROM Transcripts WHERE gene_id = ?",[finalAns.genes[i].gene_id]);
+        var transcripts = sql("SELECT * FROM Transcripts WHERE gene_GeneID_id = ?",[finalAns.genes[i].gene_GeneID_id]);
         finalAns.genes[i].transcripts = transcripts;
         
         //get exons
-        var geneExons = sql("SELECT * FROM Exons WHERE gene_id = ?",[finalAns.genes[i].gene_id]);
+        var geneExons = sql("SELECT * FROM Exons WHERE gene_GeneID_id = ?",[finalAns.genes[i].gene_GeneID_id]);
         finalAns.genes[i].geneExons = geneExons;
 
         //foreach transcript: protein, exons, domains
         for (var j = 0; j < finalAns.genes[i].transcripts.length; j++) {
-            finalAns.genes[i].transcripts[j] = await findTranscriptInfo(finalAns.genes[i].transcripts[j]);
+            finalAns.genes[i].transcripts[j] = findTranscriptInfo(finalAns.genes[i].transcripts[j]);
         }
     }
 }
 
-
-//connects to the db using db module (DButils) and returns query answer
-/*function sqlQuery(query) {
-    var promise = new Promise(function (resolve, reject) {
-        DButils.db.all(query, [], async (err, rows) => {
-            if (err == undefined) {
-                resolve(rows);
-            } else {
-                reject(err);
-                console.log(err);
-            }
-        });
-    });
-    return promise;
-}*/
+//get orthology
+app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
+    db=new Database('DB_merged.sqlite');
+    var gene= req.params.gene.toUpperCase();
+    var species=req.params.species;
+    var results = sql("SELECT H_sapiens_name, M_musculus_name, R_norvegicus_name, D_rerio_name, X_tropicalis_name FROM Orthology WHERE UPPER( "+species+"_name"+" ) LIKE ? ",["%"+gene+"%"]);
+    db.close();
+    res.status(200).send(results[0]);
+});
 
 module.exports = app;

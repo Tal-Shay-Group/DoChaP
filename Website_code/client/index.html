@@ -66,9 +66,10 @@ Logo and navigation bars will be declared here for example.
     <script src="indexController.js"></script>
     <script src="resources/draggableModal.js"></script>
     <link rel="icon" href="resources/favicon.ico">
-
-    <!-- style. will later be in css file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>    <!-- css file and font-->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Nunito" />
     <link rel="stylesheet" type="text/css" href="main.css">
+    
 
 
     <meta name="description" content="visualization of exon–domain relationships in different transcripts">
@@ -99,18 +100,18 @@ Logo and navigation bars will be declared here for example.
           </div>
           <div class="collapse navbar-collapse" id="myNavbar">
             <!-- Home -->
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav"  style="padding-top: 5px; ">
                   <a href="#!querySearch">
 
-                <!-- <img src="resources/smallLogo.png" height="45" width="200" style="border-radius: 3px; margin: 3px;"/> -->
-              <span class="logoText">
+                <img src="resources/LOGO_noBG.png" height="45" width="200" style="border-radius: 3px; margin: 3px;"/>
+              <!-- <span class="logoText">
                   DoChaP
-              </span>
+              </span> -->
               </a>
             </ul>
         
-              <ul class="nav navbar-nav">
-                <li><a href="#!querySearch">Home</a></li>
+              <ul class="nav navbar-nav"  style="padding-top: 15px; ">
+                <li><a href="#!querySearch" style="">Home</a></li>
               <li><a href="#!compareSpecies">Compare Species</a></li>
              <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
                     <select class="form-control searchBySpecie" id="indexSpecies">
@@ -128,7 +129,7 @@ Logo and navigation bars will be declared here for example.
                   </span>
                 </li>
             </ul>
-            <ul class="nav navbar-nav navbar-right" >
+            <ul class="nav navbar-nav navbar-right"  style="padding-top: 15px;">
                 
                 <li><a href="#!about"><span style="font-size: 16px;" class="glyphicon glyphicon-info-sign"></span> About</a></li>
                 <li><a href="#!help"><span style="font-size: 16px;" class="glyphicon glyphicon-question-sign"></span> Help</a></li>

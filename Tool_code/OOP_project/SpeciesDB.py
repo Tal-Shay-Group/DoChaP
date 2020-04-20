@@ -296,6 +296,9 @@ class dbBuilder:
                     splicin = set()
                     for reg in self.data.Domains[protID]:
                         regID = self.DomainOrg.addDomain(reg)
+                        if regID is None:
+                            print(regID)
+                            continue
                         relevantDomains.add(regID)
                         relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
                         total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!

@@ -8,12 +8,12 @@ sys.path.append(os.getcwd())
 from Director import SourceBuilder
 
 
-class OrthologsBuilder(SourceBuilder):
+class DomainsEnsemblBuilder(SourceBuilder):
     """
-    Dowload and parse Orthology tables
+    Dowload and parse Domains tables
     """
 
-    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'), download=False):
+    def __init__(self,species, download=False):
         """
         @type species: tuple
         """
@@ -21,41 +21,30 @@ class OrthologsBuilder(SourceBuilder):
         self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
                                  'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
                                  'X_tropicalis': 'xtropicalis'}
-        self.speciesConvertorShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
-                                      'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
-        self.downloadPath = os.getcwd() + "/data/orthology/"
-        if not download:
-            self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
+        self.ExtSources = ("pfam", "smart", "cdd", "tigrfam")
+        self.downloadPath = os.getcwd() + '/data/{}/ensembl/BioMart/'.format(self.species)
+        #if not download:
+        #    self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
         self.scriptsList = ()
         self.OrthoTable = None
-
-    def setSpecies(self, speciesTuple):
-        """adds species to the species tuple"""
-        self.species = self.species + speciesTuple
-
-    def setScriptsList(self, scriptsList):
-        self.scriptsList = scriptsList
 
     def createDownloadScripts(self):
         scriptList = tuple()
         os.makedirs(self.downloadPath, exist_ok=True)
-        for species in self.species:
-            replaceDict = {"output.txt": self.downloadPath + "{}.orthology.txt".format(species),
-                           "MainSpecies": self.speciesConvertor[species] + "_gene_ensembl"}
-            addcomps = 1
-            for compSpec in self.species:
-                if compSpec is not species:
-                    replaceDict["Comp" + str(addcomps)] = self.speciesConvertor[compSpec]
-                    addcomps += 1
-            with open(os.getcwd() + "/BioMart.orthologs.template.sh", "r") as template:
-                with open(os.getcwd() + "/BioMart.orthologs.{}.sh".format(species), "w") as writo:
+        for extDB in self.ExtSources:
+            replaceDict = {"output.txt": self.downloadPath + "{}.Domains.{}.txt".format(self.species, extDB),
+                            "MainSpecies": self.speciesConvertor[self.species],
+                           "extDB": extDB}
+            with open(os.getcwd() + "/BioMart.ensembl.domains.template2.sh", "r") as template:
+                with open(os.getcwd() +
+                          "/BioMart.ensembl.domains.{}.{}.sh".format(self.species, extDB), "w") as writo:
                     for line in template:
                         for key in replaceDict:
                             if key in line:
                                 line = line.replace(key, replaceDict[key])
                         writo.write(line)
-                    scriptList = scriptList + (os.getcwd() + "/BioMart.orthologs.{}.sh".format(species),)
-        self.setScriptsList(scriptList)
+                    scriptList = scriptList + (os.getcwd() + "/BioMart.ensembl.domains.{}.{}.sh".format(self.species, extDB),)
+        self.scriptsList = scriptList
 
     def downloader(self):
         output = dict()
@@ -84,16 +73,18 @@ class OrthologsBuilder(SourceBuilder):
                 print(err[key])
             else:
                 print("script: " + key + " has finished running without errors")
+        for script in self.scriptsList:
+            os.remove(script)
 
     def parser(self):
         spdL = []
         for spec in self.species:
             spd = pd.read_table(os.getcwd() + "/data/orthology/" + spec + ".orthology.txt", sep='\t',
-                                names=[spec + "_ID", "O1_ID", "O1_name", "O1_type",
-                                       "O2_ID", "O2_name", "O2_type",
-                                       "O3_ID", "O3_name", "O3_type",
-                                       "O4_ID", "O4_name", "O4_type",
-                                       spec + "_name"])
+                                names=[spec + "_ID", spec + "_Trans", "O1_ID", "O1_name", "O1_p", "O1_type",
+                                       "O2_ID", "O2_name", "O2_p", "O2_type",
+                                       "O3_ID", "O3_name", "O3_p", "O3_type",
+                                       "O4_ID", "O4_name", "O4_p", "O4_type",
+                                       spec + "_name", spec + "_p"])
             for col in ["O1", "O2", "O3", "O4"]:
                 for record in spd[col + "_ID"]:
                     if type(record) is float:
@@ -103,7 +94,7 @@ class OrthologsBuilder(SourceBuilder):
                             otherShort = self.speciesConvertorShort[otherSpecies]
                             if re.match(rf'ENS{otherShort}[0-9]', record):
                                 changeCol = {col + "_ID": otherSpecies + "_ID", col + "_name": otherSpecies + "_name",
-                                             col + "_type": otherSpecies + "_type"}
+                                             col + "_p": otherSpecies + "_p", col + "_type": otherSpecies + "_type"}
                                 spd = spd.rename(columns=changeCol, errors="raise")
                                 break
                         break
@@ -113,7 +104,6 @@ class OrthologsBuilder(SourceBuilder):
                       'R_norvegicus_ID', 'R_norvegicus_name', 'D_rerio_ID', 'D_rerio_name',
                       'X_tropicalis_ID', 'X_tropicalis_name']].copy()
         subset = subset.drop_duplicates(ignore_index=True)
-        #return subset
         for column in map(lambda x: x + '_ID', self.species):
             restColumns = list(subset.columns)
             restColumns.remove(column)

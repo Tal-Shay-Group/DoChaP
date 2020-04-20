@@ -10,6 +10,9 @@ class Exon {
         this.color = geneExons[dbExon.genomic_start_tx][dbExon.genomic_end_tx].color;
         this.orderInTranscript = dbExon.order_in_transcript;
         this.numOfExonInTranscript = numOfExonInTranscript;
+        this.length=dbExon.abs_end_CDS-dbExon.abs_start_CDS+1; //in nuc
+        this.genomic_start_tx=dbExon.genomic_start_tx;
+        this.genomic_end_tx=dbExon.genomic_end_tx;
 
         this.isUTRStart = undefined;
         this.isUTREnd = undefined;
@@ -136,7 +139,8 @@ class Exon {
         const exonHeight = position.exonHeight;
         const exonX = position.exonX;
         const exonY = position.exonY;
-        return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript,undefined];
+        var text="Exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript+"<br>"+numberToTextWithCommas(this.genomic_start_tx)+" - "+numberToTextWithCommas(this.genomic_end_tx);
+        return [exonX, exonY, exonWidth, exonHeight, text,undefined];
 
     }
 
@@ -146,14 +150,15 @@ class Exon {
         const exonHeight = position.exonHeight;
         const exonX = position.exonX;
         const exonY = position.exonY;
-        return [exonX, exonY, exonWidth, exonHeight, "exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript, undefined]
+        var text="Exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript+"<br>Length: "+this.length+"bp/"+(Math.round(this.length/3 * 100) / 100)+"AA";
+        return [exonX, exonY, exonWidth, exonHeight, text , undefined]
     }
 
     transcriptViewPosition(coordinatesWidth, startHeight){
         var pos=new Object();
         pos.exonWidth = (this.transcriptViewEnd - this.transcriptViewStart + 1) * coordinatesWidth;
         pos.exonHeight = 25;
-        pos.exonX = this.transcriptViewStart * coordinatesWidth; //currX;
+        pos.exonX = this.transcriptViewStart * coordinatesWidth;
         pos.exonY = startHeight - pos.exonHeight / 2;
         
         // if (pos.exonX + pos.exonWidth >= canvasWidth) {

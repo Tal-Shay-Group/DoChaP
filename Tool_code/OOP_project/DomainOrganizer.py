@@ -32,8 +32,11 @@ class DomainOrganizer:
         cdname = None
         currReg = None
         existExt = [None] * 6
+        external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
         if domain.extID is None:
-            return
+            return None
+        elif domain.extType not in external:
+            return None
         if domain.extID is not None and domain.extID not in self.allExt:
             if domain.name not in self.allNames:
                 if domain.cdd is None or domain.cdd not in self.allCDD:
@@ -81,7 +84,7 @@ class DomainOrganizer:
             raise ValueError(
                 'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
         # try:
-        external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
+
         pos = external.index(domain.extType)
         if existExt[pos] is None:
             tempexist = list(existExt).copy()
