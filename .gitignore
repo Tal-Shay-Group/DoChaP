@@ -44,3 +44,7 @@ Downloads_refine/Downloads/**
 
 **/.idea
 **/__pycache__
+
+**/*.sh
+!**/*.temaplate.sh
+!**/*.Temaplate.sh

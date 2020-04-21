@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "main.py", line 28, in <module>
-    director.collectFromSource(download=download)
-  File "/gpfs0/tals/projects/Analysis/DoChaP/DoChaP/Tool_code/OOP_project/Director.py", line 10, in collectFromSource
-    self.__builder.downloader()
-  File "/gpfs0/tals/projects/Analysis/DoChaP/DoChaP/Tool_code/OOP_project/OrthologsBuilder.py", line 62, in downloader
-    iterlen = len(self.scriptsList)
-TypeError: object of type 'NoneType' has no len()
