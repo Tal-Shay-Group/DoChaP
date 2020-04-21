@@ -55,6 +55,7 @@ class OrthologsBuilder(SourceBuilder):
                 if self.species[i] != self.species[j]:
                     n += 1
                     shellCommand = self.createDownloadScripts(self.species[i], self.species[j])
+                    subprocess.Popen(['chmod', 'u+x', shellCommand])
                     runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                     output[shellCommand], err[shellCommand] = runScript.communicate()
                     print("poll(): " + str(runScript.poll()))
