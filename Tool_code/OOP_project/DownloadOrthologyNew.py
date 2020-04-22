@@ -25,10 +25,8 @@ class OrthologsBuilder(SourceBuilder):
         self.speciesConvertorShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
                                       'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
         self.downloadPath = os.getcwd() + "/data/orthology/"
-        if not download:
-            self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
-        self.scriptsList = ()
-        self.OrthoTable = None
+        self.dataTables = ()
+        self.AllSpeciesDF = {}
 
     def createDownloadScripts(self, species1, species2):
         os.makedirs(self.downloadPath, exist_ok=True)
@@ -43,6 +41,7 @@ class OrthologsBuilder(SourceBuilder):
                         if key in line:
                             line = line.replace(key, replaceDict[key])
                     writo.write(line)
+        self.dataTables = self.dataTables + ("{}.{}.orthology.txt".format(species1, species2),)
         return commandPath
 
     def downloader(self):
@@ -55,7 +54,7 @@ class OrthologsBuilder(SourceBuilder):
                 if self.species[i] != self.species[j]:
                     n += 1
                     shellCommand = self.createDownloadScripts(self.species[i], self.species[j])
-                    subprocess.Popen(['chmod', 'u+x', shellCommand])
+                    ubprocess.Popen(['chmod', 'u+x', shellCommand])
                     runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                     output[shellCommand], err[shellCommand] = runScript.communicate()
                     print("poll(): " + str(runScript.poll()))
@@ -73,9 +72,24 @@ class OrthologsBuilder(SourceBuilder):
             else:
                 print("script: " + key + " has finished running without errors")
 
-
-
-ortho = OrthologsBuilder(download=True)
-ortho.downloader()
-
+    def parser(self):
+        conv = {'gene_stable_ID': 'ID', 'gene_name': 'name', 'homology_type': 'type',
+                'Human': 'H_sapiens', 'Rat': 'R_norvegicus', 'Mouse': 'M_musculus', 'Zebrafish': 'D_rerio',
+                'Tropical_clawed_frog': 'X_tropicalis'}
+        self.AllSpeciesDF = {}
+        for i in range(len(self.species)):
+            for j in range(i, len(self.species)):
+                if self.species[i] != self.species[j]:
+                    tablename = self.downloadPath + "{}.{}.orthology.txt".format(self.species[i], self.species[j])
+                    df = pd.read_table(tablename, sep='\t')
+                    df.columns = df.columns.str.replace(' ', '_')
+                    df.columns = df.columns.str.replace('Gene_stable', self.species[i])
+                    df.columns = df.columns.str.replace('Gene', self.species[i])
+                    for k, v in conv.items():
+                        df.columns = df.columns.str.replace(k, v)
+                    df = df.drop(self.species[j] + "_type", axis=1)
+                    df = df[df.isna().sum(1) == 0]
+                    df[self.species[i] + '_name'] = df[self.species[i] + '_name'].str.upper()
+                    df[self.species[j] + '_name'] = df[self.species[j] + '_name'].str.upper()
+                    self.AllSpeciesDF[(self.species[i], self.species[j])] = df
 

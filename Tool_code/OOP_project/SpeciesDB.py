@@ -1,5 +1,5 @@
 from sqlite3 import connect
-import pandas
+import pandas as pd
 import sys
 import os
 
@@ -180,18 +180,15 @@ class dbBuilder:
                 print('Creating the table: Orthology')
                 cur.execute("""
                             CREATE TABLE Orthology(
-                                    H_sapiens_id TEXT,
-                                    H_sapiens_name TEXT,
-                                    M_musculus_id TEXT,
-                                    M_musculus_name TEXT,
-                                    R_norvegicus_id TEXT,
-                                    R_norvegicus_name TEXT,
-                                    D_rerio_id TEXT,
-                                    D_rerio_name TEXT,
-                                    X_tropicalis_id TEXT,
-                                    X_tropicalis_name TEXT,
-                                    PRIMARY KEY (H_sapiens_id, M_musculus_id, R_norvegicus_id,\
-                                    D_rerio_id, X_tropicalis_id)
+                                    A_ensembl_id TEXT,
+                                    A_GeneSymb TEXT,
+                                    A_Species TEXT,
+                                    B_ensembl_id TEXT,
+                                    B_GeneSymb TEXT,
+                                    B_Species TEXT,
+                                    PRIMARY KEY (A_ensembl_id, B_ensembl_id),
+                                    FOREIGN KEY (A_ensembl_id, B_ensembl_id, A_GeneSymb, B_GeneSymb, A_Species, B_Species) 
+                                    REFERENCES Genes(gene_ensembl_id, gene_ensembl_id, gene_symbol, gene_symbol, specie, specie)
                                     );"""
                             )
 
@@ -297,7 +294,7 @@ class dbBuilder:
                     for reg in self.data.Domains[protID]:
                         regID = self.DomainOrg.addDomain(reg)
                         if regID is None:
-                            print(regID)
+                            #print(regID)
                             continue
                         relevantDomains.add(regID)
                         relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
@@ -361,6 +358,35 @@ class dbBuilder:
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
         con.commit()
 
-    def AddOrthology(self, Orthology_df):
+    def AddOrthology(self, orthologsDict):
+        MainOrtho = pd.DataFrame(columns = ['A_ensembl_id', 'A_GeneSymb', 'A_Species',
+                                            'B_ensembl_id', 'B_GeneSymb', 'B_Species'])
+        db_data = dict()
+        species = [spec for x in orthologsDict.keys() for spec in x]
         with connect(self.dbName + '.sqlite') as con:
-            Orthology_df.to_sql("Orthology", con, if_exists="replace")
+            for spec in species:
+                db_data[spec] = pd.read_sql(
+                    "SELECT gene_ensembl_id,gene_symbol,specie FROM Genes WHERE specie='{}'".format(spec),
+                    con)
+        print("collecting orthology data for:")
+        for couple, ortho in orthologsDict.items():
+            print("\t{} and {}".format(couple[0], couple[1]))
+            merged_df = None
+            n = 0
+            for spec in couple:
+                db_data[spec]['gene_symbol'] = db_data[spec]['gene_symbol'].str.upper()
+                db_data[spec].columns = db_data[spec].columns.str.replace('gene_ensembl_id', spec + "_ID")
+                if n == 0:
+                    merged_df = pd.merge(db_data[spec], ortho)
+                else:
+                    merged_df = pd.merge(db_data[spec], merged_df)
+                label = 'A' if n == 0 else 'B'
+                merged_df.columns = merged_df.columns.str.replace("specie", label + "_Species")
+                merged_df.columns = merged_df.columns.str.replace("gene_symbol", label + "_GeneSymb")
+                merged_df.columns = merged_df.columns.str.replace(spec + "_ID", label + "_ensembl_id")
+                merged_df = merged_df.drop(spec + "_name", axis=1)
+                n += 1
+            MainOrtho = MainOrtho.append(merged_df, sort=False)
+        print("Filling in Orthology table...")
+        MainOrtho.to_sql("Orthology", con, if_exists="append", index=False)
+        print("Filling Orthology table complete!")

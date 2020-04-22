@@ -4,7 +4,8 @@ import os
 
 sys.path.append(os.getcwd())
 from Director import Director
-from OrthologsBuilder import *
+#from OrthologsBuilder import *
+from DownloadOrthologyNew import *
 from SpeciesDB import *
 
 if __name__ == "__main__":
@@ -27,10 +28,10 @@ if __name__ == "__main__":
         if spnum == 1:
             dbBuild.create_tables_db(merged=True)
         dbBuild.fill_in_db(merged=True)
+        print("Adding species {} to DB {} completed!".format(sp, dbBuild.dbName))
         if spnum == spl:
             dbBuild.create_index()
-            dbBuild.AddOrthology(orthologs.OrthoTable)
-        print("Adding species {} to DB {} completed!".format(sp, dbBuild.dbName))
+            dbBuild.AddOrthology(orthologs.AllSpeciesDF)
 
         dbBuild.create_tables_db(merged=False)
         dbBuild.fill_in_db(merged=False)
