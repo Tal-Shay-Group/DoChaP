@@ -48,15 +48,15 @@ class InterProBuilder(SourceBuilder):
                     raise e
 
             for i, item in enumerate(payload["results"]):
-                sys.stdout.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + "\t")
-                sys.stdout.write(parse_column(item["metadata"]["name"], 'metadata.name') + "\t")
+                sys.stdout.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + ",")
+                sys.stdout.write(parse_column(item["metadata"]["name"], 'metadata.name') + ",")
                 sys.stdout.write(
-                    parse_column(item["metadata"]["source_database"], 'metadata.source_database') + "\t")
-                sys.stdout.write(parse_column(item["metadata"]["type"], 'metadata.type') + "\t")
-                sys.stdout.write(parse_column(item["metadata"]["integrated"], 'metadata.integrated') + "\t")
+                    parse_column(item["metadata"]["source_database"], 'metadata.source_database') + ",")
+                sys.stdout.write(parse_column(item["metadata"]["type"], 'metadata.type') + ",")
+                sys.stdout.write(parse_column(item["metadata"]["integrated"], 'metadata.integrated') + ",")
                 sys.stdout.write(
-                    parse_column(item["metadata"]["member_databases"], 'metadata.member_databases') + "\t")
-                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + "\t")
+                    parse_column(item["metadata"]["member_databases"], 'metadata.member_databases') + ",")
+                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + "\,")
                 sys.stdout.write("\n")
 
                 # Don't overload the server, give it time before asking for more
