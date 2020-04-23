@@ -56,7 +56,7 @@ class InterProBuilder(SourceBuilder):
                 sys.stdout.write(parse_column(item["metadata"]["integrated"], 'metadata.integrated') + ",")
                 sys.stdout.write(
                     parse_column(item["metadata"]["member_databases"], 'metadata.member_databases') + ",")
-                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + "\,")
+                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + ",")
                 sys.stdout.write("\n")
 
                 # Don't overload the server, give it time before asking for more
