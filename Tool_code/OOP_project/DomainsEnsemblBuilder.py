@@ -21,7 +21,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
         self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
                                  'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
                                  'X_tropicalis': 'xtropicalis'}
-        self.ExtSources = ("pfam", "smart", "cdd", "tigrfam")
+        self.ExtSources = ("pfam", "smart", "cdd", "tigrfam", "interpro")
         self.downloadPath = os.getcwd() + '/data/{}/ensembl/BioMart/'.format(self.species)
         #if not download:
         #    self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]

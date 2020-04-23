@@ -7,11 +7,6 @@ wget -O output.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml versi
   <Dataset name = "MainSpecies_gene_ensembl" interface = "default" >
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
-    <Attribute name = "interpro" />
-    <Attribute name = "interpro_short_description" />
-    <Attribute name = "interpro_description" />
-    <Attribute name = "interpro_start" />
-    <Attribute name = "interpro_end" />
     <Attribute name = "extDB" />
     <Attribute name = "extDB_start" />
     <Attribute name = "extDB_end" />
