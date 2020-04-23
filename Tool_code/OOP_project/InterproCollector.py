@@ -22,7 +22,7 @@ class InterProBuilder(SourceBuilder):
         last_page = False
 
         f = open(self.outputFile, "w")
-        sys.stdout = self.outputFile
+        sys.stdout = f
         while next:
             try:
                 req = request.Request(next, headers={"Accept": "application/json"})
