@@ -119,5 +119,6 @@ def parse_column(value, selector):
 
 
 
-# if __name__ == "__main__":
-#     output_list()
+if __name__ == "__main__":
+    inter = InterProBuilder()
+    inter.downloader()
