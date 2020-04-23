@@ -4,8 +4,7 @@ import os
 
 sys.path.append(os.getcwd())
 from Director import Director
-#from OrthologsBuilder import *
-from DownloadOrthologyNew import *
+from OrthologsBuilder import *
 from SpeciesDB import *
 
 if __name__ == "__main__":
