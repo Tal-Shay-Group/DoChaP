@@ -6,7 +6,6 @@ import os
 sys.path.append(os.getcwd())
 from Collector import Collector
 from DomainOrganizer import DomainOrganizer
-from Director import Director
 from recordTypes import Protein
 
 

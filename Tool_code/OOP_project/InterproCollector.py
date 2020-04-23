@@ -2,7 +2,6 @@ import sys, errno, re, json, ssl, os
 from urllib import request
 from urllib.error import HTTPError
 from time import sleep
-import csv
 import pandas as pd
 from Director import SourceBuilder
 
@@ -11,7 +10,7 @@ class InterProBuilder(SourceBuilder):
     def __init__(self):
         self.savePath = os.getcwd() + '/data/'
         self.BASE_URL = "https://www.ebi.ac.uk:443/interpro/api/entry/InterPro/?page_size=100"
-        self.outputFile = self.savePath + "InterPro_entries.tsv"
+        self.outputFile = self.savePath + "InterPro_entries.txt"
 
     def downloader(self):
         # def output_list():
@@ -23,6 +22,13 @@ class InterProBuilder(SourceBuilder):
 
         f = open(self.outputFile, "w")
         sys.stdout = f
+        #fieldnames = ['Accession', 'Name', 'SourceDatabase', 'Type', 'IntegratedSignatures',
+        #              'GOTerms']
+        delimiter = "|"
+        #sys.stdout.write(delimiter.join(fieldnames))
+        #sys.stdout.write("\n")
+        # writer = csv.writer(f, delimiter='|')
+        # writer.writerow(fieldnames)
         while next:
             try:
                 req = request.Request(next, headers={"Accept": "application/json"})
@@ -48,15 +54,21 @@ class InterProBuilder(SourceBuilder):
                     raise e
 
             for i, item in enumerate(payload["results"]):
-                sys.stdout.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + ",")
-                sys.stdout.write(parse_column(item["metadata"]["name"], 'metadata.name') + ",")
+                # writer.writerow([parse_column(item["metadata"]["accession"], 'metadata.accession'),
+                #                 parse_column(item["metadata"]["name"], 'metadata.name'),
+                #                 parse_column(item["metadata"]["source_database"], 'metadata.source_database'),
+                #                 parse_column(item["metadata"]["type"], 'metadata.type'),
+                #                 parse_column(item["metadata"]["member_databases"], 'metadata.member_databases'),
+                #                 parse_column(item["metadata"]["go_terms"], 'metadata.go_terms')])
+                sys.stdout.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + delimiter)
+                sys.stdout.write(parse_column(item["metadata"]["name"], 'metadata.name') + delimiter)
                 sys.stdout.write(
-                    parse_column(item["metadata"]["source_database"], 'metadata.source_database') + ",")
-                sys.stdout.write(parse_column(item["metadata"]["type"], 'metadata.type') + ",")
-                sys.stdout.write(parse_column(item["metadata"]["integrated"], 'metadata.integrated') + ",")
+                    parse_column(item["metadata"]["source_database"], 'metadata.source_database') + delimiter)
+                sys.stdout.write(parse_column(item["metadata"]["type"], 'metadata.type') + delimiter)
+                # sys.stdout.write(parse_column(item["metadata"]["integrated"], 'metadata.integrated') + ",")
                 sys.stdout.write(
-                    parse_column(item["metadata"]["member_databases"], 'metadata.member_databases') + ",")
-                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + ",")
+                    parse_column(item["metadata"]["member_databases"], 'metadata.member_databases') + delimiter)
+                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + delimiter)
                 sys.stdout.write("\n")
 
                 # Don't overload the server, give it time before asking for more
@@ -114,10 +126,6 @@ def parse_column(value, selector):
     elif "locations" in selector:
         return parse_locations(value)
     return str(value)
-
-
-
-
 
 if __name__ == "__main__":
     inter = InterProBuilder()
