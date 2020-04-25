@@ -150,7 +150,7 @@ class Exon {
         const exonHeight = position.exonHeight;
         const exonX = position.exonX;
         const exonY = position.exonY;
-        var text="Exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript+"<br>Length: "+this.length+"bp/"+(Math.round(this.length/3 * 100) / 100)+"AA";
+        var text="Exon: " + this.orderInTranscript + "/" + this.numOfExonInTranscript+"<br>Length: "+this.length+"bp";
         return [exonX, exonY, exonWidth, exonHeight, text , undefined]
     }
 

@@ -132,7 +132,7 @@ angular.module("DoChaP")
             }
         }
 
-        $scope.chromosomeLocation = self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
+        $scope.chromosomeLocation =  "chr"+self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
         $scope.filterUnreviewed = function () {
             $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
             $route.reload();
@@ -218,12 +218,23 @@ angular.module("DoChaP")
             var doc = new jsPDF();
             var space = 5;
             var width = 90;
-            var height = 10;
-            var rowHeight = 30;
+            var height = 15;
+            var rowHeight = 40;
             var startY = 40;
+            var transcriptsPerPage=6;
             doc.text(space * 2, 2 * space, "Species: " + self.geneInfo.specieName + " Gene: " + self.geneInfo.gene_symbol + " total number of transcripts: " + $scope.transcripts.length);
-            doc.text(space * 2, 4 * space, self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end));
+            doc.text(space * 2, 4 * space, "chr"+self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end));
+            var canvasScaleGenomic = document.getElementById("canvas-scale");
+            var imgGenomicScale = canvasScaleGenomic.toDataURL("image/png");
+            var canvasScaleProtein = document.getElementById("canvas-scale-protein");
+            var imgProteinScale = canvasScaleProtein.toDataURL("image/png");
+
+            doc.addImage(imgGenomicScale, space, 4.5 * space , width, height);
+            doc.addImage(imgProteinScale, space + width + space ,4.5 * space , width, height);
+                
+
             for (var i = 0; i < $scope.transcripts.length; i++) {
+
                 var canvasGenomic = document.getElementById("canvas-genomic" + i);
                 var imgGenomic = canvasGenomic.toDataURL("image/png");
                 var canvasTranscript = document.getElementById("canvas-transcript" + i);
@@ -231,17 +242,17 @@ angular.module("DoChaP")
                 var canvasProtein = document.getElementById("canvas-protein" + i);
                 var imgProtein = canvasProtein.toDataURL("image/png");
                 doc.setFontSize(10);
-                doc.text(space, startY + rowHeight * (i % 8), "Transcript: " + $scope.transcripts[i].name + " Protein: " + $scope.transcripts[i].protein_name);
+                doc.text(space, startY + rowHeight * (i % transcriptsPerPage), "Transcript: " + $scope.transcripts[i].name + " Protein: " + $scope.transcripts[i].protein_name);
                 //x,y,width,height
-                doc.addImage(imgGenomic, space, startY + space + rowHeight * (i % 8), width, height);
-                doc.addImage(imgTranscript, space + width + space, startY + space + rowHeight * (i % 8), width, height / 2);
-                doc.addImage(imgProtein, space + width + space, startY + space + rowHeight * (i % 8) + height, width, height);
+                doc.addImage(imgGenomic, space, startY + space + rowHeight * (i % transcriptsPerPage), width, height);
+                doc.addImage(imgTranscript, space + width + space, startY + space + rowHeight * (i % transcriptsPerPage), width, height / 2);
+                doc.addImage(imgProtein, space + width + space, startY + space + rowHeight * (i % transcriptsPerPage) + height, width, height);
 
-                if ((i + 1) % 8 == 0) {
+                if ((i + 1) % transcriptsPerPage == 0) {
                     doc.addPage();
                 }
 
             }
-            doc.save(self.geneInfo.gene_symbol+".pdf");
+            doc.save(self.geneInfo.gene_symbol + ".pdf");
         }
     });

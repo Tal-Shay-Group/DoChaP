@@ -5,7 +5,7 @@ class Transcript {
         this.id=dbTranscript.transcript_refseq_id!=undefined?dbTranscript.transcript_refseq_id:dbTranscript.transcript_ensembl_id;
         this.transcript_refseq_id=dbTranscript.transcript_refseq_id;
         this.transcript_ensembl_id=dbTranscript.transcript_ensembl_id;
-        this.id = dbTranscript.transcript_id;
+        // this.id = dbTranscript.transcript_id;
         this.cds_start = dbTranscript.cds_start;
         this.cds_end = dbTranscript.cds_end;
         this.tx_start = dbTranscript.tx_start;

@@ -98,22 +98,22 @@ Logo and navigation bars will be declared here for example.
               <span class="icon-bar"></span>                        
             </button>
           </div>
-          <div class="collapse navbar-collapse" id="myNavbar">
+          <div class="collapse navbar-collapse" id="myNavbar"  style="padding: 5px;">
             <!-- Home -->
-            <ul class="nav navbar-nav"  style="padding-top: 5px; ">
+            <ul class="nav navbar-nav">
                   <a href="#!querySearch">
 
-                <img src="resources/LOGO_noBG.png" height="45" width="200" style="border-radius: 3px; margin: 3px;"/>
+                <img src="resources/LOGO_noBG.png" height="45" class="logo" />
               <!-- <span class="logoText">
                   DoChaP
               </span> -->
               </a>
             </ul>
         
-              <ul class="nav navbar-nav"  style="padding-top: 15px; ">
+              <ul class="nav navbar-nav">
                 <li><a href="#!querySearch" style="">Home</a></li>
               <li><a href="#!compareSpecies">Compare Species</a></li>
-             <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
+             <li ng-if="showQuickSearch" class="form-inline"> 
                     <select class="form-control searchBySpecie" id="indexSpecies">
                         <option value="H_sapiens">Human</option>
                         <option value="M_musculus">Mouse</option>
@@ -129,7 +129,7 @@ Logo and navigation bars will be declared here for example.
                   </span>
                 </li>
             </ul>
-            <ul class="nav navbar-nav navbar-right"  style="padding-top: 15px;">
+            <ul class="nav navbar-nav navbar-right">
                 
                 <li><a href="#!about"><span style="font-size: 16px;" class="glyphicon glyphicon-info-sign"></span> About</a></li>
                 <li><a href="#!help"><span style="font-size: 16px;" class="glyphicon glyphicon-question-sign"></span> Help</a></li>

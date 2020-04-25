@@ -17,13 +17,14 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   self.toolTipManagerForCanvas = {};
   $scope.orthologyList = undefined;
 
-  self.geneSearch = function () {
+  self.geneSearch =async function () {
     $scope.loading = true;
-    compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, specie2ComboBox.value, orthologyComboBox.value)
+    await compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, specie2ComboBox.value, orthologyComboBox.value)
       .then(function (response) {
         $scope.loading = false;
         if (response[0] == "error") {
           $scope.alert = response[1];
+          $scope.$apply();
 
         } else {
           $scope.alert = "";
@@ -39,8 +40,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
           $scope.shownTranscripts2 = self.specie2Gene.transcripts.length;
           $scope.hiddenTranscripts2 = 0;
 
+          self.createScales();
 
-          $(document).ready(function (self) {
+
+          $(document).ready(function () {
+            $scope.$apply();
             updateCanvases();
           });
         }
@@ -54,6 +58,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   }
 
   function updateCanvases() {
+    $('#genomic_range1').hide().fadeIn(5000);
+      $('#protein_range1').hide().fadeIn(5000);
+      $('#genomic_range2').hide().fadeIn(5000);
+      $('#protein_range2').hide().fadeIn(5000);
+      
 
     for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
       $('#fadeinDiv1' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
@@ -78,136 +87,39 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     $('#canvas-scale-protein1').hide().fadeIn(1000);
     $('#canvas-scale2').hide().fadeIn(1000);
     $('#canvas-scale-protein2').hide().fadeIn(1000);
-    $scope.chromosomeLocation1 = self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
-    $scope.chromosomeLocation2 = self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
+    $scope.chromosomeLocation1 =  "chr"+self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
+    $scope.chromosomeLocation2 =  "chr"+self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
     $("canvas")
       .click(function (event) {
         Domain.domainClick(self.toolTipManagerForCanvas, event);
         $scope.$apply();
       });
-    if ($('#genomic_range1').data("ionRangeSlider") != undefined) {
-      $('#genomic_range1').data("ionRangeSlider").destroy();
-      $('#protein_range1').data("ionRangeSlider").destroy();
-      $('#genomic_range2').data("ionRangeSlider").destroy();
-      $('#protein_range2').data("ionRangeSlider").destroy();
+
+      $('#genomic_range1').data("ionRangeSlider").update({
+        from: self.specie1Gene.scale.start,
+        to: self.specie1Gene.scale.end,
+      });
+      $('#protein_range1').data("ionRangeSlider").update({
+        from: self.specie1Gene.proteinScale.zoomInStart,
+        to: self.specie1Gene.proteinScale.zoomInEnd,
+      });
+      $('#genomic_range2').data("ionRangeSlider").update({
+    
+        from: self.specie2Gene.scale.start,
+        to: self.specie2Gene.scale.end,
+      });
+      $('#protein_range2').data("ionRangeSlider").update({
+      from: self.specie2Gene.proteinScale.zoomInStart,
+      to: self.specie2Gene.proteinScale.zoomInEnd,
+      });
+
+
+
+
+
+      $scope.$apply();
+
     }
-
-    $('#genomic_range1').ionRangeSlider({
-      type: "double",
-      min: self.specie1Gene.scale.start,
-      max: self.specie1Gene.scale.end,
-      from: self.specie1Gene.scale.start,
-      to: self.specie1Gene.scale.end,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = $window.sessionStorage.getItem("currCompareSpecies");
-        var genes = results.split("*");
-        results = {
-          "isExact": true,
-          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-        };
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-        $scope.transcripts = self.specie1Gene.transcripts;
-        /*$scope.$apply();*/
-        $(document).ready(function () {
-          updateCanvases();
-        });
-
-      }
-
-    });
-    $('#genomic_range2').ionRangeSlider({
-      type: "double",
-      min: self.specie2Gene.scale.start,
-      max: self.specie2Gene.scale.end,
-      from: self.specie2Gene.scale.start,
-      to: self.specie2Gene.scale.end,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = $window.sessionStorage.getItem("currCompareSpecies");
-        var genes = results.split("*");
-        results = {
-          "isExact": true,
-          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-        };
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-        $scope.transcripts = self.specie2Gene.transcripts;
-        /*$scope.$apply();*/
-        $(document).ready(function () {
-          updateCanvases();
-        });
-
-      }
-
-    });
-    $('#protein_range1').ionRangeSlider({
-      type: "double",
-      min: 0,
-      max: self.specie1Gene.proteinScale.length,
-      from: 0,
-      to: self.specie1Gene.proteinScale.length,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = $window.sessionStorage.getItem("currCompareSpecies");
-        var genes = results.split("*");
-        results = {
-          "isExact": true,
-          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-        };
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
-        $scope.transcripts = self.specie1Gene.transcripts;
-        /*$scope.$apply();*/
-        $(document).ready(function () {
-          updateCanvases();
-        });
-
-      }
-
-    });
-    $('#protein_range2').ionRangeSlider({
-      type: "double",
-      min: 0,
-      max: self.specie2Gene.proteinScale.length,
-      from: 0,
-      to: self.specie2Gene.proteinScale.length,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = $window.sessionStorage.getItem("currCompareSpecies");
-        var genes = results.split("*");
-        results = {
-          "isExact": true,
-          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-        };
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
-        $scope.transcripts = self.specie2Gene.transcripts;
-        /*$scope.$apply();*/
-        $(document).ready(function () {
-          updateCanvases();
-        });
-
-      }
-
-    });
-
-
-
-
-
-
-    $scope.$apply();
-  }
 
   $(document).ready(function () {
     document.addEventListener("keypress", function (event) {
@@ -423,18 +335,158 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     compareSpeciesService.fillOrthologyCombox(specie1ComboBox.value, compareGeneSearchTextField.value)
       .then(function (response) {
         var results = response.data;
-        $scope.orthologyList = results;
-        self.fillOrthologyCombox();
+        if(results.length==0){
+          $scope.alert="No orthology genes were found. Try another gene.";
+          $scope.orthologyList = undefined;
+        }else{
+          $scope.orthologyList = results;
+          $scope.alert="";
+        }
+        // self.fillOrthologyCombox();
       });
   }
+
   self.fillOrthologyCombox = function () {
-    var options = $scope.orthologyList[specie2ComboBox.value + "_name"].split("; ");
+    var options= [];
+    if(specie1ComboBox.value!=specie2ComboBox.value){
+       for (var i =0; i<$scope.orthologyList.length;i++){
+      if($scope.orthologyList[i].A_Species==specie2ComboBox.value ){
+          options.push($scope.orthologyList[i].A_GeneSymb);
+        }
+        if($scope.orthologyList[i].B_Species==specie2ComboBox.value){
+          options.push($scope.orthologyList[i].B_GeneSymb);
+        }
+    }
+    }
+  
+    // if($scope.orthologyList[specie2ComboBox.value + "_name"]==this.undefined){
+    //   return;
+    // }
+    // var options = $scope.orthologyList[specie2ComboBox.value + "_name"].split("; ");
+    options.sort();
     $('#orthologyComboBox').empty();
     $.each(options, function (i, p) {
       $('#orthologyComboBox').append($('<option></option>').val(p).html(p));
     });
   }
 
+  self.createScales=function(){
+    if ($('#genomic_range1').data("ionRangeSlider") != undefined) {
+      $('#genomic_range1').data("ionRangeSlider").destroy();
+      $('#protein_range1').data("ionRangeSlider").destroy();
+      $('#genomic_range2').data("ionRangeSlider").destroy();
+      $('#protein_range2').data("ionRangeSlider").destroy();
+    }
 
+    $('#genomic_range1').ionRangeSlider({
+      type: "double",
+      min: self.specie1Gene.scale.start,
+      max: self.specie1Gene.scale.end,
+      from: self.specie1Gene.scale.start,
+      to: self.specie1Gene.scale.end,
+      drag_interval: true,
+      skin: "square",
+      onFinish: function (data) {
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+        $scope.transcripts = self.specie1Gene.transcripts;
+        /*$scope.$apply();*/
+        $(document).ready(function () {
+          updateCanvases();
+        });
+
+      }
+
+    });
+    $('#genomic_range2').ionRangeSlider({
+      type: "double",
+      min: self.specie2Gene.scale.start,
+      max: self.specie2Gene.scale.end,
+      from: self.specie2Gene.scale.start,
+      to: self.specie2Gene.scale.end,
+      drag_interval: true,
+      skin: "square",
+      onFinish: function (data) {
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+        $scope.transcripts = self.specie2Gene.transcripts;
+        /*$scope.$apply();*/
+        $(document).ready(function () {
+          updateCanvases();
+        });
+
+      }
+
+    });
+    $('#protein_range1').ionRangeSlider({
+      type: "double",
+      min: 0,
+      max: self.specie1Gene.proteinScale.length,
+      from: 0,
+      to: self.specie1Gene.proteinScale.length,
+      drag_interval: true,
+      skin: "square",
+      onFinish: function (data) {
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
+        $scope.transcripts = self.specie1Gene.transcripts;
+        /*$scope.$apply();*/
+        $(document).ready(function () {
+          updateCanvases();
+        });
+
+      }
+
+    });
+    $('#protein_range2').ionRangeSlider({
+      type: "double",
+      min: 0,
+      max: self.specie2Gene.proteinScale.length,
+      from: 0,
+      to: self.specie2Gene.proteinScale.length,
+      drag_interval: true,
+      skin: "square",
+      onFinish: function (data) {
+        var results = $window.sessionStorage.getItem("currCompareSpecies");
+        var genes = results.split("*");
+        results = {
+          "isExact": true,
+          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+        };
+        var colors = getColorForLength(results, isReviewedCheckBox.checked);
+        var genes = results.genes;
+        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
+        $scope.transcripts = self.specie2Gene.transcripts;
+        /*$scope.$apply();*/
+        $(document).ready(function () {
+          updateCanvases();
+        });
+
+      }
+
+    });
+
+  }
 
 });

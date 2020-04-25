@@ -4,8 +4,15 @@ class Domain {
         this.end = dbDomain.nuc_end - proteinStart;
         this.AAstart = dbDomain.AA_start;
         this.AAend = dbDomain.AA_end;
-        this.name = dbDomain.domainType.name;
-        this.typeID = dbDomain.domainType.type_id;
+        // if(dbDomain.domainType==undefined){
+        //     this.name = "";
+        //     this.typeID = -1;
+        // }
+        // else{
+            
+        // }
+       this.name = dbDomain.domainType.name;
+            this.typeID = dbDomain.domainType.type_id;
         this.overlap = false;
         this.showText = true;
         this.source = dbDomain.ext_id;
@@ -220,7 +227,7 @@ class Domain {
         if (source.substring(0, 4) == 'TIGR') {
             sourceName = "Tigr";
         }
-        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "<br>" + sourceName + ": <a href='" + Species.getURLfor(source) + "' target='_blank' >" + source + "</a>";
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "aa<br>" + sourceName + ": <a href='" + Species.getURLfor(source) + "' target='_blank' >" + source + "</a>";
         //var text=name;
         return [domainX, domainY, domainWidth, domainHeight, text, undefined];
     }
