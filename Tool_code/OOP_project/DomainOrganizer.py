@@ -35,7 +35,7 @@ class DomainOrganizer:
         external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
         if domain.extID is None:
             return None
-        elif domain.extID not in external:
+        elif domain.extType not in external:
             return None
         if domain.extID is not None and domain.extID not in self.allExt:
             if domain.name not in self.allNames:

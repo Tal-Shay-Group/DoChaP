@@ -29,6 +29,7 @@
 example_gtf/*
 **/*.csv
 **/data/*
+**/*.tsv
 
 # logs should be on server and not be updated externally
 Website_code/log.txt
@@ -41,3 +42,10 @@ Tool_code/*.txt
 **/*.orthology.txt
 
 Downloads_refine/Downloads/**
+
+**/.idea
+**/__pycache__
+
+**/*.sh
+!**/*.template.sh
+!**/*.Template.sh
