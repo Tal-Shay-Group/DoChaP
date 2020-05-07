@@ -1,5 +1,14 @@
 class Gene {
-
+    /**
+     * 
+     * @param {gene row from db} dbGene 
+     * @param {boolean} ignorePredictions if to ignore RefSeq transcripts with XM
+     * @param {array of colors or undefined} colorByLength colors to color exons if exists and wanted. mostly for compare species
+     * @param {double} start zoom in start for genomic axis
+     * @param {double} end zoom in end for genomic axis
+     * @param {double} proteinStart zoom in start for protein axis
+     * @param {double} proteinEnd zoom in end for protein axis
+     */
     constructor(dbGene, ignorePredictions, colorByLength, start, end, proteinStart, proteinEnd) {
         //gene symbol where only the first letter is capitalized
         this.gene_symbol = dbGene.gene_symbol.toUpperCase().substring(0, 1) + dbGene.gene_symbol.toLowerCase().substring(1);
@@ -22,8 +31,6 @@ class Gene {
         this.geneExons = this.createGeneExonInfo(dbGene.geneExons, dbGene.transcripts, colorByLength);
         this.maxProteinLength = this.findmaxProteinLength(dbGene.transcripts);
      
-        
-
         //zoom in options (if given as arguments)
         this.start = start ? start : this.findStartCoordinate(dbGene.transcripts);
         this.end = end ? end : this.findEndCoordinate(dbGene.transcripts);
@@ -47,7 +54,10 @@ class Gene {
         this.proteinScale = new ProteinScale(this.maxProteinLength, this.proteinStart, this.proteinEnd);
     }
 
-    //finds start coordinates by finding the 'earliest coordinate' mentioned from all transcripts of this gene
+    /**
+     * finds start coordinates by finding the 'earliest coordinate' mentioned from all transcripts of this gene
+     * @param {array of Transcript} transcripts 
+     */
     findStartCoordinate(transcripts) {
         var minStartPoint = transcripts[0].tx_start; // implying there is at least one transcript . if there is infinity it would be better for init 
         for (var i = 0; i < transcripts.length; i++) {
@@ -58,7 +68,10 @@ class Gene {
         return minStartPoint;
     }
 
-    //finds end coordinates by finding the 'latest coordinate' mentioned from all transcripts of this gene
+    /**
+     * finds end coordinates by finding the 'latest coordinate' mentioned from all transcripts of this gene
+     * @param {array of Transcript} transcripts 
+     */
     findEndCoordinate(transcripts) {
         var endPoint = transcripts[0].tx_end; // implying there is at least one transcript . if there is infinity it would be better for init 
         for (var i = 0; i < transcripts.length; i++) {
@@ -69,7 +82,10 @@ class Gene {
         return endPoint;
     }
 
-    //finding the longest protein length so graphics will be measured according to it 
+    /**
+     * finding the longest protein length so graphics will be measured according to it
+     * @param {array of Transcript} transcripts 
+     */
     findmaxProteinLength(transcripts) {
         var maxProtein = 0;
         for (var i = 0; i < transcripts.length; i++) {
@@ -80,7 +96,12 @@ class Gene {
         return maxProtein * 3; //because we need length in nucleotides
     }
 
-    //selecting color and related transcripts for each exon
+    /**
+     * selecting color and related transcripts for each exon
+     * @param {*} geneExons 
+     * @param {*} geneTranscripts 
+     * @param {*} colorByLength 
+     */
     createGeneExonInfo(geneExons, geneTranscripts, colorByLength) {
         var exonInfo = {};
         var exonForTable = [];
@@ -113,7 +134,12 @@ class Gene {
         return exonInfo;
     }
 
-    //finding transcripts for each exon O(n*m) when n is number of transcripts and m number of exons
+    /**
+     * finding transcripts for each exon O(n*m) when n is number of transcripts and m number of exons
+     * @param {*} start 
+     * @param {*} end 
+     * @param {*} transcripts 
+     */
     getTranscriptsForExon(start, end, transcripts) {
         var ans = ""
         for (var i = 0; i < transcripts.length; i++) {
