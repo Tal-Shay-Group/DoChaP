@@ -1,27 +1,38 @@
+/**
+ * Domains are main part of the protein view.
+ * These are the circles that are representing protein domains.
+ * 
+ */
 class Domain {
+    /**
+     * 
+     * @param {domain row from db} dbDomain - the domain row from db
+     * @param {int} proteinStart - location to start drawing from in canvas, nuc units.
+     */
     constructor(dbDomain, proteinStart = 0) {
-        this.start = dbDomain.nuc_start - proteinStart;
-        this.end = dbDomain.nuc_end - proteinStart;
-        this.AAstart = dbDomain.AA_start;
-        this.AAend = dbDomain.AA_end;
-        // if(dbDomain.domainType==undefined){
-        //     this.name = "";
-        //     this.typeID = -1;
-        // }
-        // else{
-            
-        // }
-       this.name = dbDomain.domainType.name;
-            this.typeID = dbDomain.domainType.type_id;
+        //calculatiing attribute 
+        this.start = dbDomain.nuc_start - proteinStart; //nuc units
+        this.end = dbDomain.nuc_end - proteinStart; //nuc units
+        this.AAstart = dbDomain.AA_start; //aa units
+        this.AAend = dbDomain.AA_end; //aa units
+        this.name = dbDomain.domainType.name;
+        this.typeID = dbDomain.domainType.type_id;
+        this.source = dbDomain.ext_id;
+        
+        //default view attributes
         this.overlap = false;
         this.showText = true;
-        this.source = dbDomain.ext_id;
     }
 
-    //compare function. used when drawing small domains before big ones so they won't crash
+    /**
+     * compare function. used when drawing small domains before big ones so they won't collide
+     * @param {Domain} a - first of two domains to compare
+     * @param {Domain} b - second of two domains to compare
+     */
     static compare(a, b) {
         var aLength = a.end - a.start;
         var bLength = b.end - b.start;
+        
         if (aLength > bLength) {
             return -1;
         }
@@ -31,7 +42,15 @@ class Domain {
         return 0;
     }
 
-
+/**
+ * 
+ * @param {canvasContext} context - context to draw on
+ * @param {double} coordinatesWidth - the measure of scaling used
+ * @param {int} startHeight - size between the top of the canvas to the top of the domain
+ * @param {boolean} isFullDraw - full draw is regular draw 
+ * and not full draw is just a white circle needed before drawing for opacity aesthetics
+ * @param {array of Exon} exons 
+ */
     draw(context, coordinatesWidth, startHeight, isFullDraw, exons) {
         //position
         var pos = this.position(coordinatesWidth, startHeight);
@@ -262,7 +281,7 @@ class Domain {
     /*
     some domain overlap so we group them into the DomainGroup object
     */
-    static groupDomains(domains) {
+    static groupAllOverlappingDomains(domains) {
         //sorting is it correct (?)
         function compare(a, b) {
             if (a.start < b.start) {
@@ -406,7 +425,7 @@ class Domain {
         return [regulartooltip]; //saved in array because we take arrays of domains when it comes from domain group. here is a case where domain like a domainGroup of size 1
     }
 
-    static domainClick(tooltipManager,event) {
+    static domainClick(tooltipManager, event) {
         var showTextValues = Transcript.showText(event, tooltipManager);
         if (showTextValues[0]) {
             if (showTextValues[2] == 'click' && tooltipManager[event.target.id + "object"] != undefined) {
@@ -414,6 +433,73 @@ class Domain {
             }
 
         }
+    }
+
+    static groupCloseDomains(domains) {
+        //if nothing to group
+        if(domains.length<=1){
+            return domains;
+        }
+        //sorting is it correct (?)
+        function compare(a, b) {
+            if (a.start < b.start) {
+                return -1;
+            }
+            if (a.start > b.start) {
+                return 1;
+            }
+            if (a.start == b.start && a.end < b.end) {
+                return 1;
+            }
+            if (a.start == b.start && a.end > b.end) {
+                return -1;
+            }
+            return 0;
+        }
+        domains.sort(compare);
+
+        //finding overlaps
+        var finalDomains = [];
+        var tempDomainArr = [domains[0]];
+        var groupStart = domains[0].start;
+        var groupEnd = domains[0].end;
+        for (var i = 1; i < domains.length; i++) {
+            //if fully contains or significantly overlapping
+            if ((domains[i].end <= groupEnd && groupStart <= domains[i].start) ||
+                (domains[i].end >= groupEnd && groupStart >= domains[i].start)||
+                Domain.isDomainsInSignificantOverlap(groupStart,groupEnd,domains[i].start,domains[i].end)) {
+                tempDomainArr.push(domains[i]);
+                groupStart = Math.min(groupStart, domains[i].start);
+                groupEnd = Math.max(groupEnd, domains[i].end);
+            } else {
+                //case not overlap
+                if (tempDomainArr.length == 1) {
+                    finalDomains.push(tempDomainArr[0]);
+                } else if (tempDomainArr.length > 1) {
+                    finalDomains.push(new DomainGroup(tempDomainArr));
+                }
+                tempDomainArr = [domains[i]];
+                groupStart = domains[i].start;
+                groupEnd = domains[i].end;
+
+            }
+        }
+
+        //if something is left in the tempDomainArr we add them
+        if (tempDomainArr.length == 1) {
+            finalDomains.push(tempDomainArr[0]);
+        } else if (tempDomainArr.length > 1) {
+            finalDomains.push(new DomainGroup(tempDomainArr));
+        }
+
+        return finalDomains;
+    }
+
+    static isDomainsInSignificantOverlap(start1,end1,start2,end2){
+        var common=Math.min(end1,end2)-Math.max(start1,start2);
+        var all=Math.max(end1,end2)-Math.min(start1,start2);
+        return (common/all)>=0.5;
+
     }
 
 }

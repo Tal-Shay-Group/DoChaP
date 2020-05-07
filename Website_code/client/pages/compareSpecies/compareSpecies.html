@@ -47,7 +47,7 @@
                 <b>RefSeq ID</b>: <a
                     href="https://www.ncbi.nlm.nih.gov/nuccore/{{compareSpeciesCtrl.currSpecies.currTranscript.transcript_refseq_id}}"
                     target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.transcript_refseq_id}}</a><br>
-                <b>exon count</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.exonCount}}<br>
+                <b>Exon count</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.exonCount}}<br>
                     <span ng-show="compareSpeciesCtrl.currSpecies.currTranscript.transcript_ensembl_id!=undefined">
                         <b>Ensembl ID</b>:
                         <a href="{{compareSpeciesCtrl.currSpecies.EnsemblLink}}"
@@ -60,8 +60,8 @@
                             target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.ucsc_id}}</a> <br>
                     </span>
 
-                    <b>transcription start</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.tx_start}}<br>
-                    <b>transcription end</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.tx_end}}<br>
+                    <b>Transcription start</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.tx_start}}<br>
+                    <b>Transcription end</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.tx_end}}<br>
                     <b>CDS coordinates</b>:
                     {{compareSpeciesCtrl.currSpecies.currTranscript.cds_start}}-{{compareSpeciesCtrl.currSpecies.currTranscript.cds_end}}<br>
             </span>
@@ -99,7 +99,7 @@
                 <table>
                     <tr>
                         <td>
-                            Select Species
+                            Select species
                         </td>
                         <td>
                             <!--form-control -->
@@ -113,12 +113,12 @@
                         </td>
                         <td rowspan="2" style="width: 300px;">
                             <button class="btn blackButton longerButtons" type="button"
-                                ng-click="compareSpeciesCtrl.searchForOrthology()">Click For All Orthologs <span
+                                ng-click="compareSpeciesCtrl.searchForOrthology()">Find orthology <span
                                     class="glyphicon glyphicon-chevron-right"></span>
                             </button>
                         </td>
                         <td>
-                            Species To Compare
+                            Species to compare
                         </td>
                         <td>
                             <select ng-disabled="orthologyList==undefined" id="specie2ComboBox"
@@ -133,7 +133,7 @@
                             </select>
                         </td>
                         <td rowspan="2">
-                            <button ng-disabled="orthologyList==undefined"
+                            <button ng-disabled="!options"
                                 style="background-color: rgb(10, 103, 224); color:rgb(216, 216, 216)"
                                 class="btn blackButton longerButtons" id="submitSearchButton" type="button"
                                 ng-click="compareSpeciesCtrl.geneSearch()"><span
@@ -146,17 +146,17 @@
                     </tr>
                     <tr>
                         <td>
-                            Enter Gene
+                            Enter gene
                         </td>
                         <td>
-                            <input placeholder="enter gene symbol" class="compareSpeciesInput"
+                            <input placeholder="Enter gene symbol" class="compareSpeciesInput"
                                 id="compareGeneSearchTextField">
                             <!--searchTextFieldClass -->
 
                         </td>
                         <!-- <td></td> -->
-                        <td>Gene To Compare</td>
-                        <td> <select ng-disabled="orthologyList==undefined" ng-model="aaa" ng-change=""
+                        <td>Gene to compare</td>
+                        <td> <select ng-disabled="!options" ng-model="aaa" ng-change=""
                                 id="orthologyComboBox" class="compareSpeciesInput form-control">
                                 <!-- -->
                             </select></td>
@@ -205,7 +205,7 @@
 
             <div class="searchItems greyArea">
                 <div class="searchItems ">
-                    <i>Choose Display</i>
+                    <i>Choose display</i>
                     <br>
                     <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
                         <option value="all">All Views</option>
@@ -214,7 +214,7 @@
                         <option value="transcript">Transcript View Only</option>
                         <option value="protein">Protein View Only</option>
                     </select>
-                    <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted
+                    <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>Hide predicted
                         records</i>
                 </div>
             </div>

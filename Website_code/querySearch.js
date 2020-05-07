@@ -152,18 +152,21 @@ function findGenes(geneName) {
 
 // for each transcripts looks for protein, exons, domains
 async function findTranscriptInfo(transcript) {
-    var transcriptExons = sql("SELECT * FROM Transcript_Exon WHERE transcript_refseq_id =  ? or transcript_ensembl_id = ?", [transcript.transcript_refseq_id, transcript.transcript_ensembl_id]);
+    var transcriptExons = await new Promise((resolve, reject) => {
+        resolve(sql("SELECT order_in_transcript, genomic_start_tx, genomic_end_tx, abs_start_CDS, abs_end_Cds FROM Transcript_Exon WHERE transcript_refseq_id =  ? or transcript_ensembl_id = ?", [transcript.transcript_refseq_id, transcript.transcript_ensembl_id]));
+      }) 
+    var transcriptExons = sql("SELECT order_in_transcript, genomic_start_tx, genomic_end_tx, abs_start_CDS, abs_end_Cds FROM Transcript_Exon WHERE transcript_refseq_id =  ? or transcript_ensembl_id = ?", [transcript.transcript_refseq_id, transcript.transcript_ensembl_id]);
     transcript.transcriptExons = transcriptExons;
     var protein = sql("SELECT * FROM Proteins WHERE transcript_refseq_id =  ? or transcript_ensembl_id = ?", [transcript.transcript_refseq_id, transcript.transcript_ensembl_id]);
     transcript.protein = protein[0];
-    var domains = sql("SELECT * FROM DomainEvent WHERE protein_refseq_id = ? or protein_ensembl_id = ?", [transcript.protein_refseq_id, transcript.protein_ensembl_id]);
+    var domains = sql("SELECT type_id,AA_start,AA_end,nuc_start,nuc_end,ext_id FROM DomainEvent WHERE protein_refseq_id = ? or protein_ensembl_id = ?", [transcript.protein_refseq_id, transcript.protein_ensembl_id]);
     transcript.domains = domains;
 
-    // var spliceInDomains = sql("SELECT * FROM SpliceInDomains WHERE transcript_refseq_id = ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_refseq_id]);
-    // transcript.spliceInDomains = spliceInDomains;
+    var spliceInDomains = sql("SELECT * FROM SpliceInDomains WHERE transcript_refseq_id = ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_refseq_id]);
+    transcript.spliceInDomains = spliceInDomains;
     //info on each domain
     for (var j = 0; j < transcript.domains.length; j++) {
-        var domainType = sql("SELECT * FROM DomainType WHERE type_id = ?", [transcript.domains[j].type_id]);
+        var domainType = sql("SELECT type_id,name FROM DomainType WHERE type_id = ?", [transcript.domains[j].type_id]);
         transcript.domains[j].domainType = domainType[0];
     }
     return transcript;
@@ -202,7 +205,7 @@ async function buildGeneInfo(finalAns) {
         finalAns.genes[i].transcripts = transcripts;
 
         //get exons
-        var geneExons = sql("SELECT * FROM Exons WHERE gene_GeneID_id = ?", [finalAns.genes[i].gene_GeneID_id]);
+        var geneExons = sql("SELECT  genomic_start_tx, genomic_end_tx FROM Exons WHERE gene_GeneID_id = ?", [finalAns.genes[i].gene_GeneID_id]);
         finalAns.genes[i].geneExons = geneExons;
 
         //foreach transcript: protein, exons, domains
@@ -222,12 +225,13 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
     console.log('Orthology');
     var gene = req.params.gene.toUpperCase();
     var species = req.params.species;
+    var similarGenes= sql("SELECT gene_symbol,specie FROM Genes WHERE (UPPER( gene_ensembl_id ) = ? or UPPER( gene_symbol ) =? )", [gene, gene]);
     // var results = sql("SELECT * FROM Orthology WHERE UPPER( "+species+"_name"+" ) LIKE ? ",["%"+gene+"%"]);
 
     //check A
     var results = sql("SELECT * FROM Orthology WHERE (UPPER( A_ensembl_id ) = ? or UPPER( A_GeneSymb ) =? ) AND A_Species = ?", [gene, gene, species]);
     if (results.length > 0) {
-        res.status(200).send(results);
+        res.status(200).send([results,similarGenes]);
         db.close();
         return;
     }
@@ -235,7 +239,7 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
     //check B
     results = sql("SELECT * FROM Orthology WHERE (UPPER( B_ensembl_id ) = ? or UPPER( B_GeneSymb ) =? ) AND B_Species = ?", [gene, gene, species]);
     if (results.length > 0) {
-        res.status(200).send(results);
+        res.status(200).send([results,similarGenes]);
         db.close();
         return;
     }
@@ -257,7 +261,7 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
             //check A
             results = sql("SELECT * FROM Orthology WHERE (UPPER( A_ensembl_id ) = ? or UPPER( A_GeneSymb ) =? ) AND A_Species = ?", [gene, gene, species]);
             if (results.length > 0) {
-                res.status(200).send(results);
+                res.status(200).send([results,similarGenes]);
                 console.log("res"+results);
                 db.close();
                 return;
@@ -266,7 +270,7 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
             //check B
             results = sql("SELECT * FROM Orthology WHERE (UPPER( B_ensembl_id ) = ? or UPPER( B_GeneSymb ) =? ) AND B_Species = ?", [gene, gene, species]);
             if (results.length > 0) {
-                res.status(200).send(results);
+                res.status(200).send([results,similarGenes]);
                 db.close();
                 return;
             }

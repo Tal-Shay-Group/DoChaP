@@ -7,8 +7,8 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window, web
            return ["error", "No orthology genes were found. Try another gene."];
         }
         
-        promiseGene1 = webService.queryHandler(gene1, specie1, true);
-        promiseGene2 = webService.queryHandler(gene2, specie2, true);
+        promiseGene1 = webService.queryHandler(gene1, specie1, false);
+        promiseGene2 = webService.queryHandler(gene2, specie2, false);
         var genes=await Promise.all([promiseGene1, promiseGene2]);
         
         if(promiseGene1==undefined || promiseGene2==undefined){
@@ -129,10 +129,10 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window, web
     //     }
     //     return [specie1Gene, specie2Gene]
     // }
-    this.filterUnreviewed = function (results, specie1, specie2, ignorePredictions) {
-        return orderTheGenesBySpecie(runGenesCreation(results, ignorePredictions, {
+    this.filterUnreviewed = function (results, ignorePredictions) {
+        return runGenesCreation(results, ignorePredictions, {
             colorByLength: true
-        }), specie1, specie2);
+        });
     };
 
     this.getGeneForSpecie = function (genes, specie) {

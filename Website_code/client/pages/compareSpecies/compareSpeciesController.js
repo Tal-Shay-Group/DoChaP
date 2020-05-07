@@ -16,8 +16,9 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   $scope.canvasSize = $(window).width() / 5;
   self.toolTipManagerForCanvas = {};
   $scope.orthologyList = undefined;
+  $scope.options = false;
 
-  self.geneSearch =async function () {
+  self.geneSearch = async function () {
     $scope.loading = true;
     await compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, specie2ComboBox.value, orthologyComboBox.value)
       .then(function (response) {
@@ -28,8 +29,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
         } else {
           $scope.alert = "";
-          $('#bg1').css("background-image", "none");
-          $('#bg1').css("background-color", "white");
+          // $('#bg1').css("background-image", "none");
+          // $('#bg1').css("background-color", "white");
           // $('body').css("background-image", "none");
 
           self.specie1Gene = response[1][0];
@@ -59,10 +60,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
   function updateCanvases() {
     $('#genomic_range1').hide().fadeIn(5000);
-      $('#protein_range1').hide().fadeIn(5000);
-      $('#genomic_range2').hide().fadeIn(5000);
-      $('#protein_range2').hide().fadeIn(5000);
-      
+    $('#protein_range1').hide().fadeIn(5000);
+    $('#genomic_range2').hide().fadeIn(5000);
+    $('#protein_range2').hide().fadeIn(5000);
+
 
     for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
       $('#fadeinDiv1' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
@@ -87,39 +88,39 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     $('#canvas-scale-protein1').hide().fadeIn(1000);
     $('#canvas-scale2').hide().fadeIn(1000);
     $('#canvas-scale-protein2').hide().fadeIn(1000);
-    $scope.chromosomeLocation1 =  "chr"+self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
-    $scope.chromosomeLocation2 =  "chr"+self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
+    $scope.chromosomeLocation1 = "chr" + self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
+    $scope.chromosomeLocation2 = "chr" + self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
     $("canvas")
       .click(function (event) {
         Domain.domainClick(self.toolTipManagerForCanvas, event);
         $scope.$apply();
       });
 
-      $('#genomic_range1').data("ionRangeSlider").update({
-        from: self.specie1Gene.scale.start,
-        to: self.specie1Gene.scale.end,
-      });
-      $('#protein_range1').data("ionRangeSlider").update({
-        from: self.specie1Gene.proteinScale.zoomInStart,
-        to: self.specie1Gene.proteinScale.zoomInEnd,
-      });
-      $('#genomic_range2').data("ionRangeSlider").update({
-    
-        from: self.specie2Gene.scale.start,
-        to: self.specie2Gene.scale.end,
-      });
-      $('#protein_range2').data("ionRangeSlider").update({
+    $('#genomic_range1').data("ionRangeSlider").update({
+      from: self.specie1Gene.scale.start,
+      to: self.specie1Gene.scale.end,
+    });
+    $('#protein_range1').data("ionRangeSlider").update({
+      from: self.specie1Gene.proteinScale.zoomInStart,
+      to: self.specie1Gene.proteinScale.zoomInEnd,
+    });
+    $('#genomic_range2').data("ionRangeSlider").update({
+
+      from: self.specie2Gene.scale.start,
+      to: self.specie2Gene.scale.end,
+    });
+    $('#protein_range2').data("ionRangeSlider").update({
       from: self.specie2Gene.proteinScale.zoomInStart,
       to: self.specie2Gene.proteinScale.zoomInEnd,
-      });
+    });
 
 
 
 
 
-      $scope.$apply();
+    $scope.$apply();
 
-    }
+  }
 
   $(document).ready(function () {
     document.addEventListener("keypress", function (event) {
@@ -223,7 +224,13 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   }
   $scope.filterUnreviewed = function () {
     $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
-    var newResults = compareSpeciesService.filterUnreviewed(JSON.parse($window.sessionStorage.getItem("currCompareSpecies")), self.specie1Gene.specie, self.specie2Gene.specie, isReviewedCheckBox.checked);
+    var results = $window.sessionStorage.getItem("currCompareSpecies");
+    var genes = results.split("*");
+    results = {
+      "isExact": true,
+      "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+    };
+    var newResults = compareSpeciesService.filterUnreviewed(results, isReviewedCheckBox.checked);
     self.specie1Gene = newResults[0];
     self.specie2Gene = newResults[1];
     selectModeComboBox.value = 'all'; //update canvas+all biews shown
@@ -335,42 +342,72 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     compareSpeciesService.fillOrthologyCombox(specie1ComboBox.value, compareGeneSearchTextField.value)
       .then(function (response) {
         var results = response.data;
-        if(results.length==0){
-          $scope.alert="No orthology genes were found. Try another gene.";
+        if (results.length == 0) {
+          $scope.alert = "No orthology genes were found. Try another gene.";
           $scope.orthologyList = undefined;
-        }else{
+        } else {
           $scope.orthologyList = results;
-          $scope.alert="";
+          $scope.options = undefined;
+          $('#orthologyComboBox').empty();
+          $scope.alert = "";
         }
         // self.fillOrthologyCombox();
       });
   }
 
   self.fillOrthologyCombox = function () {
-    var options= [];
-    if(specie1ComboBox.value!=specie2ComboBox.value){
-       for (var i =0; i<$scope.orthologyList.length;i++){
-      if($scope.orthologyList[i].A_Species==specie2ComboBox.value ){
-          options.push($scope.orthologyList[i].A_GeneSymb);
+    var options1 = [];
+    var options2 = [];
+    var ensemblMatch = $scope.orthologyList[0];
+    var geneSymbolMatch = $scope.orthologyList[1];
+    if (specie1ComboBox.value != specie2ComboBox.value) {
+      for (var i = 0; i < ensemblMatch.length; i++) {
+        if (ensemblMatch[i].A_Species == specie2ComboBox.value) {
+          options1.push(ensemblMatch[i].A_GeneSymb);
         }
-        if($scope.orthologyList[i].B_Species==specie2ComboBox.value){
-          options.push($scope.orthologyList[i].B_GeneSymb);
+        if (ensemblMatch[i].B_Species == specie2ComboBox.value) {
+          options1.push(ensemblMatch[i].B_GeneSymb);
         }
+      }
+      for (var i = 0; i < geneSymbolMatch.length; i++) {
+        if (geneSymbolMatch[i].specie == specie2ComboBox.value) {
+          options2.push(geneSymbolMatch[i].gene_symbol);
+        }
+      }
+
     }
+    if (options1.length + options2.length == 0) {
+      $scope.options = false;
+      $('#orthologyComboBox').empty();
+      return;
     }
-  
-    // if($scope.orthologyList[specie2ComboBox.value + "_name"]==this.undefined){
-    //   return;
-    // }
-    // var options = $scope.orthologyList[specie2ComboBox.value + "_name"].split("; ");
-    options.sort();
+
+    $scope.options = true;
+
     $('#orthologyComboBox').empty();
-    $.each(options, function (i, p) {
-      $('#orthologyComboBox').append($('<option></option>').val(p).html(p));
-    });
+
+
+    if (options1.length > 0) {
+      options1.sort();
+      var option1tags = $('#orthologyComboBox').append($('<optgroup label="Ensembl compara"></optgroup>'));
+
+      $.each(options1, function (i, p) {
+        option1tags.append($('<option></option>').val(p).html(p));
+      });
+    }
+
+    if (options2.length > 0) {
+      options2.sort();
+      var option2tags = $('#orthologyComboBox').append($('<optgroup label="Only gene symbol match"></optgroup>'));
+      $.each(options2, function (i, p) {
+        option2tags.append($('<option></option>').val(p).html(p));
+      });
+    }
+
+
   }
 
-  self.createScales=function(){
+  self.createScales = function () {
     if ($('#genomic_range1').data("ionRangeSlider") != undefined) {
       $('#genomic_range1').data("ionRangeSlider").destroy();
       $('#protein_range1').data("ionRangeSlider").destroy();

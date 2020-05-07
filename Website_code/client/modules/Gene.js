@@ -14,6 +14,7 @@ class Gene {
         this.gene_ensembl_id = dbGene.gene_ensembl_id;
         this.specie = dbGene.specie;
         this.colorByLength=colorByLength;
+        this.ignorePredictions=ignorePredictions;//to filter refseq unreviewed
 
         //calculated attributes
         this.specieName = this.getSpecieName();
@@ -35,7 +36,7 @@ class Gene {
         //push transcripts
         this.transcripts = [];
         for (var i = 0; i < dbGene.transcripts.length; i++) {
-            if (ignorePredictions == false || dbGene.transcripts[i].transcript_refseq_id.substring(0, 2) == "NM") {
+            if (ignorePredictions == false || dbGene.transcripts[i].transcript_refseq_id==undefined || (dbGene.transcripts[i].transcript_refseq_id!=undefined &&dbGene.transcripts[i].transcript_refseq_id.substring(0, 2) == "NM")) {
                 this.transcripts.push(new Transcript(dbGene.transcripts[i],this));
             }
         }
@@ -116,6 +117,9 @@ class Gene {
     getTranscriptsForExon(start, end, transcripts) {
         var ans = ""
         for (var i = 0; i < transcripts.length; i++) {
+            if (this.ignorePredictions == true && transcripts[i].transcript_refseq_id!=undefined && transcripts[i].transcript_refseq_id.substring(0, 2) == "XM") {
+                continue;
+            }
             for (var j = 0; j < transcripts[i].transcriptExons.length; j++) {
                 if (transcripts[i].transcriptExons[j].genomic_start_tx == start && transcripts[i].transcriptExons[j].genomic_end_tx == end) {
                     var name=transcripts[i].transcript_refseq_id;
