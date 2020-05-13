@@ -7,11 +7,6 @@ wget -O C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\OOP_projec
   <Dataset name = "mmusculus_gene_ensembl_gene_ensembl" interface = "default" >
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
-    <Attribute name = "interpro" />
-    <Attribute name = "interpro_short_description" />
-    <Attribute name = "interpro_description" />
-    <Attribute name = "interpro_start" />
-    <Attribute name = "interpro_end" />
     <Attribute name = "pfam" />
     <Attribute name = "pfam_start" />
     <Attribute name = "pfam_end" />

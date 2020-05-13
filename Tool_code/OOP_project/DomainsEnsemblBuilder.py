@@ -6,6 +6,7 @@ import re
 
 sys.path.append(os.getcwd())
 from Director import SourceBuilder
+from recordTypes import *
 
 
 class DomainsEnsemblBuilder(SourceBuilder):
@@ -13,7 +14,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
     Dowload and parse Domains tables
     """
 
-    def __init__(self,species, download=False):
+    def __init__(self,species):
         """
         @type species: tuple
         """
@@ -23,56 +24,64 @@ class DomainsEnsemblBuilder(SourceBuilder):
                                  'X_tropicalis': 'xtropicalis'}
         self.ExtSources = ("pfam", "smart", "cdd", "tigrfam", "interpro")
         self.downloadPath = os.getcwd() + '/data/{}/ensembl/BioMart/'.format(self.species)
-        #if not download:
-        #    self.scriptsList = [self.downloadPath + "/" + file for file in os.listdir(self.downloadPath) if file[-13:] == "orthology.txt"]
-        self.scriptsList = ()
-        self.OrthoTable = None
+        self.shellScript = os.getcwd() + \
+                           "/BioMart.ensembl.domains.{}.AllSources.sh".format(self.species)
+        # self.Domains = {}
+        # self.Proteins = {}
+        # self.pro2trans = {}
+        # self.trans2pro = {}
 
     def createDownloadScripts(self):
         scriptList = tuple()
         os.makedirs(self.downloadPath, exist_ok=True)
-        for extDB in self.ExtSources:
-            replaceDict = {"output.txt": self.downloadPath + "{}.Domains.{}.txt".format(self.species, extDB),
-                            "MainSpecies": self.speciesConvertor[self.species],
-                           "extDB": extDB}
-            with open(os.getcwd() + "/BioMart.ensembl.domains.template.sh", "r") as template:
-                with open(os.getcwd() +
-                          "/BioMart.ensembl.domains.{}.{}.sh".format(self.species, extDB), "w") as writo:
-                    for line in template:
-                        for key in replaceDict:
-                            if key in line:
-                                line = line.replace(key, replaceDict[key])
-                        writo.write(line)
-                    scriptList = scriptList + (os.getcwd() + "/BioMart.ensembl.domains.{}.{}.sh".format(self.species, extDB),)
-        self.scriptsList = scriptList
+        replaceDict = {"Pathspecies": self.downloadPath + self.species,
+                        "EnsSpecies": self.speciesConvertor[self.species]}
+        with open(os.getcwd() + "/BioMart.ensembl.domains.template.sh", "r") as template:
+            with open(self.shellScript, "w") as writo:
+                for line in template:
+                    for key in replaceDict:
+                        if key in line:
+                            line = line.replace(key, replaceDict[key])
+                    writo.write(line)
 
     def downloader(self):
-        output = dict()
-        err = dict()
-        if self.scriptsList == ():
-            self.createDownloadScripts()
-        iterlen = len(self.scriptsList)
-        n = 0
-        for shellCommand in self.scriptsList:
-            n += 1
-            runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            output[shellCommand], err[shellCommand] = runScript.communicate()
-            print("poll(): " + str(runScript.poll()))
-            # if runScript.poll() is not None or 0:
-            # raise ValueError("Error in the run of " + shellCommand + "; stderr: " + err[shellCommand])
-            if n == iterlen:
-                check = None
-                while check is None:
-                    print("waiting for last job to finish")
-                    check = runScript.wait()
-                print("last job has finished")
+        self.createDownloadScripts()
+        runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        output, err = runScript.communicate()
+        print("poll(): " + str(runScript.poll()))
+        check = None
+        while check is None:
+            print("waiting for job to finish")
+            check = runScript.wait()
+        print("Job has finished")
         print("Validating successful downloads...")
-        for key in err.keys():
-            if err[key] is not '':
-                print(key)
-                print(err[key])
-            else:
-                print("script: " + key + " has finished running without errors")
-        for script in self.scriptsList:
-            os.remove(script)
+        if err is not '':
+            print(err)
+        else:
+            print("script has finished running without errors")
+        # os.remove(self.shellScript)
 
+    # def Parser(self):
+    #     for extDB in self.ExtSources:
+    #         df = pd.read_table(self.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
+    #                            sep="\t", header=0)
+    #         df.columns = df.columns.str.replace(" ", "_")
+    #         df.columns = df.columns.str.lower().str.replace(extDB+"_", "")
+    #         df = df.dropna()
+    #         conv = {"pf":"pfam", "sm":"smart"}
+    #         for i, row in df.iterrows():
+    #             id = row.id.lower()
+    #             idtype= re.sub(r'\d+', '', id)
+    #             if idtype in conv.keys():
+    #                 id = id.replace(idtype, conv[idtype])
+    #             break
+    #             if extDB == "interpro":
+    #                 self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
+    #                                                               [Domain(ext_id=id, start=int(row.start),
+    #                                                                       end=int(row.end), name=row.short_description,
+    #                                                                       note=row.description)]
+    #             else:
+    #                 self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
+    #                                                           [Domain(ext_id=id, start=int(row.start), end=int(row.end))]
+    #             self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
+    #             self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version

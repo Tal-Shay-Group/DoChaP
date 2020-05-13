@@ -37,7 +37,7 @@ def protein_info(record):
         transcript.strip("join(")
     xref = cds.qualifiers.get('db_xref', [])
     GeneID = [i.split(':')[-1] for i in xref if i.startswith('GeneID')][0]
-    protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, note=note)
+    protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, synonyms=note)
     gene = Gene(GeneID=GeneID,
                 ensembl=None, symbol=cds.qualifiers.get('gene', [None])[0],
                 synonyms=cds.qualifiers.get('gene_synonym', [None])[0],
@@ -114,17 +114,22 @@ class RefseqBuilder(SourceBuilder):
 
     def ParseGffRefseq(self):
         fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
-        # gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Refseq.db")
+        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        #gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
+        db = gffutils.FeatureDB("DB.Refseq.db")
         print("Collecting Transcripts data from gff file...")
         self.Transcripts = {}
         regionChr = {}
         for r in db.features_of_type("region"):
             if "Name" in r.attributes:
                 regionChr[r.chrom] = r["Name"][0]
+        for feat in db.features_of_type("sequence_feature"):
+            if feat.attributes.get("Note", " ")[0].startswith("Anchor sequence. This sequence is derived from alt loci"):
+                regionChr[feat.chrom] = "ALT_chr"
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
+            if regionChr[t.chrom] == "ALT_chr":
+                continue
             newT.chrom = regionChr[t.chrom]
             newT.tx = (t.start - 1, t.end,)
             newT.strand = t.strand
@@ -134,6 +139,16 @@ class RefseqBuilder(SourceBuilder):
             self.Transcripts[newT.refseq] = newT
         print("Collecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
+            if regionChr[cds.chrom] =="ALT_chr":
+                continue
+            elif regionChr[cds.chrom] == "MT":
+                GeneID = [info for info in cds["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
+                ref = "mito-" + GeneID
+                self.Transcripts[ref] = Transcript(refseq=ref, chrom=regionChr[cds.chrom], strand=cds.strand,
+                                                   tx=(cds.start, cds.end), CDS=(cds.start, cds.end),
+                                                   GeneID=GeneID, geneSymb=cds["gene"][0],
+                                                   protein_refseq=cds["Name"][0], exons_starts=[cds.start],
+                                                   exons_ends=[cds.end])
             ref = [info if info.startswith("rna-") else '-0' for info in cds["Parent"]][0].split("-")[1]
             if ref[0] == '0':
                 continue
@@ -148,7 +163,7 @@ class RefseqBuilder(SourceBuilder):
             self.Transcripts[ref].CDS = (cds_start, cds_end,)
         print("Collecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
-            if e["gbkey"][0] != "mRNA":
+            if regionChr[e.chrom] =="ALT_chr" or e["gbkey"][0] != "mRNA":
                 continue
             ref = e["ID"][0].split("-")[1]
             orderInT = int(e["ID"][0].split("-")[2])
@@ -157,10 +172,11 @@ class RefseqBuilder(SourceBuilder):
             self.Transcripts[ref].exon_ends = self.Transcripts[ref].exon_ends + [None] * (orderInT - l_orig)
             self.Transcripts[ref].exon_starts[orderInT - 1] = e.start - 1
             self.Transcripts[ref].exon_ends[orderInT - 1] = e.end
-        for t in self.Transcripts.values():
-            if t.strand == "-":
-                t.exon_starts = t.exon_starts[::-1]
-                t.exon_ends = t.exon_ends[::-1]
+
+        # for t in self.Transcripts.values():
+        #     if t.strand == "-":
+        #         t.exon_starts = t.exon_starts[::-1]
+                # t.exon_ends = t.exon_ends[::-1]
 
     def parseSingleGpff(self, gpff_file):
         print("Collecting Proteins and Domains data from gpff file...")

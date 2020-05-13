@@ -260,9 +260,9 @@ class dbBuilder:
                 ex_num = 0
                 starts = transcript.exon_starts.copy()
                 ends = transcript.exon_ends.copy()
-                if transcript.strand == '-':
-                    starts = starts[::-1]
-                    ends = ends[::-1]
+                #if transcript.strand == '-':
+                #    starts = starts[::-1]
+                #    ends = ends[::-1]
                 for iEx in range(e_counts):
                     ex_num += 1
                     values = (transcript.refseq, transcript.ensembl, ex_num, starts[iEx], ends[iEx],
@@ -284,7 +284,7 @@ class dbBuilder:
                 protID = [protein_refseq if protein_refseq is not None or '-' else None][0]
                 protein = self.data.Proteins[protID]
                 values = (protein.refseq, prot_ens, protein.description, protein.length,
-                          protein.note, transcript.refseq, transcript.ensembl,)
+                          protein.synonyms, transcript.refseq, transcript.ensembl,)
                 cur.execute(''' INSERT INTO Proteins
                                 (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
                                 VALUES (?, ?, ?, ?, ?, ?, ?)''', values)

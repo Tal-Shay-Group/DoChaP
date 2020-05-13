@@ -37,31 +37,6 @@ class ConverterBuilder(SourceBuilder):
                            files2Download=files2down)
         down.Download()
 
-        # print('connecting to: ' + self.ftp_address + '...')
-        # ftp = ftplib.FTP(self.ftp_address)
-        # print('logging in...')
-        # ftp.login(user=username, passwd=pswd)
-        # ftp_path = '/gene/DATA/'
-        # ftp.cwd(ftp_path)
-        # print('downloading files to : ' + self.savePath)
-        # os.makedirs(self.savePath, exist_ok=True)
-        # filename = 'gene2ensembl'
-        # print('downloading: ', filename, '...')
-        # ftp.sendcmd("TYPE i")
-        # with open(self.savePath + filename + '.txt.gz', 'wb') as f:
-        #   def callback(chunk):
-        #      f.write(chunk)
-
-        # ftp.retrbinary("RETR " + filename + '.gz', callback)
-        # print('extracting...')
-        # inp = gzip.GzipFile(self.savePath + filename + '.txt.gz', 'rb')
-        # s = inp.read()
-        # inp.close()
-        # with open(self.savePath + filename + '.txt', 'wb') as f_out:
-        #    f_out.write(s)
-        # print('removing compressed file...')
-        # os.remove(self.savePath + filename + '.txt.gz')
-
     def parser(self):
         """
         This function uses the table gene2ensembl from refseq database to create all connections
@@ -75,9 +50,13 @@ class ConverterBuilder(SourceBuilder):
                 # print(ll)
                 if ll[0] == str(self.taxID):
                     # print(ll[0])
-                    #ll = [None if it == "-" else it for it in ll]
+                    # ll = [None if it == "-" else it for it in ll]
                     self.geneCon[ll[1]] = self.geneCon.get(ll[1], ll[2])
                     self.geneCon[ll[2]] = self.geneCon.get(ll[2], ll[1])
+                    if [i for i in range(len(ll)) if ll[i] == "-"] == [3, 4]:
+                        # mito genes has no transcript id
+                        ll[3] = "mito-" + ll[1]
+                        ll[4] = "mito-" + ll[2]
                     self.transcriptCon[ll[3]] = ll[4]
                     self.transcriptCon[ll[4]] = ll[3]
                     self.proteinCon[ll[5]] = ll[6]
@@ -119,25 +98,39 @@ class ConverterBuilder(SourceBuilder):
     def FillInMissingsTranscript(self, transcript):
         newT = transcript
         if newT.refseq is not None:
-            newT.ensembl = self.findConversion(newT.refseq, transcript=True)\
+            newT.ensembl = self.findConversion(newT.refseq, transcript=True) \
                 if newT.ensembl is None else newT.ensembl
-            newT.gene_GeneID = self.GeneTrans(newT.refseq)\
+            newT.gene_GeneID = self.GeneTrans(newT.refseq) \
                 if newT.gene_GeneID is None else newT.gene_GeneID
-            newT.gene_ensembl = self.findConversion(newT.gene_GeneID, gene=True)\
+            newT.gene_ensembl = self.findConversion(newT.gene_GeneID, gene=True) \
                 if newT.gene_ensembl is None else newT.gene_ensembl
-            newT.protein_refseq = self.TranscriptProtein(newT.refseq)\
+            newT.protein_refseq = self.TranscriptProtein(newT.refseq) \
                 if newT.protein_refseq is None else newT.protein_refseq
-            newT.protein_ensembl = self.findConversion(newT.protein_refseq, protein=True)\
+            newT.protein_ensembl = self.findConversion(newT.protein_refseq, protein=True) \
                 if newT.protein_ensembl is None else newT.protein_ensembl
         elif newT.ensembl is not None:
-            newT.refseq = self.findConversion(newT.ensembl, transcript=True)\
-                                 if newT.refseq is None else newT.refseq
-            newT.gene_ensembl = self.GeneTrans(newT.ensembl)\
+            newT.refseq = self.findConversion(newT.ensembl, transcript=True) \
+                if newT.refseq is None else newT.refseq
+            newT.gene_ensembl = self.GeneTrans(newT.ensembl) \
                 if newT.gene_ensembl is None else newT.gene_ensembl
-            newT.gene_GeneID = self.findConversion(newT.gene_ensembl, gene=True)\
+            newT.gene_GeneID = self.findConversion(newT.gene_ensembl, gene=True) \
                 if newT.gene_GeneID is None else newT.gene_GeneID
-            newT.protein_ensembl = self.TranscriptProtein(newT.ensembl)\
+            if newT.refseq is None and newT.gene_GeneID is not None:  # probably a mitochondrial genes which has no refseq id
+                tempRefseq = "mito-" + newT.gene_GeneID
+                if tempRefseq in self.transcriptCon:
+                    newT.refseq = tempRefseq
+                    self.transcriptCon[tempRefseq] = newT.ensembl
+                    self.transcriptCon[newT.ensembl] = tempRefseq
+                    self.t2g[newT.ensembl] = self.t2g["mito-"+newT.gene_ensembl]
+            newT.protein_ensembl = self.TranscriptProtein(newT.ensembl) \
                 if newT.protein_ensembl is None else newT.protein_ensembl
-            newT.protein_refseq = self.findConversion(newT.protein_ensembl, protein=True)\
+            newT.protein_refseq = self.findConversion(newT.protein_ensembl, protein=True) \
                 if newT.protein_refseq is None else newT.protein_refseq
         return newT
+
+    def FillInMissingProteins(self, proteinRec):
+        if proteinRec.refseq == None:
+            proteinRec.refseq = self.findConversion(proteinRec.ensembl, protein=True)
+        elif proteinRec.ensembl == None:
+            proteinRec.ensembl = self.findConversion(proteinRec.refseq, protein=True)
+        return proteinRec

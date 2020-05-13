@@ -15,32 +15,32 @@ class Collector:
         self.director = Director()
         self.refseq = RefseqBuilder(self.species)
         self.ensembl = EnsemblBuilder(self.species)
-        # self.ucsc = UcscBuilder(self.species)
-        # self.ff = ffBuilder(self.species)
         self.idConv = ConverterBuilder(self.species)
         self.Transcripts = None
         self.Genes = None
         self.Domains = None
         self.Proteins = None
+        self.mismatches_sep =[]
+        self.mismatches_merged = []
 
     def CollectSingle(self, attrName, download=False):
         self.director.setBuilder(self.__getattribute__(attrName))
         self.director.collectFromSource(download)
 
-    def collectAll(self, completeMissings=True, download=False, withEns=True):
+    def collectAll(self, download=False, withEns=True):
         BuildersList = ['refseq', 'idConv']
         if withEns:
             BuildersList.append('ensembl')
         for builder in BuildersList:
             self.CollectSingle(builder, download)
-        if completeMissings:
+        if withEns:
             self.MergeTranscripts(withEns=withEns)
-            # self.CompleteProteinData()
-            # self.CompleteGenesData()
+            self.CompleteProteinData(withEns=withEns)
+            self.CompleteGenesData(withEns=withEns)
         else:
             self.Transcripts = self.refseq.Transcripts
-        self.Proteins = self.refseq.Proteins
-        self.Genes = self.refseq.Genes
+            self.Proteins = self.refseq.Proteins
+            self.Genes = self.refseq.Genes
         self.Domains = self.refseq.Domains
 
     def MergeTranscripts(self, withEns=True):
@@ -67,36 +67,86 @@ class Collector:
             if (newT.refseq is not None and newT.refseq[1] == "R") or \
                     newT.protein_refseq == '-' or newT.protein_ensembl == '-':
                 continue
+            elif newT.refseq is not None and newT.refseq.startswith("mito-") and newT.refseq in refseqs:
+                recombine[newT.refseq] = newT
             elif newT.refseq is None or newT.refseq not in refseqs:
                 recombine[newT.ensembl] = newT
             elif newT.refseq in refseqs:
-                print(newT.refseq)
                 recombine[newT.refseq] = recombine[newT.refseq].mergeTranscripts(newT)
             else:
                 raise ValueError(
                     "Transcript fails to match any of the statements : {}, {}".format(newT.refseq, newT.ensembl))
         self.Transcripts = recombine
 
-    def CompleteProteinData(self):
+    def CompleteProteinData(self, withEns=True):
         recombine = {}
-        for pid, protein in self.ff.proteins.items():
-            if protein.ensembl is None:
-                newP = protein
-                newP.ensembl = self.idConv.findConversion(newP.refseq, protein=True)
-            else:
-                newP = protein
+        ensembls = set()
+        refseqs = set()
+        for pid, protein in self.refseq.Proteins.items():
+            newP = protein
+            newP = self.idConv.FillInMissingProteins(newP)
+            ensembls.add(newP.ensembl)
+            refseqs.add(newP.refseq)
             recombine[pid] = newP
-        ##add for ensembl
-        self.Proteins = recombine
+        if not withEns:
+            self.Proteins = recombine
+            return
+        else:
+            for pid, protein in self.ensembl.Proteins.items():
+                if protein.ensembl in ensembls:
+                    refs = self.idConv.proteinCon[protein.ensembl]
+                    if recombine[refs].length != protein.length:
+                        # raise ValueError("inconsistency between refseq and ensembl length, protein: {}, {}".format(protein.ensembl,refs))
+                        if abs(int(recombine[refs].length) - int(protein.length)) <= 1:
+                            protein.length = recombine[refs].length
+                            self.mismatches_merged.append((protein.ensembl, refs,))
+                        else:
+                            refT = self.idConv.TranscriptProtein(refs)
+                            ensT = self.idConv.TranscriptProtein(protein.ensembl)
+                            if refT in self.Transcripts:
+                                self.Transcripts[refT].ensembl = None
+                                self.Transcripts[refT].protein_ensembl = None
+                                self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
+                            if refs in recombine:
+                                recombine[refs].ensembl = None
+                                recombine[refs].protein_ensembl = None
+                            recombine[pid] = protein
+                            self.mismatches_sep.append((protein.ensembl, refs,))
+                        # print("inconsistency between refseq and ensembl length, protein: {}, {}".format(protein.ensembl,refs))
+                else:
+                    newP = protein
+                    newP = self.idConv.FillInMissingProteins(newP)
+                    if newP.refseq is not None and newP.refseq in refseqs:
+                        if recombine[newP.refseq].ensembl is None:
+                            recombine[newP.refseq].ensembl = newP.ensembl
+                    else:
+                        recombine[newP.ensembl] = newP
+            self.Proteins = recombine
 
-    def CompleteGenesData(self):
+    def CompleteGenesData(self, withEns=True):
         recombine = {}
-        for gid, gene in self.ff.genes.items():
+        ensembls = set()
+        refseqs = set()
+        for gid, gene in self.refseq.Genes.items():
             if gene.ensembl is None:
                 newG = gene
                 newG.ensembl = self.idConv.findConversion(newG.GeneID, gene=True)
             else:
                 newG = gene
             recombine[gid] = newG
-        ### add for ensembl
+            ensembls.add(newG.ensembl)
+            refseqs.add(newG.GeneID)
+        if not withEns:
+            self.Genes = recombine
+            return
+        else:
+            for gid, gene in self.ensembl.Genes.items():
+                if gene.GeneID is None:
+                    gene.GeneID = self.idConv.findConversion(gene.ensembl, gene=True)
+                if gene.GeneID in recombine.keys():
+                    recombine[gene.GeneID] = recombine[gene.GeneID].mergeGenes(gene)
+                elif gid in recombine.keys():
+                    recombine[gid] = recombine[gid].mergeGenes(gene)
+                else:
+                    recombine[gid] = gene
         self.Genes = recombine

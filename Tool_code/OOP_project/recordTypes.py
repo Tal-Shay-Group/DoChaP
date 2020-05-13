@@ -3,7 +3,7 @@ import re
 
 class Gene:
 
-    def __init__(self, GeneID, ensembl, symbol, synonyms, chromosome, strand):
+    def __init__(self, GeneID=None, ensembl=None, symbol=None, synonyms=None, chromosome=None, strand=None):
         self.GeneID = GeneID
         self.ensembl = ensembl
         self.symbol = symbol
@@ -24,6 +24,16 @@ class Gene:
         else:
             return False
 
+    def mergeGenes(self, other):
+        attr = ['GeneID','ensembl','symbol','synonyms','chromosome','strand']
+        for at in attr:
+            if self.__getattribute__(at) is None:
+                self.__setattr__(at, other.__getattribute__(at))
+        syno = other.synonyms.split("; ") + other.symbol
+        for name in syno:
+            if name not in self.synonyms.split("; ") + self.symbol:
+                self.synonyms = self.synonyms + "; " + name
+        return self
 
 class Transcript:
 
@@ -67,28 +77,31 @@ class Transcript:
     def idVersion(self, idType='refseq'):
         tid = self.__getattribute__(idType)
         if tid is not None:
-            return tid.split(".")[1]
+            if tid.startswith("mito"):
+                return "mito"
+            else:
+                return tid.split(".")[1]
         else:
             return None
 
     def exons2abs(self):
         if len(self.exon_starts) != len(self.exon_ends):
-            raise ValueError('Arguments 1 and 2: Expected same length for the lists/tuples of start and stop positions')
+            raise ValueError('Expected same length for the lists/tuples of start and stop positions')
         elif len(self.CDS) != 2:
-            raise ValueError('3rd argument: Expected list of 2 values: CDS_start, CDS_end')
+            raise ValueError('Expected list of 2 values: CDS_start, CDS_end')
         elif self.strand != '-' and self.strand != '+':
-            raise ValueError('4th argument: Expected strand: + or -, for forward and reverse (respectively)')
+            raise ValueError('Expected strand: + or -, for forward and reverse (respectively)')
         transcript_len = 0
         abs_start = []
         abs_stop = []
         add_opt = 0
-        if self.strand == '-':
-            stop_list = self.exon_ends.copy()[::-1]
-            start_list = self.exon_starts.copy()[::-1]
-            add_opt = 1
-        else:
-            stop_list = self.exon_ends.copy()
-            start_list = self.exon_starts.copy()
+        # if self.strand == '-':
+        #     stop_list = self.exon_ends.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_ends.copy()
+        #     start_list = self.exon_starts.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_starts.copy()
+        #     add_opt = 1
+        # else:
+        stop_list = self.exon_ends.copy()
+        start_list = self.exon_starts.copy()
         for i in range(len(start_list)):
             if stop_list[i] < self.CDS[0]:
                 abs_start.append(0)
@@ -185,12 +198,12 @@ class Domain:
 
 
 class Protein:
-    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, note=None):
+    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, synonyms=None):
         self.refseq = refseq
         self.ensembl = ensembl
         self.description = descr
         self.length = length
-        self.note = note
+        self.synonyms = synonyms
 
     def refseqNoVersion(self):
         return self.refseq.split('.')[0]
