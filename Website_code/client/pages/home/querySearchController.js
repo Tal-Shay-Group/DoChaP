@@ -52,6 +52,10 @@ angular.module("DoChaP")
         }
 
         $(document).ready(function () {
+            $(".greyArea").each( function( index, element ){
+                $( this ).slideDown( 1000 );
+                $( this ).show();
+            });
             document.getElementById("searchTextField").focus();
             document.addEventListener("keypress", function (event) {
                 if (event.code == "Enter") {

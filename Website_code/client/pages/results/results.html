@@ -14,58 +14,66 @@
             <div width="200" ng-click="showWindow=false" style="font-size: 25px;text-align: right; padding: 0px;">
                 <span class="glyphicon glyphicon-remove-sign"></span></div><br>
             <span ng-if="showWindow=='gene'">
-                GeneID: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_GeneID_id}}"
+                <b>GeneID</b>: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_GeneID_id}}"
                     target="_blank"></a>{{::resultsCtrl.geneInfo.gene_GeneID_id}}<br>
-                Gene symbol: {{::resultsCtrl.geneInfo.gene_symbol}}<br>
-                Chromosome: {{::resultsCtrl.geneInfo.chromosome}}<br>
-                Synonyms: {{::resultsCtrl.geneInfo.synonyms}}<br>
-                Strand: {{::resultsCtrl.geneInfo.strand}}<br>
-                Description: {{::resultsCtrl.geneInfo.description}}<br>
+                    <b>Ensembl ID</b>:
+                    <a href="{{::resultsCtrl.geneInfo.EnsemblLink}}"
+                        target="_blank">{{::resultsCtrl.geneInfo.gene_ensembl_id}}</a><br>
+
+                
+                    <b>Gene symbol</b>: {{::resultsCtrl.geneInfo.gene_symbol}}<br>
+                <b>Chromosome</b>: {{::resultsCtrl.geneInfo.chromosome}}<br>
+                <b>Synonyms</b>: {{::resultsCtrl.geneInfo.synonyms}}<br>
+                <b>Strand</b>: {{::resultsCtrl.geneInfo.strand}}<br>
+                <!-- <b>Description</b>: {{::resultsCtrl.geneInfo.description}}<br> -->
                 <!-- MGI ID: <a href="http://www.informatics.jax.org/marker/MGI:{{::resultsCtrl.geneInfo.MGI_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.MGI_id}}</a><br> -->
-                Ensembl ID:
-                <a href="{{::resultsCtrl.geneInfo.EnsemblLink}}"
-                    target="_blank">{{::resultsCtrl.geneInfo.gene_ensembl_id}}</a>
+                
 
             </span>
             <span ng-show="showWindow=='transcript'">
-                RefSeq ID: <a
+                <b>RefSeq ID</b>: <a
                     href="https://www.ncbi.nlm.nih.gov/nuccore/{{resultsCtrl.currTranscript.transcript_refseq_id}}"
                     target="_blank">{{resultsCtrl.currTranscript.transcript_refseq_id}}</a><br>
-                Exon count: {{resultsCtrl.currTranscript.exonCount}}<br>
+                    <span ng-show="resultsCtrl.currTranscript.transcript_ensembl_id!=undefined">
+                        <b>Ensembl ID</b>:
+                        <a href="{{resultsCtrl.currTranscript.transcriptEnsemblLink}}"
+                            target="_blank">{{resultsCtrl.currTranscript.transcript_ensembl_id}}</a><br>
+    
+                    </span>
+                
+                    <b>Exon count</b>: {{resultsCtrl.currTranscript.exonCount}}<br>
                 <span ng-show="resultsCtrl.currTranscript.ucsc_id!=undefined">
-                    UCSC ID: <a
+                    <b>UCSC ID</b>: <a
                         href="https://genome.ucsc.edu/cgi-bin/hgTracks?id={{resultsCtrl.currTranscript.proteinUniprotID}}"
                         target="_blank">{{resultsCtrl.currTranscript.ucsc_id}}</a> <br>
                 </span>
-                <span ng-show="resultsCtrl.currTranscript.transcript_ensembl_id!=undefined">
-                    Ensembl ID:
-                    <a href="{{resultsCtrl.currTranscript.transcriptEnsemblLink}}"
-                        target="_blank">{{resultsCtrl.currTranscript.transcript_ensembl_id}}</a><br>
-
-                </span>
-                Transcription start: {{resultsCtrl.currTranscript.tx_start}}<br>
-                Transcription end: {{resultsCtrl.currTranscript.tx_end}}<br>
-                CDS start: {{resultsCtrl.currTranscript.cds_start}}<br>
-                CDS end: {{resultsCtrl.currTranscript.cds_end}}
+              
+                <b>Transcription start</b>: {{resultsCtrl.currTranscript.tx_start}}<br>
+                <b>Transcription end</b>: {{resultsCtrl.currTranscript.tx_end}}<br>
+                <b>CDS start</b>: {{resultsCtrl.currTranscript.cds_start}}<br>
+                <b>CDS end</b>: {{resultsCtrl.currTranscript.cds_end}}
             </span>
             <span ng-show="showWindow=='protein'">
-                RefSeq ID: <a href=" https://www.ncbi.nlm.nih.gov/protein/{{resultsCtrl.currTranscript.proteinId}}"
+                <b>RefSeq ID</b>: <a
+                    href=" https://www.ncbi.nlm.nih.gov/protein/{{resultsCtrl.currTranscript.proteinId}}"
                     target="_blank">{{resultsCtrl.currTranscript.protein_refseq_id}}</a><br>
-                Description: {{resultsCtrl.currTranscript.description}} <br>
-                Synonyms: {{resultsCtrl.currTranscript.synonyms}}<br>
-                AA length: {{resultsCtrl.currTranscript.proteinLengthInAA}}<br>
+                 <span ng-show="resultsCtrl.currTranscript.protein_ensembl_id!=undefined">
+                    <b>Ensembl ID</b>:
+                    <a href="{{resultsCtrl.currTranscript.proteinEnsemblLink}}"
+                        target="_blank">{{resultsCtrl.currTranscript.protein_ensembl_id}}</a>
+                </span>
+                <b>Description</b>: {{resultsCtrl.currTranscript.description}} <br>
+                <span ng-show="resultsCtrl.currTranscript.synonyms!=undefined">
+                    <b>Synonyms</b>: {{resultsCtrl.currTranscript.synonyms}}<br>
+                </span>
+                <b>Length</b>: {{resultsCtrl.currTranscript.proteinLengthInAA}}aa<br>
                 <!-- <span ng-show="resultsCtrl.currTranscript.proteinUniprotID!=undefined">
                     UniProt ID: <a
                         href="https://www.uniprot.org/uniprot/{{resultsCtrl.currTranscript.proteinUniprotID}}"
                         target="_blank">{{resultsCtrl.currTranscript.proteinUniprotID}}</a> <br>
                 </span> -->
-                <span ng-show="resultsCtrl.currTranscript.protein_ensembl_id!=undefined">
-                    Ensembl ID:
-                    <a href="{{resultsCtrl.currTranscript.proteinEnsemblLink}}"
-                        target="_blank">{{resultsCtrl.currTranscript.protein_ensembl_id}}</a>
-
-                </span>
+               
             </span>
         </div>
     </div>
@@ -77,30 +85,31 @@
 
         <br>
         <div class="greyArea searchItems">
-            <div  class="searchItems">
-
-           
-            {{::transcripts.length}} transcripts found for gene <a href=""><b
-                    ng-click="openWindow('gene',undefined)">{{::resultsCtrl.geneInfo.gene_symbol}}</b></a> in
-            {{::resultsCtrl.geneInfo.specieName}} <br>
-
-            <i>Choose Display</i>
-            <br>
-            <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
-                <option value="all">All Views</option>
-                <option value="transcript_protein">Transcript & Protein Views</option>
-                <option value="genomic">Genomic View Only</option>
-                <option value="transcript">Transcript View Only</option>
-                <option value="protein">Protein View Only</option>
+            <div class="searchItems">
 
 
-            </select>
-            <input type="checkbox" ng-click="filterUnreviewed()" id="isReviewedCheckBox"><i>hide predicted records</i>
-            <br>
-            <button ng-click="downloadPDF()" class="btn blackButton">
-                <span class="glyphicon glyphicon-download-alt"></span> Save As PDF
-            </button> 
-        </div>
+                {{::transcripts.length}} transcripts found for gene <a href=""><b
+                        ng-click="openWindow('gene',undefined)">{{::resultsCtrl.geneInfo.gene_symbol}}</b></a> in
+                {{::resultsCtrl.geneInfo.specieName}} <br>
+
+                <i>Choose Display</i>
+                <br>
+                <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
+                    <option value="all">All Views</option>
+                    <option value="transcript_protein">Transcript & Protein Views</option>
+                    <option value="genomic">Genomic View Only</option>
+                    <option value="transcript">Transcript View Only</option>
+                    <option value="protein">Protein View Only</option>
+
+
+                </select>
+                <input type="checkbox" ng-click="filterUnreviewed()" ng-model="ignorePredictions" id="isReviewedCheckBox"><i>hide predicted
+                    records</i>
+                <br>
+                <button ng-click="downloadPDF()" class="btn blackButton">
+                    <span class="glyphicon glyphicon-download-alt"></span> Save As PDF
+                </button>
+            </div>
         </div>
         <br>
         <!--

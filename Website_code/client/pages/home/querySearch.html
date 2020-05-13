@@ -11,9 +11,14 @@
             small explanation on the website
         -->
         <!-- class="greyArea" width: 1200px;background-image: url(resources/fish_half.jpg); background-size: cover; -->
-    <div 
-        style="color: white;width: 90%;margin-right: auto;
-        margin-left: auto; padding: 30px;border-style: solid; border-radius: 5px;border-color: white; border-width: 2px;">
+    
+        <!--
+
+             style="color: white;width: 90%;margin-right: auto;
+        margin-left: auto; padding: 30px;border-style: solid; border-radius: 5px;border-color: white; border-width: 2px;"
+        -->
+    
+        <div class='greyArea' style="background-color: transparent;"  style="display: none;">
         <!-- <img class="logo" src="resources/logo.jpeg" /> -->
 
         <!-- <div style="text-align: center;
@@ -39,7 +44,7 @@
                 <option value="D_rerio">Zebrafish</option>
                 <option value="X_tropicalis">Frog</option>
             </select>&nbsp;&nbsp;
-            <i>Search Term&nbsp;&nbsp;</i>
+            <i>Search term&nbsp;&nbsp;</i>
             <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass"
                 id="searchTextField">&nbsp;&nbsp;
 
@@ -65,7 +70,7 @@
         <br>
     </div>
     <br>
-    <div class="greyArea">
+    <div class="greyArea"  style="display: none;">
         <!-- style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px" -->
         <!-- <p><strong>Overview:</strong></p> -->
         <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
@@ -73,13 +78,12 @@
         </p>
     </div>
     <br>
-    <div class="greyArea">
+    <div class="greyArea" style="display: none;">
         <!-- <p><strong>Search DoChaP:</strong></p> -->
         <ul style="font-size: 17px;">
             <li><strong>Choose a species from the list:&nbsp;</strong>Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish
                 (danRer11), Frog (xenTro9). To request
-                another species, contact us! <a href="mailto:galozs@post.bgu.ac.il"
-                    target="_blank">galozs@post.bgu.ac.il</a></li>
+                another species, <a href="#!contactUs">contact us! </a></li>
             <li><strong>Enter a search term:</strong>
                 <ol>
                     <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene

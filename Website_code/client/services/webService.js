@@ -12,13 +12,13 @@ angular.module("DoChaP").service("webService", function ($http) {
         return $http(req);
     }
 
-    this.compareGenes = function(geneName){
-        var req = {
-            method: 'GET',
-            url: 'http://localhost:3000/querySearch/' + geneName+"/all/false",    
-        };
-        return $http(req);
-    }
+    // this.compareGenes = function(geneName){
+    //     var req = {
+    //         method: 'GET',
+    //         url: 'http://localhost:3000/querySearch/' + geneName+"/all/false",    
+    //     };
+    //     return $http(req);
+    // }
 
     this.userLog = function(msg){
         var req = {

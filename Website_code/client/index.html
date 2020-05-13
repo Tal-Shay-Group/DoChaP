@@ -28,7 +28,7 @@ Logo and navigation bars will be declared here for example.
     <!-- load angular -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.js"></script>
     <script src="https://code.angularjs.org/1.7.8/angular-route.js"></script>
-    
+    <script src="https://code.angularjs.org/1.7.8/angular-animate.js"></script>
     
     <!--range-slider-->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
@@ -98,22 +98,22 @@ Logo and navigation bars will be declared here for example.
               <span class="icon-bar"></span>                        
             </button>
           </div>
-          <div class="collapse navbar-collapse" id="myNavbar">
+          <div class="collapse navbar-collapse" id="myNavbar"  style="padding: 5px; padding-top: 10px;">
             <!-- Home -->
-            <ul class="nav navbar-nav"  style="padding-top: 5px; ">
+            <ul class="nav navbar-nav">
                   <a href="#!querySearch">
 
-                <img src="resources/LOGO_noBG.png" height="45" width="200" style="border-radius: 3px; margin: 3px;"/>
+                <img src="resources/LOGO_noBG.png" height="45" class="logo" />
               <!-- <span class="logoText">
                   DoChaP
               </span> -->
               </a>
             </ul>
         
-              <ul class="nav navbar-nav"  style="padding-top: 15px; ">
-                <li><a href="#!querySearch" style="">Home</a></li>
+              <ul class="nav navbar-nav">
+                <li><a href="#!querySearch">Home</a></li>
               <li><a href="#!compareSpecies">Compare Species</a></li>
-             <li ng-if="showQuickSearch" class="form-inline" style="margin: 10px;" > 
+             <li ng-if="showQuickSearch" class="form-inline"> 
                     <select class="form-control searchBySpecie" id="indexSpecies">
                         <option value="H_sapiens">Human</option>
                         <option value="M_musculus">Mouse</option>
@@ -121,7 +121,7 @@ Logo and navigation bars will be declared here for example.
                         <option value="D_rerio">Zebrafish</option>
                         <option value="X_tropicalis">Frog</option>
                     </select>
-                    <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField" ng-keydown="$event.which == 13 && search()">
+                    <input placeholder="  Enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField" ng-keydown="$event.which == 13 && search()">
                    &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="search()">
                    <span class="glyphicon glyphicon-search"></span></button>
                    <span style="color: white;" ng-show="indexLoading">
@@ -129,7 +129,7 @@ Logo and navigation bars will be declared here for example.
                   </span>
                 </li>
             </ul>
-            <ul class="nav navbar-nav navbar-right"  style="padding-top: 15px;">
+            <ul class="nav navbar-nav navbar-right">
                 
                 <li><a href="#!about"><span style="font-size: 16px;" class="glyphicon glyphicon-info-sign"></span> About</a></li>
                 <li><a href="#!help"><span style="font-size: 16px;" class="glyphicon glyphicon-question-sign"></span> Help</a></li>
@@ -137,7 +137,10 @@ Logo and navigation bars will be declared here for example.
             </ul>
           </div>
       </nav>
-    <div ng-view=""></div>
+      <div>
+         <div ng-view="" ></div> <!--class="slide"-->
+      </div>
+   
 </body>
 
 </html>

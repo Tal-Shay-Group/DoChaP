@@ -1,7 +1,7 @@
 /**
  * configuring html pages for every page URL
  */
-let app = angular.module('DoChaP', ["ngRoute"])
+let app = angular.module('DoChaP', ["ngRoute","ngAnimate"])
 
 // config routes
 app.config(function ($routeProvider) {

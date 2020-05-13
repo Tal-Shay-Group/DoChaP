@@ -49,13 +49,13 @@ function getSkipSize(coordinatesWidth) { ///length in base units, cw is the conv
         skip = 10000000; //ten million
     } else if (skip * coordinatesWidth < 0.05) {
         skip = 5000000; //5 million
-    } else if (skip * coordinatesWidth < 0.5) {
+    } else if (skip * coordinatesWidth < 0.1) {
         skip = 1000000;
-    } else if (skip * coordinatesWidth < 1) {
+    } else if (skip * coordinatesWidth < 0.35) {
         skip = 500000;
     } else if (skip * coordinatesWidth < 1.3) {
         skip = 100000;
-    } else if (skip * coordinatesWidth < 3.5) {
+    } else if (skip * coordinatesWidth < 3) {
         skip = 50000;
     } else if (skip * coordinatesWidth < 20) {
         skip = 10000;

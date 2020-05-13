@@ -5,7 +5,7 @@ class Transcript {
         this.id=dbTranscript.transcript_refseq_id!=undefined?dbTranscript.transcript_refseq_id:dbTranscript.transcript_ensembl_id;
         this.transcript_refseq_id=dbTranscript.transcript_refseq_id;
         this.transcript_ensembl_id=dbTranscript.transcript_ensembl_id;
-        this.id = dbTranscript.transcript_id;
+        // this.id = dbTranscript.transcript_id;
         this.cds_start = dbTranscript.cds_start;
         this.cds_end = dbTranscript.cds_end;
         this.tx_start = dbTranscript.tx_start;
@@ -59,13 +59,17 @@ class Transcript {
 
         //domain sorts and attribute edits
         Domain.findOverlaps(this.domains);
-        this.domains = Domain.groupDomains(this.domains);
+        // this.domains = Domain.groupAllOverlappingDomains(this.domains);
+        this.domains = Domain.groupCloseDomains(this.domains); ///!!!!!!!!!overlapping only 50% or more!!!
         this.domains.sort(Domain.compare); //so it is drawn in right order
-        Domain.showNameOfDomains(this.domains);
+        // Domain.showNameOfDomains(this.domains); ///!!!!!!!!! showing currently all domains
 
     }
 
     show(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager, proteinExtendCanvasID) {
+        if(!(this.genomicView ||this.transcriptView|| this.proteinView)){
+            return;
+        }
         this.tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, proteinExtendCanvasID, tooltipManager)
         this.draw(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID);
         this.drawExtended(proteinExtendCanvasID);
@@ -93,11 +97,11 @@ class Transcript {
                     }
                 } else {
                     $("#myTooltip").hide();
-                    $('canvas').css('cursor', 'default');
+                    $('canvas').css('cursor', 'auto');
                 }
             }).mouseleave(function () {
                     // $("#myTooltip").hide();
-                    $('canvas').css('cursor', 'default');
+                    $('canvas').css('cursor', 'auto');
                 });
     }
 

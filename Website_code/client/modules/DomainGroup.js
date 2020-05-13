@@ -214,7 +214,7 @@ class DomainGroup {
         // for(var i=0; i<this.domains.length;i++){
         //     text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
         // }
-        var text=this.domains.length+" Domains. Click to view them.";
+        var text=this.domains.length+" Domains. Click to expand";
         return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
     }
 
