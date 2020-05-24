@@ -61,27 +61,27 @@ class DomainsEnsemblBuilder(SourceBuilder):
             print("script has finished running without errors")
         # os.remove(self.shellScript)
 
-    # def Parser(self):
-    #     for extDB in self.ExtSources:
-    #         df = pd.read_table(self.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
-    #                            sep="\t", header=0)
-    #         df.columns = df.columns.str.replace(" ", "_")
-    #         df.columns = df.columns.str.lower().str.replace(extDB+"_", "")
-    #         df = df.dropna()
-    #         conv = {"pf":"pfam", "sm":"smart"}
-    #         for i, row in df.iterrows():
-    #             id = row.id.lower()
-    #             idtype= re.sub(r'\d+', '', id)
-    #             if idtype in conv.keys():
-    #                 id = id.replace(idtype, conv[idtype])
-    #             break
-    #             if extDB == "interpro":
-    #                 self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
-    #                                                               [Domain(ext_id=id, start=int(row.start),
-    #                                                                       end=int(row.end), name=row.short_description,
-    #                                                                       note=row.description)]
-    #             else:
-    #                 self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
-    #                                                           [Domain(ext_id=id, start=int(row.start), end=int(row.end))]
-    #             self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
-    #             self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version
+    def Parser(self):
+        for extDB in self.ExtSources:
+            df = pd.read_table(self.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
+                               sep="\t", header=0)
+            df.columns = df.columns.str.replace(" ", "_")
+            df.columns = df.columns.str.lower().str.replace(extDB+"_", "")
+            df = df.dropna()
+            conv = {"pf":"pfam", "sm":"smart"}
+            for i, row in df.iterrows():
+                id = row.id.lower()
+                idtype= re.sub(r'\d+', '', id)
+                if idtype in conv.keys():
+                    id = id.replace(idtype, conv[idtype])
+                break
+                if extDB == "interpro":
+                    self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
+                                                                  [Domain(ext_id=id, start=int(row.start),
+                                                                          end=int(row.end), name=row.short_description,
+                                                                          note=row.description)]
+                else:
+                    self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
+                                                              [Domain(ext_id=id, start=int(row.start), end=int(row.end))]
+                self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
+                self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version

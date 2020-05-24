@@ -150,3 +150,7 @@ class Collector:
                 else:
                     recombine[gid] = gene
         self.Genes = recombine
+
+if __name__ == __main__:
+    col = Collector("M_musculus")
+    col.collectAll(download=True, withEns=True)

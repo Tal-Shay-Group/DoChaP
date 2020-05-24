@@ -72,7 +72,6 @@ class InterProBuilder(SourceBuilder):
 
     def parser(self):
         myf = self.outputFile
-        #myf = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\OOP_project\data\InterPro_entries.txt"
         fieldnames = ['Name', 'SourceDatabase', 'Type', 'IntegratedSignatures',
                       'GOTerms', "0"]
         df = pd.read_table(myf, sep="|", names=fieldnames, index_col=0)

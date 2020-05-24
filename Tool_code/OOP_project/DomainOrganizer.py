@@ -1,15 +1,21 @@
 import re
 from sqlite3 import connect
+from Director import Director
+from InterproCollector import InterProBuilder
 
 
 class DomainOrganizer:
 
-    def __init__(self):
+    def __init__(self, download=False):
         self.allDomains = dict()  # keys are id, vals sre tuple combined from Domain object info
         self.internalID = 0
         self.allExt = dict()
         self.allNames = dict()
         self.allCDD = dict()
+        director = Director()
+        self.Interpro = InterProBuilder()
+        director.setBuilder(self.Interpro)
+        director.collectFromSource(download=False)
 
     def collectDatafromDB(self, dbname='DB_merged.sqlite'):
         con = connect(dbname)
@@ -37,7 +43,8 @@ class DomainOrganizer:
             return None
         elif domain.extType not in external:
             return None
-        if domain.extID is not None and domain.extID not in self.allExt:
+        identify = self.Interpro.AllDomains.loc[self.Interpro.AllDomains[domain.extType] == domain.extID]
+        if domain.extID is not None and domain.extID not in self.allExt and identify.index not in self.allExt:
             if domain.name not in self.allNames:
                 if domain.cdd is None or domain.cdd not in self.allCDD:
                     self.internalID += 1
@@ -58,8 +65,8 @@ class DomainOrganizer:
                 ncdd = self.cddAdd(domain, currReg)
                 ndesc = self.noteAdd(domain, currReg)
                 cdname, oname = self.mainNameOtherName(domain, currReg)
-        elif domain.extID in self.allExt and domain.extID is not None:
-            currReg = self.allExt[domain.extID]
+        elif domain.extID in self.allExt and domain.extID is not None or identify.index in self.allExt:
+            currReg = self.allExt.get(domain.extID, self.allExt[identify.index])
             if domain.name.lower() == self.allDomains[currReg][0].lower() or \
                     domain.name.lower() in self.allDomains[currReg][1].lower():
                 ncdd = self.cddAdd(domain, currReg)
@@ -84,7 +91,10 @@ class DomainOrganizer:
             raise ValueError(
                 'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
         # try:
-
+        if identify.index not in self.allExt and len(identify) != 0:
+            existExt = [None] * 6
+            existExt = [identify["cdd"][0], existExt[1], identify["pfam"][0], identify["smart"][0],
+                        identify['tigrfams'][0], identify.index]
         pos = external.index(domain.extType)
         if existExt[pos] is None:
             tempexist = list(existExt).copy()
@@ -107,7 +117,7 @@ class DomainOrganizer:
     def mainNameOtherName(self, domain, currReg):
         cdname = self.allDomains[currReg][0]
         oname = self.allDomains[currReg][1]
-        if domain.extType == 'cd':
+        if domain.extType == 'interpro':
             cdname = domain.name
         elif domain.name.lower() not in self.allDomains[currReg][0].lower() and \
                 domain.name.lower() not in self.allDomains[currReg][1].lower():
