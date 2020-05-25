@@ -53,9 +53,9 @@ class OrthologsBuilder(SourceBuilder):
         if toFile is None:
             return self.shellScript
         else:
-            with open(toFile, "w+") as write:
+            with open(toFile, "a") as write:
                 for shell in AllCommands:
-                    write.write(shell)
+                    write.write(shell + "\n")
 
     def downloader(self):
         output = dict()

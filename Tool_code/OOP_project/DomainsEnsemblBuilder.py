@@ -49,8 +49,8 @@ class DomainsEnsemblBuilder(SourceBuilder):
         if toFile is None:
             return self.shellScript
         else:
-            with open(toFile, "w+") as write:
-                write.write(self.shellScript)
+            with open(toFile, "a") as write:
+                write.write(self.shellScript + "\n")
 
     def downloader(self):
         self.createDownloadScripts()
