@@ -114,9 +114,9 @@ class RefseqBuilder(SourceBuilder):
 
     def ParseGffRefseq(self):
         fn = gffutils.example_filename(self.gff)
-        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         #gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
-        db = gffutils.FeatureDB("DB.Refseq.db")
+        #db = gffutils.FeatureDB("DB.Refseq.db")
         print("Collecting Transcripts data from gff file...")
         self.Transcripts = {}
         regionChr = {}
