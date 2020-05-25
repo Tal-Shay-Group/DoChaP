@@ -51,3 +51,5 @@ Downloads_refine/Downloads/**
 !**/*.Template.sh
 
 **.pyc
+**.sh.e*
+**.sh.o*
