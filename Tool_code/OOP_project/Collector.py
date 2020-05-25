@@ -151,6 +151,7 @@ class Collector:
                     recombine[gid] = gene
         self.Genes = recombine
 
-if __name__ == __main__:
-    col = Collector("M_musculus")
-    col.collectAll(download=True, withEns=True)
+if __name__ == '__main__':
+    for sp in ["H_sapiens", "D_rerio", "X_tropicalis", "R_norvegicus"]:
+        col = Collector(sp)
+        col.collectAll(download=True, withEns=True)

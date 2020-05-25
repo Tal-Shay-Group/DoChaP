@@ -43,9 +43,11 @@ Tool_code/*.txt
 
 Downloads_refine/Downloads/**
 
-**/.idea
-**/__pycache__
+**/.idea/*
+**/__pycache__/*
 
 **/*.sh
 !**/*.template.sh
 !**/*.Template.sh
+
+**.pyc
