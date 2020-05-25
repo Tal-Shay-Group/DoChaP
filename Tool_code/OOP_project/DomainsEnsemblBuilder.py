@@ -44,6 +44,14 @@ class DomainsEnsemblBuilder(SourceBuilder):
                             line = line.replace(key, replaceDict[key])
                     writo.write(line)
 
+    def returnShellScripts(self, toFile=None):
+        self.createDownloadScripts()
+        if toFile is None:
+            return self.shellScript
+        else:
+            with open(toFile, "w+") as write:
+                write.write(self.shellScript)
+
     def downloader(self):
         self.createDownloadScripts()
         runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

@@ -14,10 +14,7 @@ class InterProBuilder(SourceBuilder):
         self.AllDomains = None
 
     def downloader(self):
-        # def output_list():
-        # disable SSL verification to avoid config issues
         context = ssl._create_unverified_context()
-
         next = self.BASE_URL
         last_page = False
 
@@ -25,10 +22,6 @@ class InterProBuilder(SourceBuilder):
         sys.stdout = f
 
         delimiter = "|"
-        #sys.stdout.write(delimiter.join(fieldnames))
-        #sys.stdout.write("\n")
-        # writer = csv.writer(f, delimiter='|')
-        # writer.writerow(fieldnames)
         while next:
             try:
                 req = request.Request(next, headers={"Accept": "application/json"})

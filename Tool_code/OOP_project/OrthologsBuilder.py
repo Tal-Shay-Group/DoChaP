@@ -44,6 +44,19 @@ class OrthologsBuilder(SourceBuilder):
         self.dataTables = self.dataTables + ("{}.{}.orthology.txt".format(species1, species2),)
         return commandPath
 
+    def returnShellScripts(self, toFile=None):
+        AllCommands = []
+        for i in range(len(self.species)):
+            for j in range(i, len(self.species)):
+                if self.species[i] != self.species[j]:
+                    AllCommands.append(self.createDownloadScripts(self.species[i], self.species[j]))
+        if toFile is None:
+            return self.shellScript
+        else:
+            with open(toFile, "w+") as write:
+                for shell in AllCommands:
+                    write.write(shell)
+
     def downloader(self):
         output = dict()
         err = dict()
