@@ -78,11 +78,13 @@ class Collector:
             else:  # else - separate the records
                 # refseq records
                 self.Transcripts[refT] = self.refseq.Transcripts[refT]
+                refG = self.Transcripts[refT].gene_GeneID
                 self.Proteins[refP] = self.refseq.Proteins[refP]
                 self.Genes[refG] = self.refseq.Genes[refG]
                 self.Domains[refP] = self.refseq.Domains.get(refP, [])
                 if ensP in col.ensembl.Proteins:  # ensembl records
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
+                    ensG = self.Transcripts[ensT].gene_ensembl
                     self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                     self.Genes[ensG] = self.ensembl.Genes[ensG]
                     self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
