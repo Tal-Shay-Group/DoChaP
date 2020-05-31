@@ -100,8 +100,8 @@ class ConverterBuilder(SourceBuilder):
         if newT.refseq is not None:
             newT.ensembl = self.findConversion(newT.refseq, transcript=True) \
                 if newT.ensembl is None else newT.ensembl
-            newT.gene_GeneID = self.GeneTrans(newT.refseq) \
-                if newT.gene_GeneID is None else newT.gene_GeneID
+            geneID = self.GeneTrans(newT.refseq)
+            newT.gene_GeneID = geneID if geneID is not None else newT.gene_GeneID
             newT.gene_ensembl = self.findConversion(newT.gene_GeneID, gene=True) \
                 if newT.gene_ensembl is None else newT.gene_ensembl
             newT.protein_refseq = self.TranscriptProtein(newT.refseq) \
@@ -121,7 +121,7 @@ class ConverterBuilder(SourceBuilder):
                     newT.refseq = tempRefseq
                     self.transcriptCon[tempRefseq] = newT.ensembl
                     self.transcriptCon[newT.ensembl] = tempRefseq
-                    self.t2g[newT.ensembl] = self.t2g["mito-"+newT.gene_ensembl]
+                    self.t2g[newT.ensembl] = self.t2g["mito-" + newT.gene_ensembl]
             newT.protein_ensembl = self.TranscriptProtein(newT.ensembl) \
                 if newT.protein_ensembl is None else newT.protein_ensembl
             newT.protein_refseq = self.findConversion(newT.protein_ensembl, protein=True) \

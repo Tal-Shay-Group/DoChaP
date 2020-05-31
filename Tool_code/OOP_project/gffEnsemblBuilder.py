@@ -67,15 +67,16 @@ class EnsemblBuilder(SourceBuilder):
                 countNotFoundTranscripts += 1
                 # print(trans)
                 continue
-        print("{} transcript (with proteih product) were not found in gff3 file".format(str(countNotFoundTranscripts)))
+        print("{} transcripts (with proteih products) were not found in gff3 file".format(str(countNotFoundTranscripts)))
 
     def parse_gff3(self):
+        print("-------- Ensembl data Parsing --------")
         print("Parsing gff3 file...")
         print("creating temporary database from file: " + self.gff)
         fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        #db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
-        #db = gffutils.FeatureDB("DB.Ensembl.db")
+        db = gffutils.FeatureDB("DB.Ensembl.db")
         self.collect_genes(db)
         self.collect_Transcripts(db)
 
@@ -98,7 +99,7 @@ class EnsemblBuilder(SourceBuilder):
             newT.ensembl = t["transcript_id"][0] + "." + t["version"][0]
             newT.gene_ensembl = t["Parent"][0].split(":")[1]
             newT.geneSymb = t["Name"][0].split("-")[0]
-            self.Genes[newT.ensembl] = curretGenes[newT.gene_ensembl]
+            self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
         print("Collecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):

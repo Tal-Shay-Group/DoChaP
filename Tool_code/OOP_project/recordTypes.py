@@ -1,5 +1,5 @@
 import re
-
+import copy
 
 class Gene:
 
@@ -25,21 +25,24 @@ class Gene:
             return False
 
     def mergeGenes(self, other):
-        attr = ['GeneID','ensembl','symbol','synonyms','chromosome','strand']
+        attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
         for at in attr:
             if self.__getattribute__(at) is None:
                 self.__setattr__(at, other.__getattribute__(at))
-        syno = other.synonyms.split("; ") + other.symbol
+        syno = other.synonyms.split("; ") + [other.symbol] if other.synonyms is not None else [other.symbol]
         for name in syno:
-            if name not in self.synonyms.split("; ") + self.symbol:
+            if self.synonyms is not None and name not in self.synonyms.split("; ") + [self.symbol]:
                 self.synonyms = self.synonyms + "; " + name
+            elif self.synonyms is None and self.symbol != other.symbol:
+                self.synonyms = other.symbol
         return self
 
 
 class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
-                 GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None, exons_starts=[],
+                 GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None,
+                 exons_starts=[],
                  exons_ends=[]):
         self.refseq = refseq
         self.ensembl = ensembl
@@ -142,12 +145,10 @@ class Transcript:
             elif self.idVersion() < other.idVersion() or self.idVersion("ensembl") < other.idVersion("ensembl"):
                 return other
             else:
-                mergedT = self
+                mergedT = copy.deepcopy(self)
         for atribute in attr:
-            if self.__getattribute__(atribute) is None:
+            if mergedT.__getattribute__(atribute) is None:
                 mergedT.__setattr__(atribute, other.__getattribute__(atribute))
-            else:
-                mergedT.__setattr__(atribute, self.__getattribute__(atribute))
         return mergedT
 
 
@@ -197,14 +198,21 @@ class Domain:
                     return 'splice_junction', list(range(ii + 1, jj + 1)), length
         return None, None, None
 
+    def __eq__(self, other):
+        if self.extID == other.extID and self.aaStart == other.aaStart and self.aaEnd == other.aaEnd:
+            return True
+        else:
+            return False
 
 class Protein:
-    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, synonyms=None):
+    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, synonyms=None, transcript_refseq=None, transcript_ensembl=None):
         self.refseq = refseq
         self.ensembl = ensembl
         self.description = descr
         self.length = length
         self.synonyms = synonyms
+        self.transcript_refseq = transcript_refseq
+        self.transcript_ensembl = transcript_ensembl
 
     def refseqNoVersion(self):
         return self.refseq.split('.')[0]
