@@ -13,52 +13,48 @@
         <div id="myModal">
             <div width="200" ng-click="showWindow=false" style="font-size: 25px;text-align: right; padding: 0px;">
                 <span class="glyphicon glyphicon-remove-sign"></span></div><br>
-            <span ng-if="showWindow=='gene'">
+            <!--gene modal layout-->
+                <span ng-if="showWindow=='gene'">
                 <b>GeneID</b>: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_GeneID_id}}"
                     target="_blank"></a>{{::resultsCtrl.geneInfo.gene_GeneID_id}}<br>
-                    <b>Ensembl ID</b>:
-                    <a href="{{::resultsCtrl.geneInfo.EnsemblLink}}"
-                        target="_blank">{{::resultsCtrl.geneInfo.gene_ensembl_id}}</a><br>
-
-                
-                    <b>Gene symbol</b>: {{::resultsCtrl.geneInfo.gene_symbol}}<br>
+                <b>Ensembl ID</b>:
+                <a href="{{::resultsCtrl.geneInfo.EnsemblLink}}"
+                    target="_blank">{{::resultsCtrl.geneInfo.gene_ensembl_id}}</a><br>
+                <b>Gene symbol</b>: {{::resultsCtrl.geneInfo.gene_symbol}}<br>
                 <b>Chromosome</b>: {{::resultsCtrl.geneInfo.chromosome}}<br>
                 <b>Synonyms</b>: {{::resultsCtrl.geneInfo.synonyms}}<br>
                 <b>Strand</b>: {{::resultsCtrl.geneInfo.strand}}<br>
                 <!-- <b>Description</b>: {{::resultsCtrl.geneInfo.description}}<br> -->
                 <!-- MGI ID: <a href="http://www.informatics.jax.org/marker/MGI:{{::resultsCtrl.geneInfo.MGI_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.MGI_id}}</a><br> -->
-                
-
             </span>
+            <!--transcript modal layout-->
             <span ng-show="showWindow=='transcript'">
                 <b>RefSeq ID</b>: <a
                     href="https://www.ncbi.nlm.nih.gov/nuccore/{{resultsCtrl.currTranscript.transcript_refseq_id}}"
                     target="_blank">{{resultsCtrl.currTranscript.transcript_refseq_id}}</a><br>
-                    <span ng-show="resultsCtrl.currTranscript.transcript_ensembl_id!=undefined">
-                        <b>Ensembl ID</b>:
-                        <a href="{{resultsCtrl.currTranscript.transcriptEnsemblLink}}"
-                            target="_blank">{{resultsCtrl.currTranscript.transcript_ensembl_id}}</a><br>
-    
-                    </span>
-                
-                    <b>Exon count</b>: {{resultsCtrl.currTranscript.exonCount}}<br>
+                <span ng-show="resultsCtrl.currTranscript.transcript_ensembl_id!=undefined">
+                    <b>Ensembl ID</b>:
+                    <a href="{{resultsCtrl.currTranscript.transcriptEnsemblLink}}"
+                        target="_blank">{{resultsCtrl.currTranscript.transcript_ensembl_id}}</a><br>
+                </span>
+                <b>Exon count</b>: {{resultsCtrl.currTranscript.exonCount}}<br>
                 <span ng-show="resultsCtrl.currTranscript.ucsc_id!=undefined">
                     <b>UCSC ID</b>: <a
                         href="https://genome.ucsc.edu/cgi-bin/hgTracks?id={{resultsCtrl.currTranscript.proteinUniprotID}}"
                         target="_blank">{{resultsCtrl.currTranscript.ucsc_id}}</a> <br>
                 </span>
-              
                 <b>Transcription start</b>: {{resultsCtrl.currTranscript.tx_start}}<br>
                 <b>Transcription end</b>: {{resultsCtrl.currTranscript.tx_end}}<br>
                 <b>CDS start</b>: {{resultsCtrl.currTranscript.cds_start}}<br>
                 <b>CDS end</b>: {{resultsCtrl.currTranscript.cds_end}}
             </span>
+            <!--protein modal layout-->
             <span ng-show="showWindow=='protein'">
                 <b>RefSeq ID</b>: <a
                     href=" https://www.ncbi.nlm.nih.gov/protein/{{resultsCtrl.currTranscript.proteinId}}"
                     target="_blank">{{resultsCtrl.currTranscript.protein_refseq_id}}</a><br>
-                 <span ng-show="resultsCtrl.currTranscript.protein_ensembl_id!=undefined">
+                <span ng-show="resultsCtrl.currTranscript.protein_ensembl_id!=undefined">
                     <b>Ensembl ID</b>:
                     <a href="{{resultsCtrl.currTranscript.proteinEnsemblLink}}"
                         target="_blank">{{resultsCtrl.currTranscript.protein_ensembl_id}}</a>
@@ -73,25 +69,22 @@
                         href="https://www.uniprot.org/uniprot/{{resultsCtrl.currTranscript.proteinUniprotID}}"
                         target="_blank">{{resultsCtrl.currTranscript.proteinUniprotID}}</a> <br>
                 </span> -->
-               
             </span>
         </div>
     </div>
     <!--end of modal work-->
 
-    <!-- gene introduction -->
+    <!--actual gene results-->
     <div id="searchExists" ng-show="!{{::noSearch}}"
         style="background-color: white;position: absolute;z-index: -3; width: 100%;">
-
         <br>
         <div class="greyArea searchItems">
             <div class="searchItems">
-
-
+                <!--intro text-->
                 {{::transcripts.length}} transcripts found for gene <a href=""><b
                         ng-click="openWindow('gene',undefined)">{{::resultsCtrl.geneInfo.gene_symbol}}</b></a> in
                 {{::resultsCtrl.geneInfo.specieName}} <br>
-
+                <!--display options-->
                 <i>Choose Display</i>
                 <br>
                 <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
@@ -100,10 +93,9 @@
                     <option value="genomic">Genomic View Only</option>
                     <option value="transcript">Transcript View Only</option>
                     <option value="protein">Protein View Only</option>
-
-
                 </select>
-                <input type="checkbox" ng-click="filterUnreviewed()" ng-model="ignorePredictions" id="isReviewedCheckBox"><i>hide predicted
+                <input type="checkbox" ng-click="filterUnreviewed()" ng-model="ignorePredictions"
+                    id="isReviewedCheckBox"><i>hide predicted
                     records</i>
                 <br>
                 <button ng-click="downloadPDF()" class="btn blackButton">
@@ -125,19 +117,18 @@
         <center>
             <table class="resultTable">
                 <tr>
-                    <!-- titles-->
+                    <!--titles-->
                     <td class="resultTitle" ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
                         Genomic
-                        <!--   -->
                         <div style="position: absolute; z-index: -1;">
+                            <!--genomic gridlines from behind-->
                             <canvas id="genomicGridlines" height="{{200*shownTranscripts+34*hiddenTranscripts+150}}"
                                 width="{{canvasSize}}">
                             </canvas>
                         </div>
 
                     </td>
-                    <td width="30">
-
+                    <td width="30"> <!--space between visualizations-->
                     </td>
                     <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                         class="resultTitle">
@@ -145,6 +136,7 @@
                         <span ng-show="viewMode=='transcript'">Transcript</span>
                         <span ng-show="viewMode=='protein'">Protein</span>
                         <div style="position: absolute; z-index: -1;">
+                            <!--protein gridlines from behind-->
                             <canvas id="proteinGridlines" height="{{200*shownTranscripts+34*hiddenTranscripts+150}}"
                                 width="{{canvasSize}}">
                             </canvas>
@@ -152,7 +144,6 @@
                     </td>
                 </tr>
                 <tr>
-
                     <!--range-slider and scales-->
                     <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                         <!-- scale view for transcripts -->
@@ -162,11 +153,8 @@
                         </div>
                         <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                         </canvas>
-
                     </td>
-                    <td width="30">
-
-                    </td>
+                    <td width="30"></td>
                     <td ng-show="viewMode!='genomic'">
                         <br>
                         <!-- scale view for proteins -->
@@ -175,7 +163,6 @@
                         </div>
                         <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                         </canvas>
-
                     </td>
                 </tr>
                 <tr id="fadeinDiv{{$index}}" ng-repeat="transcript in transcripts track by $index">
@@ -191,6 +178,7 @@
                             ng-show="!(transcripts[$index].genomicView ||transcripts[$index].transcriptView||transcripts[$index].proteinView)">
                             <span class="glyphicon glyphicon-eye-open"></span>
                         </button>
+                        
                         <!-- genomic view -->
                         <a href="" ng-show="viewMode=='protein'"
                             ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a>
@@ -218,7 +206,7 @@
                             ng-click="openWindow('protein',$index)">{{transcript.protein_name}}</a><br>
                         <canvas id="canvas-protein{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="transcripts[$index].proteinView"></canvas>
-                        <!-- extend protein view-->
+                        <!-- extended protein view-->
                         <br>
                         <canvas id="canvas-protein-extend{{$index}}" height="100" width="{{canvasSize}}"
                             ng-show="transcripts[$index].proteinExtendView"></canvas>
@@ -261,7 +249,8 @@
                 </table>
             </div>
         </center>
-    </div> <!-- this is for the search option-->
+    </div> 
+    <!-- this is for when there is no search-->
     <div ng-show="{{::noSearch}}" style="background-color: white;">
         <center>
             <h1>No Search has been found</h1>

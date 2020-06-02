@@ -4,7 +4,8 @@
  * using these functions to make sure that we only preserve the correct data.
  */
 
-var DButils = require('./DButils');
+var Database = require('better-sqlite3');
+var db= new Database('DB_merged.sqlite');
 
 ///main: !!
 runTestsOnDB();
@@ -15,17 +16,7 @@ runTestsOnDB();
 
 //connects to the db using db module (DButils) and returns query answer
 function sqlQuery(query) {
-    var promise = new Promise(function (resolve, reject) {
-        DButils.db.all(query, [], async (err, rows) => {
-            if (err == undefined) {
-                resolve(rows);
-            }
-            else {
-                reject(err);
-            }
-        });
-    });
-    return promise.then(function(val){return val});
+    return db.prepare(query).all();
 }
 
 async function runTestsOnDB(){
@@ -45,6 +36,7 @@ async function runTestsOnDB(){
     await runSmallSizedDomains();
     console.log("**********\n");
     console.log("finished running!");
+    db.close();
 }
 async function typesOfDomainsCut(){
     /*sql if needed:
@@ -114,8 +106,8 @@ sql
     //for (var i=0;)
 }
 async function runExonsInTranscriptsStatistics(){
-    var results=await sqlQuery(
-    "select count(transcript_id), exon_count "
+    var results=sqlQuery(
+    "select count(transcript_refseq_id), exon_count "
     +"from transcripts "
     +"group by exon_count"
     );
@@ -133,25 +125,25 @@ async function runExonsInTranscriptsStatistics(){
 
     for(var i=0; i<results.length;i++){
         if(results[i].exon_count==0){
-            count0=count0+results[i]["count(transcript_id)"];
+            count0=count0+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count==1){
-            count1=count1+results[i]["count(transcript_id)"];
+            count1=count1+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count==2){
-            count2=count2+results[i]["count(transcript_id)"];
+            count2=count2+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count==3){
-            count3=count3+results[i]["count(transcript_id)"];
+            count3=count3+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count==4){
-            count4=count4+results[i]["count(transcript_id)"];
+            count4=count4+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count==5){
-            count5=count5+results[i]["count(transcript_id)"];
+            count5=count5+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count>=6 && results[i].exon_count<=9 ){
-            count6to9=count6to9+results[i]["count(transcript_id)"];
+            count6to9=count6to9+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count>=10 && results[i].exon_count<=15 ){
-            count10to15=count10to15+results[i]["count(transcript_id)"];
+            count10to15=count10to15+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count>=16 && results[i].exon_count<=35){
-            count16to35=count16to35+results[i]["count(transcript_id)"];
+            count16to35=count16to35+results[i]["count(transcript_refseq_id)"];
         } else if(results[i].exon_count>=36){
-            count36andMore=count36andMore+results[i]["count(transcript_id)"];
+            count36andMore=count36andMore+results[i]["count(transcript_refseq_id)"];
         } else{
             console.log("exon count not indexed"+results[i].exon_count);
         }
@@ -173,7 +165,7 @@ async function runExonsInTranscriptsStatistics(){
 }
 
 async function runTranscriptsInGeneStatistics(){
-    var results=await sqlQuery("select count(transcript_id) from transcripts group by gene_id");
+    var results=await sqlQuery("select count(transcript_refseq_id) from transcripts group by gene_GeneID_id");
         //in python we can create also a graph
         var count0=0;
         var count1=0;
@@ -186,26 +178,26 @@ async function runTranscriptsInGeneStatistics(){
         var count36andMore=0;
     
         for(var i=0; i<results.length;i++){
-            if(results[i]["count(transcript_id)"]==0){
+            if(results[i]["count(transcript_refseq_id)"]==0){
                 count0=count0+1;
-            } else if(results[i]["count(transcript_id)"]==1){
+            } else if(results[i]["count(transcript_refseq_id)"]==1){
                 count1=count1+1;
-            } else if(results[i]["count(transcript_id)"]==2){
+            } else if(results[i]["count(transcript_refseq_id)"]==2){
                 count2=count2+1;
-            } else if(results[i]["count(transcript_id)"]==3){
+            } else if(results[i]["count(transcript_refseq_id)"]==3){
                 count3=count3+1;
-            } else if(results[i]["count(transcript_id)"]==4){
+            } else if(results[i]["count(transcript_refseq_id)"]==4){
                 count4=count4+1;
-            } else if(results[i]["count(transcript_id)"]==5){
+            } else if(results[i]["count(transcript_refseq_id)"]==5){
                 count5=count5+1;
-            } else if(results[i]["count(transcript_id)"]>=6 && results[i]["count(transcript_id)"]<=15 ){
+            } else if(results[i]["count(transcript_refseq_id)"]>=6 && results[i]["count(transcript_refseq_id)"]<=15 ){
                 count6to15=count6to15+1;
-            } else if(results[i]["count(transcript_id)"]>=16 && results[i]["count(transcript_id)"]<=35){
+            } else if(results[i]["count(transcript_refseq_id)"]>=16 && results[i]["count(transcript_refseq_id)"]<=35){
                 count16to35=count16to35+1;
-            } else if(results[i]["count(transcript_id)"]>=36){
+            } else if(results[i]["count(transcript_refseq_id)"]>=36){
                 count36andMore=count36andMore+1;
             } else{
-                console.log("exon count not indexed"+results[i]["count(transcript_id)"]);
+                console.log("exon count not indexed"+results[i]["count(transcript_refseq_id)"]);
             }
            
         }
@@ -276,10 +268,10 @@ async function runDomainFrequencyStatistics(){
 }
 
 async function runCdsAndTxCheck(){
-    var results1=await sqlQuery("select * from transcripts where tx_start+3>=tx_end");
-    var results2=await sqlQuery("select * from transcripts where cds_start+3>=cds_end");
-    var results3=await sqlQuery("select * from transcripts where tx_start+3>=cds_start");
-    var results4=await sqlQuery("select * from transcripts where tx_end+3<=cds_end");
+    var results1=sqlQuery("select * from transcripts where tx_start+3>=tx_end");
+    var results2=sqlQuery("select * from transcripts where cds_start+3>=cds_end");
+    var results3=sqlQuery("select * from transcripts where tx_start+3>=cds_start");
+    var results4=sqlQuery("select * from transcripts where tx_end+3<=cds_end");
     
     console.log("tx length about 3 or less: "+results1.length); //check how length is calculated here
     console.log("cds length about 3 or less: "+results2.length);
@@ -320,7 +312,7 @@ async function runStartAndEndCheck(){ //check exons and domains and maybe split 
 }
 
 async function runProteinSizeCheck(){
-    var results=await sqlQuery("select length,protein_id from proteins");
+    var results=sqlQuery("select length from proteins");
     var count0=0;
     var count1=0;
     var count2=0;
@@ -395,9 +387,9 @@ async function findAllowedIntervalForExonInSpecies(space=0){
     var score=0;
     //for each gene symbol
     for(var i=0; i<results.length; i++){
-        var genes=await sqlQuery("select gene_id from Genes where UPPER(gene_symbol)='"+results[i].gene_symbol+"' limit 2");
-        var exons1=await sqlQuery("select genomic_end_tx-genomic_start_tx as length from Exons where gene_id='"+genes[0].gene_id+"'");
-        var exons2=await sqlQuery("select genomic_end_tx-genomic_start_tx as length from Exons where gene_id='"+genes[1].gene_id+"'");
+        var genes=await sqlQuery("select gene_GeneID_id from Genes where UPPER(gene_symbol)='"+results[i].gene_symbol+"' limit 2");
+        var exons1=await sqlQuery("select genomic_end_tx-genomic_start_tx as length from Exons where gene_GeneID_id='"+genes[0].gene_GeneID_id+"'");
+        var exons2=await sqlQuery("select genomic_end_tx-genomic_start_tx as length from Exons where gene_GeneID_id='"+genes[1].gene_GeneID_id+"'");
         var succesful=0;
         var totalPossibleMatches=(exons1.length+exons2.length)/2; //perfect score
         

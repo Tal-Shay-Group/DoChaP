@@ -1,11 +1,17 @@
 class DomainGroup {
-    constructor(domains,isExtend) {
+    /**
+     * group domains into a domain-group
+     * @param {array of Domain} domains 
+     */
+    constructor(domains) {
         this.domains=domains //arr of Domain objects
-        this.isExtend=isExtend;
+        // this.isExtend=isExtend;
 
         //init attributes
         this.start=domains[0].start;
         this.end=domains[0].end;
+
+        //finding largest domain of them all
         var largestLength=domains[0].end-domains[0].start;
         var largestLengthIndex=0;
         for(var i=0; i<domains.length;i++){
@@ -24,13 +30,23 @@ class DomainGroup {
         //init name by largest domain
         this.name=domains[largestLengthIndex].name;
     }
-  
+    
+    /**
+     * drawing on canvas
+     * @param {contextCanvas} context context to draw on
+     * @param {double} coordinatesWidth the measure of scaling used
+     * @param {int} startHeight size between the top of the canvas to the top of the domain
+     * @param {boolean} isFullDraw full draw is regular draw 
+     * and not full draw is just a white circle needed before drawing for opacity aesthetics
+     * @param {array of Exon} exons 
+     */
     draw(context, coordinatesWidth, startHeight, isFullDraw, exons) {
+        //calculate positions
         var domainWidth = (this.end - this.start) * coordinatesWidth;
         var domainX = this.start * coordinatesWidth;
         var domainHeight = 45;
         var domainY = startHeight - domainHeight / 2;
-        var shapeID = 0; //currently its only circles 
+        // var shapeID = 0; //currently its only circles 
         var overlap = false; //all point is that overlapped is inside
         var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
 
@@ -45,11 +61,12 @@ class DomainGroup {
             var domainText = true;
         }
 
-        //only circles- notice it is two circle on eachother
+        //it is two circle on eachother to know there are overlapping domains
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
         context.closePath();
 
+        //adding shadow
         context.save();
         context.translate(0,0);
         context.shadowColor = "#898";
@@ -57,8 +74,10 @@ class DomainGroup {
         context.shadowOffsetX = 2;
         context.shadowOffsetY = 2;
         
+        //fill colors
         context.fill();
 
+        //end shadow
         context.restore();
 
         
@@ -68,10 +87,12 @@ class DomainGroup {
         context.lineWidth = 2;
         context.stroke();
 
+        //drawing inner eclipse
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2 , domainY + domainHeight / 2 , Math.max(domainWidth / 2 -10,0.1),  Math.max( domainHeight / 2 -10,0.1), 0, 0, 2 * Math.PI);
         context.closePath();
         
+        //fill colors
         context.fill();
 
         //border
@@ -81,74 +102,103 @@ class DomainGroup {
 
         //show text if needed in diagonal
         if (domainText) {
+            //rotate
             context.save();
             context.translate(domainX + domainWidth / 2, domainY + domainHeight + 8);
             context.rotate(Math.PI / 16);
+            //text style
             var lineheight = 15;
             var lines = domainName.split('\n');
             context.fillStyle = "black"; //for text
             context.font = "20px Calibri"; //bold 
+            //adding shadow
             context.shadowColor = "#898";
             context.shadowBlur = 4;
             context.shadowOffsetX = 2;
             context.shadowOffsetY = 3;
+
             //we must draw each line saperatly because canvas can't draw '\n'
             context.textAlign = "left";
             for (var i = 0; i < lines.length; i++) {
                 context.fillText(lines[i], 0, 10 + (i * lineheight));
             }
+
+            //end shadow and rotate
             context.restore();
         }
 
 
     }
-
+    /** 
+     * drawing in the extended protein view (fourth view) which shows overlapping domains one below other so they are not overlapping
+     * @param {contextCanvas} context context to draw on
+     * @param {double} coordinatesWidth the measure of scaling used
+     * @param {int} startHeight size between the top of the canvas to the top of the domaingroup
+     * @param {boolean} isFullDraw full draw is regular draw
+     * and not full draw is just a white circle needed before drawing for opacity aesthetics
+     * @param {array of Exon} exons 
+     */
     drawExtend(context, coordinatesWidth, startHeight, isFullDraw, exons) {
+        //calculate positions
         var domainWidth = (this.end - this.start) * coordinatesWidth;
         var domainX = this.start * coordinatesWidth;
         var domainHeight = 45;
         var domainY = startHeight - domainHeight / 2;
-        var shapeID = 0; //currently its only circles 
+        // var shapeID = 0; //currently its only circles 
         var overlap = false; //all point is that overlapped is inside
         var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
 
-        var oneDomainHeight=domainHeight/this.domains.length;
+        //height for each domain in the group
+        var oneDomainHeight=domainHeight/this.domains.length; 
+        
+        //drwing each of the inner domains
         for(var i=0; i<this.domains.length;i++){
             this.domains[i].drawExtend(context,coordinatesWidth,startHeight,isFullDraw,exons,oneDomainHeight,domainY+oneDomainHeight*i,domainX,domainWidth);
         }
     }
 
 
-    //calculations of gradient color
+    /**
+     * calculations of gradient color
+     * @param {canvasContext} context context to draw on
+     * @param {int} start start position on axis of the protein
+     * @param {int} end end position on axis of the protein
+     * @param {int} height height of the domain to color
+     * @param {array of Exon} exons has colors for each exons which will be used
+     */
     getGradientForDomain(context, start, end, height, exons) { //exons are absolute position for this to work
-        var gradient = context.createLinearGradient(start, height, end, height); //contextP only for domains now
+        //create gradient
+        var gradient = context.createLinearGradient(start, height, end, height);
         var whiteLineRadius = 10;
-        var normalizer= 1 /(this.end - this.start);
+        var normalizer= 1 /(this.end - this.start);//normalizer for scaling changes in color on axis proportion to domain length
+        
+        //iterating through exons for start coloring
         for (var i = 0; i < exons.length; i++) {
             var exonStart=exons[i].transcriptViewStart;
             var exonEnd=exons[i].transcriptViewEnd;
+            
+            //no junctions so only one color
             if (exonStart <= this.start && this.start <= exonEnd && exonStart <= this.end && this.end <= exonEnd) {
-                //no junctions so only one color
                 return exons[i].color;
             }
+            //the starting color for the domain
             else if (exonStart <= this.start && this.start <= exonEnd) {
-                //the starting color for the domain
                 gradient.addColorStop(0, exons[i].color);
                 var position = Math.max(0, (exonEnd - this.start - whiteLineRadius) * normalizer);
                 gradient.addColorStop(position, exons[i].color);
-                //white line (if wanted)
+                //white line for splice junction
                 gradient.addColorStop((exonEnd - this.start) *normalizer, "white");
             }
-            else if (exonStart <= this.end && this.end <= exonEnd) {
-                //ending color for domain
+            //ending color for domain
+            else if (exonStart <= this.end && this.end <= exonEnd) {    
                 var position = Math.min(1, (exonStart - this.start + whiteLineRadius)*normalizer);
                 gradient.addColorStop(position, exons[i].color);
                 gradient.addColorStop(1, exons[i].color);
             }
+            //color for exon in the middle (not starting or finishing)
             else if (this.start <= exonStart && exonEnd <= this.end) {
-                //color for exon in the middle (not starting or finishing)
-
-                //white lines (if wanted)
+                
+                //white line for splice junction
                 gradient.addColorStop((exonStart - this.start) * normalizer, "white");
                 gradient.addColorStop((exonEnd - this.start) * normalizer, "white");
 
@@ -158,46 +208,17 @@ class DomainGroup {
                 gradient.addColorStop(position1, exons[i].color);
                 gradient.addColorStop(position2, exons[i].color);
             }
+
         }
 
         return gradient;
     }
 
-    /**
-     * 
-     * @param {arr of domains} domains - it edits (inplace) the overlap attributes in domains
-     *  if they overlap in positions (one or more overlaps means true, otherwise false)
-     * note: it also sorts domains by start position
+     /**
+     * creating tooltip info for this group of domains
+     * @param {*} coordinatesWidth - needed for position calculations, check position for details
+     * @param {*} startHeight  - needed for position calculations, check position for details
      */
-    static findOverlaps(domains) {
-        function compare(a, b) {
-            if (a.start < b.start) {
-                return -1;
-            }
-            if (a.start > b.start) {
-                return 1;
-            }
-            if (a.start == b.start && a.end < b.end) {
-                return 1;
-            }
-            return 0;
-        }
-        domains.sort(compare);
-        for (var i = 0; i < domains.length; i++) {
-            if (domains[i].overlap == true) { //already known to overlap
-                continue;
-            }
-            for (var j = i + 1; j < domains.length; j++) {
-                if (domains[i].end >= domains[j].start) { //overlap
-                    domains[i].overlap = true;
-                    domains[j].overlap = true;
-                } else {
-                    break; //if we are not overlapping then further domains will not too;\
-                }
-            }
-        }
-    }
-
     tooltip(coordinatesWidth,startHeight) {
         var domainWidth = (this.end - this.start) * coordinatesWidth;
         var domainHeight = 45;
@@ -218,14 +239,21 @@ class DomainGroup {
         return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
     }
 
+    /**
+     * tooltip info for fourth view (extended view)
+     * @param {double} coordinatesWidth needed for tooltip, check there
+     * @param {int} startHeight needed for tooltip, check there
+     * @param {int} domainHeight in pixel units
+     * @param {double} domainY in pixel units
+     */
     proteinExtendTooltip(coordinatesWidth,startHeight){
-        var domainWidth = (this.end - this.start) * coordinatesWidth;
-        var domainX = this.start * coordinatesWidth;
+        // var domainWidth = (this.end - this.start) * coordinatesWidth;
+        // var domainX = this.start * coordinatesWidth;
         var domainHeight = 45;
         var domainY = startHeight - domainHeight / 2;
-        var shapeID = 0; //currently its only circles 
-        var overlap = false; //all point is that overlapped is inside
-        var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
+        // var shapeID = 0; //currently its only circles 
+        // var overlap = false; //all point is that overlapped is inside
+        // var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
         var oneDomainHeight=domainHeight/this.domains.length;
 
         var tooltips=[];
@@ -235,14 +263,5 @@ class DomainGroup {
         return tooltips;
         
     }
-    //when seeing overlapping domains it choses which one to show text to
-    /**
-     * 
-     * @param {arr of domains} domains - we iterate through domain and edit (inplace)
-     * the showText attribute to be true or false. If domains are close and overlapping
-     * then we only show some domains. (the left one I think...). 
-     * note: if there is an someoverlapping domains where one does not show text then
-     * the other can show text even if it is not the left one. 
-     */
     
 }

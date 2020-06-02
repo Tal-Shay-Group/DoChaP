@@ -1,4 +1,9 @@
 class Transcript {
+    /**
+     * 
+     * @param {Transcript row from db} dbTranscript 
+     * @param {Gene} gene the gene of the transcript
+     */
     constructor(dbTranscript, gene) {
         //regular db attributes
         this.gene = gene;
@@ -30,6 +35,7 @@ class Transcript {
         // this.proteinUniprotID = dbTranscript.protein.uniprot_id;
         this.proteinEnsemblLink = this.getEnsemblProteinLink(dbTranscript.protein.protein_ensembl_id, gene.specie);
         this.protein_name=this.getName(dbTranscript.protein.protein_refseq_id,dbTranscript.protein.protein_ensembl_id)
+        
         // show or hide mode attributes
         this.genomicView = true;
         this.transcriptView = true;
@@ -65,16 +71,34 @@ class Transcript {
         // Domain.showNameOfDomains(this.domains); ///!!!!!!!!! showing currently all domains
 
     }
-
+/**
+ * main function to be called when creating canvases or changing zoom in/view settings
+ * @param {String} genomicViewCanvasID 
+ * @param {String} transcriptViewCanvasID 
+ * @param {String} proteinViewCanvasID 
+ * @param {String} tooltipManager 
+ * @param {String} proteinExtendCanvasID 
+ */
     show(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, tooltipManager, proteinExtendCanvasID) {
+        //if not shown
         if(!(this.genomicView ||this.transcriptView|| this.proteinView)){
             return;
         }
+
+        //draw and everything connected
         this.tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, proteinExtendCanvasID, tooltipManager)
         this.draw(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID);
         this.drawExtended(proteinExtendCanvasID);
     }
 
+/**
+ * create tootltip attachments
+ * @param {String} genomicViewCanvasID 
+ * @param {String} transcriptViewCanvasID 
+ * @param {String} proteinViewCanvasID 
+ * @param {String} proteinExtendCanvasID 
+ * @param {tooltipManager} tooltipManager where to place tooltip information for further use
+ */
     tooltip(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID, proteinExtendCanvasID, tooltipManager) {
         tooltipManager[genomicViewCanvasID] = this.tooltipGenomicView(genomicViewCanvasID);
         tooltipManager[transcriptViewCanvasID] = this.tooltipTranscriptView(transcriptViewCanvasID);
@@ -104,8 +128,11 @@ class Transcript {
                     $('canvas').css('cursor', 'auto');
                 });
     }
-
-    //for tooltips- checks if mouse on domain.
+    /**
+     *for tooltips- checks if mouse on domain. 
+     * @param {event} event 
+     * @param {tooltipManager} tooltipManager tooltip information for checking
+     */
     static showText(event,tooltipManager){
         var res = [false, ""];
         if (tooltipManager[event.target.id] != undefined) {
@@ -121,11 +148,16 @@ class Transcript {
         return res;
     }
 
+    /**
+     * genomic tooltips
+     * @param {String} genomicViewCanvasID 
+     */
     tooltipGenomicView(genomicViewCanvasID) {
         var graphicLayout = new GenomicGraphicLayout(genomicViewCanvasID, this.gene);
         var isStrandNegative = this.isStrandNegative;
         var tooltips = []; //we will fill now
 
+        //for every exons
         for (i = 0; i < this.exons.length; i++) {
             var tooltipData = this.exons[i].genomicTooltip(graphicLayout.startHeight, graphicLayout.coordinatesWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, graphicLayout.canvasWidth, isStrandNegative, graphicLayout.spaceAfterCut);
             tooltips.push(tooltipData);
@@ -134,8 +166,12 @@ class Transcript {
         return tooltips;
 
     }
-
-    tooltipTranscriptView(transcriptViewCanvasID) {
+    /**
+     * 
+     * @param {String} transcriptViewCanvasID 
+     */
+        tooltipTranscriptView(transcriptViewCanvasID) {
+        //init attributes
         var canvasE = document.getElementById(transcriptViewCanvasID);
         var canvasHeight = canvasE.height;
         var canvasWidth = canvasE.width;
@@ -143,15 +179,21 @@ class Transcript {
         var startHeight = (canvasHeight - lineThickness) / 2; //devide by 2 so its the middle
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
         var tooltips = []; //we will fill now
-
+        
+        //for every exon
         for (var i = 0; i < this.exons.length; i++) {
-            var tooltipData = this.exons[i].transcriptTooltip(coordinatesWidth, canvasWidth, startHeight)
+            var tooltipData = this.exons[i].transcriptTooltip(coordinatesWidth, startHeight)
             tooltips.push(tooltipData);
         }
         return tooltips;
     }
 
+    /**
+     * 
+     * @param {String} proteinViewCanvasID 
+     */
     tooltipProteinView(proteinViewCanvasID) {
+        //init attributes
         var domains = this.domains;
         var startHeight = 25;
         var canvasP = document.getElementById(proteinViewCanvasID);
@@ -159,6 +201,7 @@ class Transcript {
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
         var tooltips = []; //we will fill now
 
+        //for every domain
         for (var i = domains.length - 1; i >= 0; i--) {
             var tooltipData = domains[i].tooltip(coordinatesWidth, startHeight);
             tooltips.push(tooltipData);
@@ -166,7 +209,12 @@ class Transcript {
         return tooltips;
     }
 
+    /**
+     * the fourth view
+     * @param {String} proteinExtendViewCanvasID 
+     */
     tooltipProteinExtendView(proteinExtendViewCanvasID) {
+        //init attributes
         var domains = this.domains;
         var startHeight = 25;
         var canvasP = document.getElementById(proteinExtendViewCanvasID);
@@ -174,6 +222,7 @@ class Transcript {
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
         var tooltips = []; //we will fill now
 
+        //for every domain look if it is grouped and add "inner" domains
         for (var i = domains.length - 1; i >= 0; i--) {
             var tooltipArr = domains[i].proteinExtendTooltip(coordinatesWidth, startHeight);
 
@@ -184,14 +233,22 @@ class Transcript {
         }
         return tooltips;
     }
-
+/**
+ * draws all views
+ * @param {String} genomicViewCanvasID 
+ * @param {String} transcriptViewCanvasID 
+ * @param {Strin} proteinViewCanvasID 
+ */
     draw(genomicViewCanvasID, transcriptViewCanvasID, proteinViewCanvasID) {
         this.drawGenomicView(genomicViewCanvasID);
         this.drawTranscriptView(transcriptViewCanvasID);
         this.drawProteinView(proteinViewCanvasID);
     }
 
-    // genomic view consists of line and rectangles with exon order names
+    /**
+     * genomic view consists of line and rectangles with exon order names
+     * @param {String} canvasID 
+     */
     drawGenomicView(canvasID) {
         //calculations
         // var canvas = document.getElementById(canvasID);
@@ -266,7 +323,10 @@ class Transcript {
 
     }
 
-    // transctipt view consists  exon rectangles filling the canvas in order and proportions
+    /**
+     * transctipt view consists  exon rectangles filling the canvas in order and proportions
+     * @param {String} canvasID 
+     */
     drawTranscriptView(canvasID) {
         //calculations
         var exons = this.exons;
@@ -283,12 +343,14 @@ class Transcript {
 
         //exon drawing
         for (var i = 0; i < exons.length; i++) {
-            exons[i].drawExonInTranscriptView(context, coordinatesWidth, canvasWidth, startHeight);
+            exons[i].drawExonInTranscriptView(context, coordinatesWidth, startHeight);
         }
     }
 
-
-    //protein view consists of a line and currently circles in color of exons they are made of in gradient manner
+    /**
+     * protein view consists of a line and currently circles in color of exons they are made of in gradient manner
+     * @param {String} canvasID 
+     */
     drawProteinView(canvasID) {
         //calculations
         var exons = this.exons;
@@ -323,16 +385,30 @@ class Transcript {
         }
     }
 
-    //calculating ensemble transcript link
+    /**
+     * calculating ensemble transcript link
+     * @param {String} ensembl_id 
+     * @param {String} specie species name in db
+     */
     getEnsemblTranscriptLink(ensembl_id, specie) {
         return "https://www.ensembl.org/" + Species.ensembleSpecieName(specie) + "/Transcript/Summary?db=core;t=" + ensembl_id;
     }
 
-    //calculating ensemble protein link
+    /**
+     * calculating ensemble protein link
+     * @param {String} ensembl_id 
+     * @param {String} specie 
+     */
     getEnsemblProteinLink(ensembl_id, specie) {
         return "https://www.ensembl.org/" + Species.ensembleSpecieName(specie) + "/Transcript/ProteinSummary?db=core;p=" + ensembl_id;
     }
 
+    /**
+     * draw one gridline  inside genomic view- currently not in use
+     * @param {canvasContext} context  context to draw on
+     * @param {int} x position for gridline
+     * @param {int} y position for gridline
+     */
     drawGridLine(context, x, y) {
         var gridLength = 10;
         context.fillStyle = "#bfbfbf";
@@ -340,8 +416,11 @@ class Transcript {
         context.fillRect(x, y - gridLength, 1, gridLength);
     }
 
-    //compare between two transcriptss
-    //task: showing by size (commented is showing nm before xm)
+    /**
+     * compare between two transcriptss, order by size (commented is showing nm before xm)
+     * @param {Transcript} a first of two transcripts 
+     * @param {Transcript} b second of two transcripts
+     */
     static compare(a, b) {
         /*if ( a.id.substring(0,2) < b.id.substring(0,2) ){
           return -1;
@@ -358,6 +437,10 @@ class Transcript {
         return 0;
     }
 
+    /**
+     * the fourth view (showing overlapping domains next to each other)
+     * @param {String} canvasID 
+     */
     drawExtended(canvasID) {
         //calculations
         var exons = this.exons;
@@ -365,8 +448,8 @@ class Transcript {
         var context = canvas.getContext("2d");
         var canvasHeight = canvas.height;
         var canvasWidth = canvas.width;
-        var proteinLength = this.proteinLength;
-        var lineThickness = 4;
+        // var proteinLength = this.proteinLength;
+        // var lineThickness = 4;
         var startHeight = 25;
         var domainsInProtein = this.domains;
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
@@ -382,6 +465,12 @@ class Transcript {
             domainsInProtein[i].drawExtend(context, coordinatesWidth, startHeight, true, exons);
         }
     }
+
+    /**
+     * gets name that includes one or both ID names depends on what exists
+     * @param {String} refseq_id 
+     * @param {String} ensembl_id 
+     */
     getName(refseq_id,ensembl_id){
         if(refseq_id!=undefined && ensembl_id==undefined){
             return refseq_id;

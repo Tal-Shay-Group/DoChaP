@@ -1,4 +1,8 @@
 class GenomicScale {
+    /**
+     * 
+     * @param {Gene} gene the gene we searched
+     */
     constructor(gene) {
         this.start = gene.start; //lowest coordinate
         this.end = gene.end; //highest coordinate
@@ -10,6 +14,7 @@ class GenomicScale {
 
     /**
      * scale is needed for understanding proportions 
+     * @param {String} canvasID canvas id in html
      */
     draw(canvasID) {
         //calculations
@@ -26,7 +31,7 @@ class GenomicScale {
         // }
         // var skip = getSkipSize(coordinatesWidth);
         // var strand = this.strand;
-
+        
         var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
         var strand = this.gene.strand;
         var context = graphicLayout.context;
@@ -81,11 +86,15 @@ class GenomicScale {
     }
 
 
-
-    /** 
+    /**
      * drawing the arrow for strand
+     * @param {canvasContext} context context to draw on
+     * @param {String} strand '+' or '-' depends on gene location
+     * @param {int} arrowLength wanted size for arrow
+     * @param {int} width x coordinate for start point of the arrow
+     * @param {int} height y coordinate for start point of the arrow
      */
-    drawArrow(context, strand, arrowLength, width, height) { //width and height in which the arrow starts
+    drawArrow(context, strand, arrowLength, width, height) { 
         var arrowWidthLine = 8;
         context.fillStyle = "black";
         //baseline
@@ -115,7 +124,18 @@ class GenomicScale {
         context.fillText("strand " + strand, width + (arrowLength / 2), height - 5);
     }
 
+    /**
+     * drawing one gridline (shnata in Herew)
+     * @param {canvasContext} context context to draw on
+     * @param {int} x location for the gridline
+     * @param {int} y start height for gridline
+     * @param {String} text the number in text to write above gridline
+     * @param {int} canvasWidth 
+     * @param {int} beginningEmpty space in the left where it is empty before first exon
+     * @param {double} coordinatesWidth the measure of scaling used
+     */
     drawGridLine(context, x, y, text, canvasWidth, beginningEmpty, coordinatesWidth) {
+        //options
         var gridLength = 5;
         var emptyFromTextInTheEnd = 50;
         context.fillStyle = "black";
@@ -135,8 +155,12 @@ class GenomicScale {
         }
     }
 
-
+/**
+ * drawing the gridlines that are behind the views
+ * @param {*} canvasID 
+ */
     drawBehind(canvasID) {
+        //calculating locations
         var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
         var strand = this.gene.strand;
         var context = graphicLayout.context;
@@ -155,6 +179,14 @@ class GenomicScale {
         }
     }
 
+    /**
+     * we may not write the numbers for gridlines if the are close to start or end 
+     * this function makes sure it is located in a good placement to write
+     * @param {double} x location where the text is wanted
+     * @param {int} beginningEmpty the space in the right where all exon end before it, in pixel units
+     * @param {int} emptyFromTextInTheEnd the length in the end where we do not write, pixel units
+     * @param {double} coordinatesWidth the measure of scaling used
+     */
     isNotCloseToCut(x, beginningEmpty, emptyFromTextInTheEnd, coordinatesWidth) {
         if (this.gene.cutOffStart == -1) {
             return true;
@@ -171,27 +203,45 @@ class GenomicScale {
         return true;
     }
 
-
+/**
+ * list of grid coordinates and locations
+ * @param {int} start first coordinate that shows. from this point we will start the gridlines
+ * @param {int} skip skip in nuc
+ * @param {double} coordinatesWidth the measure of scaling used
+ * @param {int} canvasWidth 
+ * @param {int} beginningEmpty space in the left before the first exon
+ * @param {int} endEmpty space in the right after the last exon
+ * @param {String} strand '+' or '-' depends on the gene
+ * @param {int} cutOffStart if exists cut it is the coordinate of start intron (for visual reasons), otherwise -1 
+ * @param {int} cutOffLength if exists cut it is the length where we cut intron (for visual reasons), otherwise -1 
+ * @param {int} spaceAfterCut if exists it is the size of animation of cut, otherwise 0
+ */
     gridCoordinates(start, skip, coordinatesWidth, canvasWidth, beginningEmpty, endEmpty, strand, cutOffStart, cutOffLength, spaceAfterCut) {
+        //calculate variables
         var Xcoordinates = [];
         var geneCoordinate = start - (start % skip) + skip;
         var secondCoordinate = skip - (start % skip); //the length till the next rounded after start
         var needCut = (cutOffStart != -1 && cutOffLength != -1); // checks if we need cut
         var hasSpaceOfSkip=false;
 
+        //go through each skip and add gridline to list
         for (var i = secondCoordinate;
             (i * coordinatesWidth) + 2 < canvasWidth; i = i + skip) {
-
+            
+            //if there is a cut now we do the cut - there can only be one
             if (needCut && geneCoordinate > cutOffStart) {
-                //doing cut
                 needCut = false;
                 hasSpaceOfSkip=true;
                 var afterCut = cutOffStart + cutOffLength;
                 geneCoordinate = afterCut - (afterCut % skip) + skip
                 i = i + spaceAfterCut/coordinatesWidth  - (afterCut % skip) + skip; //so the line is where the after *skip* is also applied and *cut* is applied
             }
+
+            //init new gridline with information
             var grid = new Object();
             grid.text = numberToTextWithCommas(geneCoordinate);
+            
+            //calculate coordinate x depends on strand
             if (strand == '+') {
                 grid.x = (i * coordinatesWidth) + beginningEmpty;
             // } else if (strand == '-' && hasSpaceOfSkip) {
@@ -199,7 +249,11 @@ class GenomicScale {
             } else if (strand == '-') {
                 grid.x = canvasWidth - endEmpty - (i * coordinatesWidth)
             }
+
+            //add new gridline to list
             Xcoordinates.push(grid);
+            
+            //update new current coordinate
             geneCoordinate = geneCoordinate + skip;
         }
         return Xcoordinates

@@ -1,4 +1,9 @@
 class ProteinGraphicLayout {
+    /**
+     * 
+     * @param {String} canvasID canvas id in html
+     * @param {ProteinScale} proteinScale the current protein scale
+     */
     constructor(canvasID,proteinScale) {
         this.canvas = document.getElementById(canvasID);
         this.context =  this.canvas.getContext("2d");

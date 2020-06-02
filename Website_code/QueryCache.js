@@ -1,7 +1,12 @@
+/**
+ * this class implemants cache with dictionary that 
+ * know to rank the records and delete the irrelevant records 
+ * each time it is full
+ */
 class QueryCache {
     constructor() {
-        this.cache = {};
-        this.cachePoints = {};
+        this.cache = {}; //holds data
+        this.cachePoints = {}; // holds points(rank of importantness)
         this.lengthLimit = 30; //for cache
     }
 
@@ -15,7 +20,7 @@ class QueryCache {
 
     getIfExists(queryID) {
         if (this.cache[queryID] != undefined) {
-            //add point
+            //add point and return the found record
             this.cachePoints[queryID] = Math.min(this.lengthLimit - 1, this.cachePoints[queryID] + 1);
             return this.cache[queryID];
         }

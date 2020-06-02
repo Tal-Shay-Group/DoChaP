@@ -4,7 +4,6 @@ this controller is used by the search page and is used to collect input for the 
 
 angular.module("DoChaP")
     .controller("querySearchController", function ($scope,querySearchService, $compile) {
-        // button click count
         self = this;
         $scope.loading = false;
         $scope.alert = "";
@@ -14,19 +13,24 @@ angular.module("DoChaP")
             var query = searchTextField.value;
             var specie = searchBySpecie.value;
             var isReviewed = true;
-            if($scope.loading==true){
+
+            if($scope.loading==true){ //if we are already in a search
                 return;
             }
+
+            //start search
             $scope.loading = true;
             var results=await querySearchService.queryHandler(query, specie, isReviewed);
             $scope.loading = false;
+
+            //parse results
             if(results[0]=="error"){
-                if(results[2]!=undefined){
+                if(results[2]!=undefined){ //got two or more matches (when searching for synonmys)
                     document.getElementById("alertText").innerHTML = results[2];
                     $compile($("#alertText").contents())($scope);
                     $scope.alert="";
                 }
-                else{
+                else{ //error
                     $scope.alert=results[1];
                     $("#alertText").html("");
                 }
@@ -52,11 +56,16 @@ angular.module("DoChaP")
         }
 
         $(document).ready(function () {
+            //sliding boxes
             $(".greyArea").each( function( index, element ){
                 $( this ).slideDown( 1000 );
                 $( this ).show();
             });
+            
+            //focus on text-field
             document.getElementById("searchTextField").focus();
+            
+            //search on enter
             document.addEventListener("keypress", function (event) {
                 if (event.code == "Enter") {
                     try{

@@ -1,5 +1,10 @@
 class ProteinScale {
-
+    /**
+     * 
+     * @param {int} length in nuc units
+     * @param {int} zoomInStart in nuc units
+     * @param {int} zoomInEnd in nuc units
+     */
     constructor(length, zoomInStart = 0, zoomInEnd = length) {
         this.length = length;
         this.zoomInStart = zoomInStart; //in nuc
@@ -23,9 +28,15 @@ class ProteinScale {
         createBaseLine(context, 0, graphicLayout.startHeight, graphicLayout.lengthOfScale * graphicLayout.coordinatesWidth, graphicLayout.lineThickness);
     }
 
-    /** 
+    /**
      * this is for the transcript and protein scales. add gridline after constant skip
      * distance calculated and the position.
+     * @param {canvasContext} context context to draw on
+     * @param {double} coordinatesWidth the measure of scaling used
+     * @param {int} startHeight size between the top of the canvas to the top of gridlines
+     * @param {int} canvasWidth 
+     * @param {int} skip skips between gridlines in nuc units
+     * @param {int} endEmpty space after the last exon in the right, in pixel units
      */
     drawProteinGridLines(context, coordinatesWidth, startHeight, canvasWidth, skip, endEmpty) {
         var gridLength = 30;
@@ -72,6 +83,10 @@ class ProteinScale {
         }
     }
 
+/**
+ * draws the grilines behind the views
+ * @param {String} canvasID canvas id in html
+ */
     drawBehind(canvasID) {
         //calculations
         var graphicLayout = new ProteinGraphicLayout(canvasID, this);

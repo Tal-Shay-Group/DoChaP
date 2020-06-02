@@ -6,8 +6,6 @@
 
 //technical server constructors
 var fs = require('fs');
-var http = require('http');
-var https = require('https');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -32,6 +30,9 @@ app.use(express.json(), function (req, res, next) {
     next();
 });
 
+//saving user session ID
+var currSessionID=0;
+
 //site files
 app.use(express.static('client'));
 
@@ -43,7 +44,6 @@ app.get('/sendMail/:name/:mail/:msg', (req, res) => {
       subject: 'new Message via DoChaP. From '+req.params.name,
       text: "reply to:\n"+req.params.mail +"\nmessage: \n"+req.params.msg
     };
-    
     transporter.sendMail(mailOptions, function(error, info){});
     res.status(200).send();
 });
@@ -63,17 +63,22 @@ app.get('/sendAlert', (req, res) => {
           transporter.sendMail(mailOptions, function(error, info){});
           /*write to files date ... */
     }
-
     res.status(200).send();
 });
 
 //userInterfaceLog
 app.get('/userLog/:msg', (req, res) => {
-    now=new Date();
-    fs.writeFile("userInterfaceLog.txt", req.params.msg+","+now + "\n", {
+    fs.writeFile("userInterfaceLog.txt", req.params.msg+ "\r\n", {
         flag: 'a'
-    }, function (err) {});
+    }, function (err) {
+    });
     res.status(200).send();
+});
+
+//giving session ID 
+app.get('/getNewSessionID', (req, res) => {
+    currSessionID=currSessionID+1;
+    res.status(200).send(""+currSessionID);
 });
 
 //querySearch module constructor

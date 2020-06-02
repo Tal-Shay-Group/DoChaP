@@ -1,37 +1,47 @@
-/* this controller for the result page should handle different view options and previwing the 
-graphics properly when the page loads. It should also allow tooltips of kinds and windows if needed. */
+/*
+this controller for the result page should handle different view options
+ and previwing the graphics properly when the page loads.
+ It should also allow tooltips of kinds and windows if needed.
+*/
 angular.module("DoChaP")
     .controller("resultsController", function ($scope, $window, $route, $routeParams, webService, querySearchService) {
 
         //needed in case of failure css wont show. if not fail it will reach here
         $('#searchExists').css("display", "block");
+
+        //init attributes
         var isStart = true;
         self = this;
         $scope.noSearch = false;
         $scope.loadingText = false;
         var loadedGene = JSON.parse($window.sessionStorage.getItem("currGene"));
         $scope.ignorePredictions = JSON.parse($window.sessionStorage.getItem("ignorePredictions"));
-        // isReviewedCheckBox.value = ignorePredictions;
         $scope.canvasSize = 550;
         $scope.viewMode = "all";
         self.toolTipManagerForCanvas = {};
+        $scope.numberToTextWithCommas = numberToTextWithCommas;
+
+        //if input is in website path
         if ($routeParams.specie != undefined && $routeParams.query != undefined) {
             isReviewed = true;
             querySearchService.queryHandler($routeParams.query, $routeParams.specie, isReviewed);
         }
+
+        //if no search found
         if (loadedGene == undefined) {
             $scope.noSearch = true;
             return;
         }
-        self.inDragMode = false;
-        self.startX = 0;
-        self.endX = 0;
-        //getting gene from results saved in site
+
+        //getting gene from results saved in website memory
         self.geneInfo = runGenesCreation(loadedGene, $scope.ignorePredictions)[0];
         $scope.transcripts = self.geneInfo.transcripts;
         $scope.shownTranscripts = $scope.transcripts.length;
         $scope.hiddenTranscripts = 0;
-
+        $scope.chromosomeLocation = "chr" + self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
+        $(document).ready(function () {
+            updateCanvases();
+        });
 
         //when "hide transcript" button is clicked.
         $scope.hideTranscriptView = function (index) {
@@ -39,6 +49,7 @@ angular.module("DoChaP")
             $scope.transcripts[index].transcriptView = false;
             $scope.transcripts[index].proteinView = false;
             countShownTranscripts();
+            webService.userLog("hide_transcript,"+$scope.transcripts[index].id);
         };
 
         //show according to mode
@@ -65,11 +76,11 @@ angular.module("DoChaP")
                 $scope.transcripts[index].transcriptView = true;
                 $scope.transcripts[index].proteinView = true;
             }
-
             countShownTranscripts();
-
+            webService.userLog("show_transcript,"+$scope.transcripts[index].id);
         };
 
+        //count the number of transcripts shown
         function countShownTranscripts() {
             var counter = 0;
             for (var i = 0; i < $scope.transcripts.length; i++) {
@@ -86,14 +97,12 @@ angular.module("DoChaP")
                     self.geneInfo.scale.drawBehind("genomicGridlines");
                     self.geneInfo.proteinScale.drawBehind("proteinGridlines");
                 }
-
             });
-
         }
 
         //change view mode. When selecting from chociebox "show only __"
         $scope.checkboxChecked = function () {
-            webService.userLog("partial_view");
+            webService.userLog("partial_view,"+selectModeComboBox.value);
             var type = selectModeComboBox.value;
             $scope.viewMode = type;
             if (type == "all") {
@@ -109,7 +118,7 @@ angular.module("DoChaP")
             });
         }
 
-        //for modals we need variable and function for opening:
+        //for modals, need type of window and id of the clicked object
         $scope.showWindow = undefined;
         $scope.openWindow = function (type, id) {
             $('#BlackBackground').css('display', 'block');
@@ -123,41 +132,45 @@ angular.module("DoChaP")
             } else if (type == "protein") {
                 self.currTranscript = $scope.transcripts[id];
             }
-            webService.userLog("open_window");
+            webService.userLog("open_window,"+type+"+"+$scope.transcripts[id].id);
 
         }
 
+        //used when user wants to exit modal by clicking outside the modal
         $scope.closeModalFromBackground = function (event) {
             if (event.target.id == 'BlackBackground') {
                 $scope.showWindow = false
             }
         }
 
-        $scope.chromosomeLocation = "chr" + self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end);
+        //when filtering/unfiltering unreviewed
         $scope.filterUnreviewed = function () {
+            webService.userLog("filter_unreviewed,"+isReviewedCheckBox.checked);
             $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
             $route.reload();
         }
 
-        $scope.numberToTextWithCommas = numberToTextWithCommas;
-
         //after every page-load or configuration change we create updated graphics 
         //a function which its purpose is to load the canvases' graphics only after the elements finished loading
         function updateCanvases() {
+            //drawing all transcripts
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 if (isStart) {
                     $('#fadeinDiv' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
                 }
                 $scope.transcripts[i].show('canvas-genomic' + i, 'canvas-transcript' + i, 'canvas-protein' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend' + i);
             }
+            
+            //drawing scales
             self.geneInfo.scale.draw("canvas-scale");
             self.geneInfo.scale.drawBehind("genomicGridlines");
             self.geneInfo.proteinScale.drawBehind("proteinGridlines");
             self.geneInfo.proteinScale.draw("canvas-scale-protein");
             $('#canvas-scale');
             $('#canvas-scale-protein');
-            isStart = false;
+            isStart = false;    //needed for fade in animations to stop from now on
 
+            //range sliders:
             $('#genomic_range').ionRangeSlider({
                 type: "double",
                 skin: "square",
@@ -172,9 +185,7 @@ angular.module("DoChaP")
                     $(document).ready(function () {
                         updateCanvases();
                     });
-
                 }
-
             });
             $('#protein_range').ionRangeSlider({
                 type: "double",
@@ -190,10 +201,10 @@ angular.module("DoChaP")
                     $(document).ready(function () {
                         updateCanvases();
                     });
-
                 }
-
             });
+
+            //events on click
             $('canvas').click(function (event) {
                 var tooltipManager = self.toolTipManagerForCanvas;
                 var showTextValues = Transcript.showText(event, tooltipManager);
@@ -201,19 +212,23 @@ angular.module("DoChaP")
                     if (showTextValues[2] == 'click' && tooltipManager[event.target.id + "object"] != undefined) {
                         tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
                         $scope.$apply();
-
                     }
-
                 }
             });
-            // addZoomIn();
+
+            // $("canvas")
+            // .mousemove(function (event) {
+            //     var tooltipManager = self.toolTipManagerForCanvas;
+            //     var showTextValues = Transcript.showText(event,tooltipManager);
+            //     if (showTextValues[0] && $("#myTooltip").is(":visible")) {
+            //         webService.userLog("hover_transcript,"+event.pageX+"+"+event.pageY);
+            //     }
+            // }) 
         }
-
-        $(document).ready(function () {
-            updateCanvases();
-        });
-
+        
+        //downloading pdf
         $scope.downloadPDF = function () {
+            //init attributes
             var doc = new jsPDF();
             var space = 5;
             var width = 90;
@@ -222,11 +237,15 @@ angular.module("DoChaP")
             var startY = 40;
             var transcriptsPerPage = 6;
             doc.setFontSize(10);
+
+            //introduction text
             doc.text(3 * space, 2 * space, self.geneInfo.gene_symbol + " " + self.geneInfo.specieName + ", " + +$scope.transcripts.length + " transcripts");
             doc.text(3 * space, 3 * space, "chr" + self.geneInfo.chromosome + ":" + numberToTextWithCommas(self.geneInfo.scale.start) + "-" + numberToTextWithCommas(self.geneInfo.scale.end));
 
+            //drawing each transcript
             for (var i = 0; i < $scope.transcripts.length; i++) {
                 if (i % transcriptsPerPage == 0) {
+                    //adding scale for every new page
                     var canvasScaleGenomic = document.getElementById("canvas-scale");
                     var imgGenomicScale = canvasScaleGenomic.toDataURL("image/png");
                     var canvasScaleProtein = document.getElementById("canvas-scale-protein");
@@ -234,9 +253,8 @@ angular.module("DoChaP")
 
                     doc.addImage(imgGenomicScale, 3 * space, 3 * space, width, height * 1.5);
                     doc.addImage(imgProteinScale, 3 * space + width + space, 3 * space, width, height * 1.5);
-
-
                 }
+                //getting images from canvases
                 var canvasGenomic = document.getElementById("canvas-genomic" + i);
                 var imgGenomic = canvasGenomic.toDataURL("image/png");
                 var canvasTranscript = document.getElementById("canvas-transcript" + i);
@@ -245,76 +263,19 @@ angular.module("DoChaP")
                 var imgProtein = canvasProtein.toDataURL("image/png");
                 doc.setFontSize(10);
                 doc.text(3 * space, startY + rowHeight * (i % transcriptsPerPage), "Transcript: " + $scope.transcripts[i].name + " Protein: " + $scope.transcripts[i].protein_name);
-                //x,y,width,height
+                //drawing. parameters:x,y,width,height
                 doc.addImage(imgGenomic, 3 * space, startY + space + rowHeight * (i % transcriptsPerPage), width, height);
                 doc.addImage(imgTranscript, 3 * space + width + space, startY + space + rowHeight * (i % transcriptsPerPage), width, height / 2);
                 doc.addImage(imgProtein, 3 * space + width + space, startY + space + rowHeight * (i % transcriptsPerPage) + height, width, height);
 
                 if ((i + 1) % transcriptsPerPage == 0) {
+                    //adding new page when finished full page
                     doc.addPage();
                 }
 
             }
+            //saving in user computer
             doc.save(self.geneInfo.gene_symbol + ".pdf");
         }
 
-        function addZoomIn() {
-            for (var i = 0; i < $scope.transcripts.length; i++) {
-
-                canvas = document.getElementById('canvas-genomic' + i);
-                ctx = canvas.getContext("2d");
-                //listeners
-                canvas.addEventListener("mousemove", function (e) {
-                    if (self.inDragMode) {
-                        canvas = e.target;
-                        ctx = canvas.getContext("2d");
-                        canvas.style.cursor = 'e-resize';
-                    }
-                }, false);
-                canvas.addEventListener("mousedown", function (e) {
-                    canvas = e.target;
-                    ctx = canvas.getContext("2d");
-                    canvasBounds = canvas.getBoundingClientRect();
-                    self.startX = e.pageX - canvasBounds.left; // e.clientX - canvas.offsetLeft - canvas.clientLeft;//
-                    self.inDragMode = true;
-                }, false);
-                canvas.addEventListener("mouseup", function (e) {
-                    canvas = e.target;
-                    ctx = canvas.getContext("2d");
-                    canvasBounds = canvas.getBoundingClientRect();
-                    self.inDragMode = false;
-                    canvas.style.cursor = 'auto';
-                    self.endX = e.pageX - canvasBounds.left; //e.clientX - canvas.offsetLeft- canvas.clientLeft; //
-                    ctx.beginPath();
-                    ctx.moveTo(self.startX, 20);
-                    ctx.lineTo(self.endX, 20);
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    ctx.closePath();
-                    currLength = self.geneInfo.end - self.geneInfo.start;
-                    newFrom = self.geneInfo.start + currLength * ((self.startX - 20) / (canvas.width - 15));
-                    newTo = self.geneInfo.start + currLength * ((self.endX + 20) / (canvas.width - 15));
-                    if(newFrom>=newTo){
-                        return;
-                    }
-                    $('#genomic_range').data("ionRangeSlider").update({
-                        from: newFrom,
-                        to: newTo,
-                    });
-                    self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, newFrom, newTo, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-                    $scope.transcripts = self.geneInfo.transcripts;
-                    $(document).ready(function () {
-                        updateCanvases();
-                    });
-
-                }, false);
-                canvas.addEventListener("mouseout", function (e) {
-                    canvas = e.target;
-                    ctx = canvas.getContext("2d");
-                    self.inDragMode = false;
-                    canvas.style.cursor = 'auto';
-                }, false);
-            }
-        }
     });

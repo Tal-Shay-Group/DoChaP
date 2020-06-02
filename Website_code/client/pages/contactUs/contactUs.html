@@ -1,39 +1,42 @@
 <html>
 
-<head>
-</head>
 <!-- this contact us form for e-mails -->
 
 <body ng-app="DoChaP" ng-controller="contactUsCtrl">
-                <br>    
-            <div  class="greyArea" style="text-align: center;">
-            <form ng-submit="sendMail(name,email,message)">
-                    <div class="formgroup" id="name-form">
-                        <label for="name">Your name*</label>
-                        <br>
-                        <input class="contactUs" type="text" id="Uname" name="name" ng-model="name"/>
-                    </div>
-                    
-                    <div class="formgroup" id="email-form">
-                        <label for="email">Your e-mail*</label>
-                        <br>
-                        <input class="contactUs" type="email" id="email" name="email" />
-                    </div>
-                    
-                    <div class="formgroup" id="message-form">
-                        <label for="message">Your message</label>
-                        <br>
-                        <textarea class="contactUs" id="message" name="message"></textarea>
-                    </div>
-                    <br>
-                    
-                      <input  class="btn blackButton" type="submit" value="Send message" />
-                    </form>
-                
-       </div>
-       
-       
-    
-        
-  </body>
-    </html>
+    <br>
+    <div class="greyArea" style="text-align: center;">
+        <form ng-submit="sendMail(name,email,message)">
+            <!--Name -->
+            <div class="formgroup" id="name-form">
+                <label for="name">Your name*</label>
+                <br>
+                <input class="contactUs" type="text" id="Uname" name="name" ng-model="name" />
+            </div>
+
+             <!--Email -->
+            <div class="formgroup" id="email-form">
+                <label for="email">Your e-mail*</label>
+                <br>
+                <input class="contactUs" type="email" id="email" name="email" />
+            </div>
+
+             <!--Message -->
+            <div class="formgroup" id="message-form">
+                <label for="message">Your message</label>
+                <br>
+                <textarea class="contactUs" id="message" name="message"></textarea>
+            </div>
+            <br>
+
+            <!--Send Button-->
+            <input class="btn blackButton" type="submit" value="Send message" />
+        </form>
+
+    </div>
+
+
+
+
+</body>
+
+</html>

@@ -43,7 +43,7 @@ class Domain {
     }
 
     /**
-     * 
+     * drawing on canvas
      * @param {canvasContext} context - context to draw on
      * @param {double} coordinatesWidth - the measure of scaling used
      * @param {int} startHeight - size between the top of the canvas to the top of the domain
@@ -265,7 +265,7 @@ class Domain {
         var name = this.name;
         var start = this.AAstart;
         var end = this.AAend;
-        var length = end - start;
+        var length = end - start+1;
 
         //finding sourcename
         var source = this.source;
