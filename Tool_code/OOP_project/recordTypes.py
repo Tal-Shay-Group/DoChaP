@@ -1,9 +1,9 @@
 import re
-
+import copy
 
 class Gene:
 
-    def __init__(self, GeneID, ensembl, symbol, synonyms, chromosome, strand):
+    def __init__(self, GeneID=None, ensembl=None, symbol=None, synonyms=None, chromosome=None, strand=None):
         self.GeneID = GeneID
         self.ensembl = ensembl
         self.symbol = symbol
@@ -24,11 +24,25 @@ class Gene:
         else:
             return False
 
+    def mergeGenes(self, other):
+        attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
+        for at in attr:
+            if self.__getattribute__(at) is None:
+                self.__setattr__(at, other.__getattribute__(at))
+        syno = other.synonyms.split("; ") + [other.symbol] if other.synonyms is not None else [other.symbol]
+        for name in syno:
+            if self.synonyms is not None and name not in self.synonyms.split("; ") + [self.symbol]:
+                self.synonyms = self.synonyms + "; " + name
+            elif self.synonyms is None and self.symbol != other.symbol:
+                self.synonyms = other.symbol
+        return self
+
 
 class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
-                 GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None, exons_starts=[],
+                 GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None,
+                 exons_starts=[],
                  exons_ends=[]):
         self.refseq = refseq
         self.ensembl = ensembl
@@ -67,28 +81,31 @@ class Transcript:
     def idVersion(self, idType='refseq'):
         tid = self.__getattribute__(idType)
         if tid is not None:
-            return tid.split(".")[1]
+            if tid.startswith("mito"):
+                return "mito"
+            else:
+                return tid.split(".")[1]
         else:
             return None
 
     def exons2abs(self):
         if len(self.exon_starts) != len(self.exon_ends):
-            raise ValueError('Arguments 1 and 2: Expected same length for the lists/tuples of start and stop positions')
+            raise ValueError('Expected same length for the lists/tuples of start and stop positions')
         elif len(self.CDS) != 2:
-            raise ValueError('3rd argument: Expected list of 2 values: CDS_start, CDS_end')
+            raise ValueError('Expected list of 2 values: CDS_start, CDS_end')
         elif self.strand != '-' and self.strand != '+':
-            raise ValueError('4th argument: Expected strand: + or -, for forward and reverse (respectively)')
+            raise ValueError('Expected strand: + or -, for forward and reverse (respectively)')
         transcript_len = 0
         abs_start = []
         abs_stop = []
         add_opt = 0
-        if self.strand == '-':
-            stop_list = self.exon_ends.copy()[::-1]
-            start_list = self.exon_starts.copy()[::-1]
-            add_opt = 1
-        else:
-            stop_list = self.exon_ends.copy()
-            start_list = self.exon_starts.copy()
+        # if self.strand == '-':
+        #     stop_list = self.exon_ends.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_ends.copy()
+        #     start_list = self.exon_starts.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_starts.copy()
+        #     add_opt = 1
+        # else:
+        stop_list = self.exon_ends.copy()
+        start_list = self.exon_starts.copy()
         for i in range(len(start_list)):
             if stop_list[i] < self.CDS[0]:
                 abs_start.append(0)
@@ -128,12 +145,10 @@ class Transcript:
             elif self.idVersion() < other.idVersion() or self.idVersion("ensembl") < other.idVersion("ensembl"):
                 return other
             else:
-                mergedT = self
+                mergedT = copy.deepcopy(self)
         for atribute in attr:
-            if self.__getattribute__(atribute) is None:
+            if mergedT.__getattribute__(atribute) is None:
                 mergedT.__setattr__(atribute, other.__getattribute__(atribute))
-            else:
-                mergedT.__setattr__(atribute, self.__getattribute__(atribute))
         return mergedT
 
 
@@ -183,14 +198,21 @@ class Domain:
                     return 'splice_junction', list(range(ii + 1, jj + 1)), length
         return None, None, None
 
+    def __eq__(self, other):
+        if self.extID == other.extID and self.aaStart == other.aaStart and self.aaEnd == other.aaEnd:
+            return True
+        else:
+            return False
 
 class Protein:
-    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, note=None):
+    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, synonyms=None, transcript_refseq=None, transcript_ensembl=None):
         self.refseq = refseq
         self.ensembl = ensembl
         self.description = descr
         self.length = length
-        self.note = note
+        self.synonyms = synonyms
+        self.transcript_refseq = transcript_refseq
+        self.transcript_ensembl = transcript_ensembl
 
     def refseqNoVersion(self):
         return self.refseq.split('.')[0]

@@ -11,6 +11,7 @@ sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
+from DomainsEnsemblBuilder import *
 
 
 class EnsemblBuilder(SourceBuilder):
@@ -26,6 +27,7 @@ class EnsemblBuilder(SourceBuilder):
         self.species = species
         self.savePath = os.getcwd() + '/data/{}/ensembl/'.format(self.species)
         self.gff = self.savePath + "genomic.gff3"
+        self.DomainsBuilder = DomainsEnsemblBuilder(self.species)
         self.Transcripts = {}
         self.Domains = {}
         self.Proteins = {}
@@ -48,14 +50,47 @@ class EnsemblBuilder(SourceBuilder):
         down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
         down.Download()
+        # Download Domains
+        #self.DomainsBuilder.downloader()
 
     def parser(self):
+        self.parse_gff3()
+        self.parse_domains()
+        countNotFoundTranscripts = 0
+        for protein in self.pro2trans:
+            trans = self.pro2trans[protein]
+            if trans in self.Transcripts:
+                aaRem = 1
+                ll = int(max(self.Transcripts[trans].exons2abs()[1]) / 3 - aaRem)
+                self.Proteins[protein] = Protein(ensembl=protein, descr=None, length=ll)
+            else:
+                countNotFoundTranscripts += 1
+                # print(trans)
+                continue
+        print("{} transcripts (with proteih products) were not found in gff3 file".format(str(countNotFoundTranscripts)))
+
+    def parse_gff3(self):
+        print("-------- Ensembl data Parsing --------")
+        print("Parsing gff3 file...")
+        print("creating temporary database from file: " + self.gff)
         fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        #db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Ensembl.db")
-        print("Collecting Transcripts data from gff file...")
+        db = gffutils.FeatureDB("DB.Ensembl.db")
+        self.collect_genes(db)
+        self.collect_Transcripts(db)
+
+    def collect_genes(self, db):
+        print("Collecting genes data from gff3 file...")
+        for g in db.features_of_type("gene"):
+            newG = Gene(ensembl=g["gene_id"][0], symbol=g["Name"][0], chromosome=g.chrom, strand=g.strand)
+            self.Genes[newG.ensembl] = newG
+
+    def collect_Transcripts(self, db):
+        print("Collecting Transcripts data from gff3 file...")
         self.Transcripts = {}
+        curretGenes = self.Genes.copy()
+        self.Genes = {}
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
             newT.chrom = t.chrom
@@ -64,6 +99,7 @@ class EnsemblBuilder(SourceBuilder):
             newT.ensembl = t["transcript_id"][0] + "." + t["version"][0]
             newT.gene_ensembl = t["Parent"][0].split(":")[1]
             newT.geneSymb = t["Name"][0].split("-")[0]
+            self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
         print("Collecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
@@ -92,7 +128,33 @@ class EnsemblBuilder(SourceBuilder):
             self.Transcripts[ref].exon_ends = self.Transcripts[ref].exon_ends + [None] * (orderInT - l_orig)
             self.Transcripts[ref].exon_starts[orderInT - 1] = e.start - 1
             self.Transcripts[ref].exon_ends[orderInT - 1] = e.end
-        for t in self.Transcripts.values():
-            if t.strand == "-":
-                t.exon_starts = t.exon_starts[::-1]
-                t.exon_ends = t.exon_ends[::-1]
+        # for t in self.Transcripts.values():
+            #if t.strand == "-":
+            #    t.exon_starts = t.exon_starts[::-1]
+            #    t.exon_ends = t.exon_ends[::-1]
+
+    def parse_domains(self):
+        print("Collecting domains from ensembl domains talbes:")
+        for extDB in self.DomainsBuilder.ExtSources:
+            print("\t - {}".format(extDB))
+            df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
+                               sep="\t", header=0)
+            df.columns = df.columns.str.replace(" ", "_")
+            df.columns = df.columns.str.lower().str.replace(extDB+"_", "")
+            df = df.dropna()
+            conv = {"pf":"pfam", "sm":"smart"}
+            for i, row in df.iterrows():
+                id = row.id.lower()
+                idtype= re.sub(r'\d+', '', id)
+                if idtype in conv.keys():
+                    id = id.replace(idtype, conv[idtype])
+                if extDB == "interpro":
+                    self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
+                                                                  [Domain(ext_id=id, start=int(row.start),
+                                                                          end=int(row.end), name=row.short_description,
+                                                                          note=row.description)]
+                else:
+                    self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
+                                                              [Domain(ext_id=id, start=int(row.start), end=int(row.end))]
+                self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
+                self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version

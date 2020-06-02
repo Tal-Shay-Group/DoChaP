@@ -11,24 +11,17 @@ class InterProBuilder(SourceBuilder):
         self.savePath = os.getcwd() + '/data/'
         self.BASE_URL = "https://www.ebi.ac.uk:443/interpro/api/entry/InterPro/?page_size=100"
         self.outputFile = self.savePath + "InterPro_entries.txt"
+        self.AllDomains = None
 
     def downloader(self):
-        # def output_list():
-        # disable SSL verification to avoid config issues
         context = ssl._create_unverified_context()
-
         next = self.BASE_URL
         last_page = False
 
         f = open(self.outputFile, "w")
         sys.stdout = f
-        #fieldnames = ['Accession', 'Name', 'SourceDatabase', 'Type', 'IntegratedSignatures',
-        #              'GOTerms']
+
         delimiter = "|"
-        #sys.stdout.write(delimiter.join(fieldnames))
-        #sys.stdout.write("\n")
-        # writer = csv.writer(f, delimiter='|')
-        # writer.writerow(fieldnames)
         while next:
             try:
                 req = request.Request(next, headers={"Accept": "application/json"})
@@ -54,12 +47,6 @@ class InterProBuilder(SourceBuilder):
                     raise e
 
             for i, item in enumerate(payload["results"]):
-                # writer.writerow([parse_column(item["metadata"]["accession"], 'metadata.accession'),
-                #                 parse_column(item["metadata"]["name"], 'metadata.name'),
-                #                 parse_column(item["metadata"]["source_database"], 'metadata.source_database'),
-                #                 parse_column(item["metadata"]["type"], 'metadata.type'),
-                #                 parse_column(item["metadata"]["member_databases"], 'metadata.member_databases'),
-                #                 parse_column(item["metadata"]["go_terms"], 'metadata.go_terms')])
                 sys.stdout.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + delimiter)
                 sys.stdout.write(parse_column(item["metadata"]["name"], 'metadata.name') + delimiter)
                 sys.stdout.write(
@@ -77,8 +64,22 @@ class InterProBuilder(SourceBuilder):
         f.close()
 
     def parser(self):
-        # self.outputFile
-        myf = r"C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\Tool_code\OOP_project\data\InterPro_entries.txt"
+        myf = self.outputFile
+        fieldnames = ['Name', 'SourceDatabase', 'Type', 'IntegratedSignatures',
+                      'GOTerms', "0"]
+        df = pd.read_table(myf, sep="|", names=fieldnames, index_col=0)
+        df = df[df["Type"] == "domain"]
+        refids = df["IntegratedSignatures"].str.split(";")
+        newdf = pd.DataFrame(columns=["interpro", "pfam", "smart", "cdd", "tigrfams"])
+        sourceDict = {"smart": "sm", "pfam": "pf", "cdd": ".", "tigrams": "."}
+        for ind, row in refids.iteritems():
+            for ext in row:
+                splitrow = ext.split(":")
+                splitrow[1] = splitrow[1].lower()
+                if splitrow[0] in sourceDict.keys():
+                    newdf.at[ind, splitrow[0]] = splitrow[1].replace(sourceDict[splitrow[0]], splitrow[0])
+                    newdf.at[ind, "interpro"] = ind
+        self.AllDomains = newdf
 
 
 def parse_items(items):
@@ -127,6 +128,6 @@ def parse_column(value, selector):
         return parse_locations(value)
     return str(value)
 
-if __name__ == "__main__":
-    inter = InterProBuilder()
-    inter.downloader()
+#if __name__ == "__main__":
+#    inter = InterProBuilder()
+#    inter.parser()

@@ -3,13 +3,14 @@ class Director:
 
     def setBuilder(self, builder):
         self.__builder = builder
-        #self.__builder.setSpecies(species)
+        # self.__builder.setSpecies(species)
 
-    def collectFromSource(self, download=False):
+    def collectFromSource(self, download=False, parser=True):
         if download:
             self.__builder.downloader()
-        self.__builder.parser()
-        #return self.__builder.records()
+        if parser:
+            self.__builder.parser()
+        # return self.__builder.records()
 
 
 # Builder
@@ -26,5 +27,3 @@ class SourceBuilder:
 
     def parser(self):
         pass
-
-
