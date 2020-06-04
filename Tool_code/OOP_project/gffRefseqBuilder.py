@@ -84,6 +84,11 @@ class RefseqBuilder(SourceBuilder):
         GpffnoGff = len(set(self.trans2pro.keys())) - len(set(self.Transcripts.keys()).intersection(set(self.trans2pro.keys())))
         print("\t{} transcripts from gff file were not found in the gpff file".format(GffnoGpff))
         print("\t{} transcripts from gpff file were not found in the gff file".format(GpffnoGff))
+        # for t in self.Transcripts.values():
+        #     if t.CDS is None or t.tx is None or t.exon_starts is None or t.exon_ends is None:
+        #         print(t)
+        #     elif None in t.CDS or None in t.exon_starts or None in t.exon_ends or None in t.tx:
+        #         print(t)
 
     def ParseGffRefseq(self):
         print("\tParsing gff3 file...")
@@ -98,9 +103,12 @@ class RefseqBuilder(SourceBuilder):
         self.Genes = {}
         print("\tCollecting Transcripts data from gff file...")
         self.Transcripts = {}
+        transcript2region = {}
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
             if self.regionChr[t.chrom] == "ALT_chr":
+                continue
+            elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
                 continue
             newT.chrom = self.regionChr[t.chrom]
             newT.tx = (t.start - 1, t.end,)
@@ -110,6 +118,7 @@ class RefseqBuilder(SourceBuilder):
             newT.geneSymb = t["gene"][0]
             self.Transcripts[newT.refseq] = newT
             self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
+            transcript2region[newT.refseq] = t.chrom
         print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
             if self.regionChr[cds.chrom] =="ALT_chr":
@@ -124,7 +133,7 @@ class RefseqBuilder(SourceBuilder):
                                                    exons_ends=[cds.end])
                 self.Genes[GeneID] = curretGenes[GeneID]
             ref = [info if info.startswith("rna-") else '-0' for info in cds["Parent"]][0].split("-")[1]
-            if ref[0] == '0':
+            if ref[0] == '0' or transcript2region.get(ref, '') != cds.chrom:
                 continue
             self.Transcripts[ref].protein_refseq = cds["Name"][0]
             current_CDS = self.Transcripts[ref].CDS
@@ -137,7 +146,8 @@ class RefseqBuilder(SourceBuilder):
             self.Transcripts[ref].CDS = (cds_start, cds_end,)
         print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
-            if self.regionChr[e.chrom] =="ALT_chr" or e["gbkey"][0] != "mRNA":
+            if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" or \
+                    transcript2region.get(ref, '') != e.chrom:
                 continue
             ref = e["ID"][0].split("-")[1]
             orderInT = int(e["ID"][0].split("-")[2])
