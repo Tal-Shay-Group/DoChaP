@@ -80,9 +80,14 @@ class RefseqBuilder(SourceBuilder):
         self.ParseGffRefseq()
         for gpff_file in self.gpff:
             self.parseSingleGpff(gpff_file)
+        GffnoGpff = len(set(self.Transcripts.keys())) - len(set(self.Transcripts.keys()).intersection(set(self.trans2pro.keys())))
+        GpffnoGff = len(set(self.trans2pro.keys())) - len(set(self.Transcripts.keys()).intersection(set(self.trans2pro.keys())))
+        print("\t{} transcripts from gff file were not found in the gpff file".format(GffnoGpff))
+        print("\t{} transcripts from gpff file were not found in the gff file".format(GpffnoGff))
 
     def ParseGffRefseq(self):
-        print("Creating temporary DB from gff")
+        print("\tParsing gff3 file...")
+        print("\tcreating temporary database from file: " + self.gff)
         fn = gffutils.example_filename(self.gff)
         #db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
@@ -91,7 +96,7 @@ class RefseqBuilder(SourceBuilder):
         self.collect_genes(db)
         curretGenes = self.Genes.copy()
         self.Genes = {}
-        print("Collecting Transcripts data from gff file...")
+        print("\tCollecting Transcripts data from gff file...")
         self.Transcripts = {}
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
@@ -105,7 +110,7 @@ class RefseqBuilder(SourceBuilder):
             newT.geneSymb = t["gene"][0]
             self.Transcripts[newT.refseq] = newT
             self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
-        print("Collecting CDS data from gff file...")
+        print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
             if self.regionChr[cds.chrom] =="ALT_chr":
                 continue
@@ -130,7 +135,7 @@ class RefseqBuilder(SourceBuilder):
                 cds_start = cds.start - 1  # gff format is 1 based start, the entire code is for 0 based start
                 cds_end = cds.end
             self.Transcripts[ref].CDS = (cds_start, cds_end,)
-        print("Collecting Exons data from gff file...")
+        print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
             if self.regionChr[e.chrom] =="ALT_chr" or e["gbkey"][0] != "mRNA":
                 continue
@@ -143,7 +148,7 @@ class RefseqBuilder(SourceBuilder):
             self.Transcripts[ref].exon_ends[orderInT - 1] = e.end
 
     def collect_genes(self, db):
-        print("Collecting genes data from gff3 file...")
+        print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
@@ -161,7 +166,7 @@ class RefseqBuilder(SourceBuilder):
                 self.regionChr[feat.chrom] = "ALT_chr"
 
     def parseSingleGpff(self, gpff_file):
-        print("Collecting Proteins and Domains data from gpff file...")
+        print("\tCollecting Proteins and Domains data from gpff file...")
         for rec in SeqIO.parse(gpff_file, 'gb'):
             if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP':  # takes both proteins and predictions!
                 self.protein_info(rec)
