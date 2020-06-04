@@ -6,11 +6,7 @@ let app = angular.module('DoChaP', ["ngRoute","ngAnimate"])
 // config routes
 app.config(function ($routeProvider) {
     $routeProvider
-        // homepage
         .when('/', {
-            /*
-            templateUrl: 'pages/home/home.html',
-            controller: 'homeController as homeCtrl'*/
             templateUrl: 'pages/home/querySearch.html',
             controller: 'querySearchController as querySearchCtrl'
         })

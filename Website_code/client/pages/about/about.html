@@ -1,48 +1,25 @@
 <html>
 <!--  about page with information on this project
 -->
-
-<head>
-</head>
-<!-- css -->
-<style>
-</style>
-
-
 <!-- about text -->
-
 <body ng-app="DoChaP" ng-controller="documentationCtrl">
         <br>
         <div class="greyArea">
             <div class="resultTitle">
-                <img src="resources/LOG_new.jpeg" style="height: 300px; width: 1500;"/>
+                <img src="resources/LOG_new.jpeg" style="height: 200px; width: 1000;"/>
             </div>
-            <p><b>The Domain Change Predictor (DoChaP) is a webserver for visualization of exon–domain relationships in
-                different transcripts. DoChaP provides an easy way of exploring the effect of alternative splicing on
-                protein domains.</b></p>
-            <p>Alternative RNA splicing results in multiple transcripts of the same gene, possibly coding different
-                protein isoforms that may differ in their protein domains. Although transcripts and domains information
-                can be extracted from public databases, such a process requires the integration of data from several
-                sources and it is tedious and unfeasible for genome-wide analysis. DoChaP integrates transcripts and
-                domains information to facilitate the study of alternative splicing effects on domain structure.
-                Identifying such an effect can lead to testable hypotheses in the form of 'protein X loses domain Y in
-                state Z'. <strong>&nbsp;</strong></p>
-            <p>DoChaP integrates information on transcripts and protein domains data from the NCBI and UCSC databases
-                into a single database.</p>
+            <p>The Domain Change Predictor (DoChaP) is a webserver for visualization of exon&ndash;domain relationships in different transcripts. DoChaP provides an easy way of exploring the effect of alternative splicing on protein domains.</p>
+            <p>Alternative RNA splicing results in multiple transcripts of the same gene, possibly coding different protein isoforms that may differ in their protein domains. Although transcripts and domains information can be extracted from public databases, such a process requires the integration of data from several sources and it is tedious and unfeasible for genome-wide analysis. DoChaP integrates transcripts and domains information to facilitate the study of alternative splicing effects on domain structure. Identifying such an effect can lead to testable hypotheses in the form of 'protein X loses domain Y in state Z'. <strong>&nbsp;</strong></p>
+            <p>DoChaP integrates information on transcripts and protein domains data from the NCBI and UCSC databases into a single database.</p>
             <p>Sources:</p>
             <ul>
-                <li>NCBI - RefSeq database (.gpff GeneBank files) and the gene2ensemble table from Gene database</li>
-                <li>UCSC - Tables (ncbiRefSeq, kgXref and knownGene) of the latest genome versions for each species.
-                </li>
+            <li>NCBI - RefSeq database (genomic .gff files and mRNA_prot .gpff files) and the gene2ensemble table from Gene database</li>
+            <li>ENSEMBL &ndash; Ensembl genomic annotation (.gff files), protein domains and ensembl compara orthology data (downloaded using BioMart)</li>
+            <li>Interpo &ndash; protein domains accession ids</li>
             </ul>
             <p><strong>&nbsp;</strong></p>
-            <p><strong>Developers:</strong> Shani T. Gal-Oz, Dana Eliyahu and Nimrod Haiat, from the
-                <a href="http://lifeserv.bgu.ac.il/wp/talshay/">group of Tal Shay</a>, (Department of Life Sciences,
-                Ben-Gurion University of the Negev), in collaboration with
-                <a href="http://www.bgu.ac.il/~shanigu/">Guy Shani</a> (Department of Information Systems Engineering,
-                Ben-Gurion University of the Negev, Israel).
-            </p>
-            <p>Contact: Shani T. Gal-Oz, <a href="mailto:galozs@post.bgu.ac.il" target="_blank">galozs@post.bgu.ac.il</a></p>
+            <p><strong>Developers:</strong> Shani T. Gal-Oz, Dana Eliyahu and Nimrod Haiat, from the <a href="http://lifeserv.bgu.ac.il/wp/talshay/">group of Tal Shay</a>, (Department of Life Sciences, Ben-Gurion University of the Negev), in collaboration with <a href="http://www.bgu.ac.il/~shanigu/">Guy Shani</a> (Department of Information Systems Engineering, Ben-Gurion University of the Negev, Israel).</p>
+            <p>Contact: Shani T. Gal-Oz, galozs@post.bgu.ac.il</p>
             <div class="resultTitle">
                 <img src="resources/bgu-sig-en.png" style="width: 300px; height:100px"/>
             </div>

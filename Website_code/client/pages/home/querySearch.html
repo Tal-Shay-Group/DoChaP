@@ -4,38 +4,16 @@
 -->
 
 <html>
-<!-- display all categories -->
-
 <body ng-app="DoChaP" ng-controller="querySearchCtrl">
-    <!--
-            small explanation on the website
-        -->
-        <!-- class="greyArea" width: 1200px;background-image: url(resources/fish_half.jpg); background-size: cover; -->
-    
-        <!--
-
-             style="color: white;width: 90%;margin-right: auto;
-        margin-left: auto; padding: 30px;border-style: solid; border-radius: 5px;border-color: white; border-width: 2px;"
-        -->
-    
-        <div class='greyArea' style="background-color: transparent;"  style="display: none;">
-        <!-- <img class="logo" src="resources/logo.jpeg" /> -->
-
-        <!-- <div style="text-align: center;
-        font-family: arial, helvetica; ">
-            <div style="font-size: 80px;">DoChaP</div>
-            <div  style="font-size: 19px;">Domain Change Predictor</div>
-        </div>
-        <br>
-        <br> -->
+    <div class='greyArea' style="background-color: transparent;" style="display: none;">
         <div class="searchItems form-inline">
-            <!--
-                searching for domains here
-            -->
+
+            <!--searching for domains here-->
             <div class="resultTitle">
                 <i> Search for exon-domain associations</i>
             </div>
             <br>
+            <!--species select-->
             <i> Species&nbsp;&nbsp;</i>
             <select id="searchBySpecie" class="form-control searchBySpecie">
                 <option value="H_sapiens">Human</option>
@@ -44,18 +22,23 @@
                 <option value="D_rerio">Zebrafish</option>
                 <option value="X_tropicalis">Frog</option>
             </select>&nbsp;&nbsp;
+            <!--search term-->
             <i>Search term&nbsp;&nbsp;</i>
             <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass"
                 id="searchTextField">&nbsp;&nbsp;
-
-            <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()" style="background-color: rgb(10, 103, 224); color:rgb(216, 216, 216)">
+            <!--search button-->
+            <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()"
+                style="background-color: rgb(10, 103, 224); color:rgb(216, 216, 216)">
                 <span class="glyphicon glyphicon-search"></span> Search
             </button>
             &nbsp;
+            <!--loading-->
             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
+            <span ng-show="loading">This usually takes up to a minute</span>
             <br>
             <br>
             <br>
+            <!--examples-->
             <i>Examples&nbsp;&nbsp;</i>
             <button class="btn blackButton" type="button" ng-click="querySearchCtrl.exmaple('acly')">acly</button>&nbsp;
             <button class="btn blackButton" type="button"
@@ -65,36 +48,47 @@
             <button class="btn blackButton" type="button"
                 ng-click="querySearchCtrl.exmaple('NP_001230673.1')">NP_001230673.1</button>
             <br>
+            <!--error message-->
             <span style="color:red"><span id="alertText"></span>{{alert}}</span>
         </div>
         <br>
     </div>
     <br>
-    <div class="greyArea"  style="display: none;">
-        <!-- style="background: rgba(245,245,245,1);background:linear-gradient(180deg, rgba(245,245,245,1) 0%, rgba(212,212,212,1) 100%); padding: 30px;  border-radius: 10px;width: 900px" -->
-        <!-- <p><strong>Overview:</strong></p> -->
+    <div class="greyArea" style="display: none;">
+        <!--description-->
         <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
                 sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
         </p>
     </div>
     <br>
     <div class="greyArea" style="display: none;">
-        <!-- <p><strong>Search DoChaP:</strong></p> -->
-        <ul style="font-size: 17px;">
-            <li><strong>Choose a species from the list:&nbsp;</strong>Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish
-                (danRer11), Frog (xenTro9). To request
-                another species, <a href="#!contactUs">contact us! </a></li>
-            <li><strong>Enter a search term:</strong>
-                <ol>
-                    <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene
-                        ID or RefSeq transcript or protein ID / ENSEMBL gene, transcript or protein ID)</li>
-                    <li>See examples or Help page for more info</li>
-                </ol>
-            </li>
-        </ul>
+        <!--how to use-->
+        <table>
+            <tr>
+                <td>
+                   <iframe width="250" height="150" src="https://www.youtube.com/embed/Ygqe7wf_Uy4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </td>
+                <td>
+                    <ul style="font-size: 17px;">
+                        <li>
+                            <strong>Choose a species from the list of currently available species:</strong> Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish (danRer11), Frog (xenTro9).<br>
+                            To request another species, <a href="#!contactUs">contact us! </a>
+                        </li>
+                        <li><strong>Enter a search term:</strong>
+                            <ol>
+                                <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene
+                                    ID or RefSeq transcript or protein ID / ENSEMBL gene, transcript or protein ID)</li>
+                                <li>See videos, examples or Help page for more info</li>
+                            </ol>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+   
+      
     </div>
     <br>
-
 </body>
 
 </html>

@@ -38,7 +38,7 @@ Logo and navigation bars will be declared here for example.
     <script src="app.js"></script>
 
     <!-- load our graphic files-->
-    <script src="geneCanvasGraphics.js"></script>
+    <!-- <script src="geneCanvasGraphics.js"></script> -->
     <script src="GraphicUtils.js"></script>
 
     <!-- load controllers -->
@@ -64,31 +64,19 @@ Logo and navigation bars will be declared here for example.
     <script src="pages/compareSpecies/compareSpeciesController.js"></script>
     <script src="pages/about/aboutController.js"></script>
     <script src="indexController.js"></script>
-    <script src="resources/draggableModal.js"></script>
+    <!-- <script src="resources/draggableModal.js"></script> -->
     <link rel="icon" href="resources/favicon.ico">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>    <!-- css file and font-->
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Nunito" />
     <link rel="stylesheet" type="text/css" href="main.css">
     
-
-
     <meta name="description" content="visualization of exon–domain relationships in different transcripts">
     <meta name="keywords" content="gene, genes, transcripts, transcript, proteins, protein, domain, domains, bilogy, alternative, splicing, science">
     <meta name="robots" content="index, follow">
 </head>
-<!-- actual tags that will be visible. currently only links for search/result pages. -->
+
 <body ng-app="DoChaP" align="left">
-  <!--
-    LOGO
-  -->
-      <!--
-        <img style="height: 100px" src="resources/bgu-sig-en.png" />
-      -->
-  <!--
-    navigation bar
-  -->
-    <!-- <br /> -->
-        
+  <!--navigation-->
     <nav class="navbar navbar-inverse container-fluid" ng-controller="indexController as indexCtrl" style="font-size: 20px;">
           <!-- for mobile - hamburger button-->
           <div class="navbar-header">
@@ -104,16 +92,13 @@ Logo and navigation bars will be declared here for example.
                   <a href="#!querySearch">
 
                 <img src="resources/LOGO_noBG.png" height="45" class="logo" />
-              <!-- <span class="logoText">
-                  DoChaP
-              </span> -->
               </a>
             </ul>
-        
               <ul class="nav navbar-nav">
                 <li><a href="#!querySearch">Home</a></li>
               <li><a href="#!compareSpecies">Compare Species</a></li>
              <li ng-if="showQuickSearch" class="form-inline"> 
+               <!--search bar when in non-search pages-->
                     <select class="form-control searchBySpecie" id="indexSpecies">
                         <option value="H_sapiens">Human</option>
                         <option value="M_musculus">Mouse</option>
@@ -138,7 +123,7 @@ Logo and navigation bars will be declared here for example.
           </div>
       </nav>
       <div>
-         <div ng-view="" ></div> <!--class="slide"-->
+         <div ng-view="" ></div>
       </div>
    
 </body>

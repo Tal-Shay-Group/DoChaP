@@ -11,18 +11,23 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
         if (!re.test(query)) {
             return ["error", "Please fix your query"];
         }
+
+        //returning server results
         return await webService.queryHandler(query, specie, isReviewed)
             .then(function (response) {
                 var geneList = response.data.genes[0];
+                //case of error 
                 if (geneList==undefined || geneList.transcripts.length == 0) {
                     return ["error", "No results were found"];
                 } else {
+                    //case of success
                     if (response.data.isExact == true || response.data.genes.length == 1) {
                         $window.sessionStorage.setItem("currGene", JSON.stringify(response.data));
                         $window.sessionStorage.setItem("ignorePredictions", "false");
                         $window.location = "#!/results";
                         return ["success"];
                     } else {
+                        //case of more than one match (synonym case)
                         message = "";
                         var messageForHomePage="";
                         for (var i = 0; i < response.data.genes.length - 1; i++) {

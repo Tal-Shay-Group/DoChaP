@@ -1,4 +1,9 @@
 class GenomicGraphicLayout {
+    /**
+     * 
+     * @param {string} canvasID canvas id in html
+     * @param {Gene} gene the gene we searched 
+     */
     constructor(canvasID,gene) {
         this.canvas = document.getElementById(canvasID);
         this.context = this.canvas.getContext("2d");

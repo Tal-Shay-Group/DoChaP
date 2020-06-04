@@ -22,15 +22,15 @@ class Gene {
         this.MGI_id = dbGene.MGI_id;
         this.gene_ensembl_id = dbGene.gene_ensembl_id;
         this.specie = dbGene.specie;
-        this.colorByLength=colorByLength;
-        this.ignorePredictions=ignorePredictions;//to filter refseq unreviewed
+        this.colorByLength = colorByLength;
+        this.ignorePredictions = ignorePredictions; //to filter refseq unreviewed
 
         //calculated attributes
-        this.specieName = this.getSpecieName();
+        this.specieName = Species.getSpecieName(dbGene.specie);
         this.EnsemblLink = this.getEnsemblGeneLink();
         this.geneExons = this.createGeneExonInfo(dbGene.geneExons, dbGene.transcripts, colorByLength);
         this.maxProteinLength = this.findmaxProteinLength(dbGene.transcripts);
-     
+
         //zoom in options (if given as arguments)
         this.start = start ? start : this.findStartCoordinate(dbGene.transcripts);
         this.end = end ? end : this.findEndCoordinate(dbGene.transcripts);
@@ -43,8 +43,8 @@ class Gene {
         //push transcripts
         this.transcripts = [];
         for (var i = 0; i < dbGene.transcripts.length; i++) {
-            if (ignorePredictions == false || dbGene.transcripts[i].transcript_refseq_id==undefined || (dbGene.transcripts[i].transcript_refseq_id!=undefined &&dbGene.transcripts[i].transcript_refseq_id.substring(0, 2) == "NM")) {
-                this.transcripts.push(new Transcript(dbGene.transcripts[i],this));
+            if (ignorePredictions == false || dbGene.transcripts[i].transcript_refseq_id == undefined || (dbGene.transcripts[i].transcript_refseq_id != undefined && dbGene.transcripts[i].transcript_refseq_id.substring(0, 2) == "NM")) {
+                this.transcripts.push(new Transcript(dbGene.transcripts[i], this));
             }
         }
         this.transcripts = this.transcripts.sort(Transcript.compare);
@@ -98,28 +98,42 @@ class Gene {
 
     /**
      * selecting color and related transcripts for each exon
-     * @param {*} geneExons 
-     * @param {*} geneTranscripts 
-     * @param {*} colorByLength 
+     * @param {GeneExons rows from db} geneExons all exon in the gene
+     * @param {Transcripts row from db} geneTranscripts all transcripts rows for gene
+     * @param {list of colors and lengths or undefined} colorByLength if need to color by length then we havr list of colors for different locations 
      */
     createGeneExonInfo(geneExons, geneTranscripts, colorByLength) {
+        //init variables
         var exonInfo = {};
         var exonForTable = [];
         var colorArr = []; //initialized with colors when used in function
+
+        //picking colors and creating the exon table (shown below views)
         for (var i = 0; i < geneExons.length; i++) {
+
+            //case where the exon is first seen
             if (exonInfo[geneExons[i].genomic_start_tx] == undefined) {
                 exonInfo[geneExons[i].genomic_start_tx] = [];
             }
+
+
             if (colorByLength != undefined) {
+                //case where we have color by length
                 var chosenColor = colorByLength[geneExons[i].genomic_end_tx - geneExons[i].genomic_start_tx];
             } else {
+                //case where the color is by start,end loaction(default)
                 var chosenColor = getcolorFromList(colorArr);
             }
+
+            //init exon color dictionary (dictionary with start/end)
             exonInfo[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx] = {
-                color: chosenColor,
-                name: ""
+                color: chosenColor
             };
+
+            //get list of transcripts for this exon
             var exonTranscripts = this.getTranscriptsForExon(geneExons[i].genomic_start_tx, geneExons[i].genomic_end_tx, geneTranscripts);
+
+            //add to exon-color table (list of information)
             if (exonTranscripts != "") {
                 exonForTable.push({
                     'transcripts': exonTranscripts,
@@ -130,32 +144,40 @@ class Gene {
             }
 
         }
+        //add to attributes
         this.exonTable = exonForTable;
+
         return exonInfo;
     }
 
     /**
      * finding transcripts for each exon O(n*m) when n is number of transcripts and m number of exons
-     * @param {*} start 
-     * @param {*} end 
-     * @param {*} transcripts 
+     * @param {int} start start coordinate of exon
+     * @param {int} end end coordinate of exon
+     * @param {Transripts rows from db} transcripts 
      */
     getTranscriptsForExon(start, end, transcripts) {
         var ans = ""
+
         for (var i = 0; i < transcripts.length; i++) {
-            if (this.ignorePredictions == true && transcripts[i].transcript_refseq_id!=undefined && transcripts[i].transcript_refseq_id.substring(0, 2) == "XM") {
+            //if predicted not hown then skip
+            if (this.ignorePredictions == true && transcripts[i].transcript_refseq_id != undefined && transcripts[i].transcript_refseq_id.substring(0, 2) == "XM") {
                 continue;
             }
+            //iterate through transcripts to look if exon is present
             for (var j = 0; j < transcripts[i].transcriptExons.length; j++) {
                 if (transcripts[i].transcriptExons[j].genomic_start_tx == start && transcripts[i].transcriptExons[j].genomic_end_tx == end) {
-                    var name=transcripts[i].transcript_refseq_id;
-                    if(name==undefined){
-                        name=transcripts[i].transcript_ensembl_id;
+                    //finding ID (refseq and if not exists then ensembl)
+                    var name = transcripts[i].transcript_refseq_id;
+                    if (name == undefined) {
+                        name = transcripts[i].transcript_ensembl_id;
                     }
-                    if (ans == "") {
+
+                    //append transcript ID to list
+                    if (ans == "") { //start new list
                         ans = name;
                     } else {
-                        ans = ans + ", " + name;
+                        ans = ans + ", " + name; //add to existing list with comma
                     }
                 }
             }
@@ -163,84 +185,75 @@ class Gene {
         return ans;
     }
 
-    //calculating ensemble gene link
+    //calculating ensemble gene link for this gene
     getEnsemblGeneLink() {
         return "https://www.ensembl.org/" + Species.ensembleSpecieName(this.specie) + "/Gene/Summary?db=core;g=" + this.gene_ensembl_id;
     }
 
-    getSpecieName() {
-        if (this.specie == "M_musculus") {
-            return "(Mouse, mm10)"
-        }
-        if (this.specie == "H_sapiens") {
-            return "(Human, hg38)"
-        }
-        if (this.specie == "R_norvegicus") {
-            return "(Rat, rn6)"
-        }
-        if (this.specie == "D_rerio") {
-            return "(Zebrafish, danRer11)"
-        }
-        if (this.specie == "X_tropicalis") {
-            return "(Frog, xenTro9)"
-        }
-        return undefined;
-    }
 
-    //note that it is also depends on start  and end(zoom in chosen)
+    /**
+     * note that it is also depends on start and end(zoom in chosen)
+     * @param {geneExons rows from db} geneExons 
+     */
     checkForLongIntronsToCut(geneExons) {
+        //if not exons then we have one big intron so it we have nothing to show (should not happen)
+        if (geneExons.length < 1) {
+            return;
+        }
+
+        //sort by start coordinate
         var exons = geneExons.sort((a, b) => {
             a.genomic_start_tx - b.genomic_start_tx
         });
 
-        this.cutOffStart=-1;
-        this.cutOffLength=-1;
-        if(exons.length<1){
-            return;
-        }
+        //init as NO cut
+        this.cutOffStart = -1;
+        this.cutOffLength = -1;
 
-        //find prev 
+
+        //find prev - earliet coordinate where there is an exon seen by zoom
         var prev = -1;
         for (var i = 0; i < exons.length; i++) {
             //if not seen after zoom you can skip it
-            if(exons[i].genomic_start_tx>this.end || exons[i].genomic_end_tx<this.start){
+            if (exons[i].genomic_start_tx > this.end || exons[i].genomic_end_tx < this.start) {
                 continue;
             }
             //if got here it is the first
-            prev=exons[i].genomic_end_tx;
+            prev = exons[i].genomic_end_tx;
             break;
         }
 
         //no exons found in need for introns to cut.
-        if(prev==-1){
+        if (prev == -1) {
             return;
         }
 
-
-        var start=-1;
-        var length=-1;
+        //find a long gap - iterating through exons. the gap threshold is 1,000,000 nuc
+        var start = -1;
+        var length = -1;
         for (var i = 0; i < exons.length; i++) {
 
             //if not seen after zoom you can skip it
-            if(exons[i].genomic_start_tx>this.end || exons[i].genomic_end_tx<this.start){
+            if (exons[i].genomic_start_tx > this.end || exons[i].genomic_end_tx < this.start) {
                 continue;
             }
-            
+
             //if there is a big intron
-            if(exons[i].genomic_start_tx>prev+1000000){  //milion nuclotides difference
-                start=prev
-                length=exons[i].genomic_start_tx-prev;
+            if (exons[i].genomic_start_tx > prev + 1000000) { //milion nuclotides difference
+                start = prev
+                length = exons[i].genomic_start_tx - prev;
                 break;
             }
-            prev=Math.max(prev,exons[i].genomic_end_tx);
+            prev = Math.max(prev, exons[i].genomic_end_tx);
         }
 
-        if(start!= -1 && length!= -1){
-            if(start<this.start || start+length >this.end){
+        //save as attributes the gap  (start and length)
+        if (start != -1 && length != -1) {
+            if (start < this.start || start + length > this.end) {
                 window.alert("error normalizing big introns.");
             }
-            this.cutOffStart=start;
-            this.cutOffLength=length;
+            this.cutOffStart = start;
+            this.cutOffLength = length;
         }
     }
 
