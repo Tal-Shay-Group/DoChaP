@@ -45,6 +45,10 @@ app.get('/sendMail/:name/:mail/:msg', (req, res) => {
       text: "reply to:\n"+req.params.mail +"\nmessage: \n"+req.params.msg
     };
     transporter.sendMail(mailOptions, function(error, info){});
+    fs.writeFile("messages.txt", req.params.name+","+req.params.mail+","+req.params.msg+ "\r\n", {
+        flag: 'a'
+    }, function (err) {
+    });
     res.status(200).send();
 });
 
