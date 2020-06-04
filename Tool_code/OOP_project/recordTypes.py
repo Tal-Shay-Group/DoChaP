@@ -155,8 +155,9 @@ class Transcript:
 class Domain:
 
     def __init__(self, ext_id, start=None, end=None, cddId=None, name=None, note=None):
-        self.suppTypes = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
-                          'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'ipr': 'interpro'}
+        self.suppPref = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
+                          'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
+                          'ipr': 'IPR', 'interpro': 'IPR'}
         self.aaStart = start
         self.aaEnd = end
         if self.aaStart is not None:
@@ -168,9 +169,11 @@ class Domain:
         self.cdd = cddId
         if ext_id is not None:
             prefix = re.sub(r"\d+$", "", ext_id.lower())
-            if prefix in self.suppTypes.keys():
-                self.extType = self.suppTypes[prefix]
-                self.extID = ext_id.lower().replace(prefix, self.suppTypes[prefix])
+            if prefix in self.suppPref.keys():
+                self.extID = ext_id.lower().replace(prefix, self.suppPref[prefix])
+                suppTypes = {"cd": "cdd", "cl":"cdd", "IPR": "interpro", "tigr": "tigrfams",
+                             "pfam":"pfam", "smart":"smart"}
+                self.extType = suppTypes[self.suppPref[prefix]]
             else:
                 raise ValueError('Unknown external ID prefix: ' + ext_id)
         elif ext_id is None and self.cdd is None:

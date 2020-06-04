@@ -2,6 +2,7 @@ import re
 from sqlite3 import connect
 from Director import Director
 from InterproCollector import InterProBuilder
+import pandas as pd
 
 
 class DomainOrganizer:
@@ -37,76 +38,61 @@ class DomainOrganizer:
         oname = None
         cdname = None
         currReg = None
-        existExt = [None] * 6
-        external = ['cd', 'cl', 'pfam', 'smart', 'tigr', 'interpro']
+        existExt = [None] * 5
+        external = ['cdd', 'pfam', 'smart', 'tigr', 'interpro']
         if domain.extID is None:
             return None
         elif domain.extType not in external:
             return None
-        identify = self.Interpro.AllDomains.loc[self.Interpro.AllDomains[domain.extType] == domain.extID]
-        if domain.extID is not None and domain.extID not in self.allExt and identify.index not in self.allExt:
-            if domain.name not in self.allNames:
-                if domain.cdd is None or domain.cdd not in self.allCDD:
-                    self.internalID += 1
-                    cdname = domain.name
-                    oname = domain.name
-                    currReg = self.internalID
-                    ndesc = domain.note
-                    ncdd = domain.cdd
-                elif domain.cdd is not None and domain.cdd in self.allCDD:
-                    existExt = list(self.allDomains[self.allCDD[domain.cdd]][4:])
-                    currReg = self.allCDD[domain.cdd]
-                    ndesc = self.noteAdd(domain, currReg)
-                    cdname, oname = self.mainNameOtherName(domain, currReg)
-                    ncdd = str(self.allDomains[currReg][3])
-            elif domain.name in self.allNames:
-                existExt = list(self.allDomains[self.allNames[domain.name]][4:])
-                currReg = self.allNames[domain.name]
-                ncdd = self.cddAdd(domain, currReg)
+        identify = self.Interpro.AllDomains.loc[
+            self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
+        ind = identify.index.values[0] if len(identify) != 0 else None
+        if domain.extID in self.allExt or ind in self.allExt:
+            currReg = self.allExt.get(domain.extID if domain.extID is not None else ind, self.allExt.get(ind))
+            ncdd = self.cddAdd(domain, currReg)
+            ndesc = self.noteAdd(domain, currReg)
+            existExt = self.allDomains[currReg][4:]
+            cdname, oname = self.mainNameOtherName(domain, currReg)
+        else:
+            if domain.cdd is not None and domain.cdd in self.allCDD:
+                existExt = list(self.allDomains[self.allCDD[domain.cdd]][4:])
+                currReg = self.allCDD[domain.cdd]
                 ndesc = self.noteAdd(domain, currReg)
                 cdname, oname = self.mainNameOtherName(domain, currReg)
-        elif domain.extID in self.allExt and domain.extID is not None or identify.index in self.allExt:
-            currReg = self.allExt.get(domain.extID, self.allExt[identify.index])
-            if domain.name.lower() == self.allDomains[currReg][0].lower() or \
-                    domain.name.lower() in self.allDomains[currReg][1].lower():
-                ncdd = self.cddAdd(domain, currReg)
-                ndesc = self.noteAdd(domain, currReg)
-                existExt = self.allDomains[currReg][4:]
-                cdname, oname = self.mainNameOtherName(domain, currReg)
-            elif re.sub(r'[_ ]\d+$', '', domain.name) == re.sub(r'[_ ]\d+$', '', self.allDomains[currReg][0]):
-                ncdd = self.cddAdd(domain, currReg)
-                ndesc = self.noteAdd(domain, currReg)
-                cdname = re.sub(r'[_ ]\d+$', '', self.allDomains[currReg][0])
-                oname = self.allDomains[currReg][1]
-                if domain.name.lower() not in self.allDomains[currReg][0].lower() and \
-                        domain.name.lower() not in self.allDomains[currReg][1].lower():
-                    oname = oname + '; ' + domain.name
-                existExt = self.allDomains[currReg][4:]
+                ncdd = str(self.allDomains[currReg][3])
             else:
-                ncdd = self.cddAdd(domain, currReg)
-                ndesc = self.noteAdd(domain, currReg)
-                existExt = self.allDomains[currReg][4:]
-                cdname, oname = self.mainNameOtherName(domain, currReg)
-        else:
-            raise ValueError(
-                'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
-        # try:
-        if identify.index not in self.allExt and len(identify) != 0:
-            existExt = [None] * 6
-            existExt = [identify["cdd"][0], existExt[1], identify["pfam"][0], identify["smart"][0],
-                        identify['tigrfams'][0], identify.index]
+                self.internalID += 1
+                cdname = domain.name
+                oname = domain.name
+                currReg = self.internalID
+                ndesc = domain.note
+                ncdd = domain.cdd
+        # else:
+        #     raise ValueError(
+        #         'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
+        if ind is not None and ind not in self.allExt:
+            Alltypes = ["cdd", "pfam", "smart", "tigrfams", "interpro"]
+            indExt = [identify["cdd"][0], identify["pfam"][0], identify["smart"][0],identify['tigrfams'][0], ind]
+            indExt = [None if pd.isna(i) else i for i in indExt]
+            existExt = tuple(map(self.addToExtID, list(existExt), indExt))
+            self.allExt[ind] = currReg
         pos = external.index(domain.extType)
-        if existExt[pos] is None:
-            tempexist = list(existExt).copy()
-            tempexist[pos] = domain.extID
-            existExt = tuple(tempexist)
-        elif domain.extID == existExt[pos]:
-            pass
-        elif existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)):
-            tempexist = list(existExt).copy()
-            tempexist[pos] = existExt[pos] + '; ' + domain.extID
-            existExt = tuple(tempexist)
-        else:
+        tempexist = list(existExt).copy()
+        tempexist[pos] = self.addToExtID(domain.extID, tempexist[pos])
+        existExt = tuple(tempexist)
+        # if existExt[pos] is None:
+        #     tempexist = list(existExt).copy()
+        #     tempexist[pos] = domain.extID
+        #     existExt = tuple(tempexist)
+        # elif domain.extID in existExt[pos].split("; "):
+        #     pass
+        # elif existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)) or \
+        #         (domain.extID[0:2] == "cl" and pos == 0):
+        #     tempexist = list(existExt).copy()
+        #     tempexist[pos] = existExt[pos] + '; ' + domain.extID
+        #     existExt = tuple(tempexist)
+        if not (existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)) or \
+                (domain.extID[0:2] == "cl" and pos == 0)):
             raise ValueError('External id type not in correct location!')
         self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
         self.allExt[domain.extID] = currReg
@@ -119,16 +105,28 @@ class DomainOrganizer:
         oname = self.allDomains[currReg][1]
         if domain.extType == 'interpro':
             cdname = domain.name
-        elif domain.name.lower() not in self.allDomains[currReg][0].lower() and \
-                domain.name.lower() not in self.allDomains[currReg][1].lower():
-            oname = self.allDomains[currReg][1] + '; ' + domain.name
+        elif domain.name is not None:
+            if self.allDomains[currReg][0] and self.allDomains[currReg][1] is not None:
+                if domain.name.lower() not in self.allDomains[currReg][0].lower() and \
+                        domain.name.lower() not in self.allDomains[currReg][1].lower():
+                    oname = self.allDomains[currReg][1] + '; ' + domain.name
+                else:
+                    oname = self.allDomains[currReg][1]
+            else:
+                oname = domain.name
         return cdname, oname
 
     def noteAdd(self, domain, currReg):
-        if domain.note is not None and \
-                domain.note.lower() not in self.allDomains[currReg][2].lower() and \
-                self.allDomains[currReg][2].lower() not in domain.note.lower():
-            return self.allDomains[currReg][2] + '; ' + domain.note
+        if domain.note is not None:
+            if self.allDomains[currReg][2] is None:
+                return domain.note
+            elif domain.note.lower() not in self.allDomains[currReg][2].lower() and \
+                    self.allDomains[currReg][2] is not None:
+                return self.allDomains[currReg][2] + '; ' + domain.note
+            elif self.allDomains[currReg][2].lower() in domain.note.lower():
+                return domain.note
+            else:
+                return self.allDomains[currReg][2]
         else:
             return self.allDomains[currReg][2]
 
@@ -138,3 +136,11 @@ class DomainOrganizer:
             return str(self.allDomains[currReg][3]) + '; ' + domain.cdd
         else:
             return str(self.allDomains[currReg][3])
+
+    def addToExtID(self, extID, currentExt):
+        if currentExt is None:
+            return extID
+        elif extID is None:
+            return currentExt
+        else:
+            return "; ".join(list(set(currentExt.split("; ") + extID.split("; "))))

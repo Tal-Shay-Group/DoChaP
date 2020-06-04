@@ -9,8 +9,8 @@ from SpeciesDB import *
 
 if __name__ == "__main__":
     download = False
-    withEns = False
-    species = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    withEns = True
+    species = ['M_musculus']#, 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
 
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
 

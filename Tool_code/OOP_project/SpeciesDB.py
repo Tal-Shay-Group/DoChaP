@@ -15,8 +15,8 @@ class dbBuilder:
         self.species = species
         self.dbName = None
         self.data = Collector(self.species)
-        self.data.collectAll(completeMissings=True, download=download, withEns=withEns)
-        self.TrnascriptNoProteinRec = {}
+        self.data.collectAll(download=download, withEns=withEns)
+        self.TranscriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
         self.DomainOrg = DomainOrganizer()
 
@@ -199,6 +199,9 @@ class dbBuilder:
             cur.execute(
                 '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
             cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
+            cur.execute('''CREATE INDEX domainEventsTableIndexByEnsembl ON DomainEvent(protein_ensembl_id);''')
+            cur.execute(
+                '''CREATE INDEX exonInTranscriptsTableIndexByEnsembl ON Transcript_Exon(transcript_ensembl_id);''')
 
     def fill_in_db(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
         """
@@ -223,14 +226,17 @@ class dbBuilder:
             prot = set()
             relevantDomains = set()
 
-            for transcript in self.data.Transcripts.values():
+            for tID, transcript in self.data.Transcripts.items():
+                ensemblkey = False
+                if tID.startswith("ENS"):
+                    ensemblkey = True
                 GeneID = str(transcript.gene_GeneID)
                 ensGene = transcript.gene_ensembl
                 protein_refseq = transcript.protein_refseq
                 prot_ens = transcript.protein_ensembl
-                if transcript.refseq not in self.data.Genes.keys():
-                    self.TrnascriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
-                    continue
+                # if transcript.refseq not in self.data.Proteins.keys() and transcript.ensembl not in self.data.Proteins.keys():
+                #     self.TranscriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
+                #     continue
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
                 if transcript.CDS is None:
@@ -245,7 +251,10 @@ class dbBuilder:
 
                 # insert into Genes table (unique GeneID as primary key)
                 if GeneID is not geneSet and ensGene not in geneSet:
-                    syno = [self.data.Genes[transcript.refseq].synonyms if transcript.refseq is not None else None][0]
+                    if ensemblkey:
+                        syno = [self.data.Genes[ensGene].synonyms if ensGene is not None else None][0]
+                    else:
+                        syno = [self.data.Genes[GeneID].synonyms if GeneID is not None else None][0]
                     values = (GeneID, ensGene, transcript.geneSymb,
                               syno, transcript.chrom, transcript.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
@@ -260,9 +269,6 @@ class dbBuilder:
                 ex_num = 0
                 starts = transcript.exon_starts.copy()
                 ends = transcript.exon_ends.copy()
-                #if transcript.strand == '-':
-                #    starts = starts[::-1]
-                #    ends = ends[::-1]
                 for iEx in range(e_counts):
                     ex_num += 1
                     values = (transcript.refseq, transcript.ensembl, ex_num, starts[iEx], ends[iEx],
@@ -281,51 +287,55 @@ class dbBuilder:
                                     VALUES (?, ?, ?, ?)''', values)
 
                 # insert into Proteins table
-                protID = [protein_refseq if protein_refseq is not None or '-' else None][0]
+                if ensemblkey:
+                    protID = prot_ens
+                else:
+                    protID = protein_refseq
                 protein = self.data.Proteins[protID]
-                values = (protein.refseq, prot_ens, protein.description, protein.length,
+                values = (protein.refseq, protein.ensembl, protein.description, protein.length,
                           protein.synonyms, transcript.refseq, transcript.ensembl,)
                 cur.execute(''' INSERT INTO Proteins
                                 (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
                                 VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
-                if protID in self.data.Domains.keys():
-                    splicin = set()
-                    for reg in self.data.Domains[protID]:
-                        regID = self.DomainOrg.addDomain(reg)
-                        if regID is None:
-                            #print(regID)
-                            continue
-                        relevantDomains.add(regID)
-                        relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
-                        total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!
-                        splice_junction = 0
-                        complete = 0
-                        if relation == 'splice_junction':
-                            splice_junction = 1
-                            for i in range(len(exon_list)):
-                                values = (transcript.refseq, transcript.ensembl,
-                                          exon_list[i], reg.nucStart, regID,
-                                          total_length, length[i], i + 1,)
-                                if values not in splicin:
-                                    cur.execute(''' INSERT INTO SpliceInDomains
-                                        (transcript_refseq_id, transcript_ensembl_id,\
-                                         exon_order_in_transcript, domain_nuc_start, type_id,\
-                                         total_length, included_len, exon_num_in_domain)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                                    splicin.add(values)
-                        elif relation == 'complete_exon':
-                            complete = 1
-                        # insert into domain event table
-                        values = (protein_refseq, prot_ens, regID,
-                                  reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
-                                  reg.extID, splice_junction, complete,)
-                        if values not in domeve:
-                            cur.execute(''' INSERT INTO DomainEvent
-                                        (protein_refseq_id, protein_ensembl_id, type_id,\
-                                        AA_start, AA_end, nuc_start, nuc_end, total_length,\
-                                        ext_id, splice_junction, complete_exon)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                            domeve.add(values)
+                splicin = set()
+                for reg in self.data.Domains.get(protID, [None]):
+                    if reg is None:
+                        continue
+                    regID = self.DomainOrg.addDomain(reg)
+                    if regID is None:
+                        # print(regID)
+                        continue
+                    relevantDomains.add(regID)
+                    relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
+                    total_length = reg.nucEnd - reg.nucStart + 1  # adding one because coordinates are full-closed!
+                    splice_junction = 0
+                    complete = 0
+                    if relation == 'splice_junction':
+                        splice_junction = 1
+                        for i in range(len(exon_list)):
+                            values = (transcript.refseq, transcript.ensembl,
+                                      exon_list[i], reg.nucStart, regID,
+                                      total_length, length[i], i + 1,)
+                            if values not in splicin:
+                                cur.execute(''' INSERT INTO SpliceInDomains
+                                    (transcript_refseq_id, transcript_ensembl_id,\
+                                     exon_order_in_transcript, domain_nuc_start, type_id,\
+                                     total_length, included_len, exon_num_in_domain)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                                splicin.add(values)
+                    elif relation == 'complete_exon':
+                        complete = 1
+                    # insert into domain event table
+                    values = (protein.refseq, protein.ensembl, regID,
+                              reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
+                              reg.extID, splice_junction, complete,)
+                    if values not in domeve:
+                        cur.execute(''' INSERT INTO DomainEvent
+                                    (protein_refseq_id, protein_ensembl_id, type_id,\
+                                    AA_start, AA_end, nuc_start, nuc_end, total_length,\
+                                    ext_id, splice_junction, complete_exon)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                        domeve.add(values)
 
             if merged:
                 relevantDomains = set(self.DomainOrg.allDomains.keys())
@@ -358,8 +368,8 @@ class dbBuilder:
         con.commit()
 
     def AddOrthology(self, orthologsDict):
-        MainOrtho = pd.DataFrame(columns = ['A_ensembl_id', 'A_GeneSymb', 'A_Species',
-                                            'B_ensembl_id', 'B_GeneSymb', 'B_Species'])
+        MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_Species',
+                                          'B_ensembl_id', 'B_GeneSymb', 'B_Species'])
         db_data = dict()
         species = [spec for x in orthologsDict.keys() for spec in x]
         with connect(self.dbName + '.sqlite') as con:

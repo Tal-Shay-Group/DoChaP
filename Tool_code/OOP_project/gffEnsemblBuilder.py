@@ -63,16 +63,19 @@ class EnsemblBuilder(SourceBuilder):
                 aaRem = 1
                 ll = int(max(self.Transcripts[trans].exons2abs()[1]) / 3 - aaRem)
                 self.Proteins[protein] = Protein(ensembl=protein, descr=None, length=ll)
+                self.Transcripts[trans].protein_ensembl = protein
+                if '.' not in protein:
+                    raise ValueError("protein {} has no version".format(protein))
             else:
                 countNotFoundTranscripts += 1
                 # print(trans)
                 continue
-        print("{} transcripts (with proteih products) were not found in gff3 file".format(str(countNotFoundTranscripts)))
+        print("\t{} transcripts (with protein products) were not found in gff3 file".format(str(countNotFoundTranscripts)))
 
     def parse_gff3(self):
         print("-------- Ensembl data Parsing --------")
-        print("Parsing gff3 file...")
-        print("creating temporary database from file: " + self.gff)
+        print("\tParsing gff3 file...")
+        print("\tcreating temporary database from file: " + self.gff)
         fn = gffutils.example_filename(self.gff)
         #db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
@@ -81,13 +84,13 @@ class EnsemblBuilder(SourceBuilder):
         self.collect_Transcripts(db)
 
     def collect_genes(self, db):
-        print("Collecting genes data from gff3 file...")
+        print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
             newG = Gene(ensembl=g["gene_id"][0], symbol=g["Name"][0], chromosome=g.chrom, strand=g.strand)
             self.Genes[newG.ensembl] = newG
 
     def collect_Transcripts(self, db):
-        print("Collecting Transcripts data from gff3 file...")
+        print("\tCollecting Transcripts data from gff3 file...")
         self.Transcripts = {}
         curretGenes = self.Genes.copy()
         self.Genes = {}
@@ -101,7 +104,7 @@ class EnsemblBuilder(SourceBuilder):
             newT.geneSymb = t["Name"][0].split("-")[0]
             self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
-        print("Collecting CDS data from gff file...")
+        print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
             par = [info if info.startswith("transcript:") else ":0" for info in cds["Parent"]][0]
             ref = par.split(":")[1] + "." + db[par]["version"][0]
@@ -116,7 +119,7 @@ class EnsemblBuilder(SourceBuilder):
                 cds_start = cds.start - 1  # gff format is 1 based start, the manipulations are for 0 based start
                 cds_end = cds.end
             self.Transcripts[ref].CDS = (cds_start, cds_end,)
-        print("Collecting Exons data from gff file...")
+        print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
             par = [info if info.startswith("transcript:") else ":0" for info in e["Parent"]][0]
             ref = par.split(":")[1] + "." + db[par]["version"][0]
@@ -134,7 +137,7 @@ class EnsemblBuilder(SourceBuilder):
             #    t.exon_ends = t.exon_ends[::-1]
 
     def parse_domains(self):
-        print("Collecting domains from ensembl domains talbes:")
+        print("\tCollecting domains from ensembl domains talbes:")
         for extDB in self.DomainsBuilder.ExtSources:
             print("\t - {}".format(extDB))
             df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
