@@ -74,10 +74,12 @@ class DomainOrganizer:
             Alltypes = ["cdd", "pfam", "smart", "tigrfams", "interpro"]
             indExt = [identify["cdd"][0], identify["pfam"][0], identify["smart"][0],identify['tigrfams'][0], ind]
             indExt = [None if pd.isna(i) else i for i in indExt]
-            existExt = map(self.addToExtID, existExt, indExt)
+            existExt = tuple(map(self.addToExtID, list(existExt), indExt))
             self.allExt[ind] = currReg
         pos = external.index(domain.extType)
-        existExt[pos] = self.addToExtID(domain.extID, existExt[pos])
+        tempexist = list(existExt).copy()
+        tempexist[pos] = self.addToExtID(domain.extID, tempexist[pos])
+        existExt = tuple(tempexist)
         # if existExt[pos] is None:
         #     tempexist = list(existExt).copy()
         #     tempexist[pos] = domain.extID
