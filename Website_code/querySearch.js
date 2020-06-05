@@ -86,26 +86,25 @@ function writeToLog(finalAns) {
 // searches for exact gene name. if not found searches for synonyms. returns the record found
 function findGenes(geneName) {
     var ans = undefined;
-
     //search by gene_id/gene_symbol/ensembl_id
-    ans = sql("SELECT gene_GeneID_id , specie FROM Genes WHERE (UPPER(gene_symbol) = ? or gene_GeneID_id = ? or gene_ensembl_id =?)", [geneName.toUpperCase(), geneName, geneName]);
+    ans = sql("SELECT gene_GeneID_id , specie FROM Genes WHERE (UPPER(gene_symbol) = ? or UPPER(gene_GeneID_id) = ? or UPPER(gene_ensembl_id) =?)", [geneName.toUpperCase(), geneName.toUpperCase(), geneName.toUpperCase()]);
     if (ans.length > 0) {
         return ans;
     }
 
     //search by refSeq transcript_id/protein_id
     ans = sql("SELECT Genes.gene_GeneID_id, specie " +
-        "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE transcript_refseq_id=? or transcript_ensembl_id=? or protein_refseq_id=? or protein_ensembl_id=?) as tmp1" +
-        ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ", [geneName, geneName, geneName, geneName]);
+        "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE UPPER(transcript_refseq_id)=? or UPPER(transcript_ensembl_id)=? or UPPER(protein_refseq_id)=? or UPPER(protein_ensembl_id)=?) as tmp1" +
+        ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ", [geneName.toUpperCase(), geneName.toUpperCase(), geneName.toUpperCase(), geneName.toUpperCase()]);
     if (ans.length > 0) {
         return ans;
     }
 
-    //search by refSeq with no version
+    //search by refSeq/Ensembl with no version
     var recordNonVersion = geneName.split(".")[0].toUpperCase();
     ans = sql("SELECT Genes.gene_GeneID_id, specie " +
-        "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE transcript_refseq_id=? or protein_refseq_id=?) as tmp1" +
-        ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ", [recordNonVersion, recordNonVersion]);
+        "FROM (SELECT gene_GeneID_id FROM Transcripts WHERE UPPER(transcript_refseq_id) LIKE ? or UPPER(protein_refseq_id)LIKE ? or UPPER(protein_ensembl_id)LIKE ? or UPPER(protein_ensembl_id)LIKE ?) as tmp1" +
+        ", Genes WHERE tmp1.gene_GeneID_id=Genes.gene_GeneID_id ", [recordNonVersion+ '%', recordNonVersion+ '%', recordNonVersion+ '%', recordNonVersion+ '%']);
     if (ans.length > 0) {
         return ans;
     }
