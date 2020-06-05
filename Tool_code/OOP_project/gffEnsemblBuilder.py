@@ -71,6 +71,11 @@ class EnsemblBuilder(SourceBuilder):
                 # print(trans)
                 continue
         print("\t{} transcripts (with protein products) were not found in gff3 file".format(str(countNotFoundTranscripts)))
+        # for t in self.Transcripts.values():
+        #     if t.CDS is None or t.tx is None or t.exon_starts is None or t.exon_ends is None:
+        #         print(t)
+        #     elif None in t.CDS or None in t.exon_starts or None in t.exon_ends or None in t.tx:
+        #         print(t)
 
     def parse_gff3(self):
         print("-------- Ensembl data Parsing --------")
