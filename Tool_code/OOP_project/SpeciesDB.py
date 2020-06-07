@@ -124,8 +124,7 @@ class dbBuilder:
                                 other_name TEXT,
                                 description TEXT,
                                 CDD_id TEXT,
-                                cd TEXT,
-                                cl TEXT,
+                                cdd TEXT,
                                 pfam TEXT,
                                 smart TEXT,
                                 tigr TEXT,
@@ -349,8 +348,7 @@ class dbBuilder:
                                     other_name TEXT,
                                     description TEXT,
                                     CDD_id TEXT,
-                                    cd TEXT,
-                                    cl TEXT,
+                                    cdd TEXT,
                                     pfam TEXT,
                                     smart TEXT,
                                     tigr TEXT,
@@ -362,9 +360,9 @@ class dbBuilder:
                 if typeID in self.DomainOrg.allDomains.keys():
                     values = (typeID,) + self.DomainOrg.allDomains[typeID]
                     cur.execute(''' INSERT INTO DomainType
-                                    (type_id, name, other_name, description, CDD_id, cd, cl,\
+                                    (type_id, name, other_name, description, CDD_id, cdd,\
                                     pfam, smart, tigr, interpro)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
         con.commit()
 
     def AddOrthology(self, orthologsDict):
