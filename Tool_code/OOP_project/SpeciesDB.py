@@ -223,7 +223,6 @@ class dbBuilder:
             geneSet = set()
             uExon = set()
             domeve = set()
-            prot = set()
             relevantDomains = set()
 
             for tID, transcript in self.data.Transcripts.items():
@@ -234,8 +233,7 @@ class dbBuilder:
                 # insert into Transcripts table
                 if transcript.CDS is None:
                     transcript.CDS = transcript.tx
-                values = (transcript.refseq, transcript.ensembl,) + \
-                         transcript.tx + transcript.CDS + \
+                values = (transcript.refseq, transcript.ensembl,) + transcript.tx + transcript.CDS + \
                          (e_counts, transcript.gene_GeneID, transcript.gene_ensembl,
                           transcript.protein_refseq, transcript.protein_ensembl,)
                 cur.execute('''INSERT INTO Transcripts
@@ -251,8 +249,8 @@ class dbBuilder:
                         # syno = gene.synonyms
                     else:
                         gene = self.data.Genes[transcript.gene_GeneID]
-                        #syno = [self.data.Genes[transcript.gene_GeneID].synonyms
-                         #       if transcript.gene_GeneID is not None else None][0]
+                        # syno = [self.data.Genes[transcript.gene_GeneID].synonyms
+                        #       if transcript.gene_GeneID is not None else None][0]
                     values = (gene.GeneID, gene.ensembl, gene.symbol,
                               gene.synonyms, gene.chromosome, gene.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
@@ -287,9 +285,9 @@ class dbBuilder:
 
                 # insert into Proteins table
                 if ensemblkey:
-                    protID = prot_ens
+                    protID = transcript.protein_ensembl
                 else:
-                    protID = protein_refseq
+                    protID = transcript.protein_refseq
                 protein = self.data.Proteins[protID]
                 values = (protein.refseq, protein.ensembl, protein.description, protein.length,
                           protein.synonyms, transcript.refseq, transcript.ensembl,)
