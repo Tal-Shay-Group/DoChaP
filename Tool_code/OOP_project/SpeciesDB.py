@@ -360,7 +360,7 @@ class dbBuilder:
                                     (type_id, name, other_name, description, CDD_id, cdd,\
                                     pfam, smart, tigr, interpro)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-            print("Filling in domain type table: %s seconds" % (time.time() - bp))
+            print("#### Filling in domain type table: %s seconds" % (time.time() - bp))
         con.commit()
 
     def AddOrthology(self, orthologsDict):
