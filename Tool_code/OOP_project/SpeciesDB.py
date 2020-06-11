@@ -230,13 +230,6 @@ class dbBuilder:
                 ensemblkey = False
                 if tID.startswith("ENS"):
                     ensemblkey = True
-                # GeneID = transcript.gene_GeneID
-                # ensGene = transcript.gene_ensembl
-                # protein_refseq = transcript.protein_refseq
-                # prot_ens = transcript.protein_ensembl
-                # if transcript.refseq not in self.data.Proteins.keys() and transcript.ensembl not in self.data.Proteins.keys():
-                #     self.TranscriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
-                #     continue
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
                 if transcript.CDS is None:
@@ -250,7 +243,7 @@ class dbBuilder:
                              cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) 
                             VALUES(?,?,?,?,?,?,?,?,?,?,?)''', values)
 
-                # insert into Genes table (unique GeneID as primary key)
+                # insert into Genes table
                 if transcript.gene_GeneID not in geneSet and \
                         transcript.gene_ensembl not in geneSet:
                     if ensemblkey:
@@ -269,7 +262,6 @@ class dbBuilder:
                     geneSet.add(gene.GeneID)
                     geneSet.add(gene.ensembl)
                     geneSet = geneSet - {None}
-
 
                 start_abs, stop_abs = transcript.exons2abs()
                 ex_num = 0
