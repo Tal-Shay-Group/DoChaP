@@ -44,7 +44,7 @@ class DomainOrganizer:
             self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
         ind = identify.index.values[0] if len(identify) != 0 else None
         if domain.extID in self.allExt or ind in self.allExt:
-            currReg = self.allExt[domain.extID if domain.extID is not None else ind]
+            currReg = self.allExt.get(domain.extID if domain.extID is not None else ind, self.allExt[ind])
             ncdd = self.cddAdd(domain, currReg)
             ndesc = self.noteAdd(domain, currReg)
             existExt = self.allDomains[currReg][4:]
