@@ -16,7 +16,7 @@ class DomainOrganizer:
         director = Director()
         self.Interpro = InterProBuilder()
         director.setBuilder(self.Interpro)
-        director.collectFromSource(download=False)
+        director.collectFromSource(download=download)
 
     def collectDatafromDB(self, dbname='DB_merged.sqlite'):
         con = connect(dbname)
@@ -33,13 +33,9 @@ class DomainOrganizer:
             self.allCDD[c_ud[4]] = c_ud[0]
 
     def addDomain(self, domain):
-        ncdd = None
-        ndesc = None
-        oname = None
-        cdname = None
         currReg = None
         existExt = [None] * 5
-        external = ['cdd', 'pfam', 'smart', 'tigr', 'interpro']
+        external = ['cdd', 'pfam', 'smart', 'tigrfams', 'interpro']
         if domain.extID is None:
             return None
         elif domain.extType not in external:
@@ -48,7 +44,7 @@ class DomainOrganizer:
             self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
         ind = identify.index.values[0] if len(identify) != 0 else None
         if domain.extID in self.allExt or ind in self.allExt:
-            currReg = self.allExt.get(domain.extID if domain.extID is not None else ind, self.allExt.get(ind))
+            currReg = self.allExt[domain.extID if domain.extID is not None else ind]
             ncdd = self.cddAdd(domain, currReg)
             ndesc = self.noteAdd(domain, currReg)
             existExt = self.allDomains[currReg][4:]
@@ -67,31 +63,15 @@ class DomainOrganizer:
                 currReg = self.internalID
                 ndesc = domain.note
                 ncdd = domain.cdd
-        # else:
-        #     raise ValueError(
-        #         'ERROR done: extID: ' + str(domain.extID) + '; Name: ' + str(domain.name) + '; CDD: ' + str(domain.cdd))
         if ind is not None and ind not in self.allExt:
-            Alltypes = ["cdd", "pfam", "smart", "tigrfams", "interpro"]
-            indExt = [identify["cdd"][0], identify["pfam"][0], identify["smart"][0],identify['tigrfams'][0], ind]
-            indExt = [None if pd.isna(i) else i for i in indExt]
+            indExt = [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0], ind]
             existExt = tuple(map(self.addToExtID, list(existExt), indExt))
             self.allExt[ind] = currReg
         pos = external.index(domain.extType)
         tempexist = list(existExt).copy()
         tempexist[pos] = self.addToExtID(domain.extID, tempexist[pos])
         existExt = tuple(tempexist)
-        # if existExt[pos] is None:
-        #     tempexist = list(existExt).copy()
-        #     tempexist[pos] = domain.extID
-        #     existExt = tuple(tempexist)
-        # elif domain.extID in existExt[pos].split("; "):
-        #     pass
-        # elif existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)) or \
-        #         (domain.extID[0:2] == "cl" and pos == 0):
-        #     tempexist = list(existExt).copy()
-        #     tempexist[pos] = existExt[pos] + '; ' + domain.extID
-        #     existExt = tuple(tempexist)
-        if not (existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)) or \
+        if not (existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)) or
                 (domain.extID[0:2] == "cl" and pos == 0)):
             raise ValueError('External id type not in correct location!')
         self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
@@ -131,11 +111,13 @@ class DomainOrganizer:
             return self.allDomains[currReg][2]
 
     def cddAdd(self, domain, currReg):
-        if domain.cdd is not None and domain.cdd not in str(self.allDomains[currReg][3]) and \
+        if self.allDomains[currReg][3] is None:
+            return domain.cdd
+        elif domain.cdd is not None and domain.cdd not in self.allDomains[currReg][3] and \
                 domain.cdd not in self.allCDD:
-            return str(self.allDomains[currReg][3]) + '; ' + domain.cdd
+            return self.allDomains[currReg][3] + '; ' + domain.cdd
         else:
-            return str(self.allDomains[currReg][3])
+            return self.allDomains[currReg][3]
 
     def addToExtID(self, extID, currentExt):
         if currentExt is None:

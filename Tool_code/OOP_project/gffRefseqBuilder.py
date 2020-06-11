@@ -146,10 +146,10 @@ class RefseqBuilder(SourceBuilder):
             self.Transcripts[ref].CDS = (cds_start, cds_end,)
         print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
+            ref = e["ID"][0].split("-")[1]
             if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" or \
                     transcript2region.get(ref, '') != e.chrom:
                 continue
-            ref = e["ID"][0].split("-")[1]
             orderInT = int(e["ID"][0].split("-")[2])
             l_orig = len(self.Transcripts[ref].exon_starts)
             self.Transcripts[ref].exon_starts = self.Transcripts[ref].exon_starts + [None] * (orderInT - l_orig)

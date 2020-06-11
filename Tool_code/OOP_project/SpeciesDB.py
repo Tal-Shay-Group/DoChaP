@@ -2,6 +2,7 @@ from sqlite3 import connect
 import pandas as pd
 import sys
 import os
+import time
 
 sys.path.append(os.getcwd())
 from Collector import Collector
@@ -229,10 +230,10 @@ class dbBuilder:
                 ensemblkey = False
                 if tID.startswith("ENS"):
                     ensemblkey = True
-                GeneID = str(transcript.gene_GeneID)
-                ensGene = transcript.gene_ensembl
-                protein_refseq = transcript.protein_refseq
-                prot_ens = transcript.protein_ensembl
+                # GeneID = transcript.gene_GeneID
+                # ensGene = transcript.gene_ensembl
+                # protein_refseq = transcript.protein_refseq
+                # prot_ens = transcript.protein_ensembl
                 # if transcript.refseq not in self.data.Proteins.keys() and transcript.ensembl not in self.data.Proteins.keys():
                 #     self.TranscriptNoProteinRec[(transcript.refseq, transcript.ensembl,)] = transcript
                 #     continue
@@ -242,34 +243,41 @@ class dbBuilder:
                     transcript.CDS = transcript.tx
                 values = (transcript.refseq, transcript.ensembl,) + \
                          transcript.tx + transcript.CDS + \
-                         (e_counts, GeneID, ensGene, protein_refseq, prot_ens,)
+                         (e_counts, transcript.gene_GeneID, transcript.gene_ensembl,
+                          transcript.protein_refseq, transcript.protein_ensembl,)
                 cur.execute('''INSERT INTO Transcripts
                             (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start,\
                              cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) 
                             VALUES(?,?,?,?,?,?,?,?,?,?,?)''', values)
 
                 # insert into Genes table (unique GeneID as primary key)
-                if GeneID is not geneSet and ensGene not in geneSet:
+                if transcript.gene_GeneID not in geneSet and \
+                        transcript.gene_ensembl not in geneSet:
                     if ensemblkey:
-                        syno = [self.data.Genes[ensGene].synonyms if ensGene is not None else None][0]
+                        gene = self.data.Genes[transcript.gene_ensembl]
+                        # syno = gene.synonyms
                     else:
-                        syno = [self.data.Genes[GeneID].synonyms if GeneID is not None else None][0]
-                    values = (GeneID, ensGene, transcript.geneSymb,
-                              syno, transcript.chrom, transcript.strand, self.species,)
+                        gene = self.data.Genes[transcript.gene_GeneID]
+                        #syno = [self.data.Genes[transcript.gene_GeneID].synonyms
+                         #       if transcript.gene_GeneID is not None else None][0]
+                    values = (gene.GeneID, gene.ensembl, gene.symbol,
+                              gene.synonyms, gene.chromosome, gene.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
                                 (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome,\
                                  strand, specie)
                                 VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
-                    geneSet.add(GeneID)
-                    geneSet.add(ensGene)
+                    geneSet.add(gene.GeneID)
+                    geneSet.add(gene.ensembl)
+                    geneSet = geneSet - {None}
 
-                # insert into Transcript_Exon table
+
                 start_abs, stop_abs = transcript.exons2abs()
                 ex_num = 0
                 starts = transcript.exon_starts.copy()
                 ends = transcript.exon_ends.copy()
                 for iEx in range(e_counts):
                     ex_num += 1
+                    # insert into Transcript_Exon table
                     values = (transcript.refseq, transcript.ensembl, ex_num, starts[iEx], ends[iEx],
                               start_abs[iEx], stop_abs[iEx],)
                     cur.execute(''' INSERT INTO Transcript_Exon
@@ -278,7 +286,7 @@ class dbBuilder:
                                 VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
 
                     # insert into Exons table
-                    values = (GeneID, ensGene, starts[iEx], ends[iEx],)
+                    values = (transcript.gene_GeneID, transcript.gene_ensembl, starts[iEx], ends[iEx],)
                     if values not in uExon:
                         uExon.add(values)
                         cur.execute('''INSERT INTO Exons
@@ -302,7 +310,6 @@ class dbBuilder:
                         continue
                     regID = self.DomainOrg.addDomain(reg)
                     if regID is None:
-                        # print(regID)
                         continue
                     relevantDomains.add(regID)
                     relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
@@ -335,7 +342,7 @@ class dbBuilder:
                                     ext_id, splice_junction, complete_exon)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
                         domeve.add(values)
-
+            bp = time.time()
             if merged:
                 relevantDomains = set(self.DomainOrg.allDomains.keys())
                 print('Recreating the table: DomainType and update domains')
@@ -363,6 +370,7 @@ class dbBuilder:
                                     (type_id, name, other_name, description, CDD_id, cdd,\
                                     pfam, smart, tigr, interpro)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+            print("Filling in domain type table: %s seconds" % (time.time() - bp))
         con.commit()
 
     def AddOrthology(self, orthologsDict):
