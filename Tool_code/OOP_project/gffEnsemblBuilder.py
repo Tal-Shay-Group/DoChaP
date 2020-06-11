@@ -91,6 +91,8 @@ class EnsemblBuilder(SourceBuilder):
     def collect_genes(self, db):
         print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
+            if not re.match(r"([\d]{1,2}|x|y|MT)", g.chrom, re.IGNORECASE):
+                continue
             newG = Gene(ensembl=g["gene_id"][0], symbol=g["Name"][0], chromosome=g.chrom, strand=g.strand)
             self.Genes[newG.ensembl] = newG
 
@@ -100,6 +102,8 @@ class EnsemblBuilder(SourceBuilder):
         curretGenes = self.Genes.copy()
         self.Genes = {}
         for t in db.features_of_type("mRNA"):
+            if not re.match(r"([\d]{1,2}|x|y|MT)", t.chrom, re.IGNORECASE):
+                continue
             newT = Transcript()
             newT.chrom = t.chrom
             newT.tx = (t.start - 1, t.end,)
@@ -111,6 +115,8 @@ class EnsemblBuilder(SourceBuilder):
             self.Transcripts[newT.ensembl] = newT
         print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
+            if not re.match(r"([\d]{1,2}|x|y|MT)", cds.chrom, re.IGNORECASE):
+                continue
             par = [info if info.startswith("transcript:") else ":0" for info in cds["Parent"]][0]
             ref = par.split(":")[1] + "." + db[par]["version"][0]
             if ref[0] == '0' or ref not in self.Transcripts.keys():
@@ -126,6 +132,8 @@ class EnsemblBuilder(SourceBuilder):
             self.Transcripts[ref].CDS = (cds_start, cds_end,)
         print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
+            if not re.match(r"([\d]{1,2}|x|y|MT)", e.chrom, re.IGNORECASE):
+                continue
             par = [info if info.startswith("transcript:") else ":0" for info in e["Parent"]][0]
             ref = par.split(":")[1] + "." + db[par]["version"][0]
             if ref not in self.Transcripts.keys():

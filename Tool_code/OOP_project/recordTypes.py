@@ -42,8 +42,7 @@ class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
                  GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None,
-                 exons_starts=[],
-                 exons_ends=[]):
+                 exons_starts=[],exons_ends=[]):
         self.refseq = refseq
         self.ensembl = ensembl
         self.chrom = chrom
