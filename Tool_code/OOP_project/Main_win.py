@@ -46,11 +46,11 @@ if __name__ == "__main__":
         if spnum == spl:
             dbBuild.create_index()
             dbBuild.AddOrthology(orthologs.AllSpeciesDF)
-
-        dbBuild.create_tables_db(merged=False)
-        bp = time.time()
-        dbBuild.fill_in_db(merged=False)
+        if sp in ['M_musculus', 'H_sapiens']:
+            dbBuild.create_tables_db(merged=False)
+            bp = time.time()
+            dbBuild.fill_in_db(merged=False)
+            print("Filling {} completed!".format(dbBuild.dbName))
+            print("#### Duration: " + timer(bp, time.time()))
         spnum += 1
-        print("Filling {} completed!".format(dbBuild.dbName))
-        print("#### Duration: " + timer(bp, time.time()))
     print("#### Full run duration: " + timer(start_time, time.time()))
