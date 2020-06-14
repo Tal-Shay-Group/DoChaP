@@ -90,19 +90,25 @@ class OrthologsBuilder(SourceBuilder):
                 'Human': 'H_sapiens', 'Rat': 'R_norvegicus', 'Mouse': 'M_musculus', 'Zebrafish': 'D_rerio',
                 'Tropical_clawed_frog': 'X_tropicalis'}
         self.AllSpeciesDF = {}
-        for i in range(len(self.species)):
-            for j in range(i, len(self.species)):
-                if self.species[i] != self.species[j]:
-                    tablename = self.downloadPath + "{}.{}.orthology.txt".format(self.species[i], self.species[j])
-                    df = pd.read_table(tablename, sep='\t')
-                    df.columns = df.columns.str.replace(' ', '_')
-                    df.columns = df.columns.str.replace('Gene_stable', self.species[i])
-                    df.columns = df.columns.str.replace('Gene', self.species[i])
-                    for k, v in conv.items():
-                        df.columns = df.columns.str.replace(k, v)
-                    df = df.drop(self.species[j] + "_type", axis=1)
-                    df = df[df.isna().sum(1) == 0]
-                    df[self.species[i] + '_name'] = df[self.species[i] + '_name'].str.upper()
-                    df[self.species[j] + '_name'] = df[self.species[j] + '_name'].str.upper()
-                    self.AllSpeciesDF[(self.species[i], self.species[j])] = df
+        alltables = os.listdir(self.downloadPath)
+        alltables = [table for table in alltables if table.endswith("orthology.txt")]
+        for tab in alltables:
+            s1 = tab.split(".")[0]
+            s2 = tab.split(".")[1]
+            # tablename = self.downloadPath + "{}.{}.orthology.txt".format(self.species[i], self.species[j])
+            tablepath = self.downloadPath + tab
+            df = pd.read_table(tablepath, sep='\t')
+            df.columns = df.columns.str.replace(' ', '_')
+            df.columns = df.columns.str.replace('Gene_stable', s1)
+            df.columns = df.columns.str.replace('Gene', s1)
+            for k, v in conv.items():
+                df.columns = df.columns.str.replace(k, v)
+            df = df.drop(s2 + "_type", axis=1)
+            df = df[df.isna().sum(1) == 0]
+            df[s1 + '_name'] = df[s1 + '_name'].str.upper()
+            df[s2 + '_name'] = df[s2 + '_name'].str.upper()
+            self.AllSpeciesDF[(s1, s2)] = df
+        # for i in range(len(self.species)):
+        #     for j in range(i, len(self.species)):
+                # if self.species[i] != self.species[j]:
 
