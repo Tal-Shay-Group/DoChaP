@@ -19,7 +19,7 @@ if __name__ == "__main__":
     start_time = time.time()
     download = False
     withEns = True
-    species = ['M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    species = ['H_sapiens', 'M_musculus', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
 
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
 

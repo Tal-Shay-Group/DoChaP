@@ -65,9 +65,14 @@ class Collector:
             ensP = self.idConv.findConversion(refP, protein=True)
             if refP is None or refP not in self.refseq.Proteins:
                 continue
-            if ensP in self.ensembl.Proteins.keys() and \
-                    abs(int(self.refseq.Proteins[refP].length) - int(self.ensembl.Proteins[
-                                                                         ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
+            ensPflag = ensP in self.ensembl.Proteins
+            ensTflag = ensT in self.ensembl.Transcripts
+            if not ensTflag and ensPflag:
+                ensT = self.ensembl.pro2trans[ensP]
+            elif ensTflag and not ensPflag:
+                ensP = self.ensembl.trans2pro[ensT]
+
+            if ensPflag and abs(int(self.refseq.Proteins[refP].length) - int(self.ensembl.Proteins[ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
                 self.mismatches_merged.append((ensP, refP,))
                 self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
                 refG = self.Transcripts[refT].gene_GeneID
@@ -90,7 +95,7 @@ class Collector:
                 self.Proteins[refP] = self.refseq.Proteins[refP]
                 self.Domains[refP] = self.refseq.Domains.get(refP, [])
                 writtenIDs.add(refT)
-                if ensP in self.ensembl.Proteins:  # ensembl records
+                if ensPflag:  # ensembl records
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                     ensG = self.Transcripts[ensT].gene_ensembl
                     if ensG not in genesIDs:
@@ -130,7 +135,7 @@ class Collector:
 
 if __name__ == '__main__':
     start_time = time.time()
-    species = "M_musculus"
+    species = "H_sapiens"
     col = Collector(species)
     col.collectAll()
     print("--- %s seconds ---" % (time.time() - start_time))

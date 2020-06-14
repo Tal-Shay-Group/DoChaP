@@ -7,6 +7,7 @@ import time
 sys.path.append(os.getcwd())
 from Collector import Collector
 from DomainOrganizer import DomainOrganizer
+# from DomainOrganizer import DomainOrganizerPD
 from recordTypes import Protein
 
 

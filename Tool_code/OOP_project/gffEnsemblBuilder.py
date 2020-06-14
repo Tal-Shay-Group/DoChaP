@@ -157,6 +157,16 @@ class EnsemblBuilder(SourceBuilder):
                                sep="\t", header=0)
             df.columns = df.columns.str.replace(" ", "_")
             df.columns = df.columns.str.lower().str.replace(extDB+"_", "")
+            if extDB == "interpro":
+                tdf = df.copy(deep=True)
+                tdf.index = tdf["transcript_stable_id_version"]
+                tdf = tdf["protein_stable_id_version"]
+                self.trans2pro = tdf.to_dict()
+                tdf = df.copy(deep=True)
+                tdf.index = tdf["protein_stable_id_version"]
+                tdf = tdf["transcript_stable_id_version"]
+                self.pro2trans = tdf.to_dict()
+                del tdf
             df = df.dropna()
             conv = {"pf":"pfam", "sm":"smart"}
             for i, row in df.iterrows():
@@ -172,5 +182,5 @@ class EnsemblBuilder(SourceBuilder):
                 else:
                     self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
                                                               [Domain(ext_id=id, start=int(row.start), end=int(row.end))]
-                self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
-                self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version
+                # self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
+                # self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version
