@@ -93,7 +93,8 @@ class EnsemblBuilder(SourceBuilder):
         for g in db.features_of_type("gene"):
             if not re.match(r"([\d]{1,2}|x|y|MT)", g.chrom, re.IGNORECASE):
                 continue
-            newG = Gene(ensembl=g["gene_id"][0], symbol=g["Name"][0], chromosome=g.chrom, strand=g.strand)
+            symb = g["Name"][0] if "Name" in list(g.attributes) else g["gene_id"][0]
+            newG = Gene(ensembl=g["gene_id"][0], symbol=symb, chromosome=g.chrom, strand=g.strand)
             self.Genes[newG.ensembl] = newG
 
     def collect_Transcripts(self, db):
@@ -110,7 +111,8 @@ class EnsemblBuilder(SourceBuilder):
             newT.strand = t.strand
             newT.ensembl = t["transcript_id"][0] + "." + t["version"][0]
             newT.gene_ensembl = t["Parent"][0].split(":")[1]
-            newT.geneSymb = t["Name"][0].split("-")[0]
+            newT.geneSymb = t["Name"][0].split("-")[0] if "Name" in list(t.attributes) else None
+
             self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
         print("\tCollecting CDS data from gff file...")

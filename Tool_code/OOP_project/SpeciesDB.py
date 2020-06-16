@@ -396,3 +396,15 @@ class dbBuilder:
         print("Filling in Orthology table...")
         MainOrtho.to_sql("Orthology", con, if_exists="append", index=False)
         print("Filling Orthology table complete!")
+
+    # def AddTableToMerged(self, db2add):
+    #     db_a = connect(self.dbName + '.sqlite')
+    #     db_b_name = db2add
+    #     a_c = db_a.cursor()
+    #     a_c.execute('''ATTACH ? AS db_b''', (db_b_name,))
+    #     a_c.execute('''INSERT INTO Exons SELECT * FROM db_b.Exons''')
+    #     a_c.execute('''INSERT INTO Transcripts SELECT * FROM db_b.Transcripts''')
+    #     a_c.execute('''INSERT INTO Transcript_Exon SELECT * FROM db_b.Transcript_Exon''')
+    #     a_c.execute('''INSERT INTO Genes SELECT * FROM db_b.Genes''')
+    #     a_c.execute('''INSERT INTO Proteins SELECT * FROM db_b.Proteins''')
+    #     db_a.commit()
