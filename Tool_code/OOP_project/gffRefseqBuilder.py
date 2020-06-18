@@ -80,15 +80,13 @@ class RefseqBuilder(SourceBuilder):
         self.ParseGffRefseq()
         for gpff_file in self.gpff:
             self.parseSingleGpff(gpff_file)
-        GffnoGpff = len(set(self.Transcripts.keys())) - len(set(self.Transcripts.keys()).intersection(set(self.trans2pro.keys())))
-        GpffnoGff = len(set(self.trans2pro.keys())) - len(set(self.Transcripts.keys()).intersection(set(self.trans2pro.keys())))
-        print("\t{} transcripts from gff file were not found in the gpff file".format(GffnoGpff))
-        print("\t{} transcripts from gpff file were not found in the gff file".format(GpffnoGff))
-        # for t in self.Transcripts.values():
-        #     if t.CDS is None or t.tx is None or t.exon_starts is None or t.exon_ends is None:
-        #         print(t)
-        #     elif None in t.CDS or None in t.exon_starts or None in t.exon_ends or None in t.tx:
-        #         print(t)
+        GffnoGpff = set(self.Transcripts.keys()).difference(set(self.trans2pro.keys()))
+        # GpffnoGff = len(set(self.trans2pro.keys())) - len(
+        #     set(self.Transcripts.keys()).intersection(set(self.trans2pro.keys())))
+        print("\t{} transcripts from gff file were not found in the gpff file".format(len(GffnoGpff)))
+        for k in GffnoGpff:
+            del self.Transcripts[k]
+        # print("\t{} transcripts from gpff file were not found in the gff file".format(GpffnoGff))
 
     def ParseGffRefseq(self):
         print("\tParsing gff3 file...")
@@ -96,7 +94,7 @@ class RefseqBuilder(SourceBuilder):
         fn = gffutils.example_filename(self.gff)
         db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Refseq.db")
+        # db = gffutils.FeatureDB("DB.Refseq_M.db")
         self.collectChromosomeRegions(db)
         self.collect_genes(db)
         curretGenes = self.Genes.copy()
@@ -123,7 +121,7 @@ class RefseqBuilder(SourceBuilder):
             transcript2region[newT.refseq] = t.chrom
         print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
-            if self.regionChr[cds.chrom] =="ALT_chr":
+            if self.regionChr[cds.chrom] == "ALT_chr":
                 continue
             elif self.regionChr[cds.chrom] == "MT":
                 GeneID = [info for info in cds["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
@@ -168,7 +166,8 @@ class RefseqBuilder(SourceBuilder):
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
             syno = syno[0].replace(",", "; ")
-            newG = Gene(GeneID=geneID, symbol=g["gene"][0], chromosome=self.regionChr[g.chrom], strand=g.strand, synonyms=syno)
+            newG = Gene(GeneID=geneID, symbol=g["gene"][0], chromosome=self.regionChr[g.chrom], strand=g.strand,
+                        synonyms=syno)
             self.Genes[newG.GeneID] = newG
 
     def collectChromosomeRegions(self, db):
@@ -177,17 +176,18 @@ class RefseqBuilder(SourceBuilder):
             if "Name" in r.attributes:
                 self.regionChr[r.chrom] = r["Name"][0]
         for feat in db.features_of_type("sequence_feature"):
-            if feat.attributes.get("Note", " ")[0].startswith("Anchor sequence. This sequence is derived from alt loci"):
+            if feat.attributes.get("Note", " ")[0].startswith(
+                    "Anchor sequence. This sequence is derived from alt loci"):
                 self.regionChr[feat.chrom] = "ALT_chr"
 
     def parseSingleGpff(self, gpff_file):
         print("\tCollecting Proteins and Domains data from gpff file...")
         for rec in SeqIO.parse(gpff_file, 'gb'):
             if rec.name[0:2] == 'NP' or rec.name[0:2] == 'XP':  # takes both proteins and predictions!
-                self.protein_info(rec)
-                self.regions_from_record(rec)
+                flag = self.protein_info(rec)
+                self.regions_from_record(rec, flag)
 
-    def regions_from_record(self, record):
+    def regions_from_record(self, record, exitflag=False):
         """
         This functions takes a record from a gpff file and parse it by finding all the features defined Regions
         and put them in a list of tuples where each tuple include the following information about the region:
@@ -198,6 +198,8 @@ class RefseqBuilder(SourceBuilder):
             5- id of the region based on the source (can start with pfam/smart/cl/cd etc...)
         The function returns a list of the regions in the record and a set of all the domains identified in this record.
         """
+        if exitflag:
+            return
         regions = [feature for feature in record.features if feature.type == 'Region']
         parsed = []
         for reg in regions:
@@ -236,7 +238,6 @@ class RefseqBuilder(SourceBuilder):
                     parsed.append(newDomain)
                 except ValueError:
                     self.ignoredDomains.update({'extId': ext_id, 'CDD': cdId})
-        #return tuple(parsed)
         self.Domains[record.id] = tuple(parsed)
 
     def protein_info(self, record):
@@ -260,18 +261,21 @@ class RefseqBuilder(SourceBuilder):
             note = None
         cds = [c for c in record.features if c.type == 'CDS'][0]
         transcript = cds.qualifiers['coded_by'][0].split(':')[0]
+        if transcript not in self.Transcripts:
+            return False
         if transcript.startswith("join("):
             transcript.strip("join(")
         xref = cds.qualifiers.get('db_xref', [])
         GeneID = [i.split(':')[-1] for i in xref if i.startswith('GeneID')][0]
-        protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, synonyms=note, transcript_refseq=transcript)
-        gene = Gene(GeneID=GeneID,
-                    ensembl=None, symbol=cds.qualifiers.get('gene', [None])[0],
-                    synonyms=cds.qualifiers.get('gene_synonym', [None])[0],
-                    chromosome=None, strand=None)
+        protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, synonyms=note,
+                          transcript_refseq=transcript)
+        # gene = Gene(GeneID=GeneID,
+        #             ensembl=None, symbol=cds.qualifiers.get('gene', [None])[0],
+        #             synonyms=cds.qualifiers.get('gene_synonym', [None])[0],
+        #             chromosome=None, strand=None)
         self.Proteins[protein.refseq] = protein
         self.pro2trans[protein.refseq] = transcript
         self.trans2pro[transcript] = protein.refseq
-        if transcript in self.Genes:
-            self.Genes[transcript] = self.Genes[transcript].mergeGenes(gene)
-        #return protein, gene, transcript
+        # if GeneID in self.Genes:
+        #     self.Genes[GeneID] = self.Genes[transcript].mergeGenes(gene)
+        return True

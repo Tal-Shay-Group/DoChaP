@@ -51,7 +51,7 @@ class EnsemblBuilder(SourceBuilder):
                            specifyPathFunc=FindFile)
         down.Download()
         # Download Domains
-        #self.DomainsBuilder.downloader()
+        # self.DomainsBuilder.downloader()
 
     def parser(self):
         self.parse_gff3()
@@ -67,10 +67,13 @@ class EnsemblBuilder(SourceBuilder):
                 if '.' not in protein:
                     raise ValueError("protein {} has no version".format(protein))
             else:
+                if protein in self.Domains:
+                    del self.Domains[protein]
                 countNotFoundTranscripts += 1
                 # print(trans)
                 continue
-        print("\t{} transcripts (with protein products) were not found in gff3 file".format(str(countNotFoundTranscripts)))
+        print("\t{} transcripts (with protein products) were not found in gff3 file".format(
+            str(countNotFoundTranscripts)))
         # for t in self.Transcripts.values():
         #     if t.CDS is None or t.tx is None or t.exon_starts is None or t.exon_ends is None:
         #         print(t)
@@ -84,7 +87,7 @@ class EnsemblBuilder(SourceBuilder):
         fn = gffutils.example_filename(self.gff)
         db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Ensembl.db")
+        # db = gffutils.FeatureDB("DB.Ensembl_M.db")
         self.collect_genes(db)
         self.collect_Transcripts(db)
 
@@ -147,9 +150,9 @@ class EnsemblBuilder(SourceBuilder):
             self.Transcripts[ref].exon_starts[orderInT - 1] = e.start - 1
             self.Transcripts[ref].exon_ends[orderInT - 1] = e.end
         # for t in self.Transcripts.values():
-            #if t.strand == "-":
-            #    t.exon_starts = t.exon_starts[::-1]
-            #    t.exon_ends = t.exon_ends[::-1]
+        # if t.strand == "-":
+        #    t.exon_starts = t.exon_starts[::-1]
+        #    t.exon_ends = t.exon_ends[::-1]
 
     def parse_domains(self):
         print("\tCollecting domains from ensembl domains talbes:")
@@ -158,7 +161,7 @@ class EnsemblBuilder(SourceBuilder):
             df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
                                sep="\t", header=0)
             df.columns = df.columns.str.replace(" ", "_")
-            df.columns = df.columns.str.lower().str.replace(extDB+"_", "")
+            df.columns = df.columns.str.lower().str.replace(extDB + "_", "")
             if extDB == "interpro":
                 tdf = df.copy(deep=True)
                 tdf.index = tdf["transcript_stable_id_version"]
@@ -170,10 +173,10 @@ class EnsemblBuilder(SourceBuilder):
                 self.pro2trans = tdf.to_dict()
                 del tdf
             df = df.dropna()
-            conv = {"pf":"pfam", "sm":"smart"}
+            conv = {"pf": "pfam", "sm": "smart"}
             for i, row in df.iterrows():
                 id = row.id.lower()
-                idtype= re.sub(r'\d+', '', id)
+                idtype = re.sub(r'\d+', '', id)
                 if idtype in conv.keys():
                     id = id.replace(idtype, conv[idtype])
                 if extDB == "interpro":
@@ -183,6 +186,7 @@ class EnsemblBuilder(SourceBuilder):
                                                                           note=row.description)]
                 else:
                     self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
-                                                              [Domain(ext_id=id, start=int(row.start), end=int(row.end))]
+                                                                  [Domain(ext_id=id, start=int(row.start),
+                                                                          end=int(row.end))]
                 # self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
                 # self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version

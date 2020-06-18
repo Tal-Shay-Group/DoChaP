@@ -2,6 +2,7 @@ import sys
 import os
 import copy
 import time
+import pandas as pd
 
 sys.path.append(os.getcwd())
 from Director import Director
@@ -19,9 +20,15 @@ class Collector:
         self.ensembl = EnsemblBuilder(self.species)
         self.idConv = ConverterBuilder(self.species)
         self.Transcripts = {}
+        # self.Transcripts = pd.DataFrame(columns=["transcript_refseq_id", "transcript_ensembl_id",
+        #                                          "tx_start", "tx_end", "cds_start", "cds_end", "exon_count", "gene_GeneID_id","gene_ensembl_id",
+        #                                          "protein_refseq_id", "protein_ensembl_id"])
         self.Genes = {}
+        # self.Genes = pd.DataFrame(columns=["gene_GeneID_id", "gene_ensembl_id", "gene_symbol", "synonyms", "chromosome", "strand", "specie"])
         self.Domains = {}
         self.Proteins = {}
+        # self.Proteins = pd.DataFrame(columns=["protein_refseq_id", "protein_ensembl_id", "description",
+        #                                       "synonyms", "length", "transcript_refseq_id", "transcript_ensembl_id"])
         self.mismatches_sep = []
         self.mismatches_merged = []
 
@@ -72,13 +79,13 @@ class Collector:
             elif ensTflag and not ensPflag:
                 ensP = self.ensembl.trans2pro[ensT]
 
-            if ensPflag and abs(int(self.refseq.Proteins[refP].length) - int(self.ensembl.Proteins[ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
+            if ensP in self.ensembl.Proteins and abs(int(self.refseq.Proteins[refP].length) - int(self.ensembl.Proteins[ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
                 self.mismatches_merged.append((ensP, refP,))
                 self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
                 refG = self.Transcripts[refT].gene_GeneID
                 ensG = self.Transcripts[refT].gene_ensembl
                 if refG not in genesIDs:
-                    self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes[ensG])
+                    self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, None))
                     genesIDs.add(refG)
                 self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
                 self.Domains[refP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
@@ -135,7 +142,7 @@ class Collector:
 
 if __name__ == '__main__':
     start_time = time.time()
-    species = "H_sapiens"
+    species = "X_tropicalis"
     col = Collector(species)
     col.collectAll()
     print("--- %s seconds ---" % (time.time() - start_time))
