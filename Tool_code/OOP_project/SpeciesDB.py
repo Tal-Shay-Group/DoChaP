@@ -246,7 +246,7 @@ class dbBuilder:
                 if transcript.gene_GeneID not in geneSet and \
                         transcript.gene_ensembl not in geneSet:
                     if ensemblkey:
-                        gene = self.data.Genes[transcript.gene_ensembl]
+                        gene = self.data.Genes.get(transcript.gene_ensembl, self.data.Genes[transcript.gene_GeneID])
                         # syno = gene.synonyms
                     else:
                         gene = self.data.Genes[transcript.gene_GeneID]
