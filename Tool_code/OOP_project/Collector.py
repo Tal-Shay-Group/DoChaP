@@ -93,18 +93,19 @@ class Collector:
                 # refseq records
                 self.Transcripts[refT] = self.refseq.Transcripts[refT]
                 refG = self.Transcripts[refT].gene_GeneID
-                if refG not in genesIDs:
-                    self.Genes[refG] = self.refseq.Genes[refG]
-                    genesIDs.add(refG)
+                ensG = self.Transcripts[refT].gene_ensembl
+                # if refG not in genesIDs:
+                #     self.Genes[refG] = self.refseq.Genes[refG]
+                #     genesIDs.add(refG)
                 self.Proteins[refP] = self.refseq.Proteins[refP]
                 self.Domains[refP] = self.refseq.Domains.get(refP, [])
                 writtenIDs.add(refT)
                 if ensPflag:  # ensembl records
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
+                    self.Transcripts[ensT].gene_GeneID = refG
                     ensG = self.Transcripts[ensT].gene_ensembl
                     self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                     self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
-
                     self.mismatches_sep.append((ensP, refP,))
                     writtenIDs.add(ensT)
             if refG not in genesIDs:
