@@ -85,9 +85,9 @@ class EnsemblBuilder(SourceBuilder):
         print("\tParsing gff3 file...")
         print("\tcreating temporary database from file: " + self.gff)
         fn = gffutils.example_filename(self.gff)
-        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
-        db = gffutils.FeatureDB("DB.Ensembl_M.db")
+        # db = gffutils.FeatureDB("DB.Ensembl.db")
         self.collect_genes(db)
         self.collect_Transcripts(db)
 
