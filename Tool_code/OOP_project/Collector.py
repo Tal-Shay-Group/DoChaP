@@ -84,9 +84,6 @@ class Collector:
                 self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
                 refG = self.Transcripts[refT].gene_GeneID
                 ensG = self.Transcripts[refT].gene_ensembl
-                if refG not in genesIDs:
-                    self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, None))
-                    genesIDs.add(refG)
                 self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
                 self.Domains[refP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
@@ -105,14 +102,16 @@ class Collector:
                 if ensPflag:  # ensembl records
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                     ensG = self.Transcripts[ensT].gene_ensembl
-                    if ensG not in genesIDs:
-                        self.Genes[ensG] = self.ensembl.Genes[ensG]
-                        genesIDs.add(ensG)
                     self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                     self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
 
                     self.mismatches_sep.append((ensP, refP,))
                     writtenIDs.add(ensT)
+            if refG not in genesIDs:
+                self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, None))
+                genesIDs.add(refG)
+                if ensG is not None:
+                    genesIDs.add(ensG)
 
         for ensT, record in self.ensembl.Transcripts.items():
             if ensT not in writtenIDs:

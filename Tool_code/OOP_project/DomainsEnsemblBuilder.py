@@ -79,7 +79,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
             conv = {"pf":"pfam", "sm":"smart"}
             for i, row in df.iterrows():
                 id = row.id.lower()
-                idtype= re.sub(r'\d+', '', id)
+                idtype = re.sub(r'\d+', '', id)
                 if idtype in conv.keys():
                     id = id.replace(idtype, conv[idtype])
                 break

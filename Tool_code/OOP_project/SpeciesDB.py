@@ -368,34 +368,42 @@ class dbBuilder:
         MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_Species',
                                           'B_ensembl_id', 'B_GeneSymb', 'B_Species'])
         db_data = dict()
-        species = [spec for x in orthologsDict.keys() for spec in x]
+        species = set([spec for x in orthologsDict.keys() for spec in x])
         with connect(self.dbName + '.sqlite') as con:
+            cur = con.cursor()
+            schema = cur.execute("PRAGMA table_info('Orthology')").fetchall()
             for spec in species:
                 db_data[spec] = pd.read_sql(
                     "SELECT gene_ensembl_id,gene_symbol,specie FROM Genes WHERE specie='{}'".format(spec),
                     con)
-        print("collecting orthology data for:")
-        for couple, ortho in orthologsDict.items():
-            print("\t{} and {}".format(couple[0], couple[1]))
-            merged_df = None
-            n = 0
-            for spec in couple:
-                db_data[spec]['gene_symbol'] = db_data[spec]['gene_symbol'].str.upper()
-                db_data[spec].columns = db_data[spec].columns.str.replace('gene_ensembl_id', spec + "_ID")
-                if n == 0:
-                    merged_df = pd.merge(db_data[spec], ortho)
-                else:
-                    merged_df = pd.merge(db_data[spec], merged_df)
-                label = 'A' if n == 0 else 'B'
-                merged_df.columns = merged_df.columns.str.replace("specie", label + "_Species")
-                merged_df.columns = merged_df.columns.str.replace("gene_symbol", label + "_GeneSymb")
-                merged_df.columns = merged_df.columns.str.replace(spec + "_ID", label + "_ensembl_id")
-                merged_df = merged_df.drop(spec + "_name", axis=1)
-                n += 1
-            MainOrtho = MainOrtho.append(merged_df, sort=False)
-        print("Filling in Orthology table...")
-        MainOrtho.to_sql("Orthology", con, if_exists="append", index=False)
-        print("Filling Orthology table complete!")
+            print("collecting orthology data for:")
+            for couple, ortho in orthologsDict.items():
+                print("\t{} and {}".format(couple[0], couple[1]))
+                merged_df = None
+                n = 0
+                for spec in couple:
+                    db_data[spec]['gene_symbol'] = db_data[spec]['gene_symbol'].str.upper()
+                    db_data[spec].columns = db_data[spec].columns.str.replace('gene_ensembl_id', spec + "_ID")
+                    if n == 0:
+                        merged_df = pd.merge(db_data[spec], ortho)
+                    else:
+                        merged_df = pd.merge(db_data[spec], merged_df)
+                    label = 'A' if n == 0 else 'B'
+                    merged_df.columns = merged_df.columns.str.replace("specie", label + "_Species")
+                    merged_df.columns = merged_df.columns.str.replace("gene_symbol", label + "_GeneSymb")
+                    merged_df.columns = merged_df.columns.str.replace(spec + "_ID", label + "_ensembl_id")
+                    merged_df = merged_df.drop(spec + "_name", axis=1)
+                    n += 1
+                MainOrtho = MainOrtho.append(merged_df, sort=False)
+            MainOrtho = MainOrtho.drop_duplicates()
+            MainOrtho = MainOrtho.groupby(["A_ensembl_id", "B_ensembl_id"], as_index=False, sort=False).agg(lambda col: ', '.join(set(col)))
+            print("Filling in Orthology table...")
+            try:
+                MainOrtho.to_sql("Orthology", con, if_exists="replace", schema=schema, index=False)
+            except Exception as err:
+                print(err)
+                MainOrtho.to_csv("OrthologyTable.Failed.csv")
+            print("Filling Orthology table complete!")
 
     # def AddTableToMerged(self, db2add):
     #     db_a = connect(self.dbName + '.sqlite')
