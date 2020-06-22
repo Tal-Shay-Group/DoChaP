@@ -148,7 +148,7 @@ class dbBuilder:
                                 ext_id TEXT,
                                 splice_junction BOOLEAN,
                                 complete_exon BOOLEAN,
-                                PRIMARY KEY(protein_refseq_id, protein_ensembl_id, type_id, AA_start, total_length, ext_id),
+                                PRIMARY KEY(protein_refseq_id, protein_ensembl_id, type_id, AA_start, total_length),
                                 FOREIGN KEY(type_id) REFERENCES DomainType(type_id),
                                 FOREIGN KEY(protein_refseq_id, protein_ensembl_id) 
                                  REFERENCES Proteins(protein_refseq_id, protein_ensembl_id)
@@ -223,7 +223,6 @@ class dbBuilder:
             cur = con.cursor()
             geneSet = set()
             uExon = set()
-            domeve = set()
             relevantDomains = set()
 
             for tID, transcript in self.data.Transcripts.items():
@@ -245,13 +244,18 @@ class dbBuilder:
                 # insert into Genes table
                 if transcript.gene_GeneID not in geneSet and \
                         transcript.gene_ensembl not in geneSet:
-                    if ensemblkey:
-                        gene = self.data.Genes.get(transcript.gene_ensembl, self.data.Genes[transcript.gene_GeneID])
-                        # syno = gene.synonyms
-                    else:
-                        gene = self.data.Genes[transcript.gene_GeneID]
-                        # syno = [self.data.Genes[transcript.gene_GeneID].synonyms
-                        #       if transcript.gene_GeneID is not None else None][0]
+                    gene = self.data.Genes.get(transcript.gene_GeneID,
+                                               self.data.Genes.get(transcript.gene_ensembl, None))
+                    if gene is None:
+                        raise ValueError("No gene in Genes for transcript {}, {}. GeneID: {}, ensembl gene: {}".format(
+                            transcript.refseq, transcript.ensembl, transcript.gene_GeneID, transcript.gene_ensembl))
+                    # if ensemblkey:
+                    #     gene = self.data.Genes.get(transcript.gene_ensembl, self.data.Genes[transcript.gene_GeneID])
+                    #     # syno = gene.synonyms
+                    # else:
+                    #     gene = self.data.Genes[transcript.gene_GeneID]
+                    #     # syno = [self.data.Genes[transcript.gene_GeneID].synonyms
+                    #     #       if transcript.gene_GeneID is not None else None][0]
                     values = (gene.GeneID, gene.ensembl, gene.symbol,
                               gene.synonyms, gene.chromosome, gene.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
@@ -296,6 +300,10 @@ class dbBuilder:
                                 (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id)
                                 VALUES (?, ?, ?, ?, ?, ?, ?)''', values)
                 splicin = set()
+                # domeve = set()
+                Domdf = pd.DataFrame(columns=["protein_refseq_id", "protein_ensembl_id", "type_id",
+                                              "AA_start", "AA_end", "nuc_start", "nuc_end", "total_length",
+                                              "ext_id", "splice_junction", "complete_exon"])
                 for reg in self.data.Domains.get(protID, [None]):
                     if reg is None:
                         continue
@@ -323,16 +331,26 @@ class dbBuilder:
                     elif relation == 'complete_exon':
                         complete = 1
                     # insert into domain event table
+                    ldf = Domdf.shape[0]
                     values = (protein.refseq, protein.ensembl, regID,
                               reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
                               reg.extID, splice_junction, complete,)
-                    if values not in domeve:
-                        cur.execute(''' INSERT INTO DomainEvent
-                                    (protein_refseq_id, protein_ensembl_id, type_id,\
-                                    AA_start, AA_end, nuc_start, nuc_end, total_length,\
-                                    ext_id, splice_junction, complete_exon)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                        domeve.add(values)
+                    Domdf.loc[ldf] = list(values)
+                Domdf = Domdf.drop_duplicates()
+                Domdf = Domdf.groupby(["protein_refseq_id", "protein_ensembl_id", "type_id",
+                                       "AA_start", "AA_end", "nuc_start", "nuc_end", "total_length",
+                                       "splice_junction", "complete_exon"],
+                                      as_index=False, sort=False).agg(
+                    lambda col: ", ".join(set(col)))  # groupby all besides ext_ID
+                Domdf.to_sql("DomainEvent", con, if_exists="append", index=False)
+
+                # if values not in domeve:
+                #     cur.execute(''' INSERT INTO DomainEvent
+                #                 (protein_refseq_id, protein_ensembl_id, type_id,\
+                #                 AA_start, AA_end, nuc_start, nuc_end, total_length,\
+                #                 ext_id, splice_junction, complete_exon)
+                #                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
+                #     domeve.add(values)
             bp = time.time()
             if merged:
                 relevantDomains = set(self.DomainOrg.allDomains.keys())
@@ -396,7 +414,8 @@ class dbBuilder:
                     n += 1
                 MainOrtho = MainOrtho.append(merged_df, sort=False)
             MainOrtho = MainOrtho.drop_duplicates()
-            MainOrtho = MainOrtho.groupby(["A_ensembl_id", "B_ensembl_id"], as_index=False, sort=False).agg(lambda col: ', '.join(set(col)))
+            MainOrtho = MainOrtho.groupby(["A_ensembl_id", "B_ensembl_id"], as_index=False, sort=False).agg(
+                lambda col: ', '.join(set(col)))
             print("Filling in Orthology table...")
             try:
                 MainOrtho.to_sql("Orthology", con, if_exists="replace", schema=schema, index=False)
