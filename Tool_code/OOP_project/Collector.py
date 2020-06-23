@@ -123,7 +123,7 @@ class Collector:
                 #self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                 # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                 refP = record.protein_refseq
-                self.Proteins[ensP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[ensP])
+                self.Proteins[ensP] = self.idConv.FillInMissingProteins(self.ensembl.Proteins[ensP])
                 self.Domains[ensP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
                 ensG = record.gene_ensembl

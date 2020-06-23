@@ -129,8 +129,8 @@ class ConverterBuilder(SourceBuilder):
         return newT
 
     def FillInMissingProteins(self, proteinRec):
-        if proteinRec.refseq == None:
+        if proteinRec.refseq is None:
             proteinRec.refseq = self.findConversion(proteinRec.ensembl, protein=True)
-        elif proteinRec.ensembl == None:
+        elif proteinRec.ensembl is None:
             proteinRec.ensembl = self.findConversion(proteinRec.refseq, protein=True)
         return proteinRec
