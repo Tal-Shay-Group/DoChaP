@@ -119,18 +119,26 @@ class Collector:
                 ensP = record.protein_ensembl
                 if ensP is None or ensP not in self.ensembl.Proteins:
                     continue
-                self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
-                self.Proteins[ensP] = self.ensembl.Proteins[ensP]
+                self.Transcripts[ensT] = self.idConv.FillInMissingsTranscript(record)
+                #self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
+                # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
+                refP = record.protein_refseq
+                self.Proteins[ensP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[ensP])
+                self.Domains[ensP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
+                                                               self.ensembl.Domains.get(ensP, []))
                 ensG = record.gene_ensembl
-                if ensG not in genesIDs:
+                refG = record.gene_refseq
+                if ensG not in genesIDs and refG not in genesIDs:
                     self.Genes[ensG] = self.ensembl.Genes[ensG]
                     genesIDs.add(ensG)
+                    if refG is not None:
+                        genesIDs.add(refG)
                 self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
 
     def CompMergeDomainLists(self, doms1, doms2):
-        if len(doms1) == 0:
+        if len(doms1) == 0 or doms2 is None:
             return doms2
-        elif len(doms2) == 0:
+        elif len(doms2) == 0 or doms1 is None:
             return doms1
         finalList = list(doms1)
         for dom in doms1:

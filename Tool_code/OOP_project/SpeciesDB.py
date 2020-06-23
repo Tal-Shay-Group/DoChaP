@@ -244,8 +244,9 @@ class dbBuilder:
                 # insert into Genes table
                 if transcript.gene_GeneID not in geneSet and \
                         transcript.gene_ensembl not in geneSet:
-                    gene = self.data.Genes.get(transcript.gene_GeneID,
-                                               self.data.Genes.get(transcript.gene_ensembl, None))
+                    gene = self.data.Genes.get(
+                        transcript.gene_GeneID if transcript.gene_GeneID is not None else transcript.gene_ensembl,
+                        self.data.Genes.get(transcript.gene_ensembl, None))
                     if gene is None:
                         raise ValueError("No gene in Genes for transcript {}, {}. GeneID: {}, ensembl gene: {}".format(
                             transcript.refseq, transcript.ensembl, transcript.gene_GeneID, transcript.gene_ensembl))
