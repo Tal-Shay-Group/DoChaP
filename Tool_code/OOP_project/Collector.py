@@ -127,7 +127,7 @@ class Collector:
                 self.Domains[ensP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
                 ensG = record.gene_ensembl
-                refG = record.gene_refseq
+                refG = record.gene_GeneID
                 if ensG not in genesIDs and refG not in genesIDs:
                     self.Genes[ensG] = self.ensembl.Genes[ensG]
                     genesIDs.add(ensG)
