@@ -89,6 +89,11 @@ class Collector:
                                                                self.ensembl.Domains.get(ensP, []))
                 writtenIDs.add(ensT)
                 writtenIDs.add(refT)
+                if refG not in self.Genes:
+                    self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, ensG))
+                    genesIDs.add(refG)
+                    if ensG is not None:
+                        genesIDs.add(ensG)
             else:  # else - separate the records
                 # refseq records
                 self.Transcripts[refT] = self.refseq.Transcripts[refT]
@@ -100,7 +105,12 @@ class Collector:
                 self.Proteins[refP] = self.refseq.Proteins[refP]
                 self.Domains[refP] = self.refseq.Domains.get(refP, [])
                 writtenIDs.add(refT)
-                if ensPflag:  # ensembl records
+                if refG not in self.Genes:
+                    self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, ensG))
+                    genesIDs.add(refG)
+                    if ensG is not None:
+                        genesIDs.add(ensG)
+                if ensP in self.ensembl.Proteins:  # ensembl records
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                     self.Transcripts[ensT].gene_GeneID = refG
                     ensG = self.Transcripts[ensT].gene_ensembl
@@ -108,31 +118,34 @@ class Collector:
                     self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
                     self.mismatches_sep.append((ensP, refP,))
                     writtenIDs.add(ensT)
-            if refG not in genesIDs:
-                self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, None))
-                genesIDs.add(refG)
-                if ensG is not None:
-                    genesIDs.add(ensG)
-
+                    if refG not in self.Genes:
+                        self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, ensG))
+                        genesIDs.add(refG)
+                        if ensG is not None:
+                            genesIDs.add(ensG)
         for ensT, record in self.ensembl.Transcripts.items():
             if ensT not in writtenIDs:
                 ensP = record.protein_ensembl
                 if ensP is None or ensP not in self.ensembl.Proteins:
                     continue
                 self.Transcripts[ensT] = self.idConv.FillInMissingsTranscript(record)
+                refT = self.Transcripts[ensT].refseq
                 #self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                 # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                 refP = record.protein_refseq
                 self.Proteins[ensP] = self.idConv.FillInMissingProteins(self.ensembl.Proteins[ensP])
                 self.Domains[ensP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
-                ensG = record.gene_ensembl
-                refG = record.gene_GeneID
-                if ensG not in genesIDs and refG not in genesIDs:
-                    self.Genes[ensG] = self.ensembl.Genes[ensG]
+                ensG = self.Transcripts[ensT].gene_ensembl
+                refG = self.Transcripts[ensT].gene_GeneID
+                if refG is not None and refG not in self.Genes: #ensG not in genesIDs and refG not in genesIDs:
+                    self.ensembl.Genes[ensG].gene_GeneID = refG
+                    self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                     genesIDs.add(ensG)
                     if refG is not None:
                         genesIDs.add(refG)
+                elif refG is None and ensG not in self.Genes:
+                    self.Genes[ensG] = self.ensembl.Genes[ensG]
                 self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
 
     def CompMergeDomainLists(self, doms1, doms2):
@@ -150,7 +163,7 @@ class Collector:
 
 if __name__ == '__main__':
     start_time = time.time()
-    species = "X_tropicalis"
+    species = "R_norvegicus"
     col = Collector(species)
     col.collectAll()
     print("--- %s seconds ---" % (time.time() - start_time))

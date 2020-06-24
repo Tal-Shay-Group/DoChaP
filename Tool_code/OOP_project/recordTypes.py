@@ -28,16 +28,21 @@ class Gene:
     def mergeGenes(self, other):
         if other is None:
             return self
-        attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
-        for at in attr:
-            if self.__getattribute__(at) is None:
-                self.__setattr__(at, other.__getattribute__(at))
-        syno = other.synonyms.split("; ") + [other.symbol] if other.synonyms is not None else [other.symbol]
-        for name in syno:
-            if self.synonyms is not None and name not in self.synonyms.split("; ") + [self.symbol]:
-                self.synonyms = self.synonyms + "; " + name
-            elif self.synonyms is None and self.symbol != other.symbol:
-                self.synonyms = other.symbol
+        elif type(other) == str and self.ensembl is None:
+            self.ensembl = other if other.startswith("ENS") else None
+        elif type(other) == str and self.GeneID is None:
+            self.GeneID = other if not other.startswith("ENS") else None
+        else:
+            attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
+            for at in attr:
+                if self.__getattribute__(at) is None:
+                    self.__setattr__(at, other.__getattribute__(at))
+            syno = other.synonyms.split("; ") + [other.symbol] if other.synonyms is not None else [other.symbol]
+            for name in syno:
+                if self.synonyms is not None and name not in self.synonyms.split("; ") + [self.symbol]:
+                    self.synonyms = self.synonyms + "; " + name
+                elif self.synonyms is None and self.symbol != other.symbol:
+                    self.synonyms = other.symbol
         return self
 
 
