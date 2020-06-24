@@ -87,7 +87,7 @@ class EnsemblBuilder(SourceBuilder):
         fn = gffutils.example_filename(self.gff)
         db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl.db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Ensembl.db")
+        # db = gffutils.FeatureDB("DB.Ensembl_" + self.species[0] +".db")
         self.collect_genes(db)
         self.collect_Transcripts(db)
 

@@ -94,7 +94,7 @@ class RefseqBuilder(SourceBuilder):
         fn = gffutils.example_filename(self.gff)
         db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Refseq.db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Refseq.db")
+        # db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
         self.collectChromosomeRegions(db)
         self.collect_genes(db)
         curretGenes = self.Genes.copy()
