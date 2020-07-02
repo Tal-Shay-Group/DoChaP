@@ -23,13 +23,13 @@
                 <option value="X_tropicalis">Frog</option>
             </select>&nbsp;&nbsp;
             <!--search term-->
-            <i>Search term&nbsp;&nbsp;</i>
+            <i>Search&nbsp;&nbsp;</i>
             <input placeholder="  enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass"
                 id="searchTextField">&nbsp;&nbsp;
             <!--search button-->
             <button class="btn blackButton" id="submitSearchButton" type="button" ng-click="querySearchCtrl.search()"
                 style="background-color: rgb(10, 103, 224); color:rgb(216, 216, 216)">
-                <span class="glyphicon glyphicon-search"></span> Search
+                <span class="glyphicon glyphicon-search"></span>
             </button>
             &nbsp;
             <!--loading-->
@@ -56,8 +56,11 @@
     <br>
     <div class="greyArea" style="display: none;">
         <!--description-->
-        <p><strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several
-                sources to allow the study of the effect of alternative splicing on protein domains. &nbsp;</strong>
+        <p>
+            <center>
+                <strong>The Domain Change Predictor (DoChaP) integrates information on exons and domains from several sources to allow the study of the effect of alternative splicing on protein domains </strong>
+            </center>
+           
         </p>
     </div>
     <br>
@@ -69,16 +72,17 @@
                    <iframe width="250" height="150" src="https://www.youtube.com/embed/Ygqe7wf_Uy4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </td>
                 <td>
+                    &nbsp;<strong>Search DoChaP:</strong><br>
                     <ul style="font-size: 17px;">
                         <li>
                             <strong>Choose a species from the list of currently available species:</strong> Human (hg38), Mouse (mm10), Rat (rn6), Zebrafish (danRer11), Frog (xenTro9).<br>
-                            To request another species, <a href="#!contactUs">contact us! </a>
+                            To request adding another species, <a href="#!contactUs">contact us! </a>
                         </li>
                         <li><strong>Enter a search term:</strong>
                             <ol>
                                 <li>Acceptable query formats: Gene, Transcript or protein identifiers (gene symbol/ NCBI’s Gene
                                     ID or RefSeq transcript or protein ID / ENSEMBL gene, transcript or protein ID)</li>
-                                <li>See videos, examples or Help page for more info</li>
+                                <li>See videos, examples or  <a href="#!help">Help page</a> for more info</li>
                             </ol>
                         </li>
                     </ul>

@@ -18,6 +18,9 @@ class Species {
         if (source.substring(0, 4) == 'TIGR') {
             return "http://tigrfams.jcvi.org/cgi-bin/HmmReportPage.cgi?acc=" + source;
         }
+        if (source.substring(0, 3) == 'IPR') {
+            return "https://www.ebi.ac.uk/interpro/entry/InterPro/" + source+ '/';
+        }
         return "https://www.ncbi.nlm.nih.gov/Structure/cdd/" + source
     }
 

@@ -243,7 +243,7 @@
                                 <!--range-slider and scales-->
                                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                                     <div style="width: {{canvasSize}}px;">
-                                        <input type="text" class="js-range-slider" id="genomic_range1" value="" />
+                                        <input type="text" ng-class="genomicClass1" id="genomic_range1" value="" />
                                     </div>
                                     <br>
                                     <span class="chromosomeLocation">{{chromosomeLocation1}}</span>
@@ -381,7 +381,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                 <!--range-slider and scales-->
                                 <td ng-show="viewMode=='all'|| viewMode=='genomic'">
                                     <div style="width: {{canvasSize}}px;">
-                                        <input type="text" class="js-range-slider" id="genomic_range2" value="" />
+                                        <input type="text" ng-class="genomicClass2" id="genomic_range2" value="" />
                                     </div>
                                     <br>
                                     <span class="chromosomeLocation">{{chromosomeLocation2}}</span>
