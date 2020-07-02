@@ -101,7 +101,7 @@ class ConverterBuilder(SourceBuilder):
             newT.ensembl = self.findConversion(newT.refseq, transcript=True) \
                 if newT.ensembl is None else newT.ensembl
             geneID = self.GeneTrans(newT.refseq)
-            newT.gene_GeneID = geneID if geneID is not None else newT.gene_GeneID
+            newT.gene_GeneID = geneID if geneID is None else newT.gene_GeneID
             newT.gene_ensembl = self.findConversion(newT.gene_GeneID, gene=True) \
                 if newT.gene_ensembl is None else newT.gene_ensembl
             newT.protein_refseq = self.TranscriptProtein(newT.refseq) \
@@ -115,13 +115,14 @@ class ConverterBuilder(SourceBuilder):
                 if newT.gene_ensembl is None else newT.gene_ensembl
             newT.gene_GeneID = self.findConversion(newT.gene_ensembl, gene=True) \
                 if newT.gene_GeneID is None else newT.gene_GeneID
-            if newT.refseq is None and newT.gene_GeneID is not None:  # probably a mitochondrial genes which has no refseq id
+            if newT.refseq is None and newT.gene_GeneID is not None and newT.chrom == "MT":  # mitochondrial genes has no refseq id
                 tempRefseq = "mito-" + newT.gene_GeneID
                 if tempRefseq in self.transcriptCon:
                     newT.refseq = tempRefseq
                     self.transcriptCon[tempRefseq] = newT.ensembl
                     self.transcriptCon[newT.ensembl] = tempRefseq
-                    self.t2g[newT.ensembl] = self.t2g["mito-" + newT.gene_ensembl]
+                    if "mito-" + newT.gene_ensembl in self.t2g:  # replace wrong transcript in the IDconv data
+                        self.t2g[newT.ensembl] = self.t2g["mito-" + newT.gene_ensembl]
             newT.protein_ensembl = self.TranscriptProtein(newT.ensembl) \
                 if newT.protein_ensembl is None else newT.protein_ensembl
             newT.protein_refseq = self.findConversion(newT.protein_ensembl, protein=True) \
@@ -129,8 +130,8 @@ class ConverterBuilder(SourceBuilder):
         return newT
 
     def FillInMissingProteins(self, proteinRec):
-        if proteinRec.refseq == None:
+        if proteinRec.refseq is None:
             proteinRec.refseq = self.findConversion(proteinRec.ensembl, protein=True)
-        elif proteinRec.ensembl == None:
+        elif proteinRec.ensembl is None:
             proteinRec.ensembl = self.findConversion(proteinRec.refseq, protein=True)
         return proteinRec

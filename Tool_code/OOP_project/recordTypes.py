@@ -1,6 +1,7 @@
 import re
 import copy
 
+
 class Gene:
 
     def __init__(self, GeneID=None, ensembl=None, symbol=None, synonyms=None, chromosome=None, strand=None):
@@ -25,16 +26,23 @@ class Gene:
             return False
 
     def mergeGenes(self, other):
-        attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
-        for at in attr:
-            if self.__getattribute__(at) is None:
-                self.__setattr__(at, other.__getattribute__(at))
-        syno = other.synonyms.split("; ") + [other.symbol] if other.synonyms is not None else [other.symbol]
-        for name in syno:
-            if self.synonyms is not None and name not in self.synonyms.split("; ") + [self.symbol]:
-                self.synonyms = self.synonyms + "; " + name
-            elif self.synonyms is None and self.symbol != other.symbol:
-                self.synonyms = other.symbol
+        if other is None:
+            return self
+        elif type(other) == str and self.ensembl is None:
+            self.ensembl = other if other.startswith("ENS") else None
+        elif type(other) == str and self.GeneID is None:
+            self.GeneID = other if not other.startswith("ENS") else None
+        else:
+            attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
+            for at in attr:
+                if self.__getattribute__(at) is None:
+                    self.__setattr__(at, other.__getattribute__(at))
+            syno = other.synonyms.split("; ") + [other.symbol] if other.synonyms is not None else [other.symbol]
+            for name in syno:
+                if self.synonyms is not None and name not in self.synonyms.split("; ") + [self.symbol]:
+                    self.synonyms = self.synonyms + "; " + name
+                elif self.synonyms is None and self.symbol != other.symbol:
+                    self.synonyms = other.symbol
         return self
 
 
@@ -42,8 +50,7 @@ class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
                  GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None,
-                 exons_starts=[],
-                 exons_ends=[]):
+                 exons_starts=[], exons_ends=[]):
         self.refseq = refseq
         self.ensembl = ensembl
         self.chrom = chrom
@@ -156,8 +163,8 @@ class Domain:
 
     def __init__(self, ext_id, start=None, end=None, cddId=None, name=None, note=None):
         self.suppPref = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
-                          'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
-                          'ipr': 'IPR', 'interpro': 'IPR'}
+                         'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
+                         'ipr': 'IPR', 'interpro': 'IPR'}
         self.aaStart = start
         self.aaEnd = end
         if self.aaStart is not None:
@@ -171,8 +178,8 @@ class Domain:
             prefix = re.sub(r"\d+$", "", ext_id.lower())
             if prefix in self.suppPref.keys():
                 self.extID = ext_id.lower().replace(prefix, self.suppPref[prefix])
-                suppTypes = {"cd": "cdd", "cl":"cdd", "IPR": "interpro", "tigr": "tigrfams",
-                             "pfam":"pfam", "smart":"smart"}
+                suppTypes = {"cd": "cdd", "cl": "cdd", "IPR": "interpro", "tigr": "tigrfams",
+                             "pfam": "pfam", "smart": "smart"}
                 self.extType = suppTypes[self.suppPref[prefix]]
             else:
                 raise ValueError('Unknown external ID prefix: ' + ext_id)
@@ -207,8 +214,10 @@ class Domain:
         else:
             return False
 
+
 class Protein:
-    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, synonyms=None, transcript_refseq=None, transcript_ensembl=None):
+    def __init__(self, refseq=None, ensembl=None, descr=None, length=None, synonyms=None, transcript_refseq=None,
+                 transcript_ensembl=None):
         self.refseq = refseq
         self.ensembl = ensembl
         self.description = descr

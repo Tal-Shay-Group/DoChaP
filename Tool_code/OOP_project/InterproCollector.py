@@ -3,6 +3,7 @@ from urllib import request
 from urllib.error import HTTPError
 from time import sleep
 import pandas as pd
+import numpy as np
 from Director import SourceBuilder
 
 
@@ -71,7 +72,7 @@ class InterProBuilder(SourceBuilder):
         df = df[df["Type"] == "domain"]
         refids = df["IntegratedSignatures"].str.split(";")
         newdf = pd.DataFrame(columns=["interpro", "pfam", "smart", "cdd", "tigrfams"])
-        sourceDict = {"smart": "sm", "pfam": "pf", "cdd": ".", "tigrams": "."}
+        sourceDict = {"smart": "sm", "pfam": "pf", "cdd": ".", "tigrfams": "."}
         for ind, row in refids.iteritems():
             for ext in row:
                 splitrow = ext.split(":")
@@ -79,6 +80,7 @@ class InterProBuilder(SourceBuilder):
                 if splitrow[0] in sourceDict.keys():
                     newdf.at[ind, splitrow[0]] = splitrow[1].replace(sourceDict[splitrow[0]], splitrow[0])
                     newdf.at[ind, "interpro"] = ind
+        newdf = newdf.where(pd.notnull(newdf), None)
         self.AllDomains = newdf
 
 
