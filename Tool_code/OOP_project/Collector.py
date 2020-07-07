@@ -79,12 +79,15 @@ class Collector:
             elif ensTflag and not ensPflag:
                 ensP = self.ensembl.trans2pro[ensT]
 
+            refG = record.gene_GeneID
+            ensG = self.idConv.findConversion(refG, gene=True)
+
             if ensP in self.ensembl.Proteins and abs(int(self.refseq.Proteins[refP].length) - int(self.ensembl.Proteins[
                                                                                                       ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
                 self.mismatches_merged.append((ensP, refP,))
                 self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
-                refG = self.Transcripts[refT].gene_GeneID
-                ensG = self.Transcripts[refT].gene_ensembl
+                # refG = self.Transcripts[refT].gene_GeneID
+                # ensG = self.Transcripts[refT].gene_ensembl
                 self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
                 self.Domains[refP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
@@ -98,8 +101,11 @@ class Collector:
             else:  # else - separate the records
                 # refseq records
                 self.Transcripts[refT] = self.refseq.Transcripts[refT]
-                refG = self.Transcripts[refT].gene_GeneID
-                ensG = self.Transcripts[refT].gene_ensembl
+                # self.Transcripts[refT].gene_GeneID = refG
+                self.Transcripts[refT].gene_ensembl = ensG
+                # refG = self.Transcripts[refT].gene_GeneID
+                # ensG = self.Transcripts[refT].gene_ensembl
+
                 # if refG not in genesIDs:
                 #     self.Genes[refG] = self.refseq.Genes[refG]
                 #     genesIDs.add(refG)
@@ -113,13 +119,18 @@ class Collector:
                         genesIDs.add(ensG)
                 if ensP in self.ensembl.Proteins:  # ensembl records
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
+                    if ensG != self.Transcripts[ensT].gene_ensembl:
+                        ensG = self.Transcripts[ensT].gene_ensembl
+                        refG = self.idConv.findConversion(ensG, gene=True)
                     self.Transcripts[ensT].gene_GeneID = refG
-                    ensG = self.Transcripts[ensT].gene_ensembl
                     self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                     self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
                     self.mismatches_sep.append((ensP, refP,))
                     writtenIDs.add(ensT)
-                    if refG not in self.Genes:
+                    if refG is None:
+                        self.Genes[ensG] = self.ensembl.Genes[ensG]
+                        genesIDs.add(ensG)
+                    elif refG not in self.Genes:
                         self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, ensG))
                         genesIDs.add(refG)
                         if ensG is not None:
@@ -127,10 +138,10 @@ class Collector:
         for ensT, record in self.ensembl.Transcripts.items():
             if ensT not in writtenIDs:
                 ensP = record.protein_ensembl
-                if ensP is None or ensP not in self.ensembl.Proteins:
+                refT = self.idConv.findConversion(ensT, transcript=True)
+                if ensP is None or ensP not in self.ensembl.Proteins or (refT is not None and refT[1] == "R"):
                     continue
                 self.Transcripts[ensT] = self.idConv.FillInMissingsTranscript(record)
-                refT = self.Transcripts[ensT].refseq
                 # self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                 # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                 refP = record.protein_refseq
@@ -139,17 +150,24 @@ class Collector:
                                                                self.ensembl.Domains.get(ensP, []))
                 ensG = self.Transcripts[ensT].gene_ensembl
                 refG = self.Transcripts[ensT].gene_GeneID
-                if refG is not None and refG not in self.Genes:  # ensG not in genesIDs and refG not in genesIDs:
-                    self.ensembl.Genes[ensG].gene_GeneID = refG
-                    self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
-                    genesIDs.add(ensG)
-                    if refG is not None:
+                if refG in self.Genes:
+                    if ensG == self.idConv.findConversion(refG, gene=True) or self.idConv.findConversion(refG, gene=True) is None:
+                        self.Genes[refG].ensembl = ensG if self.Genes[refG].ensembl is None else self.Genes[refG].ensembl
+                        genesIDs.add(ensG)
+                    elif ensG not in genesIDs:
+                        self.Genes[ensG] = self.ensembl.Genes[ensG]
+                        self.Transcripts[ensT].gene_GeneID = None
+                        genesIDs.add(ensG)
+                elif ensG not in genesIDs:
+                    if refG is None:
+                        self.Genes[ensG] = self.ensembl.Genes[ensG]
+                        genesIDs.add(ensG)
+                    else:
+                        self.ensembl.Genes[ensG].gene_GeneID = refG
+                        self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
+                        genesIDs.add(ensG)
                         genesIDs.add(refG)
-                elif refG in self.Genes:
-                    self.Genes[refG].ensembl = ensG if self.Genes[refG].ensembl is None else self.Genes[refG].ensembl
-                elif refG is None and ensG not in self.Genes:
-                    self.Genes[ensG] = self.ensembl.Genes[ensG]
-                self.Domains[ensP] = self.ensembl.Domains.get(ensP, [])
+
 
     def CompMergeDomainLists(self, doms1, doms2):
         if len(doms1) == 0 or doms2 is None:
@@ -166,7 +184,7 @@ class Collector:
 
 if __name__ == '__main__':
     start_time = time.time()
-    species = "X_tropicalis"
+    species = "H_sapiens"
     col = Collector(species)
     col.collectAll()
     print("--- %s seconds ---" % (time.time() - start_time))
