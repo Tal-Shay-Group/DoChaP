@@ -157,12 +157,12 @@ async function findTranscriptInfo(transcript) {
     transcript.protein = protein[0];
     var domains = sql("SELECT type_id,AA_start,AA_end,nuc_start,nuc_end,ext_id FROM DomainEvent WHERE protein_refseq_id = ? or protein_ensembl_id = ?", [transcript.protein_refseq_id, transcript.protein_ensembl_id]);
     transcript.domains = domains;
-    var spliceInDomains = sql("SELECT * FROM SpliceInDomains WHERE transcript_refseq_id = ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_refseq_id]);
-    transcript.spliceInDomains = spliceInDomains;
+    // var spliceInDomains = sql("SELECT * FROM SpliceInDomains WHERE transcript_refseq_id = ? or transcript_ensembl_id = ?",[transcript.transcript_refseq_id,transcript.transcript_refseq_id]);
+    // transcript.spliceInDomains = spliceInDomains;
     
     //info on each domain
     for (var j = 0; j < transcript.domains.length; j++) {
-        var domainType = sql("SELECT type_id,name FROM DomainType WHERE type_id = ?", [transcript.domains[j].type_id]);
+        var domainType = sql("SELECT type_id,name, other_name FROM DomainType WHERE type_id = ?", [transcript.domains[j].type_id]);
         transcript.domains[j].domainType = domainType[0];
     }
     return transcript;

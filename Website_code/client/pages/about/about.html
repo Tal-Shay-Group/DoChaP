@@ -5,24 +5,30 @@
 <body ng-app="DoChaP" ng-controller="documentationCtrl">
         <br>
         <div class="greyArea">
-            <div class="resultTitle">
-                <img src="resources/LOG_new.jpeg" style="height: 200px; width: 1000;"/>
-            </div>
             <p>The Domain Change Predictor (DoChaP) is a webserver for visualization of exon&ndash;domain relationships in different transcripts. DoChaP provides an easy way of exploring the effect of alternative splicing on protein domains.</p>
-            <p>Alternative RNA splicing results in multiple transcripts of the same gene, possibly coding different protein isoforms that may differ in their protein domains. Although transcripts and domains information can be extracted from public databases, such a process requires the integration of data from several sources and it is tedious and unfeasible for genome-wide analysis. DoChaP integrates transcripts and domains information to facilitate the study of alternative splicing effects on domain structure. Identifying such an effect can lead to testable hypotheses in the form of 'protein X loses domain Y in state Z'. <strong>&nbsp;</strong></p>
-            <p>DoChaP integrates information on transcripts and protein domains data from the NCBI and UCSC databases into a single database.</p>
-            <p>Sources:</p>
+            <p>Alternative RNA splicing results in multiple transcripts of the same gene, possibly coding different protein isoforms that may differ in their protein domains. Although the information of transcripts and domains can be extracted from public databases, such a process requires the integration of data from several sources and it is tedious and unfeasible for genome-wide analysis. DoChaP provides visualization of the integrated information of transcripts and domains, to facilitate the study of the effect of alternative splicing on domain structure. Identifying such an effect can lead to testable hypotheses in the form of 'protein X loses domain Y in state Z'. <strong>&nbsp;</strong></p>
+            <p><strong>Sources of information:</strong></p>
+            <p>DoChaP integrates data from NCBI&rsquo;s RefSeq, Ensembl and Interpro, into one combined database. Data sources:</p>
             <ul>
-            <li>NCBI - RefSeq database (genomic .gff files and mRNA_prot .gpff files) and the gene2ensemble table from Gene database</li>
-            <li>ENSEMBL &ndash; Ensembl genomic annotation (.gff files), protein domains and ensembl compara orthology data (downloaded using BioMart)</li>
-            <li>Interpo &ndash; protein domains accession ids</li>
+            <li>Genomic annotations (genes, exons, CDS, transcription) &ndash; .<em>gff</em> files downloaded from <a href="ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/">NCBI's genomes - RefSeq </a>and <a href="http://ftp.ensembl.org/pub/current_gff3/">Ensembl</a> ftp sites (the latest version available at the time of DoChaP update)</li>
+            <li>Protein domain annotation &ndash; <em>.gpff </em>files were downloaded from the <a href="ftp://ftp.ncbi.nlm.nih.gov/refseq/">NCBI </a><a href="ftp://ftp.ncbi.nlm.nih.gov/refseq/">RefSeq</a><a href="ftp://ftp.ncbi.nlm.nih.gov/refseq/"> database</a> and Ensembl records were downloaded from <a href="https://www.ensembl.org/biomart/martview">BioMart</a>. Those sources contain multiple domain prediction databases. DoChaP displays: NCBI Curated Domains, Pfam, SMART, TIGRFAMs, Interpro</li>
+            <li>Orthology data &ndash; downloaded from ensembl using <a href="https://www.ensembl.org/biomart/martview">BioMart</a>.</li>
+            <li>Other tables used for accession ID connections are: <em>gene2ensemble</em> table from the <a href="ftp://ftp.ncbi.nih.gov/gene/">NCBI Gene database</a> and <em>InterPro entries </em>table downloaded from <a href="https://www.ebi.ac.uk/interpro/entry/InterPro/#table">InterPro</a>.</li>
             </ul>
-            <p><strong>&nbsp;</strong></p>
-            <p><strong>Developers:</strong> Shani T. Gal-Oz, Dana Eliyahu and Nimrod Haiat, from the <a href="http://lifeserv.bgu.ac.il/wp/talshay/">group of Tal Shay</a>, (Department of Life Sciences, Ben-Gurion University of the Negev), in collaboration with <a href="http://www.bgu.ac.il/~shanigu/">Guy Shani</a> (Department of Information Systems Engineering, Ben-Gurion University of the Negev, Israel).</p>
-            <p>Contact: Shani T. Gal-Oz, galozs@post.bgu.ac.il</p>
-            <div class="resultTitle">
-                <img src="resources/bgu-sig-en.png" style="width: 300px; height:100px"/>
-            </div>
+            <p>All information was parsed and organized into a single database for the use of DoChaP webserver.</p>
+            <p>Notes:</p>
+            <ul>
+            <li>Only protein coding transcripts are shown in DoChaP</li>
+            <li>Transcripts encoded from alternate locus to the reference genomes are not included in DoChaP database</li>
+            </ul>
+            <p><strong>DoChaP database update:</strong></p>
+            <ul>
+            <li>The data in DoChaP is relevant to: May 25<sup>th</sup>, 2020 (last download from external sources)</li>
+            <li>DoChaP last update: June 2<sup>nd</sup>, 2020</li>
+            </ul>
+            <p><strong>Developers:</strong> Shani T. Gal-Oz, Dana Eliyahu and Nimrod Haiat, from the <a href="http://lifeserv.bgu.ac.il/wp/talshay/">group of Tal Shay</a>, (<a href="https://in.bgu.ac.il/en/natural_science/LifeSciences/Pages/default.aspx">Department of Life Sciences, Ben-Gurion University of the Negev</a>), in collaboration with <a href="http://www.bgu.ac.il/~shanigu/">Guy Shani</a> (<a href="https://in.bgu.ac.il/engn/sise/Pages/default.aspx">Department of Information Systems Engineering, Ben-Gurion University of the Negev</a>).</p>
+            <p>Contact: Shani T. Gal-Oz, <a href="mailto:galozs@post.bgu.ac.il">galozs@post.bgu.ac.il</a></p>
+            <p>&nbsp;</p>
     </div> 
 </body>
 

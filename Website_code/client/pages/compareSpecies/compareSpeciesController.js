@@ -41,6 +41,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
           $scope.hiddenTranscripts1 = 0;
           $scope.shownTranscripts2 = self.specie2Gene.transcripts.length;
           $scope.hiddenTranscripts2 = 0;
+
+
+          //create range slider from left to right / right to left
+          getGenomicClass();
           self.createScales();
 
           //draw
@@ -58,6 +62,24 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       });
   }
 
+  function getGenomicClass() {
+
+    if (self.specie1Gene.strand == '+') {
+      $scope.genomicClass1 = "js-range-slider"
+    } else {
+      $scope.genomicClass1 = "js-range-slider-reverse-fixed";
+      self.maximumRange1 = self.specie1Gene.end;
+      self.minimumRange1 = self.specie1Gene.start;
+    }
+    if (self.specie2Gene.strand == '+') {
+      $scope.genomicClass2 = "js-range-slider"
+    } else {
+      $scope.genomicClass2 = "js-range-slider-reverse-fixed";
+      self.maximumRange2 = self.specie2Gene.end;
+      self.minimumRange2 = self.specie2Gene.start;
+    };
+
+  }
   //updating all canvases,scales,tooltips
   function updateCanvases() {
     //drawing transcripts
@@ -90,26 +112,41 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
     $scope.chromosomeLocation1 = "chr" + self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
     $scope.chromosomeLocation2 = "chr" + self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
-    
+
     //click for extended protein view
     $("canvas")
       .click(function (event) {
         Domain.domainClick(self.toolTipManagerForCanvas, event);
         $scope.$apply();
       });
-      //range sliders:
-    $('#genomic_range1').data("ionRangeSlider").update({
-      from: self.specie1Gene.scale.start,
-      to: self.specie1Gene.scale.end,
-    });
+    //range sliders:
+    if (self.specie1Gene.strand === '+') {
+      $('#genomic_range1').data("ionRangeSlider").update({
+        from: self.specie1Gene.scale.start,
+        to: self.specie1Gene.scale.end,
+      });
+    } else {
+      $('#genomic_range1').data("ionRangeSlider").update({
+        from: self.maximumRange1 - self.specie1Gene.scale.end,
+        to: self.maximumRange1 - self.specie1Gene.scale.start
+      });
+    }
+
+    if (self.specie2Gene.strand === '+') {
+      $('#genomic_range2').data("ionRangeSlider").update({
+        from: self.specie2Gene.scale.start,
+        to: self.specie2Gene.scale.end,
+      });
+    } else {
+      $('#genomic_range2').data("ionRangeSlider").update({
+        from: self.maximumRange2 - self.specie2Gene.scale.end,
+        to: self.maximumRange2 - self.specie2Gene.scale.start
+      });
+    }
+
     $('#protein_range1').data("ionRangeSlider").update({
       from: self.specie1Gene.proteinScale.zoomInStart,
       to: self.specie1Gene.proteinScale.zoomInEnd,
-    });
-    $('#genomic_range2').data("ionRangeSlider").update({
-
-      from: self.specie2Gene.scale.start,
-      to: self.specie2Gene.scale.end,
     });
     $('#protein_range2').data("ionRangeSlider").update({
       from: self.specie2Gene.proteinScale.zoomInStart,
@@ -146,7 +183,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       self.currSpecies.currTranscript = self.currSpecies.transcripts[id];
     }
 
-    webService.userLog("open_window,"+type+"+"+self.currSpecies.transcripts[id].id);
+    webService.userLog("open_window," + type + "+" + self.currSpecies.transcripts[id].id);
   }
 
   //closing modal when clicking outside of modal
@@ -216,7 +253,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       }
 
     }
-    webService.userLog("partial_view,"+type);
+    webService.userLog("partial_view," + type);
   }
   //change mode between reviewed and unreviewed
   $scope.filterUnreviewed = function () {
@@ -231,7 +268,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
     //calculate new list
     var newResults = compareSpeciesService.filterUnreviewed(results, isReviewedCheckBox.checked);
-    
+
     //update page accordingly
     self.specie1Gene = newResults[0];
     self.specie2Gene = newResults[1];
@@ -240,11 +277,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     $(document).ready(function () {
       updateCanvases();
     });
-    webService.userLog("filter_unreviewed,"+isReviewedCheckBox.checked);
+    webService.userLog("filter_unreviewed," + isReviewedCheckBox.checked);
   }
 
   //hiding one transcript
-  $scope.hideTranscriptView = function (index, species) { 
+  $scope.hideTranscriptView = function (index, species) {
     var specieToChange = undefined;
     if (species == 1) {
       specieToChange = self.specie1Gene;
@@ -254,7 +291,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     specieToChange.transcripts[index].genomicView = false;
     specieToChange.transcripts[index].transcriptView = false;
     specieToChange.transcripts[index].proteinView = false;
-    webService.userLog("hide_transcript,"+specieToChange.transcripts[index].id);
+    webService.userLog("hide_transcript," + specieToChange.transcripts[index].id);
     countShownTranscripts();
   };
 
@@ -339,7 +376,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     }
 
     countShownTranscripts();
-    webService.userLog("show_transcript,"+specieToChange.transcripts[index].id);
+    webService.userLog("show_transcript," + specieToChange.transcripts[index].id);
   };
 
 
@@ -373,10 +410,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     if (specie1ComboBox.value != specie2ComboBox.value) {
       for (var i = 0; i < ensemblMatch.length; i++) {
         if (ensemblMatch[i].A_Species == specie2ComboBox.value) {
-          options1.push(ensemblMatch[i].A_GeneSymb);
+          options1= options1.concat(ensemblMatch[i].A_GeneSymb.split(", "));
         }
         if (ensemblMatch[i].B_Species == specie2ComboBox.value) {
-          options1.push(ensemblMatch[i].B_GeneSymb);
+          options1= options1.concat(ensemblMatch[i].B_GeneSymb.split(", "));
         }
       }
 
@@ -438,58 +475,60 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       $('#protein_range2').data("ionRangeSlider").destroy();
     }
 
-    $('#genomic_range1').ionRangeSlider({
-      type: "double",
-      min: self.specie1Gene.scale.start,
-      max: self.specie1Gene.scale.end,
-      from: self.specie1Gene.scale.start,
-      to: self.specie1Gene.scale.end,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = $window.sessionStorage.getItem("currCompareSpecies");
-        var genes = results.split("*");
-        results = {
-          "isExact": true,
-          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-        };
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-        $scope.transcripts = self.specie1Gene.transcripts;
-        $(document).ready(function () {
-          updateCanvases();
-        });
+    self.createGenomicRangeSliders();
 
-      }
+    // $('#genomic_range1').ionRangeSlider({
+    //   type: "double",
+    //   min: self.specie1Gene.scale.start,
+    //   max: self.specie1Gene.scale.end,
+    //   from: self.specie1Gene.scale.start,
+    //   to: self.specie1Gene.scale.end,
+    //   drag_interval: true,
+    //   skin: "square",
+    //   onFinish: function (data) {
+    //     var results = $window.sessionStorage.getItem("currCompareSpecies");
+    //     var genes = results.split("*");
+    //     results = {
+    //       "isExact": true,
+    //       "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+    //     };
+    //     var colors = getColorForLength(results, isReviewedCheckBox.checked);
+    //     var genes = results.genes;
+    //     self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+    //     $scope.transcripts = self.specie1Gene.transcripts;
+    //     $(document).ready(function () {
+    //       updateCanvases();
+    //     });
 
-    });
-    $('#genomic_range2').ionRangeSlider({
-      type: "double",
-      min: self.specie2Gene.scale.start,
-      max: self.specie2Gene.scale.end,
-      from: self.specie2Gene.scale.start,
-      to: self.specie2Gene.scale.end,
-      drag_interval: true,
-      skin: "square",
-      onFinish: function (data) {
-        var results = $window.sessionStorage.getItem("currCompareSpecies");
-        var genes = results.split("*");
-        results = {
-          "isExact": true,
-          "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-        };
-        var colors = getColorForLength(results, isReviewedCheckBox.checked);
-        var genes = results.genes;
-        self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-        $scope.transcripts = self.specie2Gene.transcripts;
-        $(document).ready(function () {
-          updateCanvases();
-        });
+    //   }
 
-      }
+    // });
+    // $('#genomic_range2').ionRangeSlider({
+    //   type: "double",
+    //   min: self.specie2Gene.scale.start,
+    //   max: self.specie2Gene.scale.end,
+    //   from: self.specie2Gene.scale.start,
+    //   to: self.specie2Gene.scale.end,
+    //   drag_interval: true,
+    //   skin: "square",
+    //   onFinish: function (data) {
+    //     var results = $window.sessionStorage.getItem("currCompareSpecies");
+    //     var genes = results.split("*");
+    //     results = {
+    //       "isExact": true,
+    //       "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+    //     };
+    //     var colors = getColorForLength(results, isReviewedCheckBox.checked);
+    //     var genes = results.genes;
+    //     self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+    //     $scope.transcripts = self.specie2Gene.transcripts;
+    //     $(document).ready(function () {
+    //       updateCanvases();
+    //     });
 
-    });
+    //   }
+
+    // });
     $('#protein_range1').ionRangeSlider({
       type: "double",
       min: 0,
@@ -542,6 +581,130 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       }
 
     });
+
+  }
+
+  self.createGenomicRangeSliders = function () {
+    if (self.specie1Gene.strand == '+') {
+      $('#genomic_range1').ionRangeSlider({
+        type: "double",
+        min: self.specie1Gene.scale.start,
+        max: self.specie1Gene.scale.end,
+        from: self.specie1Gene.scale.start,
+        to: self.specie1Gene.scale.end,
+        drag_interval: true,
+        skin: "square",
+        onFinish: function (data) {
+          var results = $window.sessionStorage.getItem("currCompareSpecies");
+          var genes = results.split("*");
+          results = {
+            "isExact": true,
+            "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+          };
+          var colors = getColorForLength(results, isReviewedCheckBox.checked);
+          var genes = results.genes;
+          self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+          $scope.transcripts = self.specie1Gene.transcripts;
+          $(document).ready(function () {
+            updateCanvases();
+          });
+
+        }
+
+      });
+
+    } else {
+      $('#genomic_range1').ionRangeSlider({
+        type: "double",
+        min: self.minimumRange1 - self.minimumRange1,
+        max: self.maximumRange1 - self.minimumRange1,
+        from: self.maximumRange1 - self.specie1Gene.scale.end,
+        to: self.maximumRange1 - self.specie1Gene.scale.start,
+        drag_interval: true,
+        skin: "square",
+        prettify: function (num) {
+          return self.maximumRange1 - num; /*max - num*/
+        },
+        onFinish: function (data) {
+          var results = $window.sessionStorage.getItem("currCompareSpecies");
+          var genes = results.split("*");
+          results = {
+            "isExact": true,
+            "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+          };
+          var colors = getColorForLength(results, isReviewedCheckBox.checked);
+          var genes = results.genes;
+          self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+          $scope.transcripts = self.specie1Gene.transcripts;
+          $(document).ready(function () {
+            updateCanvases();
+          });
+
+        }
+
+      });
+    }
+
+    if (self.specie2Gene.strand == '+') {
+      $('#genomic_range2').ionRangeSlider({
+        type: "double",
+        min: self.specie2Gene.scale.start,
+        max: self.specie2Gene.scale.end,
+        from: self.specie2Gene.scale.start,
+        to: self.specie2Gene.scale.end,
+        drag_interval: true,
+        skin: "square",
+        onFinish: function (data) {
+          var results = $window.sessionStorage.getItem("currCompareSpecies");
+          var genes = results.split("*");
+          results = {
+            "isExact": true,
+            "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+          };
+          var colors = getColorForLength(results, isReviewedCheckBox.checked);
+          var genes = results.genes;
+          self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+          $scope.transcripts = self.specie2Gene.transcripts;
+          $(document).ready(function () {
+            updateCanvases();
+          });
+
+        }
+
+      });
+    } else {
+      //gene 2 - 
+      $('#genomic_range2').ionRangeSlider({
+        type: "double",
+        min: self.minimumRange2 - self.minimumRange2,
+        max: self.maximumRange2 - self.minimumRange2,
+        from: self.maximumRange2 - self.specie2Gene.scale.end,
+        to: self.maximumRange2 - self.specie2Gene.scale.start,
+        drag_interval: true,
+        skin: "square",
+        prettify: function (num) {
+          return self.maximumRange2 - num; /*max - num*/
+        },
+        onFinish: function (data) {
+          var results = $window.sessionStorage.getItem("currCompareSpecies");
+          var genes = results.split("*");
+          results = {
+            "isExact": true,
+            "genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+          };
+          var colors = getColorForLength(results, isReviewedCheckBox.checked);
+          var genes = results.genes;
+          self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+          $scope.transcripts = self.specie2Gene.transcripts;
+          $(document).ready(function () {
+            updateCanvases();
+          });
+
+        }
+
+      });
+    }
+
 
   }
 

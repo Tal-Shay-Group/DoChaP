@@ -149,7 +149,7 @@
                         <!-- scale view for transcripts -->
                         <span class="chromosomeLocation">{{::chromosomeLocation}}</span> <br>
                         <div style="width: {{canvasSize}}px;">
-                            <input type="text" class="js-range-slider" id="genomic_range" value="" />
+                            <input type="text" ng-class="genomicClass" id="genomic_range" value="" />
                         </div>
                         <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                         </canvas>

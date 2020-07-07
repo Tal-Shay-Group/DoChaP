@@ -15,7 +15,7 @@ class Domain {
         this.end = dbDomain.nuc_end - proteinStart; //nuc units
         this.AAstart = dbDomain.AA_start; //aa units
         this.AAend = dbDomain.AA_end; //aa units
-        this.name = dbDomain.domainType.name;
+        this.name = this.getName(dbDomain);
         this.typeID = dbDomain.domainType.type_id;
         this.source = dbDomain.ext_id;
 
@@ -268,27 +268,10 @@ class Domain {
         var length = end - start+1;
 
         //finding sourcename
-        var source = this.source;
-        var sourceName = "";
-        if (source == undefined) {
-            sourceName = "Source";
-            source = "unknown";
-        }
-        if (source.substring(0, 5) == 'smart') {
-            sourceName = "Smart";
-        }
-        if (source.substring(0, 4) == 'pfam') {
-            sourceName = "Pfam";
-        }
-        if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
-            sourceName = "CDD";
-        }
-        if (source.substring(0, 4) == 'TIGR') {
-            sourceName = "Tigr";
-        }
+        var sources=this.getSources(this.source);
 
 
-        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "aa<br>" + sourceName + ": <a href='" + Species.getURLfor(source) + "' target='_blank' >" + source + "</a>";
+        var text = "<u>" + name + "</u><br> Positions: " + start + "-" + end + "<br>Length: " + length + "aa<br>"+sources;
         return [domainX, domainY, domainWidth, domainHeight, text, undefined];
     }
 
@@ -504,6 +487,52 @@ class Domain {
 
         }
     }
+
+    getName(dbDomain){
+        if(dbDomain.domainType.name!=undefined){
+            return dbDomain.domainType.name;
+        }
+        else if (dbDomain.domainType.other_name!=undefined){
+            return dbDomain.domainType.other_name;
+        }
+        return dbDomain.ext_id;
+    }
+
+    getSources(sources){
+        var sources =sources.split(', ');
+        var res= "";
+        for (var i =0; i<sources.length;i++){
+            var source = sources[i];
+            var sourceName = "";
+            if (source == undefined) {
+                sourceName = "Source";
+                source = "unknown";
+            }
+            if (source.substring(0, 5) == 'smart') {
+                sourceName = "Smart";
+            }
+            if (source.substring(0, 4) == 'pfam') {
+                sourceName = "Pfam";
+            }
+            if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
+                sourceName = "CDD";
+            }
+            if (source.substring(0, 4) == 'TIGR') {
+                sourceName = "Tigr";
+            }
+            if (source.substring(0, 3) == 'IPR') {
+                sourceName = "InterPro";
+            }
+
+            res= res  + sourceName + ": <a href='" + Species.getURLfor(source) + "' target='_blank' >" + source + "</a>"
+            if(i+1<sources.length){
+                res=res+", "
+            }
+        }
+        return res;
+        
+    }
+
 /**
  * froup domains that are overlap in certain creteria of overlap
  * @param {array of Domain} domains 
