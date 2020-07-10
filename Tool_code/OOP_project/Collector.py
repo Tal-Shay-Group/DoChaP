@@ -131,7 +131,7 @@ class Collector:
                         self.Genes[ensG] = self.ensembl.Genes[ensG]
                         genesIDs.add(ensG)
                     elif refG not in self.Genes:
-                        self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, ensG))
+                        self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                         genesIDs.add(refG)
                         if ensG is not None:
                             genesIDs.add(ensG)
@@ -184,7 +184,7 @@ class Collector:
 
 if __name__ == '__main__':
     start_time = time.time()
-    species = "H_sapiens"
+    species = "X_tropicalis"
     col = Collector(species)
     col.collectAll()
     print("--- %s seconds ---" % (time.time() - start_time))
