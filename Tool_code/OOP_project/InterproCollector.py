@@ -69,9 +69,9 @@ class InterProBuilder(SourceBuilder):
         fieldnames = ['Name', 'SourceDatabase', 'Type', 'IntegratedSignatures',
                       'GOTerms', "0"]
         df = pd.read_table(myf, sep="|", names=fieldnames, index_col=0)
-        df = df[df["Type"] == "domain"]
+        #df = df[df["Type"] == "domain"]
         refids = df["IntegratedSignatures"].str.split(";")
-        newdf = pd.DataFrame(columns=["interpro", "pfam", "smart", "cdd", "tigrfams"])
+        newdf = pd.DataFrame(columns=["interpro", "pfam", "smart", "cdd", "tigrfams", "Type"])
         sourceDict = {"smart": "sm", "pfam": "pf", "cdd": ".", "tigrfams": "."}
         for ind, row in refids.iteritems():
             for ext in row:
@@ -80,6 +80,7 @@ class InterProBuilder(SourceBuilder):
                 if splitrow[0] in sourceDict.keys():
                     newdf.at[ind, splitrow[0]] = splitrow[1].replace(sourceDict[splitrow[0]], splitrow[0])
                     newdf.at[ind, "interpro"] = ind
+                    newdf.at[ind, "Type"] = df.loc[ind, "Type"]
         newdf = newdf.where(pd.notnull(newdf), None)
         self.AllDomains = newdf
 
