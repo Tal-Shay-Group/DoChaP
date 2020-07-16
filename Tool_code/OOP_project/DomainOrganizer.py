@@ -43,7 +43,7 @@ class DomainOrganizer:
         identify = self.Interpro.AllDomains.loc[
             self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
         ind = identify.index.values[0] if len(identify) != 0 else None
-        if self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
+        if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
             return None
         if domain.extID in self.allExt:
             currReg = self.allExt[domain.extID]
