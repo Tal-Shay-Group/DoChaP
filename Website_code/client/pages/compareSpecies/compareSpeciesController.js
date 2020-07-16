@@ -183,7 +183,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       self.currSpecies.currTranscript = self.currSpecies.transcripts[id];
     }
 
-    webService.userLog("open_window," + type + "+" + self.currSpecies.transcripts[id].id);
+    // webService.userLog("open_window," + type + "+" + self.currSpecies.transcripts[id].id);
   }
 
   //closing modal when clicking outside of modal
@@ -253,7 +253,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
       }
 
     }
-    webService.userLog("partial_view," + type);
+    // webService.userLog("partial_view," + type);
   }
   //change mode between reviewed and unreviewed
   $scope.filterUnreviewed = function () {
@@ -277,7 +277,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     $(document).ready(function () {
       updateCanvases();
     });
-    webService.userLog("filter_unreviewed," + isReviewedCheckBox.checked);
+    // webService.userLog("filter_unreviewed," + isReviewedCheckBox.checked);
   }
 
   //hiding one transcript
@@ -291,7 +291,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     specieToChange.transcripts[index].genomicView = false;
     specieToChange.transcripts[index].transcriptView = false;
     specieToChange.transcripts[index].proteinView = false;
-    webService.userLog("hide_transcript," + specieToChange.transcripts[index].id);
+    // webService.userLog("hide_transcript," + specieToChange.transcripts[index].id);
     countShownTranscripts();
   };
 
@@ -376,7 +376,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
     }
 
     countShownTranscripts();
-    webService.userLog("show_transcript," + specieToChange.transcripts[index].id);
+    // webService.userLog("show_transcript," + specieToChange.transcripts[index].id);
   };
 
 
@@ -447,6 +447,9 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
     //adding gene symbol options
     if (options2.length > 0) {
+      options2 = options2.filter(function(item, pos) {
+        return options2.indexOf(item) == pos;
+    })
       options2.sort();
       var alreadyInOrthology = false;
       for (var i = 0; i < options1.length; i++) {
