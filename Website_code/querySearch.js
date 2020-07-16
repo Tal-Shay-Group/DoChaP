@@ -7,6 +7,7 @@ const app = express.Router();
 var Database = require('better-sqlite3');
 var db = undefined;
 var fs = require('fs');
+const { json } = require("express");
 var qCache = require('./QueryCache').qCache;
 
 //sql to db
@@ -217,23 +218,20 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
     console.log('Orthology');
     var gene = req.params.gene.toUpperCase();
     var species = req.params.species;
+    var finalResults=[];
+
+    //search by name only
     var similarGenes= sql("SELECT gene_symbol,specie FROM Genes WHERE (UPPER( gene_ensembl_id ) = ? or UPPER( gene_symbol ) =? )", [gene, gene]);
 
     //check A
     var results = sql("SELECT * FROM Orthology WHERE (UPPER( A_ensembl_id ) = ? or UPPER( A_GeneSymb ) =? ) AND A_Species = ?", [gene, gene, species]);
-    if (results.length > 0) {
-        res.status(200).send([results,similarGenes]);
-        db.close();
-        return;
-    }
+    finalResults=finalResults.concat(results);
 
     //check B
     results = sql("SELECT * FROM Orthology WHERE (UPPER( B_ensembl_id ) = ? or UPPER( B_GeneSymb ) =? ) AND B_Species = ?", [gene, gene, species]);
-    if (results.length > 0) {
-        res.status(200).send([results,similarGenes]);
-        db.close();
-        return;
-    }
+    finalResults=finalResults.concat(results);
+
+    //check by matches in gene table
     results = closeGenes(gene);
     if (results.length > 0) {
         var found = undefined;
@@ -242,26 +240,19 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
                 found = results[i];
             }
         }
-        if (found == undefined) {
-            res.status(200).send([]);
-            db.close();
-            return;
-        } else {
+        if (found != undefined) {
             gene=found.gene_symbol.toUpperCase();
             console.log(gene);
             //check A
             results = sql("SELECT * FROM Orthology WHERE (UPPER( A_ensembl_id ) = ? or UPPER( A_GeneSymb ) =? ) AND A_Species = ?", [gene, gene, species]);
-            if (results.length > 0) {
-                res.status(200).send([results,similarGenes]);
-                console.log("res"+results);
-                db.close();
-                return;
-            }
-
+            finalResults=finalResults.concat(results);
+ 
             //check B
             results = sql("SELECT * FROM Orthology WHERE (UPPER( B_ensembl_id ) = ? or UPPER( B_GeneSymb ) =? ) AND B_Species = ?", [gene, gene, species]);
-            if (results.length > 0) {
-                res.status(200).send([results,similarGenes]);
+            finalResults=finalResults.concat(results);
+
+            if (finalResults.length > 0) {
+                res.status(200).send([finalResults,similarGenes]);
                 db.close();
                 return;
             }
@@ -272,6 +263,12 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
         }
     }
 
+    if (finalResults.length > 0) {
+        res.status(200).send([finalResults,similarGenes]);
+        db.close();
+        return;
+    }
+    
     db.close();
     res.status(200).send([]);
 });

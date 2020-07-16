@@ -5,6 +5,7 @@ angular.module("DoChaP")
         $scope.sendMail=function(){
             webService.sendMail(Uname.value,email.value,message.value); 
             $window.alert("Thank you "+Uname.value+". We will be in contact.")
+            $window.location = "#!";
         }
        
     });

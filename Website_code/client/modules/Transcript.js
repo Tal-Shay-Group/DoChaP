@@ -214,6 +214,10 @@ class Transcript {
      * @param {String} proteinExtendViewCanvasID 
      */
     tooltipProteinExtendView(proteinExtendViewCanvasID) {
+
+        //change canvas size (height) to fit number of overlapping domains
+        this.changeCanvasSizeForExtendedView(proteinExtendViewCanvasID);
+
         //init attributes
         var domains = this.domains;
         var startHeight = 25;
@@ -439,9 +443,11 @@ class Transcript {
 
     /**
      * the fourth view (showing overlapping domains next to each other)
-     * @param {String} canvasID 
+     * @param {String} canvasID the canvas already changed to fit the size of domains (its dynammically have changed)
      */
     drawExtended(canvasID) {
+
+       
         //calculations
         var exons = this.exons;
         var canvas = document.getElementById(canvasID);
@@ -453,6 +459,7 @@ class Transcript {
         var startHeight = 25;
         var domainsInProtein = this.domains;
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
+        var heightOfDomainList=canvasHeight;
 
         //clear old drawings
         context.closePath();
@@ -462,7 +469,7 @@ class Transcript {
 
         //actual drawings
         for (var i = 0; i < domainsInProtein.length; i++) {
-            domainsInProtein[i].drawExtend(context, coordinatesWidth, startHeight, true, exons);
+            domainsInProtein[i].drawExtend(context, coordinatesWidth, startHeight, true, exons,heightOfDomainList);
         }
     }
 
@@ -482,6 +489,26 @@ class Transcript {
             return refseq_id+" / "+ensembl_id;
         }
         return undefined;
+    }
+
+    changeCanvasSizeForExtendedView(canvasID){
+        var domainsInProtein = this.domains;
+        var maxOverlaps=0;
+        var domainHeight=25;//in pixel
+        var startHeight=25;
+
+        for(var i=0; i<domainsInProtein.length;i++){
+            if(domainsInProtein[i].domains!=undefined && domainsInProtein[i].domains.length>maxOverlaps){
+                maxOverlaps=domainsInProtein[i].domains.length;
+            }
+        }
+        if(maxOverlaps==0){
+            return;
+        }
+        var canvas = document.getElementById(canvasID);
+        canvas.height=domainHeight*maxOverlaps+startHeight;
+        canvas.style.height = (domainHeight*maxOverlaps+startHeight)+'px';
+
     }
 
 }

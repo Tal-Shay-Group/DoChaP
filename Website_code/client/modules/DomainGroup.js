@@ -138,18 +138,18 @@ class DomainGroup {
      * and not full draw is just a white circle needed before drawing for opacity aesthetics
      * @param {array of Exon} exons 
      */
-    drawExtend(context, coordinatesWidth, startHeight, isFullDraw, exons) {
+    drawExtend(context, coordinatesWidth, startHeight, isFullDraw, exons, height) {
         //calculate positions
         var domainWidth = (this.end - this.start) * coordinatesWidth;
         var domainX = this.start * coordinatesWidth;
-        var domainHeight = 45;
-        var domainY = startHeight - domainHeight / 2;
+        var domainHeight = height-startHeight;
+        var domainY = startHeight; //- domainHeight / 2
         // var shapeID = 0; //currently its only circles 
         var overlap = false; //all point is that overlapped is inside
         var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
 
         //height for each domain in the group
-        var oneDomainHeight=domainHeight/this.domains.length; 
+        var oneDomainHeight=25;//in pixel 
         
         //drwing each of the inner domains
         for(var i=0; i<this.domains.length;i++){
@@ -246,15 +246,15 @@ class DomainGroup {
      * @param {int} domainHeight in pixel units
      * @param {double} domainY in pixel units
      */
-    proteinExtendTooltip(coordinatesWidth,startHeight){
+    proteinExtendTooltip(coordinatesWidth, startHeight, height){
         // var domainWidth = (this.end - this.start) * coordinatesWidth;
         // var domainX = this.start * coordinatesWidth;
-        var domainHeight = 45;
-        var domainY = startHeight - domainHeight / 2;
+        var domainHeight = height-startHeight;
+        var domainY = startHeight; //- domainHeight / 2
         // var shapeID = 0; //currently its only circles 
         // var overlap = false; //all point is that overlapped is inside
         // var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
-        var oneDomainHeight=domainHeight/this.domains.length;
+        var oneDomainHeight=25;//in pixel
 
         var tooltips=[];
         for(var i=0; i<this.domains.length;i++){

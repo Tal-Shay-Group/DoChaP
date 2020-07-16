@@ -62,7 +62,7 @@ angular.module("DoChaP")
             $scope.transcripts[index].transcriptView = false;
             $scope.transcripts[index].proteinView = false;
             countShownTranscripts();
-            webService.userLog("hide_transcript,"+$scope.transcripts[index].id);
+            // webService.userLog("hide_transcript,"+$scope.transcripts[index].id);
         };
 
         //show according to mode
@@ -90,7 +90,7 @@ angular.module("DoChaP")
                 $scope.transcripts[index].proteinView = true;
             }
             countShownTranscripts();
-            webService.userLog("show_transcript,"+$scope.transcripts[index].id);
+            // webService.userLog("show_transcript,"+$scope.transcripts[index].id);
         };
 
         //count the number of transcripts shown
@@ -115,7 +115,7 @@ angular.module("DoChaP")
 
         //change view mode. When selecting from chociebox "show only __"
         $scope.checkboxChecked = function () {
-            webService.userLog("partial_view,"+selectModeComboBox.value);
+            // webService.userLog("partial_view,"+selectModeComboBox.value);
             var type = selectModeComboBox.value;
             $scope.viewMode = type;
             if (type == "all") {
@@ -145,7 +145,7 @@ angular.module("DoChaP")
             } else if (type == "protein") {
                 self.currTranscript = $scope.transcripts[id];
             }
-            webService.userLog("open_window,"+type+"+"+$scope.transcripts[id].id);
+            // webService.userLog("open_window,"+type+"+"+$scope.transcripts[id].id);
 
         }
 
@@ -158,7 +158,7 @@ angular.module("DoChaP")
 
         //when filtering/unfiltering unreviewed
         $scope.filterUnreviewed = function () {
-            webService.userLog("filter_unreviewed,"+isReviewedCheckBox.checked);
+            // webService.userLog("filter_unreviewed,"+isReviewedCheckBox.checked);
             $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
             $route.reload();
         }

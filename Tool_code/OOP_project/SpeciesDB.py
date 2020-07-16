@@ -1,5 +1,6 @@
 from sqlite3 import connect
 import pandas as pd
+import numpy as np
 import sys
 import os
 import time
@@ -338,11 +339,13 @@ class dbBuilder:
                               reg.extID, splice_junction, complete,)
                     Domdf.loc[ldf] = list(values)
                 Domdf = Domdf.drop_duplicates()
+                Domdf = Domdf.fillna(-1)
                 Domdf = Domdf.groupby(["protein_refseq_id", "protein_ensembl_id", "type_id",
                                        "AA_start", "AA_end", "nuc_start", "nuc_end", "total_length",
                                        "splice_junction", "complete_exon"],
                                       as_index=False, sort=False).agg(
                     lambda col: ", ".join(set(col)))  # groupby all besides ext_ID
+                Domdf = Domdf.replace(-1, np.nan)
                 Domdf.to_sql("DomainEvent", con, if_exists="append", index=False)
 
                 # if values not in domeve:

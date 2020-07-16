@@ -91,7 +91,6 @@
                     <tr>
                         <td rowspan="5" style="width: 250px;">
                             <iframe width="230" height="150" src="https://www.youtube.com/embed/DcwepXx0jS8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>   
-                            <!-- <a href="https://www.youtube.com/embed/DcwepXx0jS8" target="_BLANK"><img src="https://img.youtube.com/vi/DcwepXx0jS8/0.jpg"  width="230" height="150"  /></a> -->
                         </td>
                         <td>Select species</td>
                         <td>
@@ -198,8 +197,8 @@
             <!-- results graphics -->
             <table  style="margin-left: 30px;">
                 <tr>
-                    <td>
-                        <table class="resultTable">
+                    <td style="padding-right: 50px;">
+                        <table>
                             <tr>
                                 <th colspan="3">
                                     <!--intro text-->
@@ -226,10 +225,10 @@
                                 </td>
                                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                                     class="resultTitle">
-                                    <span ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
+                                    <span style="margin-right: 50px;" ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
                                         Protein</span>
-                                    <span ng-show="viewMode=='transcript'">Transcript</span>
-                                    <span ng-show="viewMode=='protein'">Protein</span>
+                                    <span style="margin-right: 50px;" ng-show="viewMode=='transcript'">Transcript</span>
+                                    <span style="margin-right: 50px;" ng-show="viewMode=='protein'">Protein</span>
                                     <div style="position: absolute; z-index: -1;">
                                         <!--protein gridlines from behind-->
                                         <canvas id="proteinGridlines1"
@@ -279,7 +278,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
 
                                     </td> -->
 
-                                <td style="height: {{(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView?'255':'34')}}px">
+                                <td  width="{{canvasSize}}" style="height: {{(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView?'255':'34')}}px">
                                     <!-- -->
                                     <!-- hide button -->
                                     <button ng-click="hideTranscriptView($index,1)" class="btn blackButton"
@@ -310,7 +309,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                 <td width="30"
                                     ng-show="viewMode=='all'&&(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView)">
                                 </td>
-                                <td
+                                <td  width="{{canvasSize}}"
                                     ng-show="viewMode!='genomic'&&(compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView)">
                                     <a href=""
                                         ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView &&  viewMode!='transcript'&&  viewMode!='transcript_protein'"
@@ -337,7 +336,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                         </table>
                     </td>
                     <td>
-                        <table class="resultTable">
+                        <table>
                             <tr>
                                 <th colspan="3">
                                     <!--intro text-->
@@ -349,6 +348,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                 <th></th>
                                 <th></th>
                             </tr>
+                           
                             <tr>
                                 <!--titles-->
                                 <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
@@ -364,10 +364,10 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                 <td></td>
                                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                                     class="resultTitle">
-                                    <span ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
+                                    <span style="margin-right: 50px;" ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
                                         Protein</span>
-                                    <span ng-show="viewMode=='transcript'">Transcript</span>
-                                    <span ng-show="viewMode=='protein'">Protein</span>
+                                    <span style="margin-right: 50px;" ng-show="viewMode=='transcript'">Transcript</span>
+                                    <span style="margin-right: 50px;" ng-show="viewMode=='protein'">Protein</span>
                                     <div style="position: absolute; z-index: -1;">
                                         <!--protein gridlines from behind-->
                                         <canvas id="proteinGridlines2"
@@ -406,7 +406,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                 <!--
                                          ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView"
                                     -->
-                                <td style="height: {{(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView?'255':'34')}}px">
+                                <td width="{{canvasSize}}" style="height: {{(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView?'255':'34')}}px">
                                     <!--hide button-->
                                     <button ng-click="hideTranscriptView($index,2)" class="btn blackButton"
                                         style="width: auto;"
@@ -433,7 +433,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                 <td width="30"
                                     ng-show="viewMode=='all'&&(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView)">
                                 </td>
-                                <td
+                                <td width="{{canvasSize}}"
                                     ng-show="viewMode!='genomic'&&(compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView)">
                                     <!-- transcript view --> <a href=""
                                         ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView &&  viewMode!='transcript'&&  viewMode!='transcript_protein'"
