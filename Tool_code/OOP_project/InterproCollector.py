@@ -79,8 +79,8 @@ class InterProBuilder(SourceBuilder):
                 splitrow[1] = splitrow[1].lower()
                 if splitrow[0] in sourceDict.keys():
                     newdf.at[ind, splitrow[0]] = splitrow[1].replace(sourceDict[splitrow[0]], splitrow[0])
-                    newdf.at[ind, "interpro"] = ind
-                    newdf.at[ind, "Type"] = df.loc[ind, "Type"]
+                newdf.at[ind, "interpro"] = ind
+                newdf.at[ind, "Type"] = df.loc[ind, "Type"]
         newdf = newdf.where(pd.notnull(newdf), None)
         self.AllDomains = newdf
 
@@ -131,6 +131,6 @@ def parse_column(value, selector):
         return parse_locations(value)
     return str(value)
 
-#if __name__ == "__main__":
-#    inter = InterProBuilder()
-#    inter.parser()
+if __name__ == "__main__":
+   inter = InterProBuilder()
+   inter.parser()
