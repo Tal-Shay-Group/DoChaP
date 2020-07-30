@@ -7,6 +7,7 @@
 **/*.gtf
 #Ignore big tables
 **/*.gz
+**/*.zip
 #ignore node_modules
 **/node_modules
 # ignore .db files created by gffutils
@@ -41,12 +42,13 @@ Website_code/userInterfaceLog.txt
 Tool_code/*.txt
 **/*.orthology.txt
 
-Downloads_refine/Downloads/**
+**/Downloads_refine/**
 
+.idea/**
 **/.idea/*
 **/__pycache__/*
 
-**/*.sh
+#**/*.sh
 !**/*.template.sh
 !**/*.Template.sh
 
