@@ -1,6 +1,5 @@
 
-![](Others/Images/LOGO.jpeg)
-<img src="Others/Images/LOGO.jpeg" width="300" height="100">
+![](Others/Images/LOGO.jpg)
 
 July 30th, 2020
 #DoChaP 

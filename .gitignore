@@ -27,19 +27,19 @@
 
 **/*.sqlite 
 **/DB_merged.sqlite 
-example_gtf/*
+**/example_gtf/*
 **/*.csv
 **/data/*
 **/*.tsv
 
 # logs should be on server and not be updated externally
-Website_code/log.txt
+DoChaP-web/log.txt
 **/log.txt
 
 Website_code/userInterfaceLog.txt
 **/userInterfaceLog.txt
 
-Tool_code/*.txt
+DoChaP-db/*.txt
 **/*.orthology.txt
 
 **/Downloads_refine/**
@@ -55,4 +55,4 @@ Tool_code/*.txt
 **.pyc
 **.sh.e*
 **.sh.o*
-Website_code/messages.txt
+DoChaP-web/messages.txt
