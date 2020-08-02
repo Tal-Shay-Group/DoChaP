@@ -62,7 +62,6 @@ angular.module("DoChaP")
             $scope.transcripts[index].transcriptView = false;
             $scope.transcripts[index].proteinView = false;
             countShownTranscripts();
-            // webService.userLog("hide_transcript,"+$scope.transcripts[index].id);
         };
 
         //show according to mode
@@ -90,7 +89,6 @@ angular.module("DoChaP")
                 $scope.transcripts[index].proteinView = true;
             }
             countShownTranscripts();
-            // webService.userLog("show_transcript,"+$scope.transcripts[index].id);
         };
 
         //count the number of transcripts shown
@@ -115,7 +113,6 @@ angular.module("DoChaP")
 
         //change view mode. When selecting from chociebox "show only __"
         $scope.checkboxChecked = function () {
-            // webService.userLog("partial_view,"+selectModeComboBox.value);
             var type = selectModeComboBox.value;
             $scope.viewMode = type;
             if (type == "all") {
@@ -145,8 +142,7 @@ angular.module("DoChaP")
             } else if (type == "protein") {
                 self.currTranscript = $scope.transcripts[id];
             }
-            // webService.userLog("open_window,"+type+"+"+$scope.transcripts[id].id);
-
+            
         }
 
         //used when user wants to exit modal by clicking outside the modal
@@ -158,7 +154,6 @@ angular.module("DoChaP")
 
         //when filtering/unfiltering unreviewed
         $scope.filterUnreviewed = function () {
-            // webService.userLog("filter_unreviewed,"+isReviewedCheckBox.checked);
             $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
             $route.reload();
         }
@@ -184,40 +179,7 @@ angular.module("DoChaP")
             isStart = false;    //needed for fade in animations to stop from now on
 
             createRangeSliders();
-            // //range sliders:
-            // $('#genomic_range').ionRangeSlider({
-            //     type: "double",
-            //     skin: "square",
-            //     min: self.geneInfo.scale.start,
-            //     max: self.geneInfo.scale.end,
-            //     from: self.geneInfo.scale.start,
-            //     to: self.geneInfo.scale.end,
-            //     drag_interval: true,
-            //     onFinish: function (data) {
-            //         self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-            //         $scope.transcripts = self.geneInfo.transcripts;
-            //         $(document).ready(function () {
-            //             updateCanvases();
-            //         });
-            //     }
-            // });
-            // $('#protein_range').ionRangeSlider({
-            //     type: "double",
-            //     min: 0,
-            //     max: self.geneInfo.proteinScale.length,
-            //     from: 0,
-            //     to: self.geneInfo.proteinScale.length,
-            //     drag_interval: true,
-            //     skin: "square",
-            //     onFinish: function (data) {
-            //         self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
-            //         $scope.transcripts = self.geneInfo.transcripts;
-            //         $(document).ready(function () {
-            //             updateCanvases();
-            //         });
-            //     }
-            // });
-
+            
             //events on click
             $('canvas').click(function (event) {
                 var tooltipManager = self.toolTipManagerForCanvas;

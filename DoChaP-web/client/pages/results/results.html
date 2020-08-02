@@ -24,9 +24,7 @@
                 <b>Chromosome</b>: {{::resultsCtrl.geneInfo.chromosome}}<br>
                 <b>Synonyms</b>: {{::resultsCtrl.geneInfo.synonyms}}<br>
                 <b>Strand</b>: {{::resultsCtrl.geneInfo.strand}}<br>
-                <!-- <b>Description</b>: {{::resultsCtrl.geneInfo.description}}<br> -->
-                <!-- MGI ID: <a href="http://www.informatics.jax.org/marker/MGI:{{::resultsCtrl.geneInfo.MGI_id}}"
-                    target="_blank">{{::resultsCtrl.geneInfo.MGI_id}}</a><br> -->
+                
             </span>
             <!--transcript modal layout-->
             <span ng-show="showWindow=='transcript'">
@@ -64,11 +62,6 @@
                     <b>Synonyms</b>: {{resultsCtrl.currTranscript.synonyms}}<br>
                 </span>
                 <b>Length</b>: {{resultsCtrl.currTranscript.proteinLengthInAA}}aa<br>
-                <!-- <span ng-show="resultsCtrl.currTranscript.proteinUniprotID!=undefined">
-                    UniProt ID: <a
-                        href="https://www.uniprot.org/uniprot/{{resultsCtrl.currTranscript.proteinUniprotID}}"
-                        target="_blank">{{resultsCtrl.currTranscript.proteinUniprotID}}</a> <br>
-                </span> -->
             </span>
         </div>
     </div>
@@ -104,14 +97,6 @@
             </div>
         </div>
         <br>
-        <!--
-
-                <input style="margin: 5px" type="button" class="btn blackButton" value="Zoom In (+)" ng-click="extendCanvases(400)"
-                style="width: 100px;" />&nbsp;&nbsp;
-                <input type="button" class="btn blackButton" value="Zoom Out (-)"
-                ng-click="extendCanvases(-400)" style="width: 100px;" />
-        -->
-
 
         <!-- list of transcripts -->
         <center>

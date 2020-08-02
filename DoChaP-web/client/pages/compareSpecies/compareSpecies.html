@@ -28,10 +28,6 @@
                     <b>Synonyms</b>: {{compareSpeciesCtrl.currSpecies.synonyms}}<br>
                 </span>
                 <b>Strand</b>: {{compareSpeciesCtrl.currSpecies.strand}}<br>
-                <!-- <b>Description</b>: {{compareSpeciesCtrl.currSpecies.description}}<br> -->
-                <!-- MGI ID: <a
-                        href="http://www.informatics.jax.org/marker/MGI:{{compareSpeciesCtrl.currSpecies.MGI_id}}"
-                        target="_blank">{{compareSpeciesCtrl.currSpecies.MGI_id}}</a><br> -->
             </span>
             <!--transcript modal layout-->
             <span ng-show="showWindow=='transcript'">
@@ -69,11 +65,7 @@
                     <b>Synonyms</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.synonyms}}<br>
                 </span>
                 <b>Length</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.proteinLengthInAA}}aa<br>
-                <!-- <span ng-show="compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID!=undefined">
-                        UniProt ID: <a
-                            href="https://www.uniprot.org/uniprot/{{compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID}}"
-                            target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.proteinUniprotID}}</a> <br>
-                    </span> -->
+                
             </span>
         </div>
     </div>
@@ -268,18 +260,9 @@
                             <tr id="fadeinDiv1{{$index}}"
                                 ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
 
-                                <!--
-ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView"
-                                    -->
-                                <!-- <td class="resultText">
-                                        <input type="button" value="hide" ng-click="hideTranscriptView($index,1)"
-                                            class="btn blackButton" style="width: auto;"
-                                            ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView" />
-
-                                    </td> -->
-
+                              
                                 <td  width="{{canvasSize}}" style="height: {{(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView?'255':'34')}}px">
-                                    <!-- -->
+                    
                                     <!-- hide button -->
                                     <button ng-click="hideTranscriptView($index,1)" class="btn blackButton"
                                         style="width: auto;"
@@ -403,9 +386,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                             </tr>
                             <tr id="fadeinDiv2{{$index}}"
                                 ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
-                                <!--
-                                         ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView"
-                                    -->
+                                
                                 <td width="{{canvasSize}}" style="height: {{(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView?'255':'34')}}px">
                                     <!--hide button-->
                                     <button ng-click="hideTranscriptView($index,2)" class="btn blackButton"
@@ -452,12 +433,7 @@ ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView  ||compa
                                     <canvas id="canvas-protein-extend2{{$index}}" height="100" width="{{canvasSize}}"
                                         ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinExtendView"></canvas>
                                 </td>
-                                <!-- <td class="resultText">
-                                        <input type="button" value="hide" ng-click="hideTranscriptView($index,2)"
-                                            class="btn blackButton" style="width: auto;"
-                                            ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView  ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView" />
-
-                                    </td> -->
+                                
                             </tr>
                         </table>
                     </td>
