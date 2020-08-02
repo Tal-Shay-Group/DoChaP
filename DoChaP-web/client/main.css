@@ -1,14 +1,7 @@
 body {
     font-size: 19px;
-    /* background-color: rgb(255, 255, 255); */
-    font-family:Nunito, Calibri; /*Raleway*/
-    /* background-image: url('/resources/fish_bg.jpg'); */
-    /* background-image: url('/resources/dark_mosaic.png'); */
-    
+    font-family:Nunito, Calibri; 
     background-image: url('/resources/funky-lines.png');
-    /* background-repeat: repeat; */
-    /* background-size: auto; */
-    /* background-size: cover; */
     background-position: center center;
    
 }
@@ -23,8 +16,8 @@ html {
 }
 
 .container-fluid{
-    padding-left: 5%;
-    padding-right: 5%;
+    padding-left: 2%;
+    padding-right: 2%;
 }
 .logo {
     height: 37px;
@@ -33,7 +26,6 @@ html {
 }
 
 .logoText {
-    /* background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px; */
     background: url(https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500) -80px -80px;
     color: red;
     -webkit-text-fill-color: transparent;
@@ -50,20 +42,11 @@ html {
     background-color: rgba(245,245,245,1);
     width: 320px;
     border-radius: 5px;
-    /* border-style: solid;
-    border-width: 2px;
-    
-    border-color: rgb(61, 61, 61); */
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.9);
- 
     text-align: left;
     font-size: 16px;
      overflow: auto;
-    /* box-shadow: 18px 6px 28px -1px rgba(0, 0, 0, 0.75); */
     padding: 20px;
-    /* left: 45%;
-    top: 45%; */
-    /*margin: auto; */
     left: 0; 
     right: 0; 
     margin-left: auto; 
@@ -73,69 +56,6 @@ html {
     z-index: 10;
 
 }
-
-/* .searchButton {
-    background-color: rgb(29, 20, 107);
-    color: white;
-    font-weight: bold;
-    font-size: 30px;
-    height: 40px;
-    width: 200px;
-    border-radius: 8px;
-    box-shadow: 0 8px 12px 0 rgba(44, 44, 44, 0.191);
-    box-shadow: inset 2px 2px 0px 0px black;
-
-}
-
-.searchButton:hover {
-    background-color: rgb(32, 44, 214);
-}
- 
-.optionButton {
-    background-color: rgb(29, 20, 107);
-    color: white;
-    font-size: 15px;
-    height: 25px;
-    width: 200px;
-    border-radius: 8px;
-
-}
-
-.optionButton:hover {
-    background-color: rgb(32, 44, 214);
-}
-
-.menu {
-    width: 100%;
-    background: rgb(57, 66, 190);
-
-
-}
-
-.nav{
-   
-    box-shadow: inset 0px 1px 2px 0px rgba(255, 255, 255, 0.75);
-    color: aliceblue;
-    background:rgb(57, 66, 190);
-
-
-.nav:hover{
-    :rgb(71, 77, 168);
-}
-}
-.navA:hover,
-.navA:visited,
-.navA:link,
-.navA:active {
-    text-decoration: none;
-    color: white;
-}
-
-.navA {
-    font-size: 30px;
-    color: white;
-}
-*/
 
 /*main textfield for each search*/
 .searchTextFieldClass {
@@ -153,8 +73,6 @@ html {
 
 /*td where the hide transcript button is commented from 23.2 */
 .resultText {
-    /*width: 140px;
-    height: 105px;*/
     font-size: 16px;
 }
 
@@ -174,7 +92,6 @@ html {
     border-collapse: collapse;
     align-self: center;
     text-align: justify;
-
 }
 
 td {
@@ -185,7 +102,6 @@ td {
 
 .searchBySpecie {
     width: 100px;
-
 }
 
 .searchItems {
@@ -193,8 +109,6 @@ td {
     margin-left: auto;
     display: table;
     text-align: left;
-
-
 } 
 
 /*
@@ -209,10 +123,8 @@ text aligned to left
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
     padding: 30px;
     border-radius: 5px;
-    width: 90%; /*800*/
+    width: 96%;
     background-color: white;
-    /* background-color:rgb(235, 235, 235);  */
-    /* background-color: #B8B4FF ;  */
 }
 
 .selectMode {
@@ -278,22 +190,11 @@ textarea {
 
 }
 .backgroundForPage{
-    /* background-image: url('/resources/dna100.jpg');
-    height: 1000px;
-    background-repeat: no-repeat; 
-    background-size: cover;
-    background-position: center center; */
-    /* position: relative;
-    z-index:-2; */
     background-color: white;
 }
 .longerButtons{
     height: 70px;
 }
-/* 
-#compareGeneSearchTextField{
-    width: 200px;
-} */
 
 .slide {
     position: absolute;

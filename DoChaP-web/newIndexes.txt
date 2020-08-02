@@ -1,6 +1,0 @@
-CREATE INDEX "domainEventsTableIndexByEnsembl" ON "DomainEvent" (
-	"protein_ensembl_id"
-);
-CREATE INDEX "exonInTranscriptsTableIndexByEnsembl" ON "Transcript_Exon" (
-	"transcript_ensembl_id"
-);

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        Alternative Splicing Similarities In Transcripts
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Nunito" /> -->
+
+    <script src="controller.js"></script>
+    <script src="Comparison.js"></script>
+    <script src="BetweenTranscriptsDrawer.js"></script>
+
+    <script src="BetweenGenesComparator.js"></script>
+    <script src="BetweenGenesDrawer.js"></script>
+
+    <script src="BetweenGenesInSpeciesDrawer.js"></script>
+    <script src="BetweenTranscriptsComparator.js"></script>
+    <script src="BetweenGenesInSpeciesComparator.js"></script>
+    <style>
+        body {
+            font-size: 18px;
+            font-family: Nunito, Calibri;
+        }
+
+        table {
+            border-collapse: collapse;
+
+        }
+        input {
+            width: 110px;
+        }
+
+        /*
+table, th, td {
+
+}    
+*/
+        .searchOption {
+            border: black dashed 1px;
+            border-radius: 5px;
+            background-color: whitesmoke;
+            margin: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <table style="border: 1px solid black;">
+        <tr>
+            <td style="border: 1px solid black; vertical-align: top;">
+
+                <br>
+                you can adjust weights for our 3 measures:<br>
+                <table>
+                    <tr>
+                        <td>
+                            exon genomic coordinates overlap:</td>
+                        <td>
+                            <input type="text" value="1" id="weights1">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            exon length in CDS:</td>
+                        <td>
+                            <input type="text" value="1" id="weights2">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            domain similarity:</td>
+                        <td>
+                            <input type="text" value="1" id="weights3">
+                        </td>
+                    </tr>
+                </table>
+                <br>
+                <br>
+                <div class="searchOption">
+                    <b>Search For Similarity In Two Transcripts:</b>
+                    <table>
+
+                        <tr>
+                            <td>Transcript 1</td>
+                            <td><input id="search1Transcript1" value="NM_001014840.2"></td>
+                        </tr>
+                        <tr>
+                            <td>Transcript 2</td>
+                            <td><input id="search1Transcript2" value="NM_015921.3"></td>
+                        </tr>
+                    </table>
+                    <input type="button" value="Search" onClick="similarityBetweenTranscripts()">
+                </div>
+                <div class="searchOption">
+                    <b>Search For Similarity In All Transcripts Of Gene In A Specific Species:</b>
+                    <br>
+                    <table>
+                        <tr>
+                            <td>Species</td>
+                            <td>
+                                <!--                <input value="H_sapiens">-->
+                                <select id="search2Species">
+                                    <option value="H_sapiens">Human</option>
+                                    <option value="M_musculus">Mouse</option>
+                                    <option value="R_norvegicus">Rat</option>
+                                    <option value="D_rerio">Zebrafish</option>
+                                    <option value="X_tropicalis">Frog</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gene</td>
+                            <td><input id="search2Gene" value="cuta"></td>
+                        </tr>
+                    </table>
+                    <input type="button" value="Search" onclick="similarityBetweenGenesInSpecies()">
+                </div>
+                <div class="searchOption">
+                    <b>Search For Similarity In All Transcripts In Gene:</b>
+                    <br>
+                    <table>
+                        <tr>
+                            <td>Gene</td>
+                            <td><input id="search3Gene" value="cuta"></td>
+                        </tr>
+                    </table>
+                    <input type="button" value="Search" onclick="similarityBetweenGenes()">
+                </div>
+            </td>
+            <td style="border: 1px solid black; vertical-align: top;">
+                <div>
+                    <br>
+                    Results:
+                    <div id="graphVisualization"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+
+</body>
+
+</html>

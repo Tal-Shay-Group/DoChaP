@@ -29,46 +29,6 @@ function runGenesCreation(result, ignorePredictions, preferences) {
     return geneList;
 }
 
-/*
-    this file focuses on actual graphics. drawing the shapes in proportions, sizes and length.
-    each view is coded differently and we hope to write code that can be easily handled and managed.
-*/
-
-/**
- * builds gridlines after constant skip. for genomic view only
- * @param {*} contextT context of the canvas wanted
- * @param {*} beginningEmpty pixels empty in start
- * @param {*} coordinatesWidth needed for pixal to nuc conversion 
- * @param {*} canvasHeight 
- * @param {*} canvasWidth 
- * @param {*} lengthOfGene in nuc units
- * @param {*} startCoordinate 
- * @param {boolean} isinMiddle  gridline from middle or from bottom mostly
- * @param {*} startHeight length from top
- */
-
-// function createGridLines(contextT, beginningEmpty, coordinatesWidth, canvasHeight, canvasWidth, lengthOfGene, startCoordinate, isinMiddle, startHeight) {
-//     var gridLength = 10;
-//     var startHeight = startHeight - gridLength;
-//     contextT.fillStyle = "#bfbfbf";
-//     if (!isinMiddle) {
-//         gridLength = 5;
-//         startHeight = canvasHeight - gridLength;
-//         contextT.fillStyle = "black";
-//     }
-
-//     var skip = getSkipSize(coordinatesWidth);
-//     // contextT.fillRect(beginningEmpty, startHeight, 1,gridLength);
-//     var secondCoordinate = skip - (startCoordinate % skip); //the length till the next rounded after start
-//     for (var i = secondCoordinate;
-//         (i * coordinatesWidth + 2) < canvasWidth; i = i + skip) {
-//         contextT.fillRect((i * coordinatesWidth) + beginningEmpty, startHeight, 1, gridLength);
-//     }
-
-// }
-
-
-
 /** 
  * selecting how musch is for skip. depends on proportions between the canvas size and protein size
  */

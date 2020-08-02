@@ -40,27 +40,5 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
          }
       }
    }
-/*
-   $(document).ready(function () {
-      document.getElementById("indexTextField").addEventListener("keypress", function (event) {
-         
-         if (event.code == "Enter") {
-            try{
-               // $window.alert('1');
-               // $window.alert(JSON.stringify(self));
-               // $window.alert(JSON.stringify(self.search));
-               $rootScope.search();
-               // $window.alert('2');
-            }
-            catch(err){
-               $window.alert(JSON.stringify(err));
-            }
-            
-        }
-
-      });
-
-    });
-    */
 
 });
