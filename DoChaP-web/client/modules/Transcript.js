@@ -10,7 +10,6 @@ class Transcript {
         this.id=dbTranscript.transcript_refseq_id!=undefined?dbTranscript.transcript_refseq_id:dbTranscript.transcript_ensembl_id;
         this.transcript_refseq_id=dbTranscript.transcript_refseq_id;
         this.transcript_ensembl_id=dbTranscript.transcript_ensembl_id;
-        // this.id = dbTranscript.transcript_id;
         this.cds_start = dbTranscript.cds_start;
         this.cds_end = dbTranscript.cds_end;
         this.tx_start = dbTranscript.tx_start;
@@ -65,7 +64,6 @@ class Transcript {
 
         //domain sorts and attribute edits
         Domain.findOverlaps(this.domains);
-        // this.domains = Domain.groupAllOverlappingDomains(this.domains);
         this.domains = Domain.groupCloseDomains(this.domains); ///!!!!!!!!!overlapping only 50% or more!!!
         this.domains.sort(Domain.compare); //so it is drawn in right order
         // Domain.showNameOfDomains(this.domains); ///!!!!!!!!! showing currently all domains
@@ -254,25 +252,7 @@ class Transcript {
      * @param {String} canvasID 
      */
     drawGenomicView(canvasID) {
-        //calculations
-        // var canvas = document.getElementById(canvasID);
-        // var context = canvas.getContext("2d");
-        // var canvasHeight = canvas.height;
-        // var canvasWidth = canvas.width;
-        // var lineThickness = 2;
-        // var startHeight = 50;
-        // var lengthOfGene = this.length;
-        // var beginningEmpty = 10; //in pixels
-        // var endEmpty = 5; //in pixels
-        // var spaceAfterCut = 50;
-        // var coordinatesWidth = (canvas.width - beginningEmpty - endEmpty) / lengthOfGene;
-
-        // //if cut exists
-        // if(this.gene.cutOffStart != -1 && this.gene.cutOffLength!=-1){
-        //     coordinatesWidth = (canvas.width - beginningEmpty - endEmpty - spaceAfterCut) / (lengthOfGene-this.gene.cutOffLength);
-        // }
-
-        // var skip = getSkipSize(coordinatesWidth);
+     
         var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
         var strand = this.gene.strand;
         var startCoordinate = this.startCoordinate;
@@ -280,16 +260,6 @@ class Transcript {
         //clear canvas from before
         context.closePath();
         context.clearRect(0, 0, graphicLayout.canvasWidth, graphicLayout.canvasHeight)
-
-        //gridlines
-
-
-        // createGridLines(context, beginningEmpty, coordinatesWidth, canvasHeight, canvasWidth, lengthOfGene, startCoordinate, true, startHeight);
-
-        // var Xcoordinates = .gridCoordinates(startCoordinate, graphicLayout.skip, graphicLayout.coordinatesWidth, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, strand, this.gene.cutOffStart, this.gene.cutOffLength, graphicLayout.spaceAfterCut);
-        // for (var i = 0; i < Xcoordinates.length; i++) {
-        //     this.drawGridLine(graphicLayout.context, Xcoordinates[i].x, graphicLayout.startHeight)
-        // }
 
         //base line
         createBaseLine(graphicLayout.context, 0, graphicLayout.startHeight, graphicLayout.canvasWidth, graphicLayout.lineThickness);
@@ -454,8 +424,6 @@ class Transcript {
         var context = canvas.getContext("2d");
         var canvasHeight = canvas.height;
         var canvasWidth = canvas.width;
-        // var proteinLength = this.proteinLength;
-        // var lineThickness = 4;
         var startHeight = 25;
         var domainsInProtein = this.domains;
         var coordinatesWidth = ((canvasWidth - 50) / this.shownLength);
