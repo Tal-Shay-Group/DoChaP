@@ -72,13 +72,13 @@ app.get('/sendAlert', (req, res) => {
 });
 
 //userInterfaceLog
-app.get('/userLog/:msg', (req, res) => {
-    fs.writeFile("userInterfaceLog.txt", req.params.msg+ "\r\n", {
-        flag: 'a'
-    }, function (err) {
-    });
-    res.status(200).send();
-});
+// app.get('/userLog/:msg', (req, res) => {
+//     fs.writeFile("userInterfaceLog.txt", req.params.msg+ "\r\n", {
+//         flag: 'a'
+//     }, function (err) {
+//     });
+//     res.status(200).send();
+// });
 
 //giving session ID 
 app.get('/getNewSessionID', (req, res) => {
