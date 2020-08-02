@@ -58,9 +58,9 @@ class Domain {
         var domainX = pos.domainX;
         var domainHeight = pos.domainHeight;
         var domainY = pos.domainY;
-        // var shapeID = this.typeID % 4; //currently its by type ID 
+        
 
-        //choosing draw settings. if undefined it is background white so half transparent domain will look better 
+       
         if (isFullDraw == false) {
             context.fillStyle = "white";
             var domainName = "";
@@ -77,22 +77,6 @@ class Domain {
         //choose by shape
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
-        // if (shapeID == 0) {
-        //     context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
-        // } else if (shapeID == 1) {
-        //     context.moveTo(domainX, domainY);
-        //     context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
-        //     context.lineTo(domainX + domainWidth, domainY);
-        // } else if (shapeID == 2) {
-        //     context.moveTo(domainX, domainY);
-        //     context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
-        //     context.lineTo(domainX + domainWidth, domainY);
-        // } else if (shapeID == 3) {
-        //     context.moveTo(domainX + domainWidth / 2, domainY);
-        //     context.lineTo(domainX + domainWidth, domainY + domainHeight / 2);
-        //     context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
-        //     context.lineTo(domainX, domainY + domainHeight / 2);
-        // }
         context.closePath();
 
         //adding shadow below
@@ -404,32 +388,7 @@ class Domain {
         //choose by shape
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
-        // if (shapeID == 0 || true) {
-        //     context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
-        // } else if (shapeID == 1) {
-        //     context.moveTo(domainX, domainY);
-        //     context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
-        //     context.lineTo(domainX + domainWidth, domainY);
-        // } else if (shapeID == 2) {
-        //     context.moveTo(domainX, domainY);
-        //     context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
-        //     context.lineTo(domainX + domainWidth, domainY);
-        // } else if (shapeID == 3) {
-        //     context.moveTo(domainX + domainWidth / 2, domainY);
-        //     context.lineTo(domainX + domainWidth, domainY + domainHeight / 2);
-        //     context.lineTo(domainX + domainWidth / 2, domainY + domainHeight);
-        //     context.lineTo(domainX, domainY + domainHeight / 2);
-        // }
         context.closePath();
-
-        //fill by overlap choice
-        // if (false /*overlap*/ ) {
-        //     context.globalAlpha = 0.3;
-        //     context.fill();
-        //     context.globalAlpha = 1;
-        // } else {
-        //     context.fill();
-        // }
 
         //fill
         context.fill();
@@ -439,23 +398,6 @@ class Domain {
         context.lineWidth = 1;
         context.stroke();
 
-        //show text if needed in diagonal
-        // if (false /*domainText*/ ) {
-        //     context.save();
-        //     context.translate(domainX + domainWidth / 2, domainY + domainHeight + 8);
-        //     context.rotate(Math.PI / 16);
-        //     var lineheight = 15;
-        //     var lines = domainName.split('\n');
-        //     context.fillStyle = "black"; //for text
-        //     context.font = "20px Calibri"; //bold 
-
-        //     //we must draw each line saperatly because canvas can't draw '\n'
-        //     context.textAlign = "left";
-        //     for (var i = 0; i < lines.length; i++) {
-        //         context.fillText(lines[i], 0, 10 + (i * lineheight));
-        //     }
-        //     context.restore();
-        // }
 
 
     }

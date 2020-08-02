@@ -17,20 +17,7 @@ class GenomicScale {
      * @param {String} canvasID canvas id in html
      */
     draw(canvasID) {
-        //calculations
-        // var canvas = document.getElementById(canvasID);
-        // var context = canvas.getContext("2d");
-        // var canvasHeight = canvas.height;
-        // var canvasWidth = canvas.width;
-        // var lengthOfScale = this.end - this.start; //both in noclutides
-        // var beginningEmpty = 10; //in pixels
-        // var endEmpty = 5; //in pixels
-        // var coordinatesWidth = (canvas.width - beginningEmpty - endEmpty) / lengthOfScale;
-        // if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
-        //     coordinatesWidth = (canvas.width - beginningEmpty - endEmpty - this.spaceAfterCut) / (lengthOfScale - this.gene.cutOffLength);
-        // }
-        // var skip = getSkipSize(coordinatesWidth);
-        // var strand = this.strand;
+
         
         var graphicLayout = new GenomicGraphicLayout(canvasID, this.gene);
         var strand = this.gene.strand;
@@ -52,9 +39,7 @@ class GenomicScale {
         for (var i = 0; i < Xcoordinates.length; i++) {
             this.drawGridLine(context, Xcoordinates[i].x, startHeight, Xcoordinates[i].text, graphicLayout.canvasWidth, graphicLayout.beginningEmpty, graphicLayout.coordinatesWidth)
         }
-        //====draw gridlines from before====
-        // createGridLines(context, beginningEmpty, coordinatesWidth, startHeight, canvasWidth, lengthOfScale, this.start, false, canvasHeight);
-        // this.createNumberLabelsForScale(context, lengthOfScale, skip, coordinatesWidth, beginningEmpty, startHeight, this.start);
+       
 
         //draw skip explanation
         if (this.gene.cutOffStart != -1 && this.gene.cutOffLength != -1) {
