@@ -7,6 +7,7 @@
 **/*.gtf
 #Ignore big tables
 **/*.gz
+**/*.zip
 #ignore node_modules
 **/node_modules
 # ignore .db files created by gffutils
@@ -26,31 +27,32 @@
 
 **/*.sqlite 
 **/DB_merged.sqlite 
-example_gtf/*
+**/example_gtf/*
 **/*.csv
 **/data/*
 **/*.tsv
 
 # logs should be on server and not be updated externally
-Website_code/log.txt
+DoChaP-web/log.txt
 **/log.txt
 
 Website_code/userInterfaceLog.txt
 **/userInterfaceLog.txt
 
-Tool_code/*.txt
+DoChaP-db/*.txt
 **/*.orthology.txt
 
-Downloads_refine/Downloads/**
+**/Downloads_refine/**
 
+.idea/**
 **/.idea/*
 **/__pycache__/*
 
-**/*.sh
+#**/*.sh
 !**/*.template.sh
 !**/*.Template.sh
 
 **.pyc
 **.sh.e*
 **.sh.o*
-Website_code/messages.txt
+DoChaP-web/messages.txt
