@@ -11,24 +11,9 @@ class DomainGroup {
         this.start=domains[0].start;
         this.end=domains[0].end;
 
-        //finding largest domain of them all
-        var largestLength=domains[0].end-domains[0].start;
-        var largestLengthIndex=0;
-        for(var i=0; i<domains.length;i++){
-            if(this.start>domains[i].start){
-                this.start=domains[i].start;
-            }
-            if(this.end<domains[i].end){
-                this.end=domains[i].end;
-            }
-            if(largestLength < domains[i].end-domains[i].start ){
-                largestLength=domains[i].end-domains[i].start;
-                largestLengthIndex=i;
-            }
-        }
-       
-        //init name by largest domain
-        this.name=domains[largestLengthIndex].name;
+        //finding largest domain of them all and add to name
+        this.name=this.getName();
+        
     }
     
     /**
@@ -262,6 +247,48 @@ class DomainGroup {
         }
         return tooltips;
         
+    }
+
+
+    /**
+     * get name of largest domain that is not id
+     */
+    getName(){
+        var domains=this.domains;
+        var nameDict={}
+        for(var i=0; i<domains.length;i++){
+            if(nameDict[domains[i].name]==undefined){
+                nameDict[domains[i].name]=0;
+            }
+            nameDict[domains[i].name]=nameDict[domains[i].name]+1;
+        }
+        
+        //go through dictionary and if a name is majority we take it
+        for (var key in nameDict) {
+            if (nameDict.hasOwnProperty(key)) {           
+                if(nameDict[key]>domains.length/2){
+                    return key;
+                }
+            }
+        }
+
+        //taking the largest domain without name that is ID
+        var largestLength=domains[0].end-domains[0].start;
+        var largestLengthIndex=0;
+        for(var i=0; i<domains.length;i++){
+            if(this.start>domains[i].start){
+                this.start=domains[i].start;
+            }
+            if(this.end<domains[i].end){
+                this.end=domains[i].end;
+            }
+            if(largestLength < domains[i].end-domains[i].start && Species.isNotID(domains[i].name)){
+                largestLength=domains[i].end-domains[i].start;
+                largestLengthIndex=i;
+            }
+        }
+       
+        return domains[largestLengthIndex].name;
     }
     
 }

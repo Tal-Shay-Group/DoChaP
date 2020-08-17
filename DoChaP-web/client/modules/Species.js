@@ -66,4 +66,15 @@ class Species {
         }
         return undefined;
     }
+
+
+    static isNotID(source){
+        if (source.substring(0, 5) == 'smart'
+        || source.substring(0, 4) == 'pfam' || source.substring(0, 2) == 'cd'
+         || source.substring(0, 4) == 'TIGR'
+         || source.substring(0, 3) == 'IPR') {
+            return true;
+        }
+        return false;
+    }
 }
