@@ -17,7 +17,7 @@ def timer(start,end):
 
 if __name__ == "__main__":
     start_time = time.time()
-    download = False
+    download = True
     withEns = True
     species = ['H_sapiens', 'M_musculus', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
 

@@ -82,7 +82,6 @@ class DomainsEnsemblBuilder(SourceBuilder):
                 idtype = re.sub(r'\d+', '', id)
                 if idtype in conv.keys():
                     id = id.replace(idtype, conv[idtype])
-                break
                 if extDB == "interpro":
                     self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
                                                                   [Domain(ext_id=id, start=int(row.start),
