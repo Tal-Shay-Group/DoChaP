@@ -184,7 +184,7 @@ class Collector:
 
 if __name__ == '__main__':
     start_time = time.time()
-    species = "X_tropicalis"
+    species = "H_sapiens"
     col = Collector(species)
     col.collectAll()
     print("--- %s seconds ---" % (time.time() - start_time))
