@@ -27,7 +27,8 @@ class RefseqBuilder(SourceBuilder):
                                 'Danio_rerio': "vertebrate_other", "Xenopus_tropicalis": "vertebrate_other",
                                 "Rattus_norvegicus": "vertebrate_mammalian"}
         self.savePath = os.getcwd() + '/data/{}/refseq/'.format(self.species)
-        self.gff = self.FilesNoDownload("gff")[0]
+        os.makedirs(self.savePath, exist_ok=True)
+        self.gff = self.FilesNoDownload("gff")
         # self.gpff = self.savePath + "protein.gpff"
         self.gpff = self.FilesNoDownload("gpff")
         self.Transcripts = {}
@@ -72,8 +73,9 @@ class RefseqBuilder(SourceBuilder):
 
     def FilesNoDownload(self, suffix):
         le = len(suffix)
-        os.makedirs(self.savePath, exist_ok=True)
         files = [self.savePath + "/" + file for file in os.listdir(self.savePath) if file[-le:] == suffix]
+        if suffix == "gff" and len(files) != 0:
+            files = files[0]
         return files
 
     def parser(self):
