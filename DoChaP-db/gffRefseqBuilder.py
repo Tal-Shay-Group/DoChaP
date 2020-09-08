@@ -72,6 +72,7 @@ class RefseqBuilder(SourceBuilder):
 
     def FilesNoDownload(self, suffix):
         le = len(suffix)
+        os.makedirs(self.savePath, exist_ok=True)
         files = [self.savePath + "/" + file for file in os.listdir(self.savePath) if file[-le:] == suffix]
         return files
 
