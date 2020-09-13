@@ -266,7 +266,7 @@ class DomainGroup {
         //go through dictionary and if a name is majority we take it
         for (var key in nameDict) {
             if (nameDict.hasOwnProperty(key)) {           
-                if(nameDict[key]>domains.length/2){
+                if(nameDict[key]>=domains.length/2){
                     return key;
                 }
             }
