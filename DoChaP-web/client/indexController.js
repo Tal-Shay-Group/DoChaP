@@ -20,6 +20,9 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" && currAddress != "#!");
    });
 
+   //fill specie combobox
+   Species.fillSpecieComboBox("indexSpecies");
+
    //searching for query using the navigation text field
    $rootScope.search = async function () {
       var query = indexTextField.value;

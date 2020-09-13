@@ -61,6 +61,9 @@ angular.module("DoChaP")
                 $( this ).slideDown( 1000 );
                 $( this ).show();
             });
+
+            //fill specie combobox
+            Species.fillSpecieComboBox("searchBySpecie");
             
             //focus on text-field
             document.getElementById("searchTextField").focus();

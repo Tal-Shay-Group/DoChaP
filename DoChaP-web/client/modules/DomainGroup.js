@@ -46,6 +46,9 @@ class DomainGroup {
             var domainText = true;
         }
 
+        //just in case
+        context.closePath();
+
         //it is two circle on eachother to know there are overlapping domains
         context.beginPath();
         context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, domainWidth / 2, domainHeight / 2, 0, 0, 2 * Math.PI);
@@ -53,7 +56,6 @@ class DomainGroup {
 
         //adding shadow
         context.save();
-        context.translate(0,0);
         context.shadowColor = "#898";
         context.shadowBlur = 6;
         context.shadowOffsetX = 2;
@@ -61,11 +63,9 @@ class DomainGroup {
         
         //fill colors
         context.fill();
-
+        
         //end shadow
         context.restore();
-
-        
         
         //border
         context.strokeStyle = "grey";
