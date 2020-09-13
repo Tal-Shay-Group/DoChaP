@@ -11,7 +11,7 @@ from recordTypes import *
 
 class DomainsEnsemblBuilder(SourceBuilder):
     """
-    Dowload and parse Domains tables
+    Download and parse Domains tables
     """
 
     def __init__(self,species):
@@ -54,6 +54,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
 
     def downloader(self):
         self.createDownloadScripts()
+        subprocess.Popen(['chmod', 'u+x', self.shellScript])
         runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         output, err = runScript.communicate()
         print("poll(): " + str(runScript.poll()))

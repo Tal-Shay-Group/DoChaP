@@ -89,6 +89,7 @@ class Collector:
                 # refG = self.Transcripts[refT].gene_GeneID
                 # ensG = self.Transcripts[refT].gene_ensembl
                 self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
+                self.Proteins[refP].mergeDescription(self.ensembl.Proteins[ensP])
                 self.Domains[refP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
                 writtenIDs.add(ensT)
@@ -146,13 +147,16 @@ class Collector:
                 # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                 refP = record.protein_refseq
                 self.Proteins[ensP] = self.idConv.FillInMissingProteins(self.ensembl.Proteins[ensP])
+                self.Proteins[ensP].mergeDescription(self.refseq.Proteins.get(refP, None))
                 self.Domains[ensP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
                 ensG = self.Transcripts[ensT].gene_ensembl
                 refG = self.Transcripts[ensT].gene_GeneID
                 if refG in self.Genes:
-                    if ensG == self.idConv.findConversion(refG, gene=True) or self.idConv.findConversion(refG, gene=True) is None:
-                        self.Genes[refG].ensembl = ensG if self.Genes[refG].ensembl is None else self.Genes[refG].ensembl
+                    if ensG == self.idConv.findConversion(refG, gene=True) or self.idConv.findConversion(refG,
+                                                                                                         gene=True) is None:
+                        self.Genes[refG].ensembl = ensG if self.Genes[refG].ensembl is None else self.Genes[
+                            refG].ensembl
                         genesIDs.add(ensG)
                     elif ensG not in genesIDs:
                         self.Genes[ensG] = self.ensembl.Genes[ensG]
@@ -167,7 +171,6 @@ class Collector:
                         self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                         genesIDs.add(ensG)
                         genesIDs.add(refG)
-
 
     def CompMergeDomainLists(self, doms1, doms2):
         if len(doms1) == 0 or doms2 is None:

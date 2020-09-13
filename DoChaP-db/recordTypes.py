@@ -62,6 +62,7 @@ class Transcript:
         self.geneSymb = geneSymb
         self.protein_refseq = protein_refseq
         self.protein_ensembl = protein_ensembl
+        self.DNS = False
         if len(exons_starts) == len(exons_ends):
             self.exon_starts = exons_starts
             self.exon_ends = exons_ends
@@ -228,3 +229,14 @@ class Protein:
 
     def refseqNoVersion(self):
         return self.refseq.split('.')[0]
+
+    def mergeDescription(self, other):
+        if other is None:
+            return
+        if self.description is None:
+            self.description = other.description
+        elif other.description is None:
+            return
+        else:
+            self.description = ";".join(str(self.description), str(other.description))
+        return

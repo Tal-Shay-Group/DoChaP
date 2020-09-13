@@ -21,7 +21,7 @@ class dbBuilder:
         self.data.collectAll(download=download, withEns=withEns)
         self.TranscriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
-        self.DomainOrg = DomainOrganizer()
+        self.DomainOrg = DomainOrganizer(download=download)
 
     def create_tables_db(self, merged=True, dbName=None):
         """

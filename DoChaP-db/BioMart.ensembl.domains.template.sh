@@ -5,7 +5,6 @@ wget -O Pathspecies.Domains.interpro.txt 'http://www.ensembl.org/biomart/martser
 <Query  virtualSchemaName = "default" formatter = "TSV" header = "1" uniqueRows = "1" count = "" datasetConfigVersion = "0.6" >
 
   <Dataset name = "EnsSpecies_gene_ensembl" interface = "default" >
-  	<Filter name = "transcript_biotype" value = "protein_coding"/>
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
     <Attribute name = "interpro" />
@@ -21,7 +20,6 @@ wget -O Pathspecies.Domains.cdd.txt 'http://www.ensembl.org/biomart/martservice?
 <Query  virtualSchemaName = "default" formatter = "TSV" header = "1" uniqueRows = "1" count = "" datasetConfigVersion = "0.6" >
 
   <Dataset name = "EnsSpecies_gene_ensembl" interface = "default" >
-  	<Filter name = "transcript_biotype" value = "protein_coding"/>
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
     <Attribute name = "cdd" />
@@ -35,7 +33,6 @@ wget -O Pathspecies.Domains.pfam.txt 'http://www.ensembl.org/biomart/martservice
 <Query  virtualSchemaName = "default" formatter = "TSV" header = "1" uniqueRows = "1" count = "" datasetConfigVersion = "0.6" >
 
   <Dataset name = "EnsSpecies_gene_ensembl" interface = "default" >
-  	<Filter name = "transcript_biotype" value = "protein_coding"/>
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
     <Attribute name = "pfam" />
@@ -49,7 +46,6 @@ wget -O Pathspecies.Domains.smart.txt 'http://www.ensembl.org/biomart/martservic
 <Query  virtualSchemaName = "default" formatter = "TSV" header = "1" uniqueRows = "1" count = "" datasetConfigVersion = "0.6" >
 
   <Dataset name = "EnsSpecies_gene_ensembl" interface = "default" >
-  	<Filter name = "transcript_biotype" value = "protein_coding"/>
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
     <Attribute name = "smart" />
@@ -63,7 +59,6 @@ wget -O Pathspecies.Domains.tigrfam.txt 'http://www.ensembl.org/biomart/martserv
 <Query  virtualSchemaName = "default" formatter = "TSV" header = "1" uniqueRows = "1" count = "" datasetConfigVersion = "0.6" >
 
   <Dataset name = "EnsSpecies_gene_ensembl" interface = "default" >
-  	<Filter name = "transcript_biotype" value = "protein_coding"/>
     <Attribute name = "ensembl_transcript_id_version" />
     <Attribute name = "ensembl_peptide_id_version" />
     <Attribute name = "tigrfam" />
