@@ -86,12 +86,7 @@
                         </td>
                         <td>Select species</td>
                         <td>
-                            <select id="specie1ComboBox" class="compareSpeciesInput">
-                                <option value="H_sapiens">Human</option>
-                                <option value="M_musculus">Mouse</option>
-                                <option value="R_norvegicus">Rat</option>
-                                <option value="D_rerio">Zebrafish</option>
-                                <option value="X_tropicalis">Frog</option>
+                            <select id="specie1ComboBox" class="compareSpeciesInput form-control">
                             </select>
                         </td>
                         <td rowspan="2" style="width: 200px;">
@@ -103,14 +98,8 @@
                         <td>Species to compare</td>
                         <td>
                             <select ng-disabled="orthologyList==undefined" id="specie2ComboBox"
-                                ng-change="compareSpeciesCtrl.fillOrthologyCombox()" ng-model="abcd"
-                                class="compareSpeciesInput form-control">
-                                <!-- -->
-                                <option value="M_musculus">Mouse</option>
-                                <option value="H_sapiens">Human</option>
-                                <option value="R_norvegicus">Rat</option>
-                                <option value="D_rerio">Zebrafish</option>
-                                <option value="X_tropicalis">Frog</option>
+                                ng-click="compareSpeciesCtrl.fillOrthologyCombox()"
+                                class="compareSpeciesInput form-control"> <!-- ng-model="abcd"-->
                             </select>
                         </td>
                         <td rowspan="2">
@@ -127,7 +116,7 @@
                     <tr>
                         <td>Enter gene</td>
                         <td>
-                            <input placeholder="Enter gene symbol" class="compareSpeciesInput"
+                            <input placeholder="Enter gene symbol" class="compareSpeciesInput form-control"
                                 id="compareGeneSearchTextField">
                         </td>
                         <td>Gene to compare</td>

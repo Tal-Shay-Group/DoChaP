@@ -81,23 +81,23 @@ class Domain {
 
         //adding shadow below
         context.save();
-        context.translate(0, 0);
         context.shadowColor = "#898";
         context.shadowBlur = 6;
         context.shadowOffsetX = 2;
         context.shadowOffsetY = 2;
-
+        
         //fill by overlap choice
         if (overlap) {
-            context.globalAlpha = 0.3;
+            // context.globalAlpha = 0.3;
             context.fill();
-            context.globalAlpha = 1;
+            // context.globalAlpha = 1;
         } else {
             context.fill();
         }
 
         //end shadows
         context.restore();
+        
 
         //border
         context.strokeStyle = "grey";

@@ -4,7 +4,15 @@
  */
 
 angular.module("DoChaP").service("webService", function ($http,$window) {
-    var urlAdress="http://localhost:3000"
+
+    /**NOTICE: one urlAdress should be uncommented according to wanted use **/
+    //for running locally uncomment this:
+    var urlAdress="http://localhost:3000";
+
+    //for running on server uncomment this:
+    // var urlAdress="https://dochap.bgu.ac.il/dochap";
+
+
     this.queryHandler =function (query,specie,isReviewed) {
         var req = {
             method: 'GET',

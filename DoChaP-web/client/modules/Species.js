@@ -77,4 +77,19 @@ class Species {
         }
         return false;
     }
+
+    static fillSpecieComboBox(comboBoxName){
+        var specieList=[
+            {'name':'Human','val':'H_sapiens'},
+            {'name':'Mouse','val':'M_musculus'},
+            {'name':'Rat','val':'R_norvegicus'},
+            {'name':'Zebrafish','val':'D_rerio'},
+            {'name':'Frog','val':'X_tropicalis'}
+        ];
+
+        var comboBox=$("#"+comboBoxName);
+        $.each(specieList, function (i, specie) {
+            comboBox.append($('<option></option>').val(specie.val).html(specie.name));
+          });
+    }
 }

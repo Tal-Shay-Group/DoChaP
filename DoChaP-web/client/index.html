@@ -94,14 +94,9 @@ Logo and navigation bars will be declared here for example.
               <ul class="nav navbar-nav">
                 <li><a href="#!querySearch">Home</a></li>
               <li><a href="#!compareSpecies">Compare Species</a></li>
-             <li ng-if="showQuickSearch" class="form-inline"> 
+             <li ng-show="showQuickSearch" class="form-inline"> 
                <!--search bar when in non-search pages-->
-                    <select class="form-control searchBySpecie" id="indexSpecies">
-                        <option value="H_sapiens">Human</option>
-                        <option value="M_musculus">Mouse</option>
-                        <option value="R_norvegicus">Rat</option>
-                        <option value="D_rerio">Zebrafish</option>
-                        <option value="X_tropicalis">Frog</option>
+                    <select class="searchBySpecie form-control" id="indexSpecies">
                     </select>
                     <input placeholder="  Enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField" ng-keydown="$event.which == 13 && search()">
                    &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="search()">

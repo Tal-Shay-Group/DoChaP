@@ -20,6 +20,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
   $scope.viewMode = "all";
   $scope.options = false;
 
+  //fill specie combobox
+  Species.fillSpecieComboBox("specie1ComboBox");
+  Species.fillSpecieComboBox("specie2ComboBox");
+
   //when click on search
   self.geneSearch = async function () {
     $scope.loading = true;
