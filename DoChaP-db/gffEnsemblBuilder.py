@@ -63,7 +63,7 @@ class EnsemblBuilder(SourceBuilder):
                 aaRem = 1
                 ll = int(max(self.Transcripts[trans].exons2abs()[1]) / 3 - aaRem)
                 self.Proteins[protein] = Protein(ensembl=protein, descr=None, length=ll)
-                self.Proteins[protein].description = "[[DNS]]" if self.Transcripts[trans].DNS is True else None
+                self.Proteins[protein].description = "Nonsense Mediated Decay (NMD)" if self.Transcripts[trans].NMD is True else None
                 self.Transcripts[trans].protein_ensembl = protein
                 if '.' not in protein:
                     raise ValueError("protein {} has no version".format(protein))
@@ -116,7 +116,7 @@ class EnsemblBuilder(SourceBuilder):
             newT.ensembl = t["transcript_id"][0] + "." + t["version"][0]
             newT.gene_ensembl = t["Parent"][0].split(":")[1]
             newT.geneSymb = t["Name"][0].split("-")[0] if "Name" in list(t.attributes) else None
-            newT.DNS = True if t["biotype"][0] == "nonsense_mediated_decay" else False
+            newT.NMD = True if t["biotype"][0] == "nonsense_mediated_decay" else False
             self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
         print("\tCollecting CDS data from gff file...")
