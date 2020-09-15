@@ -63,7 +63,7 @@ class EnsemblBuilder(SourceBuilder):
                 aaRem = 1
                 ll = int(max(self.Transcripts[trans].exons2abs()[1]) / 3 - aaRem)
                 self.Proteins[protein] = Protein(ensembl=protein, descr=None, length=ll)
-                self.Proteins[protein].description = "[[DNS]]" if trans.DNS is True else None
+                self.Proteins[protein].description = "[[DNS]]" if self.Transcripts[trans].DNS is True else None
                 self.Transcripts[trans].protein_ensembl = protein
                 if '.' not in protein:
                     raise ValueError("protein {} has no version".format(protein))
