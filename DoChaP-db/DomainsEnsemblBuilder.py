@@ -66,7 +66,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
             check = runScript.wait()
         print("Job has finished")
         print("Validating successful downloads...")
-        if e is not '':
+        if e == '':
             print(e)
         else:
             print("script has finished running without errors")
