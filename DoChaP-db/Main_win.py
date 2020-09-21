@@ -17,7 +17,7 @@ def timer(start,end):
 
 if __name__ == "__main__":
     start_time = time.time()
-    download = True
+    download = False
     withEns = True
     species = ['H_sapiens', 'M_musculus', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     director = Director()
     orthologs = OrthologsBuilder(species=species)
     director.setBuilder(orthologs)
-    director.collectFromSource(download=download)
+    director.collectFromSource(download=True)
     print("#### Orthologs collection duration: " + timer(bp, time.time()))
 
     spl = len(species)
@@ -36,6 +36,7 @@ if __name__ == "__main__":
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
         dbBuild = dbBuilder(sp, download=download, withEns=withEns)
+        print("****")
         print("#### Species data collect & merge duration: " + timer(bp, time.time()))
         if spnum == 1:
             dbBuild.create_tables_db(merged=True)

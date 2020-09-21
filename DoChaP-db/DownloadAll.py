@@ -10,10 +10,11 @@ from InterproCollector import InterProBuilder
 from OrthologsBuilder import OrthologsBuilder
 from DomainsEnsemblBuilder import DomainsEnsemblBuilder
 
+
 def CallDownloader(Builder):
-        director = Director()
-        director.setBuilder(Builder)
-        director.collectFromSource(download = True, parser = False)
+    director = Director()
+    director.setBuilder(Builder)
+    director.collectFromSource(download=True, parser=False)
 
 
 if __name__ == "__main__":
@@ -23,4 +24,3 @@ if __name__ == "__main__":
         for builder in downloadBuilders:
             CallDownloader(builder)
     CallDownloader(InterProBuilder())
-
