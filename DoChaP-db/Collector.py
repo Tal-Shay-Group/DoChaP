@@ -62,6 +62,7 @@ class Collector:
         # ensembls = set()
         writtenIDs = set()
         genesIDs = set()
+        print("*")
         for refT, record in self.refseq.Transcripts.items():
             if refT[1] == "R":
                 continue
@@ -136,6 +137,7 @@ class Collector:
                         genesIDs.add(refG)
                         if ensG is not None:
                             genesIDs.add(ensG)
+        print("**")
         for ensT, record in self.ensembl.Transcripts.items():
             if ensT not in writtenIDs:
                 ensP = record.protein_ensembl
@@ -171,6 +173,8 @@ class Collector:
                         self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                         genesIDs.add(ensG)
                         genesIDs.add(refG)
+        print("**")
+
 
     def CompMergeDomainLists(self, doms1, doms2):
         if len(doms1) == 0 or doms2 is None:

@@ -59,13 +59,15 @@ class DomainsEnsemblBuilder(SourceBuilder):
         output, err = runScript.communicate()
         print("poll(): " + str(runScript.poll()))
         check = None
+        e = str(err)
         while check is None:
             print("waiting for job to finish")
+            e = str(err)
             check = runScript.wait()
         print("Job has finished")
         print("Validating successful downloads...")
-        if err is not '':
-            print(err)
+        if e == '':
+            print(e)
         else:
             print("script has finished running without errors")
         # os.remove(self.shellScript)

@@ -62,7 +62,7 @@ class Transcript:
         self.geneSymb = geneSymb
         self.protein_refseq = protein_refseq
         self.protein_ensembl = protein_ensembl
-        self.DNS = False
+        self.NMD = False
         if len(exons_starts) == len(exons_ends):
             self.exon_starts = exons_starts
             self.exon_ends = exons_ends
@@ -238,5 +238,5 @@ class Protein:
         elif other.description is None:
             return
         else:
-            self.description = ";".join(str(self.description), str(other.description))
+            self.description = "; ".join([str(self.description), str(other.description)])
         return

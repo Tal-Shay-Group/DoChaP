@@ -14,7 +14,7 @@ class OrthologsBuilder(SourceBuilder):
     Dowload and parse Orthology tables
     """
 
-    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis'), download=False):
+    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')):
         """
         @type species: tuple
         """
