@@ -101,7 +101,7 @@ class ConverterBuilder(SourceBuilder):
             newT.ensembl = self.findConversion(newT.refseq, transcript=True) \
                 if newT.ensembl is None else newT.ensembl
             geneID = self.GeneTrans(newT.refseq)
-            newT.gene_GeneID = geneID if geneID is None else newT.gene_GeneID
+            newT.gene_GeneID = geneID if newT.gene_GeneID is None else newT.gene_GeneID
             newT.gene_ensembl = self.findConversion(newT.gene_GeneID, gene=True) \
                 if newT.gene_ensembl is None else newT.gene_ensembl
             newT.protein_refseq = self.TranscriptProtein(newT.refseq) \

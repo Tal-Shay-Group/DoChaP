@@ -76,7 +76,10 @@ class Collector:
             ensPflag = ensP in self.ensembl.Proteins
             ensTflag = ensT in self.ensembl.Transcripts
             if not ensTflag and ensPflag:
-                ensT = self.ensembl.pro2trans[ensP]
+                tempensT = self.ensembl.pro2trans[ensP]
+                if ensT is None:
+                    record.ensembl = tempensT
+                ensT = tempensT
             elif ensTflag and not ensPflag:
                 ensP = self.ensembl.trans2pro[ensT]
 
