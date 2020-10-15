@@ -18,19 +18,19 @@
 **/ncbiRefSeq.txt
 **/knownGene.txt
 **/gene2ensembl.txt
-**/DB_H_sapiens.sqlite
-**/DB_M_musculus.sqlite
-**/DB_M_musculus_small.sqlite
-
+DoChaP-db/*.txt
+**/*.orthology.txt
+# ignore large files
 **/*.gff
 **/*.gff3
-
-**/*.sqlite 
-**/DB_merged.sqlite 
 **/example_gtf/*
 **/*.csv
-**/data/*
 **/*.tsv
+# ignore data directory
+**/data/*
+#ignore generated databases
+**/*.sqlite 
+**/DB_merged.sqlite 
 
 # logs should be on server and not be updated externally
 DoChaP-web/log.txt
@@ -39,22 +39,29 @@ DoChaP-web/log.txt
 Website_code/userInterfaceLog.txt
 DoChaP-web/userInterfaceLog.txt
 **/userInterfaceLog.txt
+DoChaP-web/messages.txt
+Website_code/messages.txt
 
-DoChaP-db/*.txt
-**/*.orthology.txt
 
 **/Downloads_refine/**
-
+#ignore python config files
 .idea/**
 **/.idea/*
 **/__pycache__/*
+**.pyc
 
-#**/*.sh
+
+**/*.sh
+**/*.bash
 !**/*.template.sh
 !**/*.Template.sh
+!**/RunMain.sh
+!**/RunAllDownloads.bash
+!**/Run_DownloadOrthology.sh
 
-**.pyc
+
 **.sh.e*
 **.sh.o*
-DoChaP-web/messages.txt
-Website_code/messages.txt
+
+#ignore the directory of databases
+DoChaP-db/dbs/*
