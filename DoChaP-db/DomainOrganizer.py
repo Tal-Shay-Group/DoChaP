@@ -61,6 +61,8 @@ class DomainOrganizer:
                 return None
             elif [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
                 return None
+        if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
+            return None
         # if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
         #     return None
         if domain.extID in self.allExt:
