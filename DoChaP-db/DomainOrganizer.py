@@ -2,13 +2,15 @@ import re
 from sqlite3 import connect
 from Director import Director
 from InterproCollector import InterProBuilder
+from conf import *
+from recordTypes import *
 import pandas as pd
 
 
 class DomainOrganizer:
 
     def __init__(self, download=False):
-        self.allDomains = dict()  # keys are id, vals sre tuple combined from Domain object info
+        self.allDomains = dict()  # keys are id, vals are tuple combined from Domain object info
         self.internalID = 0
         self.allExt = dict()
         self.allNames = dict()
@@ -19,6 +21,7 @@ class DomainOrganizer:
         director.collectFromSource(download=download)
 
     def collectDatafromDB(self, dbname='DB_merged.sqlite'):
+        """collect domains data from existing SQLite database to keep the same TypeID for the same domains"""
         con = connect(dbname)
         cur = con.cursor()
         self.internalID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
@@ -33,9 +36,19 @@ class DomainOrganizer:
             self.allCDD[c_ud[4]] = c_ud[0]
 
     def addDomain(self, domain):
+        """ Takes a domain object and add it to the allDomains attribute,
+        by merging it to an existing domain ID or assigning a new domain ID, domains must:
+            1 - have a valid external id ('cdd', 'pfam', 'smart', 'tigrfams', 'interpro'
+            2 - have at least one of the external IDs: 'cdd', 'pfam', 'smart', 'tigrfams'
+            ** Interpro alone is not enough!!
+        Domains records are merged into the same domain ID if:
+            1 - Interpro has connected the external ID
+            2 - The domains has the same CDD
+        New DomainID will be given otherwise
+        @return: domain ID of the domain in the allDomain attr. None if the domain was not added into the allDomain attr
+        """
         currReg = None
-        existExt = [None] * 5
-        external = ['cdd', 'pfam', 'smart', 'tigrfams', 'interpro']
+        existExt = [None] * 5  # stand for ['cdd', 'pfam', 'smart', 'tigrfams', 'interpro']
         if domain.extID is None:
             return None
         elif domain.extType not in external:
@@ -43,8 +56,13 @@ class DomainOrganizer:
         identify = self.Interpro.AllDomains.loc[
             self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
         ind = identify.index.values[0] if len(identify) != 0 else None
-        if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
-            return None
+        if domain.extType == "interpro":  # ignore domains from interpro only
+            if ind is None:
+                return None
+            elif [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
+                return None
+        # if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
+        #     return None
         if domain.extID in self.allExt:
             currReg = self.allExt[domain.extID]
             ncdd = self.cddAdd(domain, currReg)
@@ -89,22 +107,39 @@ class DomainOrganizer:
         return currReg
 
     def mainNameOtherName(self, domain, currReg):
+        """Choose the shortest name among similar records."""
         cdname = self.allDomains[currReg][0]
         oname = self.allDomains[currReg][1]
-        if domain.extType == 'interpro':
+        if cdname is None:
             cdname = domain.name
-        elif domain.name is not None:
-            if self.allDomains[currReg][0] and self.allDomains[currReg][1] is not None:
-                if domain.name.lower() not in self.allDomains[currReg][0].lower() and \
-                        domain.name.lower() not in self.allDomains[currReg][1].lower():
-                    oname = self.allDomains[currReg][1] + '; ' + domain.name
-                else:
-                    oname = self.allDomains[currReg][1]
+        elif domain.name is not None and len(domain.name) < len(cdname):
+            if oname is not None:
+                oname = self.allDomains[currReg][1] + '; ' + cdname
             else:
-                oname = domain.name
+                oname = cdname
+            cdname = domain.name
+        else:
+            if oname is not None:
+                oname = self.allDomains[currReg][1] + '; ' + cdname
+            else:
+                oname = cdname
+        # if domain.extType == 'interpro' and len(domain.name) < len(cdname):
+        #     cdname = domain.name
+        # elif domain.name is not None:
+        #     if self.allDomains[currReg][0] is not None and self.allDomains[currReg][1] is not None:
+        #         if domain.name.lower() not in self.allDomains[currReg][0].lower() and \
+        #                 domain.name.lower() not in self.allDomains[currReg][1].lower():
+        #             oname = self.allDomains[currReg][1] + '; ' + domain.name
+        #         else:
+        #             oname = self.allDomains[currReg][1]
+        #     elif self.allDomains[currReg][0]:
+        #         cdname = domain.name
+        #     else:
+        #         oname = domain.name
         return cdname, oname
 
     def noteAdd(self, domain, currReg):
+        """merge notes of similar records"""
         if domain.note is not None:
             if self.allDomains[currReg][2] is None:
                 return domain.note
@@ -119,6 +154,7 @@ class DomainOrganizer:
             return self.allDomains[currReg][2]
 
     def cddAdd(self, domain, currReg):
+        """merge cdd ids of similar records"""
         if self.allDomains[currReg][3] is None:
             return domain.cdd
         elif domain.cdd is not None and domain.cdd not in self.allDomains[currReg][3] and \
@@ -128,6 +164,7 @@ class DomainOrganizer:
             return self.allDomains[currReg][3]
 
     def addToExtID(self, extID, currentExt):
+        """merge external ids (select one or join strings"""
         if currentExt is None:
             return extID
         elif extID is None:

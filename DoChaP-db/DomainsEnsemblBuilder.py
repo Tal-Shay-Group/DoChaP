@@ -7,6 +7,7 @@ import re
 sys.path.append(os.getcwd())
 from Director import SourceBuilder
 from recordTypes import *
+from conf import *
 
 
 class DomainsEnsemblBuilder(SourceBuilder):
@@ -19,9 +20,9 @@ class DomainsEnsemblBuilder(SourceBuilder):
         @type species: tuple
         """
         self.species = species
-        self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
-                                 'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
-                                 'X_tropicalis': 'xtropicalis'}
+        # self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
+        #                          'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
+        #                          'X_tropicalis': 'xtropicalis'}
         self.ExtSources = ("pfam", "smart", "cdd", "tigrfam", "interpro")
         self.downloadPath = os.getcwd() + '/data/{}/ensembl/BioMart/'.format(self.species)
         self.shellScript = os.getcwd() + \
@@ -35,7 +36,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
         scriptList = tuple()
         os.makedirs(self.downloadPath, exist_ok=True)
         replaceDict = {"Pathspecies": self.downloadPath + self.species,
-                        "EnsSpecies": self.speciesConvertor[self.species]}
+                        "EnsSpecies": speciesConvertor_Ensembl[self.species]}
         with open(os.getcwd() + "/BioMart.ensembl.domains.template.sh", "r") as template:
             with open(self.shellScript, "w") as writo:
                 for line in template:

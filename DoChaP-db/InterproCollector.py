@@ -82,6 +82,7 @@ class InterProBuilder(SourceBuilder):
                 newdf.at[ind, "interpro"] = ind
                 newdf.at[ind, "Type"] = df.loc[ind, "Type"]
         newdf = newdf.where(pd.notnull(newdf), None)
+        newdf = newdf[newdf.Type != "family"] # include only domains record and not families
         self.AllDomains = newdf
 
 

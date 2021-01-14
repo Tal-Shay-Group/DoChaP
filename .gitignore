@@ -35,6 +35,7 @@ DoChaP-db/*.txt
 # logs should be on server and not be updated externally
 DoChaP-web/log.txt
 **/log.txt
+**/log_*.txt
 
 Website_code/userInterfaceLog.txt
 DoChaP-web/userInterfaceLog.txt
@@ -65,3 +66,4 @@ Website_code/messages.txt
 
 #ignore the directory of databases
 DoChaP-db/dbs/*
+/DoChaP-web/logs_backups/*

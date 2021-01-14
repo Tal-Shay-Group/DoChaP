@@ -1,5 +1,6 @@
 import re
 import copy
+from conf import *
 
 
 class Gene:
@@ -106,7 +107,7 @@ class Transcript:
         transcript_len = 0
         abs_start = []
         abs_stop = []
-        add_opt = 0
+        # add_opt = 0
         # if self.strand == '-':
         #     stop_list = self.exon_ends.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_ends.copy()
         #     start_list = self.exon_starts.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_starts.copy()
@@ -115,18 +116,18 @@ class Transcript:
         stop_list = self.exon_ends.copy()
         start_list = self.exon_starts.copy()
         for i in range(len(start_list)):
-            if stop_list[i] < self.CDS[0]:
+            if stop_list[i] < self.CDS[0]:  # entire exon is before the CDS
                 abs_start.append(0)
                 abs_stop.append(0)
                 continue
-            elif start_list[i] < self.CDS[0] < stop_list[i]:
+            elif start_list[i] < self.CDS[0] < stop_list[i]:  # the CDS starts within the exon
                 start_list[i] = self.CDS[0]
-            if start_list[i] > self.CDS[1]:
+            if start_list[i] > self.CDS[1]:  # entire exon is after the CDS
                 abs_start.append(0)
                 abs_stop.append(0)
                 continue
-            elif stop_list[i] > self.CDS[1] > start_list[i]:
-                stop_list[i] = self.CDS[1] + add_opt
+            elif stop_list[i] > self.CDS[1] > start_list[i]:  # CDS ends within the exon
+                stop_list[i] = self.CDS[1]  # + add_opt
             abs_start.append(transcript_len + 1)
             curr_length = stop_list[i] - start_list[i]
             abs_stop.append(transcript_len + curr_length)
@@ -163,9 +164,9 @@ class Transcript:
 class Domain:
 
     def __init__(self, ext_id, start=None, end=None, cddId=None, name=None, note=None):
-        self.suppPref = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
-                         'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
-                         'ipr': 'IPR', 'interpro': 'IPR'}
+        # self.suppPref = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
+        #                  'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
+        #                  'ipr': 'IPR', 'interpro': 'IPR'}
         self.aaStart = start
         self.aaEnd = end
         if self.aaStart is not None:
@@ -177,11 +178,11 @@ class Domain:
         self.cdd = cddId
         if ext_id is not None:
             prefix = re.sub(r"\d+$", "", ext_id.lower())
-            if prefix in self.suppPref.keys():
-                self.extID = ext_id.lower().replace(prefix, self.suppPref[prefix])
-                suppTypes = {"cd": "cdd", "cl": "cdd", "IPR": "interpro", "tigr": "tigrfams",
-                             "pfam": "pfam", "smart": "smart"}
-                self.extType = suppTypes[self.suppPref[prefix]]
+            if prefix in supported_Prefix.keys():
+                self.extID = ext_id.lower().replace(prefix, supported_Prefix[prefix])
+                # suppTypes = {"cd": "cdd", "cl": "cdd", "IPR": "interpro", "tigr": "tigrfams",
+                #              "pfam": "pfam", "smart": "smart"}
+                self.extType = pref2Types[supported_Prefix[prefix]]
             else:
                 raise ValueError('Unknown external ID prefix: ' + ext_id)
         elif ext_id is None and self.cdd is None:
@@ -210,6 +211,7 @@ class Domain:
         return None, None, None
 
     def __eq__(self, other):
+        """compare Two Domain objects, return True if external Id, start and stop positions are equal"""
         if self.extID == other.extID and self.aaStart == other.aaStart and self.aaEnd == other.aaEnd:
             return True
         else:

@@ -215,7 +215,7 @@ class dbBuilder:
             self.dbName = 'DB_merged'
         else:
             self.dbName = 'DB_' + self.species
-        if CollectDomainsFromMerged:
+        if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
 
         with connect(self.dbName + '.sqlite') as con:
@@ -233,6 +233,7 @@ class dbBuilder:
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
                 if transcript.CDS is None:
+                    print("Transcript {} from {} has None in CDS".format(tID, self.species))
                     transcript.CDS = transcript.tx
                 values = (transcript.refseq, transcript.ensembl,) + transcript.tx + transcript.CDS + \
                          (e_counts, transcript.gene_GeneID, transcript.gene_ensembl,
@@ -347,15 +348,9 @@ class dbBuilder:
                     lambda col: ", ".join(set(col)))  # groupby all besides ext_ID
                 Domdf = Domdf.replace(-1, np.nan)
                 Domdf.to_sql("DomainEvent", con, if_exists="append", index=False)
-
-                # if values not in domeve:
-                #     cur.execute(''' INSERT INTO DomainEvent
-                #                 (protein_refseq_id, protein_ensembl_id, type_id,\
-                #                 AA_start, AA_end, nuc_start, nuc_end, total_length,\
-                #                 ext_id, splice_junction, complete_exon)
-                #                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
-                #     domeve.add(values)
+            # ~~~ end of loop iterating over transcripts ~~~
             bp = time.time()
+
             if merged:
                 relevantDomains = set(self.DomainOrg.allDomains.keys())
                 print('Recreating the table: DomainType and update domains')
@@ -384,7 +379,9 @@ class dbBuilder:
                                     pfam, smart, tigr, interpro)
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', values)
             print("#### Filling in domain type table: %s seconds" % (time.time() - bp))
-        con.commit()
+
+            con.commit()
+        # ~~~ disconnect database ~~~
 
     def AddOrthology(self, orthologsDict):
         MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_Species',

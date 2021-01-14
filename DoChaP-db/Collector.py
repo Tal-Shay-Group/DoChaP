@@ -20,24 +20,20 @@ class Collector:
         self.ensembl = EnsemblBuilder(self.species)
         self.idConv = ConverterBuilder(self.species)
         self.Transcripts = {}
-        # self.Transcripts = pd.DataFrame(columns=["transcript_refseq_id", "transcript_ensembl_id",
-        #                                          "tx_start", "tx_end", "cds_start", "cds_end", "exon_count", "gene_GeneID_id","gene_ensembl_id",
-        #                                          "protein_refseq_id", "protein_ensembl_id"])
         self.Genes = {}
-        # self.Genes = pd.DataFrame(columns=["gene_GeneID_id", "gene_ensembl_id", "gene_symbol", "synonyms", "chromosome", "strand", "specie"])
         self.Domains = {}
         self.Proteins = {}
-        # self.Proteins = pd.DataFrame(columns=["protein_refseq_id", "protein_ensembl_id", "description",
-        #                                       "synonyms", "length", "transcript_refseq_id", "transcript_ensembl_id"])
         self.mismatches_sep = []
         self.mismatches_merged = []
 
     def CollectSingle(self, attrName, download=False):
+        """Collect data (call director) for a single builder (attrName)"""
         self.director.setBuilder(self.__getattribute__(attrName))
         self.director.collectFromSource(download)
         print("{} data - collected!".format(attrName))
 
     def collectAll(self, download=False, withEns=True):
+        """Collect data from all builders (using CollectSingle)"""
         BuildersList = ['refseq', 'idConv']
         if withEns:
             BuildersList.append('ensembl')
@@ -46,32 +42,29 @@ class Collector:
         print("--------------------------------")
         print("Data collection - COMPLETED!")
         if withEns:
-            self.AllSourcesTranscripts()
-            # self.AllSourcesProteinsDomains(withEns=withEns)
-            # self.AllSourcesGenes(withEns=withEns)
-            # self.AllSourcesDomains(withEns=withEns)
+            self.AllSourcesData()
         else:
             self.Transcripts = self.refseq.Transcripts
             self.Proteins = self.refseq.Proteins
             self.Genes = self.refseq.Genes
             self.Domains = self.refseq.Domains
 
-    def AllSourcesTranscripts(self):
-        print("Merging Transcripts Data from Sources")
+    def AllSourcesData(self):
+        """Combine the Transcrips, Gene, Protein, Domains data from refseq and ensembl"""
+        print("Merging Transcript, Gene, Protein Data from Sources")
         # recombine = {}
         # ensembls = set()
         writtenIDs = set()
         genesIDs = set()
-        print("*")
         for refT, record in self.refseq.Transcripts.items():
-            if refT[1] == "R":
+            if refT[1] == "R":  # only protein coding
                 continue
             ensT = self.idConv.findConversion(refT, transcript=True)
             if record.protein_refseq is None or record.protein_refseq == '-':
                 record.protein_refseq = self.refseq.trans2pro.get(refT, None)
             refP = record.protein_refseq
             ensP = self.idConv.findConversion(refP, protein=True)
-            if refP is None or refP not in self.refseq.Proteins:
+            if refP is None or refP not in self.refseq.Proteins:  # if no matching protein - ignore the transcript
                 continue
             ensPflag = ensP in self.ensembl.Proteins
             ensTflag = ensT in self.ensembl.Transcripts
@@ -90,8 +83,6 @@ class Collector:
                                                                                                       ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
                 self.mismatches_merged.append((ensP, refP,))
                 self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
-                # refG = self.Transcripts[refT].gene_GeneID
-                # ensG = self.Transcripts[refT].gene_ensembl
                 self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
                 self.Proteins[refP].mergeDescription(self.ensembl.Proteins[ensP])
                 self.Domains[refP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
@@ -103,17 +94,10 @@ class Collector:
                     genesIDs.add(refG)
                     if ensG is not None:
                         genesIDs.add(ensG)
-            else:  # else - separate the records
+            else:  # separate the records
                 # refseq records
                 self.Transcripts[refT] = self.refseq.Transcripts[refT]
-                # self.Transcripts[refT].gene_GeneID = refG
                 self.Transcripts[refT].gene_ensembl = ensG
-                # refG = self.Transcripts[refT].gene_GeneID
-                # ensG = self.Transcripts[refT].gene_ensembl
-
-                # if refG not in genesIDs:
-                #     self.Genes[refG] = self.refseq.Genes[refG]
-                #     genesIDs.add(refG)
                 self.Proteins[refP] = self.refseq.Proteins[refP]
                 self.Domains[refP] = self.refseq.Domains.get(refP, [])
                 writtenIDs.add(refT)
@@ -122,7 +106,8 @@ class Collector:
                     genesIDs.add(refG)
                     if ensG is not None:
                         genesIDs.add(ensG)
-                if ensP in self.ensembl.Proteins:  # ensembl records
+                # ensembl records
+                if ensP in self.ensembl.Proteins:
                     self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                     if ensG != self.Transcripts[ensT].gene_ensembl:
                         ensG = self.Transcripts[ensT].gene_ensembl
@@ -140,7 +125,8 @@ class Collector:
                         genesIDs.add(refG)
                         if ensG is not None:
                             genesIDs.add(ensG)
-        print("**")
+        # ~~~~ End of RefSeq Loop ~~~~~
+
         for ensT, record in self.ensembl.Transcripts.items():
             if ensT not in writtenIDs:
                 ensP = record.protein_ensembl
@@ -176,19 +162,21 @@ class Collector:
                         self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                         genesIDs.add(ensG)
                         genesIDs.add(refG)
-        print("**")
-
+        # ~~~~~ End of Ensmebl Loop ~~~~~
 
     def CompMergeDomainLists(self, doms1, doms2):
-        if len(doms1) == 0 or doms2 is None:
+        if len(doms1) == 0 or doms1 is None:
             return doms2
-        elif len(doms2) == 0 or doms1 is None:
+        elif len(doms2) == 0 or doms2 is None:
             return doms1
         finalList = list(doms1)
+        added_index = []
         for dom in doms1:
-            for refDom in doms2:
-                if dom != refDom:
+            for i in range(len(doms2)):
+                refDom = doms2[i]
+                if i not in added_index and dom != refDom:
                     finalList.append(refDom)
+                    added_index.append(i)
         return tuple(finalList)
 
 
