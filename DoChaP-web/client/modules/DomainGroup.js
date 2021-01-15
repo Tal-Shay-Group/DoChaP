@@ -13,6 +13,9 @@ class DomainGroup {
 
         //finding largest domain of them all and add to name
         this.name=this.getName();
+
+        //choosing order for domains in the group
+        orderDomains();
         
     }
     
@@ -210,7 +213,7 @@ class DomainGroup {
         var domainX = this.start * coordinatesWidth;
         var domainY = startHeight - domainHeight / 2;
         var text=this.domains.length+" Domains. Click to expand";
-        
+
         return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
     }
 
@@ -280,5 +283,21 @@ class DomainGroup {
        
         return domains[largestLengthIndex].name;
     }
-    
+
+
+    /**
+     * orders domains so when needed they will be in wanted order
+     */
+    orderDomains(){
+        function compare(a, b) {
+            if (a.start < b.start) {
+                return -1;
+            }
+            if (a.start > b.start) {
+                return 1;
+            }
+            return b.end - a.end;
+        }
+        domains.sort(compare);
+    }
 }
