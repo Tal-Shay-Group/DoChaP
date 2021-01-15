@@ -19,7 +19,7 @@ class Transcript {
         this.length = gene.end - gene.start;
         this.maxProteinLength = gene.maxProteinLength;
         this.startCoordinate = gene.start;
-        this.transcriptEnsemblLink = this.getEnsemblTranscriptLink(dbTranscript.ensembl_ID, gene.specie);
+        this.transcriptEnsemblLink = this.getEnsemblTranscriptLink(dbTranscript.transcript_ensembl_id, gene.specie);
         this.isStrandNegative = (gene.strand == '-');
         this.name=this.getName(dbTranscript.transcript_refseq_id,dbTranscript.transcript_ensembl_id)
 
