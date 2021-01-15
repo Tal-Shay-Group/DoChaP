@@ -209,18 +209,8 @@ class DomainGroup {
         var domainHeight = 45;
         var domainX = this.start * coordinatesWidth;
         var domainY = startHeight - domainHeight / 2;
-        
-        //for tooltip text
-        var name=this.name;
-        var start=this.AAstart;
-        var end=this.AAend;
-        var length=end-start;
-        // var text= ""+this.domains.length+" DOMAINS:";
-
-        // for(var i=0; i<this.domains.length;i++){
-        //     text=text+"<br>"+this.domains[i].tooltip(coordinatesWidth,startHeight)[4];
-        // }
         var text=this.domains.length+" Domains. Click to expand";
+        
         return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
     }
 
