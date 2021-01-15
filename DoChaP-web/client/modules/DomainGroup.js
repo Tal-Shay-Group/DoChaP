@@ -15,7 +15,7 @@ class DomainGroup {
         this.name=this.getName();
 
         //choosing order for domains in the group
-        orderDomains();
+        this.orderDomains();
         
     }
     
@@ -298,6 +298,6 @@ class DomainGroup {
             }
             return b.end - a.end;
         }
-        domains.sort(compare);
+        this.domains.sort(compare);
     }
 }
