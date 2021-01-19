@@ -19,7 +19,7 @@ class Transcript {
         this.length = gene.end - gene.start;
         this.maxProteinLength = gene.maxProteinLength;
         this.startCoordinate = gene.start;
-        this.transcriptEnsemblLink = this.getEnsemblTranscriptLink(dbTranscript.ensembl_ID, gene.specie);
+        this.transcriptEnsemblLink = this.getEnsemblTranscriptLink(dbTranscript.transcript_ensembl_id, gene.specie);
         this.isStrandNegative = (gene.strand == '-');
         this.name=this.getName(dbTranscript.transcript_refseq_id,dbTranscript.transcript_ensembl_id)
 
@@ -64,9 +64,9 @@ class Transcript {
 
         //domain sorts and attribute edits
         Domain.findOverlaps(this.domains);
-        this.domains = Domain.groupCloseDomains(this.domains); ///!!!!!!!!!overlapping only 50% or more!!!
-        this.domains.sort(Domain.compare); //so it is drawn in right order
-        // Domain.showNameOfDomains(this.domains); ///!!!!!!!!! showing currently all domains
+        this.domains = Domain.groupCloseDomains(this.domains);
+        this.domains.sort(Domain.compare); //which domain on top of who, in protein view, or who above who in extended view
+        // Domain.showNameOfDomains(this.domains); //when commented means showing currently all domains
 
     }
 /**
