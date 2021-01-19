@@ -18,9 +18,12 @@ ftpDirPath = {"Mus_musculus": "latest_assembly_versions", "Homo_sapiens": "lates
               "Xenopus_tropicalis": "representative", "Rattus_norvegicus": "representative"}
 
 # for ensembl
-speciesConvertor_Ensembl = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
-                            'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
-                            'X_tropicalis': 'xtropicalis'}
+SpConvert_EnsDomains = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
+                                   'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
+                                   'X_tropicalis': 'xtropicalis'}
+SpConvert_EnsBuilder = {'M_musculus': 'mus_musculus', 'H_sapiens': 'homo_sapiens',
+                             'R_norvegicus': 'rattus_norvegicus', 'D_rerio': 'danio_rerio',
+                             'X_tropicalis': 'xenopus_tropicalis'}
 
 # Domains
 supported_Prefix = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',

@@ -217,6 +217,7 @@ class dbBuilder:
             self.dbName = 'DB_' + self.species
         if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
+            preDomains = set(self.DomainOrg.allDomains.keys())
 
         with connect(self.dbName + '.sqlite') as con:
             print("Connected to " + self.dbName + "...")
@@ -335,9 +336,11 @@ class dbBuilder:
                         complete = 1
                     # insert into domain event table
                     ldf = Domdf.shape[0]
+                    extWithInter = "; ".join([reg.extID, self.DomainOrg.allDomains[regID][-1]])  # this line merges interpro with the external ID. if replacing the typeID with interpro then change to only externalID
+                    #  TODO: when typeID be replaced with interpro, remove interpro id from "extWithInter" and only show the ext ID.
                     values = (protein.refseq, protein.ensembl, regID,
                               reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
-                              reg.extID, splice_junction, complete,)
+                              extWithInter, splice_junction, complete,)
                     Domdf.loc[ldf] = list(values)
                 Domdf = Domdf.drop_duplicates()
                 Domdf = Domdf.fillna(-1)
@@ -345,14 +348,14 @@ class dbBuilder:
                                        "AA_start", "AA_end", "nuc_start", "nuc_end", "total_length",
                                        "splice_junction", "complete_exon"],
                                       as_index=False, sort=False).agg(
-                    lambda col: ", ".join(set(col)))  # groupby all besides ext_ID
+                    lambda col: "; ".join(set(col)))  # groupby all besides ext_ID
                 Domdf = Domdf.replace(-1, np.nan)
                 Domdf.to_sql("DomainEvent", con, if_exists="append", index=False)
             # ~~~ end of loop iterating over transcripts ~~~
             bp = time.time()
 
             if merged:
-                relevantDomains = set(self.DomainOrg.allDomains.keys())
+                relevantDomains = preDomains.union(relevantDomains)
                 print('Recreating the table: DomainType and update domains')
                 cur.executescript("DROP TABLE IF EXISTS DomainType;")
                 print('Creating the table: DomainType')
@@ -371,6 +374,9 @@ class dbBuilder:
                                     );'''
                             )
             # insert into domain type table
+            postDomains = set(self.DomainOrg.allDomains.keys())
+            print("from all {} domains in organizer, {} not in relevant domains".format(len(postDomains),
+                                                                                        len(postDomains.difference(relevantDomains))))
             for typeID in relevantDomains:
                 if typeID in self.DomainOrg.allDomains.keys():
                     values = (typeID,) + self.DomainOrg.allDomains[typeID]
