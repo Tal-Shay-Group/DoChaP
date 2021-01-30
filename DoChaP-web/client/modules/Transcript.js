@@ -157,7 +157,16 @@ class Transcript {
 
         //for every exons
         for (i = 0; i < this.exons.length; i++) {
-            var tooltipData = this.exons[i].genomicTooltip(graphicLayout.startHeight, graphicLayout.coordinatesWidth, graphicLayout.beginningEmpty, graphicLayout.endEmpty, graphicLayout.canvasWidth, isStrandNegative, graphicLayout.spaceAfterCut);
+            var position = this.genomicViewPosition(
+                graphicLayout.coordinatesWidth,
+                graphicLayout.startHeight,
+                graphicLayout.spaceAfterCut,
+                graphicLayout.beginningEmpty,
+                graphicLayout.canvasWidth,
+                graphicLayout.endEmpty,
+                isStrandNegative
+              );
+            var tooltipData = this.exons[i].genomicTooltip(position);
             tooltips.push(tooltipData);
         }
 

@@ -221,28 +221,14 @@ class Exon {
    */
 
   genomicTooltip(
-    startHeight,
-    coordinatesWidth,
-    beginningEmpty,
-    endEmpty,
-    canvasWidth,
-    isStrandNegative,
-    spaceAfterCut
+    position
   ) {
-    const position = this.genomicViewPosition(
-      coordinatesWidth,
-      startHeight,
-      spaceAfterCut,
-      beginningEmpty,
-      canvasWidth,
-      endEmpty,
-      isStrandNegative
-    );
+    
     const exonWidth = position.exonWidth;
     const exonHeight = position.exonHeight;
     const exonX = position.exonX;
     const exonY = position.exonY;
-    var text =
+    const text =
       "Exon: " +
       this.orderInTranscript +
       "/" +
