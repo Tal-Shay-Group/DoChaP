@@ -288,6 +288,10 @@ class Transcript {
 
         }
 
+        this.drawExonsInGenomicView(graphicLayout);
+    }
+
+    drawExonsInGenomicView(graphicLayout) {
         //exon graphics
         var positions = [];
         for (var i = 0; i < this.exons.length; i++) {
@@ -298,17 +302,32 @@ class Transcript {
                 graphicLayout.beginningEmpty,
                 graphicLayout.canvasWidth,
                 graphicLayout.endEmpty,
-                this.isStrandNegative 
+                this.isStrandNegative
             );
             positions.push(currentPosition);
         }
 
+        var isDrawn = [];
         for (var i = 0; i < this.exons.length; i++) {
-            this.exons[i].drawExonInGenomicView(graphicLayout.context, positions[i]);
+
+            // if there is collison with next exon and this is the smaller exon
+            if (i > 0 &&
+                positions[i - 1].exonX + positions[i - 1].exonWidth > positions[i].exonX &&
+                this.exons[i - 1].genomic_end_tx - this.exons[i - 1].genomic_start_tx >
+                this.exons[i].genomic_end_tx - this.exons[i].genomic_start_tx) {
+                this.exons[i].drawExonInGenomicView(graphicLayout.context, positions[i]);
+                isDrawn.push(true);
+            }
+            else{
+                isDrawn.push(false);
+            } 
         }
 
-
-
+        for (var i = 0; i < this.exons.length; i++) {
+            if (!isDrawn[i]) {
+                this.exons[i].drawExonInGenomicView(graphicLayout.context, positions[i]);
+            }
+        }
     }
 
     /**
