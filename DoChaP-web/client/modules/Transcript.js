@@ -157,7 +157,7 @@ class Transcript {
 
         //for every exons
         for (i = 0; i < this.exons.length; i++) {
-            var position = this.genomicViewPosition(
+            var position = this.exons[i].genomicViewPosition(
                 graphicLayout.coordinatesWidth,
                 graphicLayout.startHeight,
                 graphicLayout.spaceAfterCut,
