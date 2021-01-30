@@ -4,21 +4,21 @@ class DomainGroup {
      * @param {array of Domain} domains 
      */
     constructor(domains) {
-        this.domains=domains //arr of Domain objects
+        this.domains = domains //arr of Domain objects
         // this.isExtend=isExtend;
 
         //init attributes
-        this.start=domains[0].start;
-        this.end=domains[0].end;
+        this.start = domains[0].start;
+        this.end = domains[0].end;
 
         //finding largest domain of them all and add to name
-        this.name=this.getName();
+        this.name = this.getName();
 
         //choosing order for domains in the group
         this.orderDomains();
-        
+
     }
-    
+
     /**
      * drawing on canvas
      * @param {contextCanvas} context context to draw on
@@ -44,7 +44,7 @@ class DomainGroup {
             context.fillStyle = "white";
             var domainText = false;
         } else {
-            var gradient = this.getGradientForDomain( context,domainX, domainX + domainWidth, startHeight, exons);
+            var gradient = this.getGradientForDomain(context, domainX, domainX + domainWidth, startHeight, exons);
             context.fillStyle = gradient;
             var domainText = true;
         }
@@ -63,13 +63,13 @@ class DomainGroup {
         context.shadowBlur = 6;
         context.shadowOffsetX = 2;
         context.shadowOffsetY = 2;
-        
+
         //fill colors
         context.fill();
-        
+
         //end shadow
         context.restore();
-        
+
         //border
         context.strokeStyle = "grey";
         context.lineWidth = 2;
@@ -77,9 +77,9 @@ class DomainGroup {
 
         //drawing inner eclipse
         context.beginPath();
-        context.ellipse(domainX + domainWidth / 2 , domainY + domainHeight / 2 , Math.max(domainWidth / 2 -10,0.1),  Math.max( domainHeight / 2 -10,0.1), 0, 0, 2 * Math.PI);
+        context.ellipse(domainX + domainWidth / 2, domainY + domainHeight / 2, Math.max(domainWidth / 2 - 10, 0.1), Math.max(domainHeight / 2 - 10, 0.1), 0, 0, 2 * Math.PI);
         context.closePath();
-        
+
         //fill colors
         context.fill();
 
@@ -130,18 +130,18 @@ class DomainGroup {
         //calculate positions
         var domainWidth = (this.end - this.start) * coordinatesWidth;
         var domainX = this.start * coordinatesWidth;
-        var domainHeight = height-startHeight;
+        var domainHeight = height - startHeight;
         var domainY = startHeight; //- domainHeight / 2
         // var shapeID = 0; //currently its only circles 
         var overlap = false; //all point is that overlapped is inside
         var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
 
         //height for each domain in the group
-        var oneDomainHeight=25;//in pixel 
-        
+        var oneDomainHeight = 25; //in pixel 
+
         //drwing each of the inner domains
-        for(var i=0; i<this.domains.length;i++){
-            this.domains[i].drawExtend(context,coordinatesWidth,startHeight,isFullDraw,exons,oneDomainHeight,domainY+oneDomainHeight*i,domainX,domainWidth);
+        for (var i = 0; i < this.domains.length; i++) {
+            this.domains[i].drawExtend(context, coordinatesWidth, startHeight, isFullDraw, exons, oneDomainHeight, domainY + oneDomainHeight * i, domainX, domainWidth);
         }
     }
 
@@ -158,13 +158,13 @@ class DomainGroup {
         //create gradient
         var gradient = context.createLinearGradient(start, height, end, height);
         var whiteLineRadius = 10;
-        var normalizer= 1 /(this.end - this.start);//normalizer for scaling changes in color on axis proportion to domain length
-        
+        var normalizer = 1 / (this.end - this.start); //normalizer for scaling changes in color on axis proportion to domain length
+
         //iterating through exons for start coloring
         for (var i = 0; i < exons.length; i++) {
-            var exonStart=exons[i].transcriptViewStart;
-            var exonEnd=exons[i].transcriptViewEnd;
-            
+            var exonStart = exons[i].transcriptViewStart;
+            var exonEnd = exons[i].transcriptViewEnd;
+
             //no junctions so only one color
             if (exonStart <= this.start && this.start <= exonEnd && exonStart <= this.end && this.end <= exonEnd) {
                 return exons[i].color;
@@ -175,17 +175,17 @@ class DomainGroup {
                 var position = Math.max(0, (exonEnd - this.start - whiteLineRadius) * normalizer);
                 gradient.addColorStop(position, exons[i].color);
                 //white line for splice junction
-                gradient.addColorStop((exonEnd - this.start) *normalizer, "white");
+                gradient.addColorStop((exonEnd - this.start) * normalizer, "white");
             }
             //ending color for domain
-            else if (exonStart <= this.end && this.end <= exonEnd) {    
-                var position = Math.min(1, (exonStart - this.start + whiteLineRadius)*normalizer);
+            else if (exonStart <= this.end && this.end <= exonEnd) {
+                var position = Math.min(1, (exonStart - this.start + whiteLineRadius) * normalizer);
                 gradient.addColorStop(position, exons[i].color);
                 gradient.addColorStop(1, exons[i].color);
             }
             //color for exon in the middle (not starting or finishing)
             else if (this.start <= exonStart && exonEnd <= this.end) {
-                
+
                 //white line for splice junction
                 gradient.addColorStop((exonStart - this.start) * normalizer, "white");
                 gradient.addColorStop((exonEnd - this.start) * normalizer, "white");
@@ -202,17 +202,17 @@ class DomainGroup {
         return gradient;
     }
 
-     /**
+    /**
      * creating tooltip info for this group of domains
      * @param {*} coordinatesWidth - needed for position calculations, check position for details
      * @param {*} startHeight  - needed for position calculations, check position for details
      */
-    tooltip(coordinatesWidth,startHeight) {
+    tooltip(coordinatesWidth, startHeight) {
         var domainWidth = (this.end - this.start) * coordinatesWidth;
         var domainHeight = 45;
         var domainX = this.start * coordinatesWidth;
         var domainY = startHeight - domainHeight / 2;
-        var text=this.domains.length+" Domains. Click to expand";
+        var text = this.domains.length + " Domains. Click to expand";
 
         return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
     }
@@ -224,63 +224,63 @@ class DomainGroup {
      * @param {int} domainHeight in pixel units
      * @param {double} domainY in pixel units
      */
-    proteinExtendTooltip(coordinatesWidth, startHeight, height){
+    proteinExtendTooltip(coordinatesWidth, startHeight, height) {
         // var domainWidth = (this.end - this.start) * coordinatesWidth;
         // var domainX = this.start * coordinatesWidth;
-        var domainHeight = height-startHeight;
+        var domainHeight = height - startHeight;
         var domainY = startHeight; //- domainHeight / 2
         // var shapeID = 0; //currently its only circles 
         // var overlap = false; //all point is that overlapped is inside
         // var domainName = this.name.replace(/_/g, "\n").replace(/ /g, "\n");
-        var oneDomainHeight=25;//in pixel
+        var oneDomainHeight = 25; //in pixel
 
-        var tooltips=[];
-        for(var i=0; i<this.domains.length;i++){
-            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth,startHeight,oneDomainHeight,domainY+oneDomainHeight*i)[0]);
+        var tooltips = [];
+        for (var i = 0; i < this.domains.length; i++) {
+            tooltips.push(this.domains[i].proteinExtendTooltip(coordinatesWidth, startHeight, oneDomainHeight, domainY + oneDomainHeight * i)[0]);
         }
         return tooltips;
-        
+
     }
 
 
     /**
      * get name of largest domain that is not id
      */
-    getName(){
-        var domains=this.domains;
-        var nameDict={}
-        for(var i=0; i<domains.length;i++){
-            if(nameDict[domains[i].name]==undefined){
-                nameDict[domains[i].name]=0;
+    getName() {
+        var domains = this.domains;
+        var nameDict = {}
+        for (var i = 0; i < domains.length; i++) {
+            if (nameDict[domains[i].name] == undefined) {
+                nameDict[domains[i].name] = 0;
             }
-            nameDict[domains[i].name]=nameDict[domains[i].name]+1;
+            nameDict[domains[i].name] = nameDict[domains[i].name] + 1;
         }
-        
+
         //go through dictionary and if a name is majority we take it
         for (var key in nameDict) {
-            if (nameDict.hasOwnProperty(key)) {           
-                if(nameDict[key]>=domains.length/2){
+            if (nameDict.hasOwnProperty(key)) {
+                if (nameDict[key] >= domains.length / 2) {
                     return key;
                 }
             }
         }
 
         //taking the largest domain without name that is ID
-        var largestLength=domains[0].end-domains[0].start;
-        var largestLengthIndex=0;
-        for(var i=0; i<domains.length;i++){
-            if(this.start>domains[i].start){
-                this.start=domains[i].start;
+        var largestLength = domains[0].end - domains[0].start;
+        var largestLengthIndex = 0;
+        for (var i = 0; i < domains.length; i++) {
+            if (this.start > domains[i].start) {
+                this.start = domains[i].start;
             }
-            if(this.end<domains[i].end){
-                this.end=domains[i].end;
+            if (this.end < domains[i].end) {
+                this.end = domains[i].end;
             }
-            if(largestLength < domains[i].end-domains[i].start && Species.isNotID(domains[i].name)){
-                largestLength=domains[i].end-domains[i].start;
-                largestLengthIndex=i;
+            if (largestLength < domains[i].end - domains[i].start && Species.isNotID(domains[i].name)) {
+                largestLength = domains[i].end - domains[i].start;
+                largestLengthIndex = i;
             }
         }
-       
+
         return domains[largestLengthIndex].name;
     }
 
@@ -288,7 +288,7 @@ class DomainGroup {
     /**
      * orders domains so when needed they will be in wanted order
      */
-    orderDomains(){
+    orderDomains() {
         function compare(a, b) {
             if (a.start < b.start) {
                 return -1;

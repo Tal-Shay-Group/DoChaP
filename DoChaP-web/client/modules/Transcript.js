@@ -317,10 +317,9 @@ class Transcript {
                 this.exons[i].genomic_end_tx - this.exons[i].genomic_start_tx) {
                 this.exons[i].drawExonInGenomicView(graphicLayout.context, positions[i]);
                 isDrawn.push(true);
-            }
-            else{
+            } else {
                 isDrawn.push(false);
-            } 
+            }
         }
 
         for (var i = 0; i < this.exons.length; i++) {
