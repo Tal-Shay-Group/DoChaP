@@ -77,12 +77,13 @@ class InterProBuilder(SourceBuilder):
             for ext in row:
                 splitrow = ext.split(":")
                 splitrow[1] = splitrow[1].lower()
+                splitrow[1] = splitrow[1].replace(",", "; ")
                 if splitrow[0] in sourceDict.keys():
                     newdf.at[ind, splitrow[0]] = splitrow[1].replace(sourceDict[splitrow[0]], splitrow[0])
                 newdf.at[ind, "interpro"] = ind
                 newdf.at[ind, "Type"] = df.loc[ind, "Type"]
         newdf = newdf.where(pd.notnull(newdf), None)
-        # newdf = newdf[newdf.Type != "family"]  # include only domains record and not families
+        newdf = newdf[newdf.Type != "family"]  # remove family records
         self.AllDomains = newdf
 
 

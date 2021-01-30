@@ -12,6 +12,7 @@ from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
 from DomainsEnsemblBuilder import *
+from conf import *
 
 
 class EnsemblBuilder(SourceBuilder):
@@ -21,9 +22,9 @@ class EnsemblBuilder(SourceBuilder):
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        self.SpeciesConvertor = {'M_musculus': 'mus_musculus', 'H_sapiens': 'homo_sapiens',
-                                 'R_norvegicus': 'rattus_norvegicus', 'D_rerio': 'danio_rerio',
-                                 'X_tropicalis': 'xenopus_tropicalis'}
+        # self.SpeciesConvertor = {'M_musculus': 'mus_musculus', 'H_sapiens': 'homo_sapiens',
+        #                          'R_norvegicus': 'rattus_norvegicus', 'D_rerio': 'danio_rerio',
+        #                          'X_tropicalis': 'xenopus_tropicalis'}
         self.species = species
         self.savePath = os.getcwd() + '/data/{}/ensembl/'.format(self.species)
         self.gff = self.savePath + "genomic.gff3"
@@ -36,7 +37,7 @@ class EnsemblBuilder(SourceBuilder):
         self.trans2pro = {}
 
     def downloader(self):
-        skey = self.SpeciesConvertor[self.species]
+        skey = SpConvert_EnsBuilder[self.species]
         ftp_address = 'ftp.ensembl.org'
         ftp_path = '/pub/current_gff3/{}/'.format(skey)
 
@@ -85,10 +86,10 @@ class EnsemblBuilder(SourceBuilder):
         print("-------- Ensembl data Parsing --------")
         print("\tParsing gff3 file...")
         print("\tcreating temporary database from file: " + self.gff)
-        fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        # fn = gffutils.example_filename(self.gff)
+        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # gffutils.create_db(fn, "DB.Ensembl_" + self.species[0] +".db", merge_strategy="create_unique")
-        # db = gffutils.FeatureDB("DB.Ensembl_" + self.species[0] +".db")
+        db = gffutils.FeatureDB("DB.Ensembl_" + self.species[0] +".db")
         self.collect_genes(db)
         self.collect_Transcripts(db)
 
@@ -189,5 +190,3 @@ class EnsemblBuilder(SourceBuilder):
                     self.Domains[row.protein_stable_id_version] = self.Domains.get(row.protein_stable_id_version, []) + \
                                                                   [Domain(ext_id=id, start=int(row.start),
                                                                           end=int(row.end))]
-                # self.pro2trans[row.protein_stable_id_version] = row.transcript_stable_id_version
-                # self.trans2pro[row.transcript_stable_id_version] = row.protein_stable_id_version

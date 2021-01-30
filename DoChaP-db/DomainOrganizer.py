@@ -15,6 +15,7 @@ class DomainOrganizer:
         self.allExt = dict()
         self.allNames = dict()
         self.allCDD = dict()
+        self.ignored_domains = {"nonInterpro": [], "onlyInterpro": [], "family": []}
         director = Director()
         self.Interpro = InterProBuilder()
         director.setBuilder(self.Interpro)
@@ -56,15 +57,17 @@ class DomainOrganizer:
         identify = self.Interpro.AllDomains.loc[
             self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
         ind = identify.index.values[0] if len(identify) != 0 else None
-        if domain.extType == "interpro":  # ignore domains from interpro only
-            if ind is None:
-                return None
-            elif [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
-                return None
-        if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
-            return None
-        # if ind is not None and self.Interpro.AllDomains.loc[ind, "Type"] != "domain":  # if the record is family and not single domain
-        #     return None
+        if ind is None:
+            self.ignored_domains["nonInterpro"].append(domain.extID)
+            return None  # only using domains that are recorded in Interpro
+        elif domain.extType == "interpro" and \
+                [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
+            self.ignored_domains["onlyInterpro"].append(domain.extID)
+            return None  # interpro domains are only used when connected with other external source
+        elif self.Interpro.AllDomains.loc[ind, "Type"] != "domain":
+            self.ignored_domains["family"].append(domain.extID)
+            return None  # only using "domain" and not "family" or "Repeat"
+
         if domain.extID in self.allExt:
             currReg = self.allExt[domain.extID]
             ncdd = self.cddAdd(domain, currReg)
@@ -106,38 +109,28 @@ class DomainOrganizer:
         self.allExt[domain.extID] = currReg
         self.allNames[domain.name] = currReg
         self.allCDD[domain.cdd] = currReg
+        if domain.extType == "interpro":
+            return None  # Domains of source "interpro" holds usful data - short name etc. but might be predicted by unsupported DB, therefore - ignored
         return currReg
 
     def mainNameOtherName(self, domain, currReg):
         """Choose the shortest name among similar records."""
         cdname = self.allDomains[currReg][0]
         oname = self.allDomains[currReg][1]
-        if cdname is None:
-            cdname = domain.name
-        elif domain.name is not None and len(domain.name) < len(cdname):
-            if oname is not None:
-                oname = self.allDomains[currReg][1] + '; ' + cdname
+        if domain.name is not None:
+            if cdname is None:
+                cdname = domain.name
+            elif len(domain.name) < len(cdname):
+                if oname is None:
+                    oname = cdname
+                elif cdname.lower() not in oname.lower():
+                    oname = self.allDomains[currReg][1] + '; ' + cdname
+                cdname = domain.name
             else:
-                oname = cdname
-            cdname = domain.name
-        else:
-            if oname is not None:
-                oname = self.allDomains[currReg][1] + '; ' + cdname
-            else:
-                oname = cdname
-        # if domain.extType == 'interpro' and len(domain.name) < len(cdname):
-        #     cdname = domain.name
-        # elif domain.name is not None:
-        #     if self.allDomains[currReg][0] is not None and self.allDomains[currReg][1] is not None:
-        #         if domain.name.lower() not in self.allDomains[currReg][0].lower() and \
-        #                 domain.name.lower() not in self.allDomains[currReg][1].lower():
-        #             oname = self.allDomains[currReg][1] + '; ' + domain.name
-        #         else:
-        #             oname = self.allDomains[currReg][1]
-        #     elif self.allDomains[currReg][0]:
-        #         cdname = domain.name
-        #     else:
-        #         oname = domain.name
+                if oname is None:
+                    oname = domain.name
+                elif domain.name.lower() not in oname.lower():
+                    oname = self.allDomains[currReg][1] + '; ' + domain.name
         return cdname, oname
 
     def noteAdd(self, domain, currReg):
@@ -173,3 +166,5 @@ class DomainOrganizer:
             return currentExt
         else:
             return "; ".join(list(set(currentExt.split("; ") + extID.split("; "))))
+
+# TODO: replace the typeID key with interpro ID and change the code respectievly (since 19/1/21 domains must have interpro record)

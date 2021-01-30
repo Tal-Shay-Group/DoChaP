@@ -37,11 +37,9 @@ DoChaP-web/log.txt
 **/log.txt
 **/log_*.txt
 
-Website_code/userInterfaceLog.txt
 DoChaP-web/userInterfaceLog.txt
 **/userInterfaceLog.txt
 DoChaP-web/messages.txt
-Website_code/messages.txt
 
 
 **/Downloads_refine/**
