@@ -64,4 +64,4 @@ DoChaP-web/messages.txt
 
 #ignore the directory of databases
 DoChaP-db/dbs/*
-/DoChaP-web/logs_backups/*
+DoChaP-web/logs_backups/
