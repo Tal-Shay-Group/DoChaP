@@ -10,6 +10,7 @@ angular.module("DoChaP")
         $('#searchExists').css("display", "block");
 
         //init attributes
+        $scope.display = new Display();
         var isStart = true;
         self = this;
         $scope.noSearch = false;
@@ -129,28 +130,17 @@ angular.module("DoChaP")
         }
 
         //for modals, need type of window and id of the clicked object
-        $scope.showWindow = undefined;
         $scope.openWindow = function (type, id) {
-            $('#BlackBackground').css('display', 'block');
-            $scope.showWindow = type;
-            if (type == "transcript") {
-                self.currTranscript = $scope.transcripts[id];
-                self.currTranscript.tx_start = numberToTextWithCommas(self.currTranscript.tx_start);
-                self.currTranscript.tx_end = numberToTextWithCommas(self.currTranscript.tx_end);
-                self.currTranscript.cds_start = numberToTextWithCommas(self.currTranscript.cds_start);
-                self.currTranscript.cds_end = numberToTextWithCommas(self.currTranscript.cds_end);
-            } else if (type == "protein") {
-                self.currTranscript = $scope.transcripts[id];
-            }
-            
+            self.currTranscript = $scope.transcripts[id];
+            $scope.display.modal.openWindow(type, self.currTranscript);
         }
-
+        
         //used when user wants to exit modal by clicking outside the modal
         $scope.closeModalFromBackground = function (event) {
-            if (event.target.id == 'BlackBackground') {
-                $scope.showWindow = false
-            }
+            $scope.display.modal.closeWindowFromTheSide(event);
         }
+        
+        
 
         //when filtering/unfiltering unreviewed
         $scope.filterUnreviewed = function () {
