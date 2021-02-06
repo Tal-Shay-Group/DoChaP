@@ -135,13 +135,6 @@ angular.module("DoChaP")
             $scope.display.modal.openWindow(type, self.currTranscript);
         }
         
-        //used when user wants to exit modal by clicking outside the modal
-        $scope.closeModalFromBackground = function (event) {
-            $scope.display.modal.closeWindowFromTheSide(event);
-        }
-        
-        
-
         //when filtering/unfiltering unreviewed
         $scope.filterUnreviewed = function () {
             $window.sessionStorage.setItem("ignorePredictions", "" + isReviewedCheckBox.checked);
