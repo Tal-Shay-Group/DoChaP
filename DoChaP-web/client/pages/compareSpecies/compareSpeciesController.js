@@ -8,7 +8,8 @@
 
 angular.module("DoChaP").controller('compareSpeciesController', function ($window, $scope, $route, compareSpeciesService, webService) {
 	//init parameters
-	$scope.display = new Display();
+	$scope.specie1Display = new Display();
+	$scope.specie2Display = new Display();
 	self = this;
 	$scope.loading = false;
 	$scope.alert = "";
@@ -49,7 +50,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 
 					//create range slider from left to right / right to left
-					getGenomicClass();
 					self.createScales();
 
 					//draw
@@ -67,24 +67,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			});
 	}
 
-	function getGenomicClass() {
-
-		if (self.specie1Gene.strand == '+') {
-			$scope.genomicClass1 = "js-range-slider"
-		} else {
-			$scope.genomicClass1 = "js-range-slider-reverse-fixed";
-			self.maximumRange1 = self.specie1Gene.end;
-			self.minimumRange1 = self.specie1Gene.start;
-		}
-		if (self.specie2Gene.strand == '+') {
-			$scope.genomicClass2 = "js-range-slider"
-		} else {
-			$scope.genomicClass2 = "js-range-slider-reverse-fixed";
-			self.maximumRange2 = self.specie2Gene.end;
-			self.minimumRange2 = self.specie2Gene.start;
-		};
-
-	}
 	//updating all canvases,scales,tooltips
 	function updateCanvases() {
 		//drawing transcripts
@@ -124,40 +106,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				Domain.domainClick(self.toolTipManagerForCanvas, event);
 				$scope.$apply();
 			});
-		//range sliders:
-		if (self.specie1Gene.strand === '+') {
-			$('#genomic_range1').data("ionRangeSlider").update({
-				from: self.specie1Gene.scale.start,
-				to: self.specie1Gene.scale.end,
-			});
-		} else {
-			$('#genomic_range1').data("ionRangeSlider").update({
-				from: self.maximumRange1 - self.specie1Gene.scale.end,
-				to: self.maximumRange1 - self.specie1Gene.scale.start
-			});
-		}
-
-		if (self.specie2Gene.strand === '+') {
-			$('#genomic_range2').data("ionRangeSlider").update({
-				from: self.specie2Gene.scale.start,
-				to: self.specie2Gene.scale.end,
-			});
-		} else {
-			$('#genomic_range2').data("ionRangeSlider").update({
-				from: self.maximumRange2 - self.specie2Gene.scale.end,
-				to: self.maximumRange2 - self.specie2Gene.scale.start
-			});
-		}
-
-		$('#protein_range1').data("ionRangeSlider").update({
-			from: self.specie1Gene.proteinScale.zoomInStart,
-			to: self.specie1Gene.proteinScale.zoomInEnd,
-		});
-		$('#protein_range2').data("ionRangeSlider").update({
-			from: self.specie2Gene.proteinScale.zoomInStart,
-			to: self.specie2Gene.proteinScale.zoomInEnd,
-		});
-
 		$scope.$apply();
 	}
 
@@ -177,7 +125,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		}
 
 		self.currSpecies.currTranscript = self.currSpecies.transcripts[id];
-		$scope.display.modal.openWindow(type, self.currSpecies.currTranscript);
+		$scope.specie1Display.modal.openWindow(type, self.currSpecies.currTranscript);
 	}
 
 	//changing mode display
@@ -449,12 +397,20 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				option2tags.append($('<option></option>').val(p).html(p));
 			});
 		}
-
-
 	}
 
 	//initializing scale when first showing results
 	self.createScales = function () {
+		//for genomic slider to know the limits (needed when strand=='-')
+		self.maximumRange1 = self.specie1Gene.end;
+		self.minimumRange1 = self.specie1Gene.start;
+		self.maximumRange2 = self.specie2Gene.end;
+		self.minimumRange2 = self.specie2Gene.start;
+
+		//for genomic slider to know the direction of numbers
+		$scope.genomicClass1 = $scope.specie1Display.locationScopeChanger.getChangerClassForStrand(self.specie1Gene.strand);
+		$scope.genomicClass2 = $scope.specie2Display.locationScopeChanger.getChangerClassForStrand(self.specie2Gene.strand);
+
 		if ($('#genomic_range1').data("ionRangeSlider") != undefined) {
 			$('#genomic_range1').data("ionRangeSlider").destroy();
 			$('#protein_range1').data("ionRangeSlider").destroy();
@@ -463,184 +419,137 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		}
 
 		self.createGenomicRangeSliders();
+		
+		var onFinishProtein1 = function (data) {
+			var results = $window.sessionStorage.getItem("currCompareSpecies");
+			var genes = results.split("*");
+			results = {
+				"isExact": true,
+				"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+			};
+			var colors = getColorForLength(results, isReviewedCheckBox.checked);
+			var genes = results.genes;
+			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
+			$scope.transcripts = self.specie1Gene.transcripts;
+			$(document).ready(function () {
+				updateCanvases();
+			});
+		}
 
-		$('#protein_range1').ionRangeSlider({
-			type: "double",
-			min: 0,
-			max: self.specie1Gene.proteinScale.length,
-			from: 0,
-			to: self.specie1Gene.proteinScale.length,
-			drag_interval: true,
-			skin: "square",
-			onFinish: function (data) {
-				var results = $window.sessionStorage.getItem("currCompareSpecies");
-				var genes = results.split("*");
-				results = {
-					"isExact": true,
-					"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-				};
-				var colors = getColorForLength(results, isReviewedCheckBox.checked);
-				var genes = results.genes;
-				self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
-				$scope.transcripts = self.specie1Gene.transcripts;
-				$(document).ready(function () {
-					updateCanvases();
-				});
+		var onFinishProtein2 = function (data) {
+			var results = $window.sessionStorage.getItem("currCompareSpecies");
+			var genes = results.split("*");
+			results = {
+				"isExact": true,
+				"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+			};
+			var colors = getColorForLength(results, isReviewedCheckBox.checked);
+			var genes = results.genes;
+			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
+			$scope.transcripts = self.specie2Gene.transcripts;
+			$(document).ready(function () {
+				updateCanvases();
+			});
+		}
 
-			}
+		$scope.specie1Display.locationScopeChanger.updateProteinlocationScopeChanger(
+			'#protein_range1', onFinishProtein1, self.specie1Gene.proteinScale.length);
+		
+		$scope.specie2Display.locationScopeChanger.updateProteinlocationScopeChanger(
+			'#protein_range2', onFinishProtein2, self.specie2Gene.proteinScale.length);
 
+		// put handles in the ends because there is unupdated data that may be saved from recent genes
+		if (self.specie1Gene.strand === '+') {
+			$('#genomic_range1').data("ionRangeSlider").update({
+				from: self.specie1Gene.scale.start,
+				to: self.specie1Gene.scale.end,
+			});
+		} else {
+			$('#genomic_range1').data("ionRangeSlider").update({
+				from: self.maximumRange1 - self.specie1Gene.scale.end,
+				to: self.maximumRange1 - self.specie1Gene.scale.start
+			});
+		}
+
+		if (self.specie2Gene.strand === '+') {
+			$('#genomic_range2').data("ionRangeSlider").update({
+				from: self.specie2Gene.scale.start,
+				to: self.specie2Gene.scale.end,
+			});
+		} else {
+			$('#genomic_range2').data("ionRangeSlider").update({
+				from: self.maximumRange2 - self.specie2Gene.scale.end,
+				to: self.maximumRange2 - self.specie2Gene.scale.start
+			});
+		}
+
+		$('#protein_range1').data("ionRangeSlider").update({
+			from: self.specie1Gene.proteinScale.zoomInStart,
+			to: self.specie1Gene.proteinScale.zoomInEnd,
 		});
-		$('#protein_range2').ionRangeSlider({
-			type: "double",
-			min: 0,
-			max: self.specie2Gene.proteinScale.length,
-			from: 0,
-			to: self.specie2Gene.proteinScale.length,
-			drag_interval: true,
-			skin: "square",
-			onFinish: function (data) {
-				var results = $window.sessionStorage.getItem("currCompareSpecies");
-				var genes = results.split("*");
-				results = {
-					"isExact": true,
-					"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-				};
-				var colors = getColorForLength(results, isReviewedCheckBox.checked);
-				var genes = results.genes;
-				self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
-				$scope.transcripts = self.specie2Gene.transcripts;
-				$(document).ready(function () {
-					updateCanvases();
-				});
-
-			}
-
+		$('#protein_range2').data("ionRangeSlider").update({
+			from: self.specie2Gene.proteinScale.zoomInStart,
+			to: self.specie2Gene.proteinScale.zoomInEnd,
 		});
 
 	}
 
 	self.createGenomicRangeSliders = function () {
-		if (self.specie1Gene.strand == '+') {
-			$('#genomic_range1').ionRangeSlider({
-				type: "double",
-				min: self.specie1Gene.scale.start,
-				max: self.specie1Gene.scale.end,
-				from: self.specie1Gene.scale.start,
-				to: self.specie1Gene.scale.end,
-				drag_interval: true,
-				skin: "square",
-				onFinish: function (data) {
-					var results = $window.sessionStorage.getItem("currCompareSpecies");
-					var genes = results.split("*");
-					results = {
-						"isExact": true,
-						"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-					};
-					var colors = getColorForLength(results, isReviewedCheckBox.checked);
-					var genes = results.genes;
-					self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-					$scope.transcripts = self.specie1Gene.transcripts;
-					$(document).ready(function () {
-						updateCanvases();
-					});
+		var getResultsFromSessionStorage = function () {
+			var results = $window.sessionStorage.getItem("currCompareSpecies");
+			var genes = results.split("*");
+			results = {
+				"isExact": true,
+				"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+			};
+			return {
+				genes: results.genes,
+				colors: getColorForLength(results, isReviewedCheckBox.checked)
+			}
+		}
 
-				}
-
-			});
-
-		} else {
-			$('#genomic_range1').ionRangeSlider({
-				type: "double",
-				min: self.minimumRange1 - self.minimumRange1,
-				max: self.maximumRange1 - self.minimumRange1,
-				from: self.maximumRange1 - self.specie1Gene.scale.end,
-				to: self.maximumRange1 - self.specie1Gene.scale.start,
-				drag_interval: true,
-				skin: "square",
-				prettify: function (num) {
-					return self.maximumRange1 - num; /*max - num*/
-				},
-				onFinish: function (data) {
-					var results = $window.sessionStorage.getItem("currCompareSpecies");
-					var genes = results.split("*");
-					results = {
-						"isExact": true,
-						"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-					};
-					var colors = getColorForLength(results, isReviewedCheckBox.checked);
-					var genes = results.genes;
-					self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-					$scope.transcripts = self.specie1Gene.transcripts;
-					$(document).ready(function () {
-						updateCanvases();
-					});
-
-				}
-
+		var onFinishWhenStrandPositive1 = function (data) {
+			var results = getResultsFromSessionStorage();
+			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+			$scope.transcripts = self.specie1Gene.transcripts;
+			$(document).ready(function () {
+				updateCanvases();
 			});
 		}
 
-		if (self.specie2Gene.strand == '+') {
-			$('#genomic_range2').ionRangeSlider({
-				type: "double",
-				min: self.specie2Gene.scale.start,
-				max: self.specie2Gene.scale.end,
-				from: self.specie2Gene.scale.start,
-				to: self.specie2Gene.scale.end,
-				drag_interval: true,
-				skin: "square",
-				onFinish: function (data) {
-					var results = $window.sessionStorage.getItem("currCompareSpecies");
-					var genes = results.split("*");
-					results = {
-						"isExact": true,
-						"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-					};
-					var colors = getColorForLength(results, isReviewedCheckBox.checked);
-					var genes = results.genes;
-					self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-					$scope.transcripts = self.specie2Gene.transcripts;
-					$(document).ready(function () {
-						updateCanvases();
-					});
-
-				}
-
-			});
-		} else {
-			//gene 2 - 
-			$('#genomic_range2').ionRangeSlider({
-				type: "double",
-				min: self.minimumRange2 - self.minimumRange2,
-				max: self.maximumRange2 - self.minimumRange2,
-				from: self.maximumRange2 - self.specie2Gene.scale.end,
-				to: self.maximumRange2 - self.specie2Gene.scale.start,
-				drag_interval: true,
-				skin: "square",
-				prettify: function (num) {
-					return self.maximumRange2 - num; /*max - num*/
-				},
-				onFinish: function (data) {
-					var results = $window.sessionStorage.getItem("currCompareSpecies");
-					var genes = results.split("*");
-					results = {
-						"isExact": true,
-						"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
-					};
-					var colors = getColorForLength(results, isReviewedCheckBox.checked);
-					var genes = results.genes;
-					self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-					$scope.transcripts = self.specie2Gene.transcripts;
-					$(document).ready(function () {
-						updateCanvases();
-					});
-
-				}
-
+		var onFinishWhenStrandNegative1 = function (data) {
+			var results = getResultsFromSessionStorage();
+			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+			$scope.transcripts = self.specie1Gene.transcripts;
+			$(document).ready(function () {
+				updateCanvases();
 			});
 		}
 
+		var onFinishWhenStrandPositive2 = function (data) {
+			var results = getResultsFromSessionStorage();
+			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+			$scope.transcripts = self.specie2Gene.transcripts;
+			$(document).ready(function () {
+				updateCanvases();
+			});
+		}
 
+		var onFinishWhenStrandNegative2 = function (data) {
+			var results = getResultsFromSessionStorage();
+			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+			$scope.transcripts = self.specie2Gene.transcripts;
+			$(document).ready(function () {
+				updateCanvases();
+			});
+		}
+
+		$scope.specie1Display.locationScopeChanger.updateGenomiclocationScopeChanger(
+			'#genomic_range1', self.specie1Gene.scale, self.specie1Gene.strand, onFinishWhenStrandPositive1, onFinishWhenStrandNegative1,
+			self.maximumRange1, self.minimumRange1);
+		$scope.specie2Display.locationScopeChanger.updateGenomiclocationScopeChanger(
+			'#genomic_range2', self.specie2Gene.scale, self.specie2Gene.strand, onFinishWhenStrandPositive2, onFinishWhenStrandNegative2,
+			self.maximumRange2, self.minimumRange2);
 	}
 
 });

@@ -40,11 +40,11 @@ angular.module("DoChaP")
         $scope.shownTranscripts = $scope.transcripts.length;
         $scope.hiddenTranscripts = 0;
         $scope.strand = self.geneInfo.strand;
-        
+
 
         //for genomic slider to know the limits
-        self.maximumRange=self.geneInfo.end;
-        self.minimumRange=self.geneInfo.start;
+        self.maximumRange = self.geneInfo.end;
+        self.minimumRange = self.geneInfo.start;
 
         //for genomic slider to know the direction of numbers
         $scope.genomicClass = $scope.display.locationScopeChanger.getChangerClassForStrand($scope.strand);
@@ -176,48 +176,6 @@ angular.module("DoChaP")
         }
 
         function createRangeSliders() {
-            // if ($scope.strand == '+') {
-            //     $('#genomic_range').ionRangeSlider({
-            //         type: "double",
-            //         skin: "square",
-            //         min: self.geneInfo.scale.start,
-            //         max: self.geneInfo.scale.end,
-            //         from: self.geneInfo.scale.start,
-            //         to: self.geneInfo.scale.end,
-            //         drag_interval: true,
-            //         onFinish: function (data) {
-            //             self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-            //             $scope.transcripts = self.geneInfo.transcripts;
-            //             $(document).ready(function () {
-            //                 updateCanvases();
-            //             });
-            //         }
-            //     });
-            // } else {
-            //     $('#genomic_range').ionRangeSlider({
-            //         type: "double",
-            //         skin: "square",
-            //         min: self.minimumRange - self.minimumRange,
-            //         /*min - min*/
-            //         max: self.maximumRange - self.minimumRange,
-            //         /*max - min*/
-            //         from: self.maximumRange - self.geneInfo.scale.end,
-            //         /*max - to*/
-            //         to: self.maximumRange - self.geneInfo.scale.start,
-            //         /*max - from*/
-            //         drag_interval: true,
-            //         prettify: function (num) {
-            //             return self.maximumRange - num; /*max - num*/
-            //         },
-            //         onFinish: function (data) {
-            //             self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.maximumRange - data.to, self.maximumRange - data.from, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-            //             $scope.transcripts = self.geneInfo.transcripts;
-            //             $(document).ready(function () {
-            //                 updateCanvases();
-            //             });
-            //         }
-            //     });
-            // }
             var onFinishWhenStrandPositive = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
                 $scope.transcripts = self.geneInfo.transcripts;
@@ -225,6 +183,7 @@ angular.module("DoChaP")
                     updateCanvases();
                 });
             };
+
             var onFinishWhenStrandNegative = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.maximumRange - data.to, self.maximumRange - data.from, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
                 $scope.transcripts = self.geneInfo.transcripts;
@@ -233,28 +192,19 @@ angular.module("DoChaP")
                 });
             }
 
-            //should be 
+            var OnFinishProtein = function (data) {
+                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
+                $scope.transcripts = self.geneInfo.transcripts;
+                $(document).ready(function () {
+                    updateCanvases();
+                })};
+
             $scope.display.locationScopeChanger.updateGenomiclocationScopeChanger(
                 '#genomic_range', self.geneInfo.scale, $scope.strand, onFinishWhenStrandPositive, onFinishWhenStrandNegative,
                 self.maximumRange, self.minimumRange);
 
-            $('#protein_range').ionRangeSlider({
-                type: "double",
-                min: 0,
-                max: self.geneInfo.proteinScale.length,
-                from: 0,
-                to: self.geneInfo.proteinScale.length,
-                drag_interval: true,
-                skin: "square",
-                onFinish: function (data) {
-                    self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
-                    $scope.transcripts = self.geneInfo.transcripts;
-                    $(document).ready(function () {
-                        updateCanvases();
-                    });
-                }
-            });
-
+            $scope.display.locationScopeChanger.updateProteinlocationScopeChanger(
+                '#protein_range', OnFinishProtein, self.geneInfo.proteinScale.length);
         }
 
         //downloading pdf

@@ -13,7 +13,7 @@ class Display {
             }
         };
 
-        this.modal.closeWindowFromTheSide =  function (event) {
+        this.modal.closeWindowFromTheSide = function (event) {
             if (event.target.id == 'BlackBackground') {
                 this.type = undefined;
             }
@@ -22,10 +22,10 @@ class Display {
         this.locationScopeChanger = new Object();
 
         //in the beginning this needs to be called and the result should be in the html tag in the class property
-        this.locationScopeChanger.getChangerClassForStrand = function(strand){
-            if(strand=='+'){
+        this.locationScopeChanger.getChangerClassForStrand = function (strand) {
+            if (strand == '+') {
                 return "js-range-slider";
-            }else{
+            } else {
                 return "js-range-slider-reverse-fixed";
             }
         }
@@ -48,17 +48,14 @@ class Display {
                 };
                 onFinishVal = onFinishWhenStrandPositive;
             } else {
-                    // var maximumRange=self.geneInfo.end;
-                    // var minimumRange=self.geneInfo.start;
-
-                    minVal = minimumRange - minimumRange, /*min - min*/
-                    maxVal = maximumRange - minimumRange, /*max - min*/
-                    fromVal = maximumRange - scale.end, /*max - to*/
-                    toVal = maximumRange - scale.start, /*max - from*/
-                    prettifyVal = function (num) {
-                        return maximumRange - num; /*max - num*/
-                    },
-                    onFinishVal = onFinishWhenStrandNegative;
+                minVal = minimumRange - minimumRange, /*min - min*/
+                maxVal = maximumRange - minimumRange, /*max - min*/
+                fromVal = maximumRange - scale.end, /*max - to*/
+                toVal = maximumRange - scale.start, /*max - from*/
+                prettifyVal = function (num) {
+                    return maximumRange - num; /*max - num*/
+                },
+                onFinishVal = onFinishWhenStrandNegative;
             }
 
             $(name).ionRangeSlider({
@@ -71,6 +68,19 @@ class Display {
                 prettify: prettifyVal,
                 drag_interval: true,
                 onFinish: onFinishVal
+            });
+        }
+
+        this.locationScopeChanger.updateProteinlocationScopeChanger = function (name, onFinish, maximumRange) {
+            $(name).ionRangeSlider({
+                type: "double",
+                min: 0,
+                max: maximumRange,
+                from: 0,
+                to: maximumRange,
+                drag_interval: true,
+                skin: "square",
+                onFinish: onFinish
             });
         }
     }
