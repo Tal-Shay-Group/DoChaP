@@ -156,7 +156,7 @@ class EnsemblBuilder(SourceBuilder):
 
     def parse_domains(self):
         print("\tCollecting domains from ensembl domains talbes:")
-        for extDB in self.DomainsBuilder.ExtSources:
+        for extDB in self.DomainsBuilder.ExternalDomains:
             print("\t - {}".format(extDB))
             df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
                                sep="\t", header=0)

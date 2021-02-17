@@ -17,7 +17,7 @@ class OrthologsBuilder(SourceBuilder):
 
     def __init__(self, all_species=all_species):
         """
-        @type sp: tuple
+        @type all_species: tuple
         """
         self.all_species = all_species
         self.speciesConvertor = SpConvert_EnsDomains
