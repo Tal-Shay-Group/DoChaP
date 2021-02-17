@@ -75,28 +75,14 @@ class Exon {
    */
   drawExonInGenomicView(
     context,
-    startHeight,
-    coordinatesWidth,
-    beginningEmpty,
-    endEmpty,
-    canvasWidth,
-    isStrandNegative,
-    spaceAfterCut
+    position
   ) {
-    //calculating position
-    var position = this.genomicViewPosition(
-      coordinatesWidth,
-      startHeight,
-      spaceAfterCut,
-      beginningEmpty,
-      canvasWidth,
-      endEmpty,
-      isStrandNegative
-    );
     const exonWidth = position.exonWidth;
     const exonHeight = position.exonHeight;
-    var exonX = position.exonX;
+    const exonX = position.exonX;
     const exonY = position.exonY;
+    const coordinatesWidth = position.coordinatesWidth;
+    const isStrandNegative = position.isStrandNegative;
 
     var utrLeft = this.isUTRStart;
     var utrRight = this.isUTREnd;
@@ -235,28 +221,14 @@ class Exon {
    */
 
   genomicTooltip(
-    startHeight,
-    coordinatesWidth,
-    beginningEmpty,
-    endEmpty,
-    canvasWidth,
-    isStrandNegative,
-    spaceAfterCut
+    position
   ) {
-    const position = this.genomicViewPosition(
-      coordinatesWidth,
-      startHeight,
-      spaceAfterCut,
-      beginningEmpty,
-      canvasWidth,
-      endEmpty,
-      isStrandNegative
-    );
+    
     const exonWidth = position.exonWidth;
     const exonHeight = position.exonHeight;
     const exonX = position.exonX;
     const exonY = position.exonY;
-    var text =
+    const text =
       "Exon: " +
       this.orderInTranscript +
       "/" +
@@ -328,6 +300,8 @@ class Exon {
     isStrandNegative
   ) {
     var pos = new Object();
+    pos.coordinatesWidth = coordinatesWidth;
+    pos.isStrandNegative = isStrandNegative;
     pos.spaceAfterCut = this.cutLength > 0 ? spaceAfterCut : 0;
     pos.exonWidth = Math.max(
       3,
