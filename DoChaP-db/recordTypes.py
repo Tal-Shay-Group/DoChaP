@@ -1,6 +1,6 @@
 import re
 import copy
-from conf import *
+from conf import supported_Prefix, pref2Types, external
 
 
 class Gene:

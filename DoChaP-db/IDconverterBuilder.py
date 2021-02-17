@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 from ftpDownload import ftpDownload
 from recordTypes import Transcript
 from Director import SourceBuilder
-from conf import *
+from conf import taxIDdict
 
 
 class ConverterBuilder(SourceBuilder):
@@ -17,7 +17,6 @@ class ConverterBuilder(SourceBuilder):
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
         self.savePath = os.getcwd() + '/data/'
-        #taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955, 'X_tropicalis': 8364}
         self.taxID = taxIDdict[self.species]
         self.geneCon = {}
         self.transcriptCon = {}

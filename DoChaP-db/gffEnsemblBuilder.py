@@ -12,7 +12,7 @@ from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
 from DomainsEnsemblBuilder import *
-from conf import *
+from conf import SpConvert_EnsBuilder
 
 
 class EnsemblBuilder(SourceBuilder):
@@ -22,10 +22,8 @@ class EnsemblBuilder(SourceBuilder):
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        # self.SpeciesConvertor = {'M_musculus': 'mus_musculus', 'H_sapiens': 'homo_sapiens',
-        #                          'R_norvegicus': 'rattus_norvegicus', 'D_rerio': 'danio_rerio',
-        #                          'X_tropicalis': 'xenopus_tropicalis'}
         self.species = species
+        self.SpeciesConvertor = SpConvert_EnsBuilder
         self.savePath = os.getcwd() + '/data/{}/ensembl/'.format(self.species)
         self.gff = self.savePath + "genomic.gff3"
         self.DomainsBuilder = DomainsEnsemblBuilder(self.species)
@@ -37,7 +35,7 @@ class EnsemblBuilder(SourceBuilder):
         self.trans2pro = {}
 
     def downloader(self):
-        skey = SpConvert_EnsBuilder[self.species]
+        skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ensembl.org'
         ftp_path = '/pub/current_gff3/{}/'.format(skey)
 

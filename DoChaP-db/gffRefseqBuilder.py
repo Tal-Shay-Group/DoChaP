@@ -11,7 +11,7 @@ sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
-from conf import *
+from conf import SpeciesConvertor, speciesTaxonomy
 
 
 class RefseqBuilder(SourceBuilder):
@@ -21,13 +21,9 @@ class RefseqBuilder(SourceBuilder):
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        # self.SpeciesConvertor = {'M_musculus': 'Mus_musculus', 'H_sapiens': 'Homo_sapiens',
-        #                          'R_norvegicus': 'Rattus_norvegicus',
-        #                          'D_rerio': 'Danio_rerio', 'X_tropicalis': 'Xenopus_tropicalis'}
+        self.SpeciesConvertor = SpeciesConvertor
         self.species = species
-        # self.speciesTaxonomy = {"Mus_musculus": "vertebrate_mammalian", "Homo_sapiens": "vertebrate_mammalian",
-        #                         'Danio_rerio': "vertebrate_other", "Xenopus_tropicalis": "vertebrate_other",
-        #                         "Rattus_norvegicus": "vertebrate_mammalian"}
+        self.speciesTaxonomy = speciesTaxonomy
         self.savePath = os.getcwd() + '/data/{}/refseq/'.format(self.species)
         os.makedirs(self.savePath, exist_ok=True)
         self.gff = self.FilesNoDownload("gff")
@@ -44,15 +40,15 @@ class RefseqBuilder(SourceBuilder):
 
     def downloader(self):
         """ This method is downloading the required data files directly from ftp site"""
-        skey = SpeciesConvertor[self.species]
+        skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
         # if skey in ["Rattus_norvegicus", "Xenopus_tropicalis"]:
-        #     ftp_path = '/genomes/refseq/{}/{}/representative/'.format(speciesTaxonomy[skey], skey)
+        #     ftp_path = '/genomes/refseq/{}/{}/representative/'.format(self.speciesTaxonomy[skey], skey)
         # else:
-        #     ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(speciesTaxonomy[skey], skey)
+        #     ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
 
         # Downloading gff files (genomic data):
-        ftp_path = '/genomes/refseq/{}/{}/{}/'.format(speciesTaxonomy[skey], skey, ftpDirPath[skey])
+        ftp_path = '/genomes/refseq/{}/{}/{}/'.format(self.speciesTaxonomy[skey], skey, ftpDirPath[skey])
 
         def FindFile(listOfFiles):
             for file in listOfFiles:

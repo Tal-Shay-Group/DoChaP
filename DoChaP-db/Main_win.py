@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 from Director import Director
 from OrthologsBuilder import *
 from SpeciesDB import *
-from conf import species
+from conf import all_species
 
 
 # # # THIS SCRIPT SHOULD ONLY BE RUN AFTER THE RunAllDownloads.bash HAS SUCCESSFULLY FINISHED AND ALL DATA IS AVAILABLE!
@@ -22,20 +22,20 @@ if __name__ == "__main__":
     start_time = time.time()
     download = False
     withEns = True
-    # species taken from conf
+    # all_species taken from conf
 
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
 
     bp = time.time()
     director = Director()
-    orthologs = OrthologsBuilder(species=species)
+    orthologs = OrthologsBuilder(all_species=all_species)
     director.setBuilder(orthologs)
     director.collectFromSource(download=download)
     print("#### Orthologs collection duration: " + timer(bp, time.time()))
 
-    spl = len(species)
+    spl = len(all_species)
     spnum = 1
-    for sp in species:
+    for sp in all_species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
         dbBuild = dbBuilder(sp, download=download, withEns=withEns)

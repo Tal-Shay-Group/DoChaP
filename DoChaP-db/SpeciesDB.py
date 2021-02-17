@@ -14,10 +14,10 @@ from recordTypes import Protein
 
 class dbBuilder:
 
-    def __init__(self, sp, download=False, withEns=True):
-        self.single_species = sp
+    def __init__(self, species, download=False, withEns=True):
+        self.species = species
         self.dbName = None
-        self.data = Collector(self.single_species)
+        self.data = Collector(self.species)
         self.data.collectAll(download=download, withEns=withEns)
         self.TranscriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
@@ -32,7 +32,7 @@ class dbBuilder:
         elif merged:
             self.dbName = 'DB_merged'
         else:
-            self.dbName = 'DB_' + self.single_species
+            self.dbName = 'DB_' + self.species
 
         print("Creating database: {}...".format(self.dbName))
         with connect(self.dbName + '.sqlite') as con:
@@ -217,7 +217,7 @@ class dbBuilder:
         elif merged:
             self.dbName = 'DB_merged'
         else:
-            self.dbName = 'DB_' + self.single_species
+            self.dbName = 'DB_' + self.species
         if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
             preDomains = set(self.DomainOrg.allDomains.keys())
@@ -237,7 +237,7 @@ class dbBuilder:
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
                 if transcript.CDS is None:
-                    print("Transcript {} from {} has None in CDS".format(tID, self.single_species))
+                    print("Transcript {} from {} has None in CDS".format(tID, self.species))
                     transcript.CDS = transcript.tx
                 values = (transcript.refseq, transcript.ensembl,) + transcript.tx + transcript.CDS + \
                          (e_counts, transcript.gene_GeneID, transcript.gene_ensembl,
@@ -264,7 +264,7 @@ class dbBuilder:
                     #     # syno = [self.data.Genes[transcript.gene_GeneID].synonyms
                     #     #       if transcript.gene_GeneID is not None else None][0]
                     values = (gene.GeneID, gene.ensembl, gene.symbol,
-                              gene.synonyms, gene.chromosome, gene.strand, self.single_species,)
+                              gene.synonyms, gene.chromosome, gene.strand, self.species,)
                     cur.execute(''' INSERT INTO Genes
                                 (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome,\
                                  strand, specie)
