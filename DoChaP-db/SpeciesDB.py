@@ -14,10 +14,10 @@ from recordTypes import Protein
 
 class dbBuilder:
 
-    def __init__(self, species, download=False, withEns=True):
-        self.species = species
+    def __init__(self, sp, download=False, withEns=True):
+        self.single_species = sp
         self.dbName = None
-        self.data = Collector(self.species)
+        self.data = Collector(self.single_species)
         self.data.collectAll(download=download, withEns=withEns)
         self.TranscriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
@@ -32,7 +32,7 @@ class dbBuilder:
         elif merged:
             self.dbName = 'DB_merged'
         else:
-            self.dbName = 'DB_' + self.species
+            self.dbName = 'DB_' + self.single_species
 
         print("Creating database: {}...".format(self.dbName))
         with connect(self.dbName + '.sqlite') as con:
@@ -183,17 +183,19 @@ class dbBuilder:
                             CREATE TABLE Orthology(
                                     A_ensembl_id TEXT,
                                     A_GeneSymb TEXT,
-                                    A_Species TEXT,
+                                    A_species TEXT,
                                     B_ensembl_id TEXT,
                                     B_GeneSymb TEXT,
-                                    B_Species TEXT,
+                                    B_species TEXT,
                                     PRIMARY KEY (A_ensembl_id, B_ensembl_id),
-                                    FOREIGN KEY (A_ensembl_id, B_ensembl_id, A_GeneSymb, B_GeneSymb, A_Species, B_Species) 
+                                    FOREIGN KEY (A_ensembl_id, B_ensembl_id, A_GeneSymb, B_GeneSymb, A_species, B_species) 
                                     REFERENCES Genes(gene_ensembl_id, gene_ensembl_id, gene_symbol, gene_symbol, specie, specie)
                                     );"""
                             )
+        # ~~~ disconnect database ~~~
 
     def create_index(self):
+        """ Creates index for for efficient searches"""
         with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
             cur.execute('''CREATE INDEX geneTableIndexBySpecies ON Genes(specie);''')
@@ -207,14 +209,15 @@ class dbBuilder:
 
     def fill_in_db(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
         """
-        This function in for unique species. for more than ine use add Species To Merged
+        This is filling the database with the collected data for a single species.
+        if used db is "merged" than set True to the param. if False than a species unique db will be created.
         """
         if dbName is not None:
             self.dbName = dbName
         elif merged:
             self.dbName = 'DB_merged'
         else:
-            self.dbName = 'DB_' + self.species
+            self.dbName = 'DB_' + self.single_species
         if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
             preDomains = set(self.DomainOrg.allDomains.keys())
@@ -234,7 +237,7 @@ class dbBuilder:
                 e_counts = len(transcript.exon_starts)
                 # insert into Transcripts table
                 if transcript.CDS is None:
-                    print("Transcript {} from {} has None in CDS".format(tID, self.species))
+                    print("Transcript {} from {} has None in CDS".format(tID, self.single_species))
                     transcript.CDS = transcript.tx
                 values = (transcript.refseq, transcript.ensembl,) + transcript.tx + transcript.CDS + \
                          (e_counts, transcript.gene_GeneID, transcript.gene_ensembl,
@@ -261,7 +264,7 @@ class dbBuilder:
                     #     # syno = [self.data.Genes[transcript.gene_GeneID].synonyms
                     #     #       if transcript.gene_GeneID is not None else None][0]
                     values = (gene.GeneID, gene.ensembl, gene.symbol,
-                              gene.synonyms, gene.chromosome, gene.strand, self.species,)
+                              gene.synonyms, gene.chromosome, gene.strand, self.single_species,)
                     cur.execute(''' INSERT INTO Genes
                                 (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome,\
                                  strand, specie)
@@ -390,14 +393,20 @@ class dbBuilder:
         # ~~~ disconnect database ~~~
 
     def AddOrthology(self, orthologsDict):
-        MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_Species',
-                                          'B_ensembl_id', 'B_GeneSymb', 'B_Species'])
+        """
+        This function adds the orthology data to the database, only for the genes included in the database.
+        Changes the database with no returned output.
+        @param orthologsDict: created by OrthologsBuilder module, called by the main script.
+        @return: None
+        """
+        MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_species',
+                                          'B_ensembl_id', 'B_GeneSymb', 'B_species'])
         db_data = dict()
-        species = set([spec for x in orthologsDict.keys() for spec in x])
+        orthology_species = set([spec for x in orthologsDict.keys() for spec in x])
         with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
             schema = cur.execute("PRAGMA table_info('Orthology')").fetchall()
-            for spec in species:
+            for spec in orthology_species:
                 db_data[spec] = pd.read_sql(
                     "SELECT gene_ensembl_id,gene_symbol,specie FROM Genes WHERE specie='{}'".format(spec),
                     con)
@@ -414,7 +423,7 @@ class dbBuilder:
                     else:
                         merged_df = pd.merge(db_data[spec], merged_df)
                     label = 'A' if n == 0 else 'B'
-                    merged_df.columns = merged_df.columns.str.replace("specie", label + "_Species")
+                    merged_df.columns = merged_df.columns.str.replace("specie", label + "_species")
                     merged_df.columns = merged_df.columns.str.replace("gene_symbol", label + "_GeneSymb")
                     merged_df.columns = merged_df.columns.str.replace(spec + "_ID", label + "_ensembl_id")
                     merged_df = merged_df.drop(spec + "_name", axis=1)
@@ -430,15 +439,5 @@ class dbBuilder:
                 print(err)
                 MainOrtho.to_csv("OrthologyTable.Failed.csv")
             print("Filling Orthology table complete!")
+        # ~~~ disconnect database ~~~
 
-    # def AddTableToMerged(self, db2add):
-    #     db_a = connect(self.dbName + '.sqlite')
-    #     db_b_name = db2add
-    #     a_c = db_a.cursor()
-    #     a_c.execute('''ATTACH ? AS db_b''', (db_b_name,))
-    #     a_c.execute('''INSERT INTO Exons SELECT * FROM db_b.Exons''')
-    #     a_c.execute('''INSERT INTO Transcripts SELECT * FROM db_b.Transcripts''')
-    #     a_c.execute('''INSERT INTO Transcript_Exon SELECT * FROM db_b.Transcript_Exon''')
-    #     a_c.execute('''INSERT INTO Genes SELECT * FROM db_b.Genes''')
-    #     a_c.execute('''INSERT INTO Proteins SELECT * FROM db_b.Proteins''')
-    #     db_a.commit()

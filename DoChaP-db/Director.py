@@ -7,7 +7,7 @@ class Director:
 
     def collectFromSource(self, download=False, parser=True):
         if download:
-            self.__builder.downloader
+            self.__builder.downloader()
         if parser:
             self.__builder.parser()
         # return self.__builder.records()

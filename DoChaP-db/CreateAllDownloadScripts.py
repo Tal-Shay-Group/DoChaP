@@ -4,6 +4,7 @@ import os
 sys.path.append(os.getcwd())
 from OrthologsBuilder import OrthologsBuilder
 from DomainsEnsemblBuilder import DomainsEnsemblBuilder
+from conf import species
 
 
 def Add2ShellDownloads(Builder, file):
@@ -11,7 +12,6 @@ def Add2ShellDownloads(Builder, file):
 
 
 if __name__ == "__main__":
-    species = ('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')
     writeFile = os.getcwd() + "/ShellScripts.txt"
     writo = open(writeFile, "w")
     writo.close()

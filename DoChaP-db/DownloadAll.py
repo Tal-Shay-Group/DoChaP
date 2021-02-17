@@ -7,8 +7,9 @@ from IDconverterBuilder import ConverterBuilder
 from gffRefseqBuilder import RefseqBuilder
 from gffEnsemblBuilder import EnsemblBuilder
 from InterproCollector import InterProBuilder
-from OrthologsBuilder import OrthologsBuilder
-from DomainsEnsemblBuilder import DomainsEnsemblBuilder
+from conf import species
+# from OrthologsBuilder import OrthologsBuilder
+# from DomainsEnsemblBuilder import DomainsEnsemblBuilder
 
 
 def CallDownloader(Builder):
@@ -18,7 +19,6 @@ def CallDownloader(Builder):
 
 
 if __name__ == "__main__":
-    species = ('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')
     for sp in species:
         downloadBuilders = [RefseqBuilder(sp), EnsemblBuilder(sp), ConverterBuilder(sp)]
         for builder in downloadBuilders:

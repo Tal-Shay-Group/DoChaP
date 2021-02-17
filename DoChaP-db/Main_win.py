@@ -7,19 +7,22 @@ sys.path.append(os.getcwd())
 from Director import Director
 from OrthologsBuilder import *
 from SpeciesDB import *
+from conf import species
 
 
-def timer(start,end):
-    hours, rem = divmod(end-start, 3600)
+# # # THIS SCRIPT SHOULD ONLY BE RUN AFTER THE RunAllDownloads.bash HAS SUCCESSFULLY FINISHED AND ALL DATA IS AVAILABLE!
+def timer(start, end):
+    hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     return "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
 
 
 if __name__ == "__main__":
+
     start_time = time.time()
     download = False
     withEns = True
-    species = ['H_sapiens', 'M_musculus', 'R_norvegicus', 'D_rerio', 'X_tropicalis']
+    # species taken from conf
 
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
 

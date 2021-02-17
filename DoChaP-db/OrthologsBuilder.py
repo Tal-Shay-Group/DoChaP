@@ -7,6 +7,7 @@ import pandas as pd
 
 sys.path.append(os.getcwd())
 from Director import SourceBuilder
+from conf import species, SpConvert_EnsDomains, SpConvert_EnsShort
 
 
 class OrthologsBuilder(SourceBuilder):
@@ -14,16 +15,13 @@ class OrthologsBuilder(SourceBuilder):
     Dowload and parse Orthology tables
     """
 
-    def __init__(self, species=('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')):
+    def __init__(self, sp=species):
         """
-        @type species: tuple
+        @type sp: tuple
         """
-        self.species = species
-        self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
-                                 'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
-                                 'X_tropicalis': 'xtropicalis'}
-        self.speciesConvertorShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
-                                      'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
+        self.species = sp
+        self.speciesConvertor = SpConvert_EnsDomains
+        self.speciesConvertorShort = SpConvert_EnsShort
         self.downloadPath = os.getcwd() + "/data/orthology/"
         self.dataTables = ()
         self.AllSpeciesDF = {}
@@ -60,7 +58,7 @@ class OrthologsBuilder(SourceBuilder):
     def downloader(self):
         output = dict()
         err = dict()
-        scriptsCalc = int((len(self.species)**2 - len(self.species))/2)
+        scriptsCalc = int((len(self.species) ** 2 - len(self.species)) / 2)
         n = 0
         for i in range(len(self.species)):
             for j in range(i, len(self.species)):
@@ -68,7 +66,8 @@ class OrthologsBuilder(SourceBuilder):
                     n += 1
                     shellCommand = self.createDownloadScripts(self.species[i], self.species[j])
                     subprocess.Popen(['chmod', 'u+x', shellCommand])
-                    runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                                 text=True)
                     output[shellCommand], err[shellCommand] = runScript.communicate()
                     print("poll(): " + str(runScript.poll()))
                     if n == scriptsCalc:
@@ -110,5 +109,4 @@ class OrthologsBuilder(SourceBuilder):
             self.AllSpeciesDF[(s1, s2)] = df
         # for i in range(len(self.species)):
         #     for j in range(i, len(self.species)):
-                # if self.species[i] != self.species[j]:
-
+        # if self.species[i] != self.species[j]:

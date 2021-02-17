@@ -52,7 +52,7 @@ class EnsemblBuilder(SourceBuilder):
                            specifyPathFunc=FindFile)
         down.Download()
         # Download Domains
-        self.DomainsBuilder.downloader
+        self.DomainsBuilder.downloader()
 
     def parser(self):
         self.parse_gff3()

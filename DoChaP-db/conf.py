@@ -1,5 +1,8 @@
 # this is a configuration file for DoChaP database builder and its modules
 
+#This are the species currently available by DoChaP:
+species = ('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')
+
 # for ID converter builder
 taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955,
              'X_tropicalis': 8364}
@@ -24,7 +27,8 @@ SpConvert_EnsDomains = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
 SpConvert_EnsBuilder = {'M_musculus': 'mus_musculus', 'H_sapiens': 'homo_sapiens',
                              'R_norvegicus': 'rattus_norvegicus', 'D_rerio': 'danio_rerio',
                              'X_tropicalis': 'xenopus_tropicalis'}
-
+SpConvert_EnsShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
+                                      'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
 # Domains
 supported_Prefix = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
                     'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
