@@ -11,7 +11,7 @@ sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
-from conf import SpeciesConvertor, speciesTaxonomy
+from conf import SpeciesConvertor, speciesTaxonomy, ftpDirPath
 
 
 class RefseqBuilder(SourceBuilder):
