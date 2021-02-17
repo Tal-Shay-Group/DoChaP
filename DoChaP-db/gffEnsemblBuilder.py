@@ -161,6 +161,8 @@ class EnsemblBuilder(SourceBuilder):
             df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
                                sep="\t", header=0)
             df.columns = df.columns.str.replace(" ", "_")
+            if extDB == "tigrfams":
+                df.columns = df.columns.str.replace("TIGRFAM", "tigrfams")
             df.columns = df.columns.str.lower().str.replace(extDB + "_", "")
             if extDB == "interpro":
                 tdf = df.copy(deep=True)
