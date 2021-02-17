@@ -110,7 +110,10 @@ class DomainOrganizer:
                 (domain.extID[0:2] == "cl" and pos == 0)):
             raise ValueError('External id type not in correct location!')
         if repeat:
-            ndesc = ndesc + "; Repeat_domain" if "; Repeat_domain" not in ndesc else ndesc
+            if ndesc is None or len(ndesc) == 0:
+                ndesc = "Repeat_domain"
+            else:
+                ndesc = ndesc + "; Repeat_domain" if "; Repeat_domain" not in ndesc else ndesc
         self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
         self.allExt[domain.extID] = currReg
         self.allNames[domain.name] = currReg
