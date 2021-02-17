@@ -1,6 +1,6 @@
 # this is a configuration file for DoChaP database builder and its modules
 
-#This are the species currently available by DoChaP:
+# This are the species currently available by DoChaP:
 species = ('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')
 
 # for ID converter builder
