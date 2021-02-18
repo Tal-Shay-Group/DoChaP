@@ -38,6 +38,11 @@ if __name__ == "__main__":
     for sp in all_species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
+        if sp == "Xenopus_tropicalis":
+            #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
+            withEns = False
+        else:
+            withEns = True
         dbBuild = dbBuilder(sp, download=download, withEns=withEns)
         print("#### Species data collect & merge duration: " + timer(bp, time.time()))
         if spnum == 1:

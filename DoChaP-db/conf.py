@@ -16,10 +16,18 @@ speciesTaxonomy = {"Mus_musculus": "vertebrate_mammalian", "Homo_sapiens": "vert
                                 'Danio_rerio': "vertebrate_other", "Xenopus_tropicalis": "vertebrate_other",
                                 "Rattus_norvegicus": "vertebrate_mammalian"}
 
-ftpDirPath = {"Mus_musculus": "latest_assembly_versions", "Homo_sapiens": "latest_assembly_versions",
-              "Danio_rerio": "latest_assembly_versions",
-              "Xenopus_tropicalis": "representative", "Rattus_norvegicus": "representative"}
+# currently unsed
+# ftpDirPath = {"Mus_musculus": "latest_assembly_versions", "Homo_sapiens": "latest_assembly_versions",
+#               "Danio_rerio": "latest_assembly_versions",
+#               "Xenopus_tropicalis": "representative", "Rattus_norvegicus": "representative"}
 
+RefSeqGenomicVersion = {"Mus_musculus": "GCF_000001635.27_GRCm39",
+                        "Homo_sapiens": "GCF_000001405.39_GRCh38.p13",
+                        "Danio_rerio": "latest_assembly_versions",
+                        "Xenopus_tropicalis": "GCF_000004195.4_UCB_Xtro_10.0",
+                        "Rattus_norvegicus": "GCF_000001895.5_Rnor_6.0"}
+isSupressed = {"Mus_musculus": False, "Homo_sapiens": False, "Danio_rerio": False,
+               "Xenopus_tropicalis": False, "Rattus_norvegicus": True}
 # for ensembl
 SpConvert_EnsDomains = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
                                    'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',

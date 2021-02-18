@@ -20,7 +20,13 @@ def CallDownloader(Builder):
 
 if __name__ == "__main__":
     for sp in all_species:
-        downloadBuilders = [RefseqBuilder(sp), EnsemblBuilder(sp), ConverterBuilder(sp)]
+        if sp == "Rattus_norvegicus":
+            continue  # 18/2/21 for Rattus_norvegicus use older version that is already downloaded. until ensembl and refseq will have the same version
+        elif sp == "Xenopus_tropicalis":
+            #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
+            downloadBuilders = [RefseqBuilder(sp), ConverterBuilder(sp)]
+        else:
+            downloadBuilders = [RefseqBuilder(sp), EnsemblBuilder(sp), ConverterBuilder(sp)]
         for builder in downloadBuilders:
             CallDownloader(builder)
     CallDownloader(InterProBuilder())

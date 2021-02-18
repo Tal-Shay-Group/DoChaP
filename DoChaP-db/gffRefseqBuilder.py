@@ -11,7 +11,7 @@ sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
-from conf import SpeciesConvertor, speciesTaxonomy, ftpDirPath
+from conf import SpeciesConvertor, speciesTaxonomy, ftpDirPath, RefSeqGenomicVersion, isSupressed
 
 
 class RefseqBuilder(SourceBuilder):
@@ -42,13 +42,9 @@ class RefseqBuilder(SourceBuilder):
         """ This method is downloading the required data files directly from ftp site"""
         skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
-        # if skey in ["Rattus_norvegicus", "Xenopus_tropicalis"]:
-        #     ftp_path = '/genomes/refseq/{}/{}/representative/'.format(self.speciesTaxonomy[skey], skey)
-        # else:
-        #     ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
 
-        # Downloading gff files (genomic data):
-        ftp_path = '/genomes/refseq/{}/{}/{}/'.format(self.speciesTaxonomy[skey], skey, ftpDirPath[skey])
+        # ~~~ For latest assembly version - use this~~~
+        ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
 
         def FindFile(listOfFiles):
             for file in listOfFiles:
@@ -61,6 +57,14 @@ class RefseqBuilder(SourceBuilder):
 
         down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
+
+        # ~~~ If want to specify assembly version from conf - use this~~~
+        # ftp_path = '/genomes/refseq/{}/{}/all_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
+        # genomeVersion = RefSeqGenomicVersion[skey]
+        # gff2Download = [[genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]]
+        # gff2Download[0][0] = "suppressed" + gff2Download[0][0] if isSupressed else gff2Download[0][0]
+        # down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        #                    files2Download=gff2Download)
         filesDownloaded = down.Download()
         self.gff = filesDownloaded[0]
 
@@ -124,11 +128,13 @@ class RefseqBuilder(SourceBuilder):
 
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
-            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":  # ignore alternative chromosomes
+            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[
+                t.chrom] == "Unknown":  # ignore alternative chromosomes
                 continue
             elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):  # ignore pseudogenes
                 continue
-            elif len(t["ID"][0].split("-")) > 2:  # remove duplicated records (PAR in X and Y chr will be taken only from X)
+            elif len(t["ID"][0].split(
+                    "-")) > 2:  # remove duplicated records (PAR in X and Y chr will be taken only from X)
                 continue
             newT.chrom = self.regionChr[t.chrom]
             newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
@@ -251,7 +257,8 @@ class RefseqBuilder(SourceBuilder):
         for reg in regions:
             start = reg.location.start.position + 1  # convert domains to be 1-based-start
             end = reg.location.end.position
-            if len(reg.qualifiers) > 1 and 'region_name' in reg.qualifiers and start != end:  # only looking at regions larger than 1
+            if len(
+                    reg.qualifiers) > 1 and 'region_name' in reg.qualifiers and start != end:  # only looking at regions larger than 1
                 name = reg.qualifiers['region_name'][0]
                 if 'note' in reg.qualifiers:
                     note = reg.qualifiers['note'][0]
@@ -315,6 +322,5 @@ class RefseqBuilder(SourceBuilder):
 
 
 if __name__ == '__main__':
-    rr = RefseqBuilder("R_norvegicus")  #"H_sapiens"
-    rr.parser()
-
+    rr = RefseqBuilder("H_sapiens")  # "H_sapiens"
+    rr.downloader()
