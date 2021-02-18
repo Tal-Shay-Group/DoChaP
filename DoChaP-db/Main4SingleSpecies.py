@@ -19,16 +19,16 @@ if __name__ == "__main__":
     start_time = time.time()
     download = False
     withEns = True
-    sp = 'H_sapiens'
+    sp = 'R_norvegicus'
 
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
     print("===========Current Species: {}===========".format(sp))
     bp = time.time()
     dbBuild = dbBuilder(sp, download=download, withEns=withEns)
     print("#### Species data collect & merge duration: " + timer(bp, time.time()))
-    dbBuild.create_tables_db(merged=False)
-    bp = time.time()
-    dbBuild.fill_in_db(CollectDomainsFromMerged=False, merged=False)
-    print("Filling {} completed!".format(dbBuild.dbName))
-    print("#### Duration: " + timer(bp, time.time()))
-    print("#### Full run duration: " + timer(start_time, time.time()))
+    # dbBuild.create_tables_db(merged=False)
+    # bp = time.time()
+    # dbBuild.fill_in_db(CollectDomainsFromMerged=False, merged=False)
+    # print("Filling {} completed!".format(dbBuild.dbName))
+    # print("#### Duration: " + timer(bp, time.time()))
+    # print("#### Full run duration: " + timer(start_time, time.time()))

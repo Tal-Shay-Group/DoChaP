@@ -193,6 +193,8 @@ class RefseqBuilder(SourceBuilder):
         """ This method collects all the genes from gff file """
         print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
+            if "gene_biotype" in g.attributes and g["gene_biotype"] != "protein_coding":
+                continue  # only look at protein coding genes
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
             syno = syno[0].replace(",", "; ")
