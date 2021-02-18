@@ -50,7 +50,7 @@ class Species {
      */
     static getSpecieName(species) {
         if (species== "M_musculus") {
-            return "(Mouse, mm10)"
+            return "(Mouse, mm39)"
         }
         if (species == "H_sapiens") {
             return "(Human, hg38)"
