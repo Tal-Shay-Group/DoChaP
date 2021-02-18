@@ -193,7 +193,7 @@ class RefseqBuilder(SourceBuilder):
         """ This method collects all the genes from gff file """
         print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
-            if "gene_biotype" in g.attributes and g["gene_biotype"] != "protein_coding":
+            if "gene_biotype" in g.attributes and g["gene_biotype"][0] != "protein_coding":
                 continue  # only look at protein coding genes
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
@@ -205,6 +205,9 @@ class RefseqBuilder(SourceBuilder):
                 if newG.chromosome == "X" and self.Genes[newG.GeneID].chromosome == "Y":
                     self.Genes[newG.GeneID] = newG
                 elif newG.chromosome == "Y" and self.Genes[newG.GeneID].chromosome == "X":
+                    continue
+                elif newG.chromosome == self.Genes[newG.GeneID].chromosome:
+                    print("GeneID {}, appears twice in chrom {}".format(newG.GeneID, newG.chromosome))
                     continue
                 else:
                     raise ValueError(
@@ -312,6 +315,6 @@ class RefseqBuilder(SourceBuilder):
 
 
 if __name__ == '__main__':
-    rr = RefseqBuilder("H_sapiens")
+    rr = RefseqBuilder("R_norvegicus")  #"H_sapiens"
     rr.parser()
 
