@@ -128,13 +128,14 @@ class RefseqBuilder(SourceBuilder):
 
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
+            spliTid = t["ID"][0].split("-")
             if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
                 # ignore alternative chromosomes
                 continue
             elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
                 # ignore pseudogenes
                 continue
-            elif len(t["ID"][0].split("-")) > 2:
+            elif len(spliTid) > 2 and len(spliTid[-1]) == 1 and spliTid[-1].isdigit():
                 # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
                 continue
             newT.chrom = self.regionChr[t.chrom]
@@ -162,14 +163,14 @@ class RefseqBuilder(SourceBuilder):
                 self.Genes[GeneID] = curretGenes[GeneID]
             else:
                 ref = [info if info.startswith("rna-") else '-0' for info in cds["Parent"]][0].split("-")
+                if ref[1] not in self.Transcripts.keys():
+                    continue
                 if ref[1][0] == '0' or transcript2region.get(ref[1], '') != cds.chrom or len(ref) > 2:
                     # ignore long non-coding rna
                     # ignore rearrangement records (immunoglobulin compartments, alternative chrom)
                     # ignore non duplicated records (PAR in X and Y chr will be taken only from X)
                     continue
                 ref = ref[1]
-                if ref not in self.Transcripts.keys():
-                    continue
                 self.Transcripts[ref].protein_refseq = cds["Name"][0]
                 current_CDS = self.Transcripts[ref].CDS
                 if current_CDS is not None:
@@ -183,12 +184,12 @@ class RefseqBuilder(SourceBuilder):
         print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
             ref = e["ID"][0].split("-")
+            if ref[1] not in self.Transcripts.keys():
+                continue
             if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
                     or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
                 continue  # ignore alternative chromosome and exons of duplicated genes
             ref = ref[1]
-            if ref not in self.Transcripts.keys():
-                continue
             orderInT = int(e["ID"][0].split("-")[2])
             l_orig = len(self.Transcripts[ref].exon_starts)
             self.Transcripts[ref].exon_starts = self.Transcripts[ref].exon_starts + [None] * (orderInT - l_orig)
@@ -202,7 +203,8 @@ class RefseqBuilder(SourceBuilder):
         for g in db.features_of_type("gene"):
             if "gene_biotype" in g.attributes and g["gene_biotype"][0] != "protein_coding":
                 continue  # only look at protein coding genes
-            if len(g["ID"][0].split("-")) > 2:
+            splitGid = g["ID"][0].split("-")
+            if len(splitGid) > 2 and splitGid[-1].isdigit() and len(splitGid) == 1:
                 continue  # for gene with multiple locations only use the first.
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
@@ -219,10 +221,10 @@ class RefseqBuilder(SourceBuilder):
                     print("GeneID {}, appears twice in chrom {}".format(newG.GeneID, newG.chromosome))
                     continue
                 else:
-                    raise ValueError(
-                        "GeneID {}, chrom {} already in dict with chrom:{}".format(newG.GeneID,
-                                                                                   newG.chromosome,
-                                                                                   self.Genes[newG.GeneID].chromosome))
+                    #raise ValueError(
+                    print("GeneID {}, chrom {} already in dict in different chrom:{}".format(newG.GeneID,
+                                                                                     newG.chromosome,
+                                                                                     self.Genes[newG.GeneID].chromosome))
             elif newG.chromosome != "ALT_chr" and newG.chromosome != "Unknown":
                 self.Genes[newG.GeneID] = newG
 
