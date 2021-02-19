@@ -128,12 +128,14 @@ class RefseqBuilder(SourceBuilder):
 
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
-            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[
-                t.chrom] == "Unknown":  # ignore alternative chromosomes
+            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
+                # ignore alternative chromosomes
                 continue
-            elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):  # ignore pseudogenes
+            elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
+                # ignore pseudogenes
                 continue
-            elif len(t["ID"][0].split("-")) > 2:  # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
+            elif len(t["ID"][0].split("-")) > 2:
+                # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
                 continue
             newT.chrom = self.regionChr[t.chrom]
             newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
