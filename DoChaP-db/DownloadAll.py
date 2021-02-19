@@ -19,7 +19,7 @@ def CallDownloader(Builder):
 
 
 if __name__ == "__main__":
-    all_species = "Rattus_norvegicus"
+    all_species = ["Rattus_norvegicus"]
     for sp in all_species:
         if sp == "Xenopus_tropicalis" or sp == "Rattus_norvegicus":
             #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
