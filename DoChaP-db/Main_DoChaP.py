@@ -38,7 +38,7 @@ if __name__ == "__main__":
     for sp in all_species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
-        if sp == "Xenopus_tropicalis":
+        if sp == "Xenopus_tropicalis" or sp == "Rattus_norvegicus":
             #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
             withEns = False
         else:

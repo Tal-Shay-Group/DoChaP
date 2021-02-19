@@ -7,7 +7,7 @@ from IDconverterBuilder import ConverterBuilder
 from gffRefseqBuilder import RefseqBuilder
 from gffEnsemblBuilder import EnsemblBuilder
 from InterproCollector import InterProBuilder
-from conf import all_species
+# from conf import all_species
 # from OrthologsBuilder import OrthologsBuilder
 # from DomainsEnsemblBuilder import DomainsEnsemblBuilder
 
@@ -19,10 +19,9 @@ def CallDownloader(Builder):
 
 
 if __name__ == "__main__":
+    all_species = "Rattus_norvegicus"
     for sp in all_species:
-        if sp == "Rattus_norvegicus":
-            continue  # 18/2/21 for Rattus_norvegicus use older version that is already downloaded. until ensembl and refseq will have the same version
-        elif sp == "Xenopus_tropicalis":
+        if sp == "Xenopus_tropicalis" or sp == "Rattus_norvegicus":
             #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
             downloadBuilders = [RefseqBuilder(sp), ConverterBuilder(sp)]
         else:
