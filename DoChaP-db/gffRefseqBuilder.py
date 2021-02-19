@@ -133,8 +133,7 @@ class RefseqBuilder(SourceBuilder):
                 continue
             elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):  # ignore pseudogenes
                 continue
-            elif len(t["ID"][0].split(
-                    "-")) > 2:  # remove duplicated records (PAR in X and Y chr will be taken only from X)
+            elif len(t["ID"][0].split("-")) > 2:  # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
                 continue
             newT.chrom = self.regionChr[t.chrom]
             newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
@@ -201,6 +200,8 @@ class RefseqBuilder(SourceBuilder):
         for g in db.features_of_type("gene"):
             if "gene_biotype" in g.attributes and g["gene_biotype"][0] != "protein_coding":
                 continue  # only look at protein coding genes
+            if len(g["ID"][0].split("-")) > 2:
+                continue  # for gene with multiple locations only use the first.
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
             syno = syno[0].replace(",", "; ")
