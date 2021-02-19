@@ -28,4 +28,4 @@ if __name__ == "__main__":
             downloadBuilders = [RefseqBuilder(sp), EnsemblBuilder(sp), ConverterBuilder(sp)]
         for builder in downloadBuilders:
             CallDownloader(builder)
-    CallDownloader(InterProBuilder())
+    #CallDownloader(InterProBuilder())
