@@ -170,12 +170,33 @@ class Display {
         };
         this.TranscriptDisplayManager.changeViewMode = function (newViewMode) {
             for (var index = 0; index < this.transcripts.length; index++) {
-                if ((this.transcripts[index].genomicView) ||
-                    (this.transcripts[index].transcriptView) ||
-                    (this.transcripts[index].proteinView)) {
+                if (this.isTranscriptShownByIndex(index)) {
                     this.showTranscript(index, newViewMode)
                 }
             }
         };
-    }
+        this.TranscriptDisplayManager.isTranscriptShownByIndex = function (index) {
+            if ((this.transcripts[index].genomicView) ||
+                (this.transcripts[index].transcriptView) ||
+                (this.transcripts[index].proteinView)) {
+                return true;
+            }
+
+            return false;
+        }
+        this.TranscriptDisplayManager.countShownTranscripts = function () {
+            var results = new Object();
+            var counter = 0;
+
+            for (var i = 0; i < this.transcripts.length; i++) {
+                if (this.isTranscriptShownByIndex(i)) {
+                    counter = counter + 1;
+                }
+            }
+
+            results.shownTranscripts = counter;
+            results.hiddenTranscripts = this.transcripts.length - counter;
+            return results;
+        }
+    };
 }

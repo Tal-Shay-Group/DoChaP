@@ -70,16 +70,9 @@ angular.module("DoChaP")
 
         //count the number of transcripts shown
         function countShownTranscripts() {
-            var counter = 0;
-            for (var i = 0; i < $scope.transcripts.length; i++) {
-                if ($scope.transcripts[i].genomicView ||
-                    $scope.transcripts[i].transcriptView ||
-                    $scope.transcripts[i].proteinView) {
-                    counter = counter + 1;
-                }
-            }
-            $scope.shownTranscripts = counter;
-            $scope.hiddenTranscripts = $scope.transcripts.length - counter;
+            var results = $scope.display.TranscriptDisplayManager.countShownTranscripts();
+            $scope.shownTranscripts = results.shownTranscripts;
+            $scope.hiddenTranscripts = results.hiddenTranscripts;
             $(document).ready(function () {
                 if ($scope.shownTranscripts > 0) {
                     self.geneInfo.scale.drawBehind("genomicGridlines");

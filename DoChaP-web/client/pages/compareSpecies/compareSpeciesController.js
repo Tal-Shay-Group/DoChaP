@@ -200,27 +200,13 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 	//for gridlines. looking for number of transcripts and updating gridlines accordingly
 	function countShownTranscripts() {
-		var counter = 0;
-		for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
-			if (self.specie1Gene.transcripts[i].genomicView ||
-				self.specie1Gene.transcripts[i].transcriptView ||
-				self.specie1Gene.transcripts[i].proteinView) {
-				counter = counter + 1;
-			}
-		}
-		$scope.shownTranscripts1 = counter;
-		$scope.hiddenTranscripts1 = self.specie1Gene.transcripts.length - counter;
+		var results1 = $scope.specie1Display.TranscriptDisplayManager.countShownTranscripts();
+		$scope.shownTranscripts1 = results1.shownTranscripts;
+		$scope.hiddenTranscripts1 = results1.hiddenTranscripts;
 
-		counter = 0;
-		for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
-			if (self.specie2Gene.transcripts[i].genomicView ||
-				self.specie2Gene.transcripts[i].transcriptView ||
-				self.specie2Gene.transcripts[i].proteinView) {
-				counter = counter + 1;
-			}
-		}
-		$scope.shownTranscripts2 = counter;
-		$scope.hiddenTranscripts2 = self.specie2Gene.transcripts.length - counter;
+		var results2 = $scope.specie2Display.TranscriptDisplayManager.countShownTranscripts();
+		$scope.shownTranscripts2 = results2.shownTranscripts;
+		$scope.hiddenTranscripts2 = results2.hiddenTranscripts;
 
 
 		$(document).ready(function () {
