@@ -37,6 +37,7 @@ angular.module("DoChaP")
         //getting gene from results saved in website memory
         self.geneInfo = runGenesCreation(loadedGene, $scope.ignorePredictions)[0];
         $scope.transcripts = self.geneInfo.transcripts;
+        $scope.display.TranscriptDisplayManager.addTranscripts($scope.transcripts);
         $scope.shownTranscripts = $scope.transcripts.length;
         $scope.hiddenTranscripts = 0;
         $scope.strand = self.geneInfo.strand;
@@ -57,9 +58,10 @@ angular.module("DoChaP")
 
         //when "hide transcript" button is clicked.
         $scope.hideTranscriptView = function (index) {
-            $scope.transcripts[index].genomicView = false;
-            $scope.transcripts[index].transcriptView = false;
-            $scope.transcripts[index].proteinView = false;
+            $scope.display.TranscriptDisplayManager.hideTranscriptByIndex(index);
+            // $scope.transcripts[index].genomicView = false;
+            // $scope.transcripts[index].transcriptView = false;
+            // $scope.transcripts[index].proteinView = false;
             countShownTranscripts();
         };
 

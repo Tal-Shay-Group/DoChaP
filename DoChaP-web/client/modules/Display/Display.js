@@ -12,7 +12,6 @@ class Display {
                 currentTranscript.cds_end = numberToTextWithCommas(currentTranscript.cds_end);
             }
         };
-
         this.modal.closeWindowFromTheSide = function (event) {
             if (event.target.id == 'BlackBackground') {
                 this.type = undefined;
@@ -29,7 +28,6 @@ class Display {
                 return "js-range-slider-reverse-fixed";
             }
         }
-
         this.locationScopeChanger.updateGenomiclocationScopeChanger = function (name, scale, strand, onFinishWhenStrandPositive, onFinishWhenStrandNegative, maximumRange, minimumRange) {
             var minVal = undefined;
             var maxVal = undefined;
@@ -70,7 +68,6 @@ class Display {
                 onFinish: onFinishVal
             });
         }
-
         this.locationScopeChanger.updateProteinlocationScopeChanger = function (name, onFinish, maximumRange) {
             $(name).ionRangeSlider({
                 type: "double",
@@ -85,7 +82,6 @@ class Display {
         }
 
         this.pdfCreator = new Object();
-
         this.pdfCreator.create = function (gene,idForCanvas) {
             //init attributes
             var doc = new jsPDF();
@@ -138,5 +134,16 @@ class Display {
             //saving in user computer
             doc.save(gene.gene_symbol + ".pdf");
         }
+
+        this.TranscriptDisplayManager = new Object();
+        this.TranscriptDisplayManager.addTranscripts = function(transcripts){
+            this.transcripts = transcripts;
+        }
+        this.TranscriptDisplayManager.hideTranscriptByIndex = function (index) {
+            var transcripts = this.transcripts;
+            transcripts[index].genomicView = false;
+            transcripts[index].transcriptView = false;
+            transcripts[index].proteinView = false;
+        };
     }
 }

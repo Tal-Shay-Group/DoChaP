@@ -43,6 +43,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 					$scope.alert = "";
 					self.specie1Gene = response[1][0];
 					self.specie2Gene = response[1][1];
+
+					$scope.specie1Display.TranscriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+					$scope.specie2Display.TranscriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+
 					$scope.shownTranscripts1 = self.specie1Gene.transcripts.length;
 					$scope.hiddenTranscripts1 = 0;
 					$scope.shownTranscripts2 = self.specie2Gene.transcripts.length;
@@ -214,17 +218,18 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		});
 	}
 
+	self.GetSpecieDisplayBySpecieIndex = function (specieIndex){
+		if (specieIndex == 1) {
+			return $scope.specie1Display;
+		} else if (specieIndex == 2) {
+			return $scope.specie2Display;
+		}
+	}
+
 	//hiding one transcript
 	$scope.hideTranscriptView = function (index, species) {
-		var specieToChange = undefined;
-		if (species == 1) {
-			specieToChange = self.specie1Gene;
-		} else if (species == 2) {
-			specieToChange = self.specie2Gene;
-		}
-		specieToChange.transcripts[index].genomicView = false;
-		specieToChange.transcripts[index].transcriptView = false;
-		specieToChange.transcripts[index].proteinView = false;
+		var display = self.GetSpecieDisplayBySpecieIndex(species);
+		display.TranscriptDisplayManager.hideTranscriptByIndex(index);
 		countShownTranscripts();
 	};
 
@@ -430,7 +435,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			var colors = getColorForLength(results, isReviewedCheckBox.checked);
 			var genes = results.genes;
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
-			$scope.transcripts = self.specie1Gene.transcripts;
 			$(document).ready(function () {
 				updateCanvases();
 			});
@@ -446,7 +450,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			var colors = getColorForLength(results, isReviewedCheckBox.checked);
 			var genes = results.genes;
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
-			$scope.transcripts = self.specie2Gene.transcripts;
 			$(document).ready(function () {
 				updateCanvases();
 			});
@@ -511,7 +514,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var onFinishWhenStrandPositive1 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-			$scope.transcripts = self.specie1Gene.transcripts;
 			$(document).ready(function () {
 				updateCanvases();
 			});
@@ -520,7 +522,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var onFinishWhenStrandNegative1 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-			$scope.transcripts = self.specie1Gene.transcripts;
 			$(document).ready(function () {
 				updateCanvases();
 			});
@@ -529,7 +530,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var onFinishWhenStrandPositive2 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-			$scope.transcripts = self.specie2Gene.transcripts;
 			$(document).ready(function () {
 				updateCanvases();
 			});
@@ -538,7 +538,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var onFinishWhenStrandNegative2 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-			$scope.transcripts = self.specie2Gene.transcripts;
 			$(document).ready(function () {
 				updateCanvases();
 			});
