@@ -44,8 +44,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 					self.specie1Gene = response[1][0];
 					self.specie2Gene = response[1][1];
 
-					$scope.specie1Display.TranscriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
-					$scope.specie2Display.TranscriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+					$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+					$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
 
 					$scope.shownTranscripts1 = self.specie1Gene.transcripts.length;
 					$scope.hiddenTranscripts1 = 0;
@@ -55,6 +55,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 					//create range slider from left to right / right to left
 					self.createScales();
+
+					//write string for chromosome text
+					$scope.chromosomeLocation1 = "chr" + self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
+					$scope.chromosomeLocation2 = "chr" + self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
+
 
 					//draw
 					$(document).ready(function () {
@@ -73,44 +78,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 	//updating all canvases,scales,tooltips
 	function updateCanvases() {
-		//drawing transcripts
-		for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
-			$('#fadeinDiv1' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
-			self.specie1Gene.transcripts[i].show('canvas-genomic1' + i, 'canvas-transcript1' + i, 'canvas-protein1' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend1' + i);
-		}
-
-		for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
-			$('#fadeinDiv2' + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
-			self.specie2Gene.transcripts[i].show('canvas-genomic2' + i, 'canvas-transcript2' + i, 'canvas-protein2' + i, self.toolTipManagerForCanvas, 'canvas-protein-extend2' + i);
-
-		}
-
-		//drawing scales
-		self.specie1Gene.scale.draw("canvas-scale1");
-		self.specie1Gene.proteinScale.draw("canvas-scale-protein1");
-		self.specie1Gene.proteinScale.drawBehind("proteinGridlines1");
-		self.specie1Gene.scale.drawBehind("genomicGridlines1");
-
-		self.specie2Gene.scale.draw("canvas-scale2");
-		self.specie2Gene.proteinScale.draw("canvas-scale-protein2");
-		self.specie2Gene.proteinScale.drawBehind("proteinGridlines2");
-		self.specie2Gene.scale.drawBehind("genomicGridlines2");
-
-		$('#canvas-scale1').hide().fadeIn(1000);
-		$('#canvas-scale-protein1').hide().fadeIn(1000);
-		$('#canvas-scale2').hide().fadeIn(1000);
-		$('#canvas-scale-protein2').hide().fadeIn(1000);
-
-		$scope.chromosomeLocation1 = "chr" + self.specie1Gene.chromosome + ":" + numberToTextWithCommas(self.specie1Gene.scale.start) + "-" + numberToTextWithCommas(self.specie1Gene.scale.end);
-		$scope.chromosomeLocation2 = "chr" + self.specie2Gene.chromosome + ":" + numberToTextWithCommas(self.specie2Gene.scale.start) + "-" + numberToTextWithCommas(self.specie2Gene.scale.end);
-
-		//click for extended protein view
-		$("canvas")
-			.click(function (event) {
-				Domain.domainClick(self.toolTipManagerForCanvas, event);
-				$scope.$apply();
-			});
-		$scope.$apply();
+		$scope.specie1Display.canvasUpdater.updateCanvas(self.specie1Gene, self.toolTipManagerForCanvas, "1", $scope);
+		$scope.specie2Display.canvasUpdater.updateCanvas(self.specie2Gene, self.toolTipManagerForCanvas, "2", $scope);
 	}
 
 	//focus on text-field
@@ -140,13 +109,10 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		}
 		$scope.viewMode = type;
 
-		$scope.specie1Display.TranscriptDisplayManager.changeViewMode(type);
-		$scope.specie2Display.TranscriptDisplayManager.changeViewMode(type);
-        countShownTranscripts();
-		
-		$(document).ready(function () {
-			updateCanvases();
-		});
+		$scope.specie1Display.transcriptDisplayManager.changeViewMode(type);
+		$scope.specie2Display.transcriptDisplayManager.changeViewMode(type);
+		countShownTranscripts();
+		updateCanvases();
 	}
 	//change mode between reviewed and unreviewed
 	$scope.filterUnreviewed = function () {
@@ -167,12 +133,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		self.specie2Gene = newResults[1];
 		selectModeComboBox.value = 'all'; //update canvas + all views
 		$scope.viewMode = 'all';
-		$(document).ready(function () {
-			updateCanvases();
-		});
+
+		updateCanvases();
 	}
 
-	self.GetSpecieDisplayBySpecieIndex = function (specieIndex){
+	self.GetSpecieDisplayBySpecieIndex = function (specieIndex) {
 		if (specieIndex == 1) {
 			return $scope.specie1Display;
 		} else if (specieIndex == 2) {
@@ -183,7 +148,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 	//hiding one transcript
 	$scope.hideTranscriptView = function (index, species) {
 		var display = self.GetSpecieDisplayBySpecieIndex(species);
-		display.TranscriptDisplayManager.hideTranscriptByIndex(index);
+		display.transcriptDisplayManager.hideTranscriptByIndex(index);
 		countShownTranscripts();
 	};
 
@@ -200,11 +165,11 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 	//for gridlines. looking for number of transcripts and updating gridlines accordingly
 	function countShownTranscripts() {
-		var results1 = $scope.specie1Display.TranscriptDisplayManager.countShownTranscripts();
+		var results1 = $scope.specie1Display.transcriptDisplayManager.countShownTranscripts();
 		$scope.shownTranscripts1 = results1.shownTranscripts;
 		$scope.hiddenTranscripts1 = results1.hiddenTranscripts;
 
-		var results2 = $scope.specie2Display.TranscriptDisplayManager.countShownTranscripts();
+		var results2 = $scope.specie2Display.transcriptDisplayManager.countShownTranscripts();
 		$scope.shownTranscripts2 = results2.shownTranscripts;
 		$scope.hiddenTranscripts2 = results2.hiddenTranscripts;
 
@@ -225,7 +190,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 	//show according to mode
 	$scope.showTranscriptView = function (index, species) {
 		var display = self.GetSpecieDisplayBySpecieIndex(species);
-		display.TranscriptDisplayManager.showTranscript(index, $scope.viewMode);
+		display.transcriptDisplayManager.showTranscript(index, $scope.viewMode);
 		countShownTranscripts();
 	};
 
@@ -337,7 +302,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		}
 
 		self.createGenomicRangeSliders();
-		
+
 		var onFinishProtein1 = function (data) {
 			var results = $window.sessionStorage.getItem("currCompareSpecies");
 			var genes = results.split("*");
@@ -348,9 +313,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			var colors = getColorForLength(results, isReviewedCheckBox.checked);
 			var genes = results.genes;
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
-			$(document).ready(function () {
-				updateCanvases();
-			});
+
+			updateCanvases();
 		}
 
 		var onFinishProtein2 = function (data) {
@@ -363,14 +327,13 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			var colors = getColorForLength(results, isReviewedCheckBox.checked);
 			var genes = results.genes;
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
-			$(document).ready(function () {
-				updateCanvases();
-			});
+
+			updateCanvases();
 		}
 
 		$scope.specie1Display.locationScopeChanger.updateProteinlocationScopeChanger(
 			'#protein_range1', onFinishProtein1, self.specie1Gene.proteinScale.length);
-		
+
 		$scope.specie2Display.locationScopeChanger.updateProteinlocationScopeChanger(
 			'#protein_range2', onFinishProtein2, self.specie2Gene.proteinScale.length);
 
@@ -427,33 +390,29 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var onFinishWhenStrandPositive1 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-			$(document).ready(function () {
-				updateCanvases();
-			});
+
+			updateCanvases();
 		}
 
 		var onFinishWhenStrandNegative1 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-			$(document).ready(function () {
-				updateCanvases();
-			});
+
+			updateCanvases();
 		}
 
 		var onFinishWhenStrandPositive2 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-			$(document).ready(function () {
-				updateCanvases();
-			});
+
+			updateCanvases();
 		}
 
 		var onFinishWhenStrandNegative2 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-			$(document).ready(function () {
-				updateCanvases();
-			});
+
+			updateCanvases();
 		}
 
 		$scope.specie1Display.locationScopeChanger.updateGenomiclocationScopeChanger(

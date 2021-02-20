@@ -135,17 +135,17 @@ class Display {
             doc.save(gene.gene_symbol + ".pdf");
         }
 
-        this.TranscriptDisplayManager = new Object();
-        this.TranscriptDisplayManager.addTranscripts = function (transcripts) {
+        this.transcriptDisplayManager = new Object();
+        this.transcriptDisplayManager.addTranscripts = function (transcripts) {
             this.transcripts = transcripts;
         }
-        this.TranscriptDisplayManager.hideTranscriptByIndex = function (index) {
+        this.transcriptDisplayManager.hideTranscriptByIndex = function (index) {
             var transcripts = this.transcripts;
             transcripts[index].genomicView = false;
             transcripts[index].transcriptView = false;
             transcripts[index].proteinView = false;
         };
-        this.TranscriptDisplayManager.showTranscript = function (index, viewMode) {
+        this.transcriptDisplayManager.showTranscript = function (index, viewMode) {
             if (viewMode === "genomic") {
                 this.transcripts[index].genomicView = true;
                 this.transcripts[index].transcriptView = false;
@@ -168,14 +168,14 @@ class Display {
                 this.transcripts[index].proteinView = true;
             }
         };
-        this.TranscriptDisplayManager.changeViewMode = function (newViewMode) {
+        this.transcriptDisplayManager.changeViewMode = function (newViewMode) {
             for (var index = 0; index < this.transcripts.length; index++) {
                 if (this.isTranscriptShownByIndex(index)) {
                     this.showTranscript(index, newViewMode)
                 }
             }
         };
-        this.TranscriptDisplayManager.isTranscriptShownByIndex = function (index) {
+        this.transcriptDisplayManager.isTranscriptShownByIndex = function (index) {
             if ((this.transcripts[index].genomicView) ||
                 (this.transcripts[index].transcriptView) ||
                 (this.transcripts[index].proteinView)) {
@@ -184,7 +184,7 @@ class Display {
 
             return false;
         }
-        this.TranscriptDisplayManager.countShownTranscripts = function () {
+        this.transcriptDisplayManager.countShownTranscripts = function () {
             var results = new Object();
             var counter = 0;
 
@@ -197,6 +197,36 @@ class Display {
             results.shownTranscripts = counter;
             results.hiddenTranscripts = this.transcripts.length - counter;
             return results;
+        }
+
+        this.canvasUpdater = new Object();
+        this.canvasUpdater.isStart = true;
+        this.canvasUpdater.updateCanvas = function (gene, tooltipManager, idForCanvas,scope) {
+            $(document).ready(function () {
+                //drawing all transcripts
+                for (var i = 0; i < gene.transcripts.length; i++) {
+                    if (this.isStart) {
+                        $('#fadeinDiv' + idForCanvas + i).hide().fadeIn(1000 + Math.min(i * 500, 1000));
+
+                    }
+                    gene.transcripts[i].show('canvas-genomic' + idForCanvas + i, 'canvas-transcript' + idForCanvas + i, 'canvas-protein' + idForCanvas + i, tooltipManager, 'canvas-protein-extend' + idForCanvas + i);
+                }
+                this.isStart = false;
+
+                //drawing scales
+                gene.scale.draw("canvas-scale" + idForCanvas);
+                gene.scale.drawBehind("genomicGridlines" + idForCanvas);
+                gene.proteinScale.drawBehind("proteinGridlines" + idForCanvas);
+                gene.proteinScale.draw("canvas-scale-protein" + idForCanvas);
+
+                //click for extended protein view
+                $("canvas")
+                    .click(function (event) {
+                        Domain.domainClick(tooltipManager, event);
+                        scope.$apply();
+                    });
+                    scope.$apply();
+            });
         }
     };
 }
