@@ -82,7 +82,7 @@ class Display {
         }
 
         this.pdfCreator = new Object();
-        this.pdfCreator.create = function (gene,idForCanvas) {
+        this.pdfCreator.create = function (gene, idForCanvas) {
             //init attributes
             var doc = new jsPDF();
             var space = 5;
@@ -119,7 +119,7 @@ class Display {
                 var imgProtein = canvasProtein.toDataURL("image/png");
                 doc.setFontSize(10);
                 doc.text(3 * space, startY + rowHeight * (i % transcriptsPerPage), "Transcript: " + gene.transcripts[i].name + " Protein: " + gene.transcripts[i].protein_name);
-                
+
                 //drawing. parameters:x,y,width,height
                 doc.addImage(imgGenomic, 3 * space, startY + space + rowHeight * (i % transcriptsPerPage), width, height);
                 doc.addImage(imgTranscript, 3 * space + width + space, startY + space + rowHeight * (i % transcriptsPerPage), width, height / 2);
@@ -136,7 +136,7 @@ class Display {
         }
 
         this.TranscriptDisplayManager = new Object();
-        this.TranscriptDisplayManager.addTranscripts = function(transcripts){
+        this.TranscriptDisplayManager.addTranscripts = function (transcripts) {
             this.transcripts = transcripts;
         }
         this.TranscriptDisplayManager.hideTranscriptByIndex = function (index) {
@@ -144,6 +144,38 @@ class Display {
             transcripts[index].genomicView = false;
             transcripts[index].transcriptView = false;
             transcripts[index].proteinView = false;
+        };
+        this.TranscriptDisplayManager.showTranscript = function (index, viewMode) {
+            if (viewMode === "genomic") {
+                this.transcripts[index].genomicView = true;
+                this.transcripts[index].transcriptView = false;
+                this.transcripts[index].proteinView = false;
+            } else if (viewMode === "transcript") {
+                this.transcripts[index].genomicView = false;
+                this.transcripts[index].transcriptView = true;
+                this.transcripts[index].proteinView = false;
+            } else if (viewMode === "protein") {
+                this.transcripts[index].genomicView = false;
+                this.transcripts[index].transcriptView = false;
+                this.transcripts[index].proteinView = true;
+            } else if (viewMode === "all") {
+                this.transcripts[index].genomicView = true;
+                this.transcripts[index].transcriptView = true;
+                this.transcripts[index].proteinView = true;
+            } else if (viewMode === "transcript_protein") {
+                this.transcripts[index].genomicView = false;
+                this.transcripts[index].transcriptView = true;
+                this.transcripts[index].proteinView = true;
+            }
+        };
+        this.TranscriptDisplayManager.changeViewMode = function (newViewMode) {
+            for (var index = 0; index < this.transcripts.length; index++) {
+                if ((this.transcripts[index].genomicView) ||
+                    (this.transcripts[index].transcriptView) ||
+                    (this.transcripts[index].proteinView)) {
+                    this.showTranscript(index, newViewMode)
+                }
+            }
         };
     }
 }

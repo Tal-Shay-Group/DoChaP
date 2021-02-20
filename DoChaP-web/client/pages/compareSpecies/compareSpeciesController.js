@@ -139,60 +139,14 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			return;
 		}
 		$scope.viewMode = type;
+
+		$scope.specie1Display.TranscriptDisplayManager.changeViewMode(type);
+		$scope.specie2Display.TranscriptDisplayManager.changeViewMode(type);
+        countShownTranscripts();
+		
 		$(document).ready(function () {
 			updateCanvases();
 		});
-		for (var i = 0; i < self.specie1Gene.transcripts.length; i++) {
-			if (type === "genomic") {
-				self.specie1Gene.transcripts[i].genomicView = true;
-				self.specie1Gene.transcripts[i].transcriptView = false;
-				self.specie1Gene.transcripts[i].proteinView = false;
-
-			} else if (type === "transcript") {
-				self.specie1Gene.transcripts[i].genomicView = false;
-				self.specie1Gene.transcripts[i].transcriptView = true;
-				self.specie1Gene.transcripts[i].proteinView = false;
-			} else if (type === "protein") {
-				self.specie1Gene.transcripts[i].genomicView = false;
-				self.specie1Gene.transcripts[i].transcriptView = false;
-				self.specie1Gene.transcripts[i].proteinView = true;
-			} else if (type === "all") {
-				self.specie1Gene.transcripts[i].genomicView = true;
-				self.specie1Gene.transcripts[i].transcriptView = true;
-				self.specie1Gene.transcripts[i].proteinView = true;
-			} else if (type === "transcript_protein") {
-				self.specie1Gene.transcripts[i].genomicView = false;
-				self.specie1Gene.transcripts[i].transcriptView = true;
-				self.specie1Gene.transcripts[i].proteinView = true;
-			}
-
-		}
-		for (var i = 0; i < self.specie2Gene.transcripts.length; i++) {
-			if (type === "genomic") {
-				self.specie2Gene.transcripts[i].genomicView = true;
-				self.specie2Gene.transcripts[i].transcriptView = false;
-				self.specie2Gene.transcripts[i].proteinView = false;
-
-			} else if (type === "transcript") {
-				self.specie2Gene.transcripts[i].genomicView = false;
-				self.specie2Gene.transcripts[i].transcriptView = true;
-				self.specie2Gene.transcripts[i].proteinView = false;
-			} else if (type === "protein") {
-				self.specie2Gene.transcripts[i].genomicView = false;
-				self.specie2Gene.transcripts[i].transcriptView = false;
-				self.specie2Gene.transcripts[i].proteinView = true;
-			} else if (type === "all") {
-				self.specie2Gene.transcripts[i].genomicView = true;
-				self.specie2Gene.transcripts[i].transcriptView = true;
-				self.specie2Gene.transcripts[i].proteinView = true;
-			} else if (type === "transcript_protein") {
-				self.specie2Gene.transcripts[i].genomicView = false;
-				self.specie2Gene.transcripts[i].transcriptView = true;
-				self.specie2Gene.transcripts[i].proteinView = true;
-			}
-
-		}
-
 	}
 	//change mode between reviewed and unreviewed
 	$scope.filterUnreviewed = function () {
@@ -284,35 +238,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 	//show according to mode
 	$scope.showTranscriptView = function (index, species) {
-		var specieToChange = undefined;
-		if (species == 1) {
-			specieToChange = self.specie1Gene;
-		} else if (species == 2) {
-			specieToChange = self.specie2Gene;
-		}
-		var type = $scope.viewMode;
-		if (type === "genomic") {
-			specieToChange.transcripts[index].genomicView = true;
-			specieToChange.transcripts[index].transcriptView = false;
-			specieToChange.transcripts[index].proteinView = false;
-		} else if (type === "transcript") {
-			specieToChange.transcripts[index].genomicView = false;
-			specieToChange.transcripts[index].transcriptView = true;
-			specieToChange.transcripts[index].proteinView = false;
-		} else if (type === "protein") {
-			specieToChange.transcripts[index].genomicView = false;
-			specieToChange.transcripts[index].transcriptView = false;
-			specieToChange.transcripts[index].proteinView = true;
-		} else if (type === "all") {
-			specieToChange.transcripts[index].genomicView = true;
-			specieToChange.transcripts[index].transcriptView = true;
-			specieToChange.transcripts[index].proteinView = true;
-		} else if (type === "transcript_protein") {
-			specieToChange.transcripts[index].genomicView = false;
-			specieToChange.transcripts[index].transcriptView = true;
-			specieToChange.transcripts[index].proteinView = true;
-		}
-
+		var display = self.GetSpecieDisplayBySpecieIndex(species);
+		display.TranscriptDisplayManager.showTranscript(index, $scope.viewMode);
 		countShownTranscripts();
 	};
 

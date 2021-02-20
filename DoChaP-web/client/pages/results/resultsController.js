@@ -59,38 +59,14 @@ angular.module("DoChaP")
         //when "hide transcript" button is clicked.
         $scope.hideTranscriptView = function (index) {
             $scope.display.TranscriptDisplayManager.hideTranscriptByIndex(index);
-            // $scope.transcripts[index].genomicView = false;
-            // $scope.transcripts[index].transcriptView = false;
-            // $scope.transcripts[index].proteinView = false;
             countShownTranscripts();
         };
 
-        //show according to mode
-        $scope.showTranscriptView = function (index) {
-            var type = $scope.viewMode;
-            if (type === "genomic") {
-                $scope.transcripts[index].genomicView = true;
-                $scope.transcripts[index].transcriptView = false;
-                $scope.transcripts[index].proteinView = false;
-            } else if (type === "transcript") {
-                $scope.transcripts[index].genomicView = false;
-                $scope.transcripts[index].transcriptView = true;
-                $scope.transcripts[index].proteinView = false;
-            } else if (type === "protein") {
-                $scope.transcripts[index].genomicView = false;
-                $scope.transcripts[index].transcriptView = false;
-                $scope.transcripts[index].proteinView = true;
-            } else if (type === "all") {
-                $scope.transcripts[index].genomicView = true;
-                $scope.transcripts[index].transcriptView = true;
-                $scope.transcripts[index].proteinView = true;
-            } else if (type === "transcript_protein") {
-                $scope.transcripts[index].genomicView = false;
-                $scope.transcripts[index].transcriptView = true;
-                $scope.transcripts[index].proteinView = true;
-            }
+        //when "show transcript" button is clicked or when mode changes
+        $scope.showTranscriptView = function(index){
+            $scope.display.TranscriptDisplayManager.showTranscript(index, $scope.viewMode);
             countShownTranscripts();
-        };
+        }
 
         //count the number of transcripts shown
         function countShownTranscripts() {
@@ -121,9 +97,8 @@ angular.module("DoChaP")
             } else {
                 $scope.canvasSize = 1000;
             }
-            for (var i = 0; i < $scope.transcripts.length; i++) {
-                $scope.showTranscriptView(i);
-            }
+            $scope.display.TranscriptDisplayManager.changeViewMode(type);
+            countShownTranscripts();
             $(document).ready(function () {
                 updateCanvases();
             });
