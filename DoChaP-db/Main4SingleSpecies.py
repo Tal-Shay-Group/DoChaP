@@ -19,7 +19,7 @@ if __name__ == "__main__":
     start_time = time.time()
     download = False
     withEns = True
-    sp = 'R_norvegicus'
+    sp = 'M_musculus'
 
     print("Running DBbuilder with Download {} and withENS {}".format(download, withEns))
     print("===========Current Species: {}===========".format(sp))

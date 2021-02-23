@@ -109,14 +109,14 @@ class RefseqBuilder(SourceBuilder):
 
         # # # OPT1 - Use when running from cluster
         print("\tcreating temporary database from file: " + self.gff)
-        # fn = gffutils.example_filename(self.gff)
-        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        fn = gffutils.example_filename(self.gff)
+        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # #
         # # # OPT2 - Use when running localy for the first time and need to create a local temporary database, must be used with OPT3
         # gffutils.create_db(fn, "DB.Refseq_" + self.species[0] +".db", merge_strategy="create_unique")
         # #
         # # # OPT3 - Use when using OPT2 or when running locally and the temp db is already created
-        db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
+        # db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
         # #
         self.collectChromosomeRegions(db)
         self.collect_genes(db)
