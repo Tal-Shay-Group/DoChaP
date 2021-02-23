@@ -109,14 +109,14 @@ class RefseqBuilder(SourceBuilder):
 
         # # # OPT1 - Use when running from cluster
         print("\tcreating temporary database from file: " + self.gff)
-        fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        # fn = gffutils.example_filename(self.gff)
+        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # #
         # # # OPT2 - Use when running localy for the first time and need to create a local temporary database, must be used with OPT3
         # gffutils.create_db(fn, "DB.Refseq_" + self.species[0] +".db", merge_strategy="create_unique")
         # #
         # # # OPT3 - Use when using OPT2 or when running locally and the temp db is already created
-        # db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
+        db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
         # #
         self.collectChromosomeRegions(db)
         self.collect_genes(db)
@@ -132,9 +132,8 @@ class RefseqBuilder(SourceBuilder):
             if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
                 # ignore alternative chromosomes
                 continue
-            elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
-                # ignore pseudogenes
-                continue
+            # elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
+            #     continue
             elif len(spliTid) > 2 and len(spliTid[-1]) == 1 and spliTid[-1].isdigit():
                 # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
                 continue
@@ -165,11 +164,13 @@ class RefseqBuilder(SourceBuilder):
                 ref = [info if info.startswith("rna-") else '-0' for info in cds["Parent"]][0].split("-")
                 if ref[1] not in self.Transcripts.keys():
                     continue
-                if ref[1][0] == '0' or transcript2region.get(ref[1], '') != cds.chrom or len(ref) > 2:
-                    # ignore long non-coding rna
-                    # ignore rearrangement records (immunoglobulin compartments, alternative chrom)
-                    # ignore non duplicated records (PAR in X and Y chr will be taken only from X)
-                    continue
+                # elif cds["exception"][0].startswith("rearrangement"):
+                #     # ignore rearrangement records (immunoglobulin compartments, alternative chrom)
+                #     del self.Transcripts[ref[1]]
+                # if ref[1][0] == '0' or transcript2region.get(ref[1], '') != cds.chrom or len(ref) > 2:
+                #     # ignore long non-coding rna
+                #     # ignore non duplicated records (PAR in X and Y chr will be taken only from X)
+                #     continue
                 ref = ref[1]
                 self.Transcripts[ref].protein_refseq = cds["Name"][0]
                 current_CDS = self.Transcripts[ref].CDS
@@ -186,9 +187,9 @@ class RefseqBuilder(SourceBuilder):
             ref = e["ID"][0].split("-")
             if ref[1] not in self.Transcripts.keys():
                 continue
-            if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
-                    or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
-                continue  # ignore alternative chromosome and exons of duplicated genes
+            # if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
+            #         or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
+            #     continue  # ignore alternative chromosome and exons of duplicated genes
             ref = ref[1]
             orderInT = int(e["ID"][0].split("-")[2])
             l_orig = len(self.Transcripts[ref].exon_starts)
@@ -211,7 +212,7 @@ class RefseqBuilder(SourceBuilder):
             syno = syno[0].replace(",", "; ")
             newG = Gene(GeneID=geneID, symbol=g["gene"][0], chromosome=self.regionChr[g.chrom], strand=g.strand,
                         synonyms=syno)
-            if newG.GeneID in self.Genes.keys() and newG.chromosome != "ALT_chr" and newG.chromosome != "Unknown":
+            if newG.GeneID in self.Genes.keys():
                 #  Genes of pseudoautosomal region (X and Y) will be only taken from X (same coordinates)
                 if newG.chromosome == "X" and self.Genes[newG.GeneID].chromosome == "Y":
                     self.Genes[newG.GeneID] = newG
@@ -221,10 +222,10 @@ class RefseqBuilder(SourceBuilder):
                     print("GeneID {}, appears twice in chrom {}".format(newG.GeneID, newG.chromosome))
                     continue
                 else:
-                    #raise ValueError(
                     print("GeneID {}, chrom {} already in dict in different chrom:{}".format(newG.GeneID,
-                                                                                     newG.chromosome,
-                                                                                     self.Genes[newG.GeneID].chromosome))
+                                                                                             newG.chromosome,
+                                                                                             self.Genes[
+                                                                                                 newG.GeneID].chromosome))
             elif newG.chromosome != "ALT_chr" and newG.chromosome != "Unknown":
                 self.Genes[newG.GeneID] = newG
 
@@ -328,4 +329,4 @@ class RefseqBuilder(SourceBuilder):
 
 if __name__ == '__main__':
     rr = RefseqBuilder("H_sapiens")  # "H_sapiens"
-    rr.downloader()
+    rr.parser()
