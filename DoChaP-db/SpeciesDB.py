@@ -423,7 +423,7 @@ class dbBuilder:
                     else:
                         merged_df = pd.merge(db_data[spec], merged_df)
                     label = 'A' if n == 0 else 'B'
-                    merged_df.columns = merged_df.columns.str.replace("specie", label + "_species")
+                    merged_df.columns = merged_df.columns.str.replace("specie", label + "_Species")
                     merged_df.columns = merged_df.columns.str.replace("gene_symbol", label + "_GeneSymb")
                     merged_df.columns = merged_df.columns.str.replace(spec + "_ID", label + "_ensembl_id")
                     merged_df = merged_df.drop(spec + "_name", axis=1)

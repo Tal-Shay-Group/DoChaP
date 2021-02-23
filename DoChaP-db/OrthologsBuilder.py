@@ -78,7 +78,7 @@ class OrthologsBuilder(SourceBuilder):
                         print("last job has finished")
         print("Validating successful downloads...")
         for key in err.keys():
-            if err[key] is not '':
+            if err[key] != '':
                 print(key)
                 print(err[key])
             else:
