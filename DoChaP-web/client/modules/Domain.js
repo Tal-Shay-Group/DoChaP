@@ -441,7 +441,7 @@ class Domain {
     }
 
     getSources(sources){
-        var sources =sources.split(', ');
+        var sources =sources.split('; ');
         var res= "";
         for (var i =0; i<sources.length;i++){
             var source = sources[i];
