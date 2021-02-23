@@ -114,6 +114,8 @@ class DomainOrganizer:
                 ndesc = "Repeat_domain"
             else:
                 ndesc = ndesc + "; Repeat_domain" if "; Repeat_domain" not in ndesc else ndesc
+        ndesc = "; ".join(list(set(ndesc.split("; ")))) if ndesc is not None else ndesc
+        # insert into dict
         self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
         self.allExt[domain.extID] = currReg
         self.allNames[domain.name] = currReg
@@ -140,6 +142,7 @@ class DomainOrganizer:
                     oname = domain.name
                 elif domain.name.lower() not in oname.lower():
                     oname = self.allDomains[currReg][1] + '; ' + domain.name
+        oname = "; ".join(list(set(oname.split("; ")))) if oname is not None else oname
         return cdname, oname
 
     def noteAdd(self, domain, currReg):
