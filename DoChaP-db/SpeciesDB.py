@@ -41,8 +41,8 @@ class dbBuilder:
             print('Creating the table: Genes')
             cur.execute('''
                         CREATE TABLE Genes(
-                                gene_GeneID_id TEXT,
-                                gene_ensembl_id TEXT,
+                                gene_GeneID_id TEXT UNIQUE,
+                                gene_ensembl_id TEXT UNIQUE,
                                 gene_symbol TEXT,
                                 synonyms TEXT,
                                 chromosome TEXT,
@@ -55,8 +55,8 @@ class dbBuilder:
             print('Creating the table: Transcripts')
             cur.execute('''
                         CREATE TABLE Transcripts(
-                                transcript_refseq_id TEXT,
-                                transcript_ensembl_id TEXT,
+                                transcript_refseq_id TEXT UNIQUE,
+                                transcript_ensembl_id TEXT UNIQUE,
                                 tx_start INTEGER,
                                 tx_end INTEGER,
                                 cds_start INTEGER,
@@ -107,8 +107,8 @@ class dbBuilder:
             print('Creating the table: Proteins')
             cur.execute('''
                         CREATE TABLE Proteins(
-                                protein_refseq_id TEXT,
-                                protein_ensembl_id TEXT,
+                                protein_refseq_id TEXT UNIQUE,
+                                protein_ensembl_id TEXT UNIQUE,
                                 description TEXT,
                                 synonyms TEXT,
                                 length INTEGER,
