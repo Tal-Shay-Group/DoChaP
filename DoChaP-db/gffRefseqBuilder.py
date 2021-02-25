@@ -119,7 +119,7 @@ class RefseqBuilder(SourceBuilder):
         # db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
         # #
         self.collectChromosomeRegions(db)
-        self.collect_genes(db)
+        nonCodingGenes = self.collect_genes(db)
         curretGenes = self.Genes.copy()
         self.Genes = {}
         print("\tCollecting Transcripts data from gff file...")
@@ -138,10 +138,14 @@ class RefseqBuilder(SourceBuilder):
                 # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
                 continue
             newT.chrom = self.regionChr[t.chrom]
+            newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
+            if newT.gene_GeneID not in curretGenes.keys():
+                continue  # ignore transcript of non-coding genes
+            elif newT.chrom != curretGenes[newT.gene_GeneID].chrom:
+                continue  # genes that appear in several locations in the genome are only used from the first location
             newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
             newT.strand = t.strand
             newT.refseq = t["transcript_id"][0]
-            newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
             newT.geneSymb = t["gene"][0]
             self.Transcripts[newT.refseq] = newT
             self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
@@ -202,11 +206,13 @@ class RefseqBuilder(SourceBuilder):
         """ This method collects all the genes from gff file """
         print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
-            if "gene_biotype" in g.attributes and g["gene_biotype"][0] != "protein_coding":
+            if g["gene_biotype"][0] != "protein_coding":  # "gene_biotype" in g.attributes and
                 continue  # only look at protein coding genes
+            elif g.chrom == "ALT_chr" or g.chrom == "Unknown":
+                continue  # ignoring alternative chromosomes and Unknown chromosomes
             splitGid = g["ID"][0].split("-")
             if len(splitGid) > 2 and splitGid[-1].isdigit() and len(splitGid) == 1:
-                continue  # for gene with multiple locations only use the first.
+                continue  # for gene with multiple locations only use the first showed in the gff
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
             syno = syno[0].replace(",", "; ")
@@ -226,7 +232,7 @@ class RefseqBuilder(SourceBuilder):
                                                                                              newG.chromosome,
                                                                                              self.Genes[
                                                                                                  newG.GeneID].chromosome))
-            elif newG.chromosome != "ALT_chr" and newG.chromosome != "Unknown":
+            else:
                 self.Genes[newG.GeneID] = newG
 
     def collectChromosomeRegions(self, db):
