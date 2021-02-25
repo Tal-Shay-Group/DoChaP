@@ -141,7 +141,7 @@ class RefseqBuilder(SourceBuilder):
             newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
             if newT.gene_GeneID not in curretGenes.keys():
                 continue  # ignore transcript of non-coding genes
-            elif newT.chrom != curretGenes[newT.gene_GeneID].chrom:
+            elif newT.chrom != curretGenes[newT.gene_GeneID].chromosome:
                 continue  # genes that appear in several locations in the genome are only used from the first location
             newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
             newT.strand = t.strand
@@ -211,7 +211,7 @@ class RefseqBuilder(SourceBuilder):
             elif g.chrom == "ALT_chr" or g.chrom == "Unknown":
                 continue  # ignoring alternative chromosomes and Unknown chromosomes
             splitGid = g["ID"][0].split("-")
-            if len(splitGid) > 2 and splitGid[-1].isdigit() and len(splitGid) == 1:
+            if len(splitGid) > 2 and splitGid[-1].isdigit() and len(splitGid[-1]) == 1:
                 continue  # for gene with multiple locations only use the first showed in the gff
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
