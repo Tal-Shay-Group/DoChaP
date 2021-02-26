@@ -13,7 +13,6 @@ angular.module("DoChaP")
         $scope.display = new Display();
         self = this;
         $scope.noSearch = false;
-        $scope.loadingText = false;
         var loadedGene = JSON.parse($window.sessionStorage.getItem("currGene"));
         $scope.ignorePredictions = JSON.parse($window.sessionStorage.getItem("ignorePredictions"));
         $scope.canvasSize = 550;

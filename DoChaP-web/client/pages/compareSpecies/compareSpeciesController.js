@@ -14,7 +14,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 	$scope.loading = false;
 	$scope.alert = "";
 	$scope.genes = undefined;
-	$scope.results = undefined;
 	self.currSpecies = 0;
 	$scope.canvasSize = $(window).width() / 5;
 	self.toolTipManagerForCanvas = {};
