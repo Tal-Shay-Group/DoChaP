@@ -11,7 +11,7 @@ sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
 from ftpDownload import ftpDownload
-from conf import *
+from conf import SpeciesConvertor, speciesTaxonomy, RefSeqGenomicVersion, isSupressed
 
 
 class RefseqBuilder(SourceBuilder):
@@ -21,13 +21,9 @@ class RefseqBuilder(SourceBuilder):
 
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
-        # self.SpeciesConvertor = {'M_musculus': 'Mus_musculus', 'H_sapiens': 'Homo_sapiens',
-        #                          'R_norvegicus': 'Rattus_norvegicus',
-        #                          'D_rerio': 'Danio_rerio', 'X_tropicalis': 'Xenopus_tropicalis'}
+        self.SpeciesConvertor = SpeciesConvertor
         self.species = species
-        # self.speciesTaxonomy = {"Mus_musculus": "vertebrate_mammalian", "Homo_sapiens": "vertebrate_mammalian",
-        #                         'Danio_rerio': "vertebrate_other", "Xenopus_tropicalis": "vertebrate_other",
-        #                         "Rattus_norvegicus": "vertebrate_mammalian"}
+        self.speciesTaxonomy = speciesTaxonomy
         self.savePath = os.getcwd() + '/data/{}/refseq/'.format(self.species)
         os.makedirs(self.savePath, exist_ok=True)
         self.gff = self.FilesNoDownload("gff")
@@ -44,15 +40,11 @@ class RefseqBuilder(SourceBuilder):
 
     def downloader(self):
         """ This method is downloading the required data files directly from ftp site"""
-        skey = SpeciesConvertor[self.species]
+        skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
-        # if skey in ["Rattus_norvegicus", "Xenopus_tropicalis"]:
-        #     ftp_path = '/genomes/refseq/{}/{}/representative/'.format(speciesTaxonomy[skey], skey)
-        # else:
-        #     ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(speciesTaxonomy[skey], skey)
 
-        # Downloading gff files (genomic data):
-        ftp_path = '/genomes/refseq/{}/{}/{}/'.format(speciesTaxonomy[skey], skey, ftpDirPath[skey])
+        # ~~~ For latest assembly version - use this~~~
+        ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
 
         def FindFile(listOfFiles):
             for file in listOfFiles:
@@ -65,6 +57,14 @@ class RefseqBuilder(SourceBuilder):
 
         down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
+
+        # ~~~ If want to specify assembly version from conf - use this~~~
+        # ftp_path = '/genomes/refseq/{}/{}/all_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
+        # genomeVersion = RefSeqGenomicVersion[skey]
+        # gff2Download = [[genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]]
+        # gff2Download[0][0] = "suppressed" + gff2Download[0][0] if isSupressed else gff2Download[0][0]
+        # down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        #                    files2Download=gff2Download)
         filesDownloaded = down.Download()
         self.gff = filesDownloaded[0]
 
@@ -108,18 +108,18 @@ class RefseqBuilder(SourceBuilder):
         print("\tParsing gff3 file...")
 
         # # # OPT1 - Use when running from cluster
-        # print("\tcreating temporary database from file: " + self.gff)
-        # fn = gffutils.example_filename(self.gff)
-        # db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        print("\tcreating temporary database from file: " + self.gff)
+        fn = gffutils.example_filename(self.gff)
+        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
         # #
-        # # # OPT2 - Use when running localy and need to create a local temporary database, must be used with OPT3
+        # # # OPT2 - Use when running localy for the first time and need to create a local temporary database, must be used with OPT3
         # gffutils.create_db(fn, "DB.Refseq_" + self.species[0] +".db", merge_strategy="create_unique")
         # #
         # # # OPT3 - Use when using OPT2 or when running locally and the temp db is already created
-        db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
+        # db = gffutils.FeatureDB("DB.Refseq_" + self.species[0] +".db")
         # #
         self.collectChromosomeRegions(db)
-        self.collect_genes(db)
+        nonCodingGenes = self.collect_genes(db)
         curretGenes = self.Genes.copy()
         self.Genes = {}
         print("\tCollecting Transcripts data from gff file...")
@@ -128,17 +128,24 @@ class RefseqBuilder(SourceBuilder):
 
         for t in db.features_of_type("mRNA"):
             newT = Transcript()
-            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":  # ignore alternative chromosomes
+            spliTid = t["ID"][0].split("-")
+            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
+                # ignore alternative chromosomes
                 continue
-            elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):  # ignore pseudogenes
-                continue
-            elif len(t["ID"][0].split("-")) > 2:  # remove duplicated records (PAR in X and Y chr will be taken only from X)
+            # elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
+            #     continue
+            elif len(spliTid) > 2 and len(spliTid[-1]) == 1 and spliTid[-1].isdigit():
+                # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
                 continue
             newT.chrom = self.regionChr[t.chrom]
+            newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
+            if newT.gene_GeneID not in curretGenes.keys():
+                continue  # ignore transcript of non-coding genes
+            elif newT.chrom != curretGenes[newT.gene_GeneID].chromosome:
+                continue  # genes that appear in several locations in the genome are only used from the first location
             newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
             newT.strand = t.strand
             newT.refseq = t["transcript_id"][0]
-            newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
             newT.geneSymb = t["gene"][0]
             self.Transcripts[newT.refseq] = newT
             self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
@@ -159,14 +166,16 @@ class RefseqBuilder(SourceBuilder):
                 self.Genes[GeneID] = curretGenes[GeneID]
             else:
                 ref = [info if info.startswith("rna-") else '-0' for info in cds["Parent"]][0].split("-")
-                if ref[1][0] == '0' or transcript2region.get(ref[1], '') != cds.chrom or len(ref) > 2:
-                    # ignore long non-coding rna
-                    # ignore rearrangement records (immunoglobulin compartments, alternative chrom)
-                    # ignore non duplicated records (PAR in X and Y chr will be taken only from X)
+                if ref[1] not in self.Transcripts.keys():
                     continue
+                # elif cds["exception"][0].startswith("rearrangement"):
+                #     # ignore rearrangement records (immunoglobulin compartments, alternative chrom)
+                #     del self.Transcripts[ref[1]]
+                # if ref[1][0] == '0' or transcript2region.get(ref[1], '') != cds.chrom or len(ref) > 2:
+                #     # ignore long non-coding rna
+                #     # ignore non duplicated records (PAR in X and Y chr will be taken only from X)
+                #     continue
                 ref = ref[1]
-                if ref not in self.Transcripts.keys():
-                    continue
                 self.Transcripts[ref].protein_refseq = cds["Name"][0]
                 current_CDS = self.Transcripts[ref].CDS
                 if current_CDS is not None:
@@ -180,12 +189,12 @@ class RefseqBuilder(SourceBuilder):
         print("\tCollecting Exons data from gff file...")
         for e in db.features_of_type("exon"):
             ref = e["ID"][0].split("-")
-            if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
-                    or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
-                continue  # ignore alternative chromosome and exons of duplicated genes
-            ref = ref[1]
-            if ref not in self.Transcripts.keys():
+            if ref[1] not in self.Transcripts.keys():
                 continue
+            # if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
+            #         or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
+            #     continue  # ignore alternative chromosome and exons of duplicated genes
+            ref = ref[1]
             orderInT = int(e["ID"][0].split("-")[2])
             l_orig = len(self.Transcripts[ref].exon_starts)
             self.Transcripts[ref].exon_starts = self.Transcripts[ref].exon_starts + [None] * (orderInT - l_orig)
@@ -197,23 +206,33 @@ class RefseqBuilder(SourceBuilder):
         """ This method collects all the genes from gff file """
         print("\tCollecting genes data from gff3 file...")
         for g in db.features_of_type("gene"):
+            if g["gene_biotype"][0] != "protein_coding":  # "gene_biotype" in g.attributes and
+                continue  # only look at protein coding genes
+            elif g.chrom == "ALT_chr" or g.chrom == "Unknown":
+                continue  # ignoring alternative chromosomes and Unknown chromosomes
+            splitGid = g["ID"][0].split("-")
+            if len(splitGid) > 2 and splitGid[-1].isdigit() and len(splitGid[-1]) == 1:
+                continue  # for gene with multiple locations only use the first showed in the gff
             geneID = g["Dbxref"][0].split(":")[1]
             syno = g["gene_synonym"] if "gene_synonym" in g.attributes else " "
             syno = syno[0].replace(",", "; ")
             newG = Gene(GeneID=geneID, symbol=g["gene"][0], chromosome=self.regionChr[g.chrom], strand=g.strand,
                         synonyms=syno)
-            if newG.GeneID in self.Genes.keys() and newG.chromosome != "ALT_chr" and newG.chromosome != "Unknown":
+            if newG.GeneID in self.Genes.keys():
                 #  Genes of pseudoautosomal region (X and Y) will be only taken from X (same coordinates)
                 if newG.chromosome == "X" and self.Genes[newG.GeneID].chromosome == "Y":
                     self.Genes[newG.GeneID] = newG
                 elif newG.chromosome == "Y" and self.Genes[newG.GeneID].chromosome == "X":
                     continue
+                elif newG.chromosome == self.Genes[newG.GeneID].chromosome:
+                    print("GeneID {}, appears twice in chrom {}".format(newG.GeneID, newG.chromosome))
+                    continue
                 else:
-                    raise ValueError(
-                        "GeneID {}, chrom {} already in dict with chrom:{}".format(newG.GeneID,
-                                                                                   newG.chromosome,
-                                                                                   self.Genes[newG.GeneID].chromosome))
-            elif newG.chromosome != "ALT_chr" and newG.chromosome != "Unknown":
+                    print("GeneID {}, chrom {} already in dict in different chrom:{}".format(newG.GeneID,
+                                                                                             newG.chromosome,
+                                                                                             self.Genes[
+                                                                                                 newG.GeneID].chromosome))
+            else:
                 self.Genes[newG.GeneID] = newG
 
     def collectChromosomeRegions(self, db):
@@ -250,7 +269,8 @@ class RefseqBuilder(SourceBuilder):
         for reg in regions:
             start = reg.location.start.position + 1  # convert domains to be 1-based-start
             end = reg.location.end.position
-            if len(reg.qualifiers) > 1 and 'region_name' in reg.qualifiers and start != end:  # only looking at regions larger than 1
+            if len(
+                    reg.qualifiers) > 1 and 'region_name' in reg.qualifiers and start != end:  # only looking at regions larger than 1
                 name = reg.qualifiers['region_name'][0]
                 if 'note' in reg.qualifiers:
                     note = reg.qualifiers['note'][0]
@@ -314,6 +334,5 @@ class RefseqBuilder(SourceBuilder):
 
 
 if __name__ == '__main__':
-    rr = RefseqBuilder("H_sapiens")
+    rr = RefseqBuilder("H_sapiens")  # "H_sapiens"
     rr.parser()
-

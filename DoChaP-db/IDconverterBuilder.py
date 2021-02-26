@@ -7,7 +7,7 @@ sys.path.append(os.getcwd())
 from ftpDownload import ftpDownload
 from recordTypes import Transcript
 from Director import SourceBuilder
-from conf import *
+from conf import taxIDdict
 
 
 class ConverterBuilder(SourceBuilder):
@@ -17,7 +17,6 @@ class ConverterBuilder(SourceBuilder):
     def __init__(self, species):
         SourceBuilder.__init__(self, species)
         self.savePath = os.getcwd() + '/data/'
-        #taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955, 'X_tropicalis': 8364}
         self.taxID = taxIDdict[self.species]
         self.geneCon = {}
         self.transcriptCon = {}
@@ -71,11 +70,14 @@ class ConverterBuilder(SourceBuilder):
         if inp is None:
             return None
         elif transcript:
-            return self.transcriptCon.get(inp, self.transcriptCon.get(self.idNov.get(inp.split(".")[0], None), None))
+            return self.transcriptCon.get(inp, None)
+            # return self.transcriptCon.get(inp, self.transcriptCon.get(self.idNov.get(inp.split(".")[0], None), None))
         elif gene:
-            return self.geneCon.get(inp, self.geneCon.get(self.idNov.get(inp.split(".")[0], None), None))
+            return self.geneCon.get(inp,  None)
+            # return self.geneCon.get(inp, self.geneCon.get(self.idNov.get(inp.split(".")[0], None), None))
         elif protein:
-            return self.proteinCon.get(inp, self.proteinCon.get(self.idNov.get(inp.split(".")[0], None), None))
+            return self.proteinCon.get(inp, None)
+            # return self.proteinCon.get(inp, self.proteinCon.get(self.idNov.get(inp.split(".")[0], None), None))
         else:
             raise ValueError('Must declare input type transcript/gene/protein=True')
 

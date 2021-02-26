@@ -54,7 +54,7 @@ wget -O Pathspecies.Domains.smart.txt 'http://www.ensembl.org/biomart/martservic
   </Dataset>
 </Query>'
 
-wget -O Pathspecies.Domains.tigrfam.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml version="1.0" encoding="UTF-8"?>
+wget -O Pathspecies.Domains.tigrfams.txt 'http://www.ensembl.org/biomart/martservice?query=<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Query>
 <Query  virtualSchemaName = "default" formatter = "TSV" header = "1" uniqueRows = "1" count = "" datasetConfigVersion = "0.6" >
 

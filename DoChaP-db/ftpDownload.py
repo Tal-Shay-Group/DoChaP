@@ -40,7 +40,6 @@ class ftpDownload:
             with open(filePath + '.gz', 'wb') as f:
                 def callback(chunk):
                     f.write(chunk)
-
                 ftp.retrbinary("RETR " + file[0] + '.gz', callback)
             if extract:
                 print('extracting...')

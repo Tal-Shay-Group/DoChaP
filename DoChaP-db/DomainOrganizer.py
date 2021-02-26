@@ -2,7 +2,7 @@ import re
 from sqlite3 import connect
 from Director import Director
 from InterproCollector import InterProBuilder
-from conf import *
+from conf import external
 from recordTypes import *
 import pandas as pd
 
@@ -50,6 +50,7 @@ class DomainOrganizer:
         """
         currReg = None
         existExt = [None] * 5  # stand for ['cdd', 'pfam', 'smart', 'tigrfams', 'interpro']
+        repeat = False
         if domain.extID is None:
             return None
         elif domain.extType not in external:
@@ -64,9 +65,12 @@ class DomainOrganizer:
                 [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
             self.ignored_domains["onlyInterpro"].append(domain.extID)
             return None  # interpro domains are only used when connected with other external source
-        elif self.Interpro.AllDomains.loc[ind, "Type"] != "domain":
+        elif self.Interpro.AllDomains.loc[ind, "Type"] not in ("domain", "repeat"):
             self.ignored_domains["family"].append(domain.extID)
             return None  # only using "domain" and not "family" or "Repeat"
+
+        if self.Interpro.AllDomains.loc[ind, "Type"] == "repeat":
+            repeat = True
 
         if domain.extID in self.allExt:
             currReg = self.allExt[domain.extID]
@@ -105,6 +109,13 @@ class DomainOrganizer:
         if not (existExt[pos].startswith(re.sub(r'\d+$', '', domain.extID)) or
                 (domain.extID[0:2] == "cl" and pos == 0)):
             raise ValueError('External id type not in correct location!')
+        if repeat:
+            if ndesc is None or len(ndesc) == 0:
+                ndesc = "Repeat_domain"
+            else:
+                ndesc = ndesc + "; Repeat_domain" if "; Repeat_domain" not in ndesc else ndesc
+        ndesc = "; ".join(list(set(ndesc.split("; ")))) if ndesc is not None else ndesc
+        # insert into dict
         self.allDomains[currReg] = (cdname, oname, ndesc, ncdd,) + tuple(existExt)
         self.allExt[domain.extID] = currReg
         self.allNames[domain.name] = currReg
@@ -131,6 +142,7 @@ class DomainOrganizer:
                     oname = domain.name
                 elif domain.name.lower() not in oname.lower():
                     oname = self.allDomains[currReg][1] + '; ' + domain.name
+        oname = "; ".join(list(set(oname.split("; ")))) if oname is not None else oname
         return cdname, oname
 
     def noteAdd(self, domain, currReg):
@@ -167,4 +179,3 @@ class DomainOrganizer:
         else:
             return "; ".join(list(set(currentExt.split("; ") + extID.split("; "))))
 
-# TODO: replace the typeID key with interpro ID and change the code respectievly (since 19/1/21 domains must have interpro record)

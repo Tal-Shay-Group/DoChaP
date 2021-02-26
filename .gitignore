@@ -45,7 +45,7 @@ DoChaP-web/messages.txt
 **/Downloads_refine/**
 #ignore python config files
 .idea/**
-**/.idea/*
+**/.idea/**
 **/__pycache__/*
 **.pyc
 

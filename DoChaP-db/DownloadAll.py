@@ -7,8 +7,9 @@ from IDconverterBuilder import ConverterBuilder
 from gffRefseqBuilder import RefseqBuilder
 from gffEnsemblBuilder import EnsemblBuilder
 from InterproCollector import InterProBuilder
-from OrthologsBuilder import OrthologsBuilder
-from DomainsEnsemblBuilder import DomainsEnsemblBuilder
+# from conf import all_species
+# from OrthologsBuilder import OrthologsBuilder
+# from DomainsEnsemblBuilder import DomainsEnsemblBuilder
 
 
 def CallDownloader(Builder):
@@ -18,9 +19,13 @@ def CallDownloader(Builder):
 
 
 if __name__ == "__main__":
-    species = ('M_musculus', 'H_sapiens', 'R_norvegicus', 'D_rerio', 'X_tropicalis')
-    for sp in species:
-        downloadBuilders = [RefseqBuilder(sp), EnsemblBuilder(sp), ConverterBuilder(sp)]
+    all_species = ["R_norvegicus"]
+    for sp in all_species:
+        if sp == "X_tropicalis" or sp == "R_norvegicus":
+            #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
+            downloadBuilders = [RefseqBuilder(sp), ConverterBuilder(sp)]
+        else:
+            downloadBuilders = [RefseqBuilder(sp), EnsemblBuilder(sp), ConverterBuilder(sp)]
         for builder in downloadBuilders:
             CallDownloader(builder)
-    CallDownloader(InterProBuilder())
+    #CallDownloader(InterProBuilder())

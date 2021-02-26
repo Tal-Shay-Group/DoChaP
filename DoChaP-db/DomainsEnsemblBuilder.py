@@ -7,7 +7,7 @@ import re
 sys.path.append(os.getcwd())
 from Director import SourceBuilder
 from recordTypes import *
-from conf import *
+from conf import SpConvert_EnsDomains, external
 
 
 class DomainsEnsemblBuilder(SourceBuilder):
@@ -20,10 +20,8 @@ class DomainsEnsemblBuilder(SourceBuilder):
         @type species: tuple
         """
         self.species = species
-        # self.speciesConvertor = {'M_musculus': 'mmusculus', 'H_sapiens': 'hsapiens',
-        #                          'R_norvegicus': 'rnorvegicus', 'D_rerio': 'drerio',
-        #                          'X_tropicalis': 'xtropicalis'}
-        self.ExtSources = ("pfam", "smart", "cdd", "tigrfam", "interpro")
+        self.speciesConvertor = SpConvert_EnsDomains
+        self.ExternalDomains = tuple(external)
         self.downloadPath = os.getcwd() + '/data/{}/ensembl/BioMart/'.format(self.species)
         self.shellScript = os.getcwd() + \
                            "/BioMart.ensembl.domains.{}.AllSources.sh".format(self.species)
@@ -32,7 +30,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
         scriptList = tuple()
         os.makedirs(self.downloadPath, exist_ok=True)
         replaceDict = {"Pathspecies": self.downloadPath + self.species,
-                        "EnsSpecies": SpConvert_EnsDomains[self.species]}
+                        "EnsSpecies": self.speciesConvertor[self.species]}
         with open(os.getcwd() + "/BioMart.ensembl.domains.template.sh", "r") as template:
             with open(self.shellScript, "w") as writo:
                 for line in template:
@@ -50,6 +48,10 @@ class DomainsEnsemblBuilder(SourceBuilder):
                 write.write(self.shellScript + "\n")
 
     def downloader(self):
+        """This function calls the createDownloadScripts and then tryes to Run it.
+        Currently this is not the best way of doing that, therefor the create download scripts is called from
+        the module CreatAllDownloadScripts and then RunAllDownloads.bash is running the scripts in parallel.
+        """
         self.createDownloadScripts()
         subprocess.Popen(['chmod', 'u+x', self.shellScript])
         runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -70,7 +72,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
         # os.remove(self.shellScript)
 
     # def Parser(self):
-    #     for extDB in self.ExtSources:
+    #     for extDB in self.ExternalDomains:
     #         df = pd.read_table(self.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
     #                            sep="\t", header=0)
     #         df.columns = df.columns.str.replace(" ", "_")

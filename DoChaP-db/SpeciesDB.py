@@ -41,8 +41,8 @@ class dbBuilder:
             print('Creating the table: Genes')
             cur.execute('''
                         CREATE TABLE Genes(
-                                gene_GeneID_id TEXT,
-                                gene_ensembl_id TEXT,
+                                gene_GeneID_id TEXT UNIQUE,
+                                gene_ensembl_id TEXT UNIQUE,
                                 gene_symbol TEXT,
                                 synonyms TEXT,
                                 chromosome TEXT,
@@ -55,8 +55,8 @@ class dbBuilder:
             print('Creating the table: Transcripts')
             cur.execute('''
                         CREATE TABLE Transcripts(
-                                transcript_refseq_id TEXT,
-                                transcript_ensembl_id TEXT,
+                                transcript_refseq_id TEXT UNIQUE,
+                                transcript_ensembl_id TEXT UNIQUE,
                                 tx_start INTEGER,
                                 tx_end INTEGER,
                                 cds_start INTEGER,
@@ -107,8 +107,8 @@ class dbBuilder:
             print('Creating the table: Proteins')
             cur.execute('''
                         CREATE TABLE Proteins(
-                                protein_refseq_id TEXT,
-                                protein_ensembl_id TEXT,
+                                protein_refseq_id TEXT UNIQUE,
+                                protein_ensembl_id TEXT UNIQUE,
                                 description TEXT,
                                 synonyms TEXT,
                                 length INTEGER,
@@ -183,17 +183,19 @@ class dbBuilder:
                             CREATE TABLE Orthology(
                                     A_ensembl_id TEXT,
                                     A_GeneSymb TEXT,
-                                    A_Species TEXT,
+                                    A_species TEXT,
                                     B_ensembl_id TEXT,
                                     B_GeneSymb TEXT,
-                                    B_Species TEXT,
+                                    B_species TEXT,
                                     PRIMARY KEY (A_ensembl_id, B_ensembl_id),
-                                    FOREIGN KEY (A_ensembl_id, B_ensembl_id, A_GeneSymb, B_GeneSymb, A_Species, B_Species) 
+                                    FOREIGN KEY (A_ensembl_id, B_ensembl_id, A_GeneSymb, B_GeneSymb, A_species, B_species) 
                                     REFERENCES Genes(gene_ensembl_id, gene_ensembl_id, gene_symbol, gene_symbol, specie, specie)
                                     );"""
                             )
+        # ~~~ disconnect database ~~~
 
     def create_index(self):
+        """ Creates index for for efficient searches"""
         with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
             cur.execute('''CREATE INDEX geneTableIndexBySpecies ON Genes(specie);''')
@@ -207,7 +209,8 @@ class dbBuilder:
 
     def fill_in_db(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
         """
-        This function in for unique species. for more than ine use add Species To Merged
+        This is filling the database with the collected data for a single species.
+        if used db is "merged" than set True to the param. if False than a species unique db will be created.
         """
         if dbName is not None:
             self.dbName = dbName
@@ -390,14 +393,20 @@ class dbBuilder:
         # ~~~ disconnect database ~~~
 
     def AddOrthology(self, orthologsDict):
-        MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_Species',
-                                          'B_ensembl_id', 'B_GeneSymb', 'B_Species'])
+        """
+        This function adds the orthology data to the database, only for the genes included in the database.
+        Changes the database with no returned output.
+        @param orthologsDict: created by OrthologsBuilder module, called by the main script.
+        @return: None
+        """
+        MainOrtho = pd.DataFrame(columns=['A_ensembl_id', 'A_GeneSymb', 'A_species',
+                                          'B_ensembl_id', 'B_GeneSymb', 'B_species'])
         db_data = dict()
-        species = set([spec for x in orthologsDict.keys() for spec in x])
+        orthology_species = set([spec for x in orthologsDict.keys() for spec in x])
         with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
             schema = cur.execute("PRAGMA table_info('Orthology')").fetchall()
-            for spec in species:
+            for spec in orthology_species:
                 db_data[spec] = pd.read_sql(
                     "SELECT gene_ensembl_id,gene_symbol,specie FROM Genes WHERE specie='{}'".format(spec),
                     con)
@@ -430,15 +439,5 @@ class dbBuilder:
                 print(err)
                 MainOrtho.to_csv("OrthologyTable.Failed.csv")
             print("Filling Orthology table complete!")
+        # ~~~ disconnect database ~~~
 
-    # def AddTableToMerged(self, db2add):
-    #     db_a = connect(self.dbName + '.sqlite')
-    #     db_b_name = db2add
-    #     a_c = db_a.cursor()
-    #     a_c.execute('''ATTACH ? AS db_b''', (db_b_name,))
-    #     a_c.execute('''INSERT INTO Exons SELECT * FROM db_b.Exons''')
-    #     a_c.execute('''INSERT INTO Transcripts SELECT * FROM db_b.Transcripts''')
-    #     a_c.execute('''INSERT INTO Transcript_Exon SELECT * FROM db_b.Transcript_Exon''')
-    #     a_c.execute('''INSERT INTO Genes SELECT * FROM db_b.Genes''')
-    #     a_c.execute('''INSERT INTO Proteins SELECT * FROM db_b.Proteins''')
-    #     db_a.commit()
