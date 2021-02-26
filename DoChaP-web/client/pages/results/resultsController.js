@@ -64,6 +64,7 @@ angular.module("DoChaP")
         $scope.showTranscriptView = function (index) {
             $scope.display.transcriptDisplayManager.showTranscript(index, $scope.viewMode);
             countShownTranscripts();
+            updateCanvases();
         }
 
         //count the number of transcripts shown
@@ -114,19 +115,23 @@ angular.module("DoChaP")
         function createRangeSliders() {
             var onFinishWhenStrandPositive = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-                $scope.transcripts = self.geneInfo.transcripts;
+                $scope.display.transcriptDisplayManager.addTranscripts($scope.transcripts);
+                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
                 updateCanvases();
+
             };
 
             var onFinishWhenStrandNegative = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.maximumRange - data.to, self.maximumRange - data.from, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-                $scope.transcripts = self.geneInfo.transcripts;
+                $scope.display.transcriptDisplayManager.addTranscripts($scope.transcripts);
+                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
                 updateCanvases();
             }
 
             var OnFinishProtein = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
-                $scope.transcripts = self.geneInfo.transcripts;
+                $scope.display.transcriptDisplayManager.addTranscripts($scope.transcripts);
+                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);  
                 updateCanvases();
             };
 

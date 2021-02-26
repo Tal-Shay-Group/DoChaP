@@ -192,6 +192,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var display = self.GetSpecieDisplayBySpecieIndex(species);
 		display.transcriptDisplayManager.showTranscript(index, $scope.viewMode);
 		countShownTranscripts();
+		updateCanvases();
 	};
 
 
@@ -313,7 +314,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			var colors = getColorForLength(results, isReviewedCheckBox.checked);
 			var genes = results.genes;
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
-
+			$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+			$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 			updateCanvases();
 		}
 
@@ -327,7 +329,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			var colors = getColorForLength(results, isReviewedCheckBox.checked);
 			var genes = results.genes;
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
-
+			$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+			$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 			updateCanvases();
 		}
 
@@ -390,28 +393,32 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		var onFinishWhenStrandPositive1 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-
+			$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+			$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 			updateCanvases();
 		}
 
 		var onFinishWhenStrandNegative1 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
-
+			$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+			$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 			updateCanvases();
 		}
 
 		var onFinishWhenStrandPositive2 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-
+			$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+			$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 			updateCanvases();
 		}
 
 		var onFinishWhenStrandNegative2 = function (data) {
 			var results = getResultsFromSessionStorage();
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
-
+			$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+			$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 			updateCanvases();
 		}
 
@@ -422,5 +429,4 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			'#genomic_range2', self.specie2Gene.scale, self.specie2Gene.strand, onFinishWhenStrandPositive2, onFinishWhenStrandNegative2,
 			self.maximumRange2, self.minimumRange2);
 	}
-
 });
