@@ -259,15 +259,15 @@ class DomainGroup {
         //go through dictionary and if a name is majority we take it
         for (var key in nameDict) {
             if (nameDict.hasOwnProperty(key)) {
-                if (nameDict[key] >= domains.length / 2) {
+                if (nameDict[key] > domains.length / 2) {
                     return key;
                 }
             }
         }
 
-        //taking the largest domain without name that is ID
+        //taking the largest domain that has name (and not just ID)
         var largestLength = domains[0].end - domains[0].start;
-        var largestLengthIndex = 0;
+        var largestLengthIndexes = [0];
         for (var i = 0; i < domains.length; i++) {
             if (this.start > domains[i].start) {
                 this.start = domains[i].start;
@@ -275,13 +275,22 @@ class DomainGroup {
             if (this.end < domains[i].end) {
                 this.end = domains[i].end;
             }
-            if (largestLength < domains[i].end - domains[i].start && Species.isNotID(domains[i].name)) {
-                largestLength = domains[i].end - domains[i].start;
-                largestLengthIndex = i;
+            if (largestLength <= domains[i].end - domains[i].start && (!Species.isID(domains[i].name))) {
+                if(largestLength == domains[i].end - domains[i].start){
+                    largestLengthIndexes.push(i);
+                }
+                else{
+                    largestLengthIndexes = [i];
+                    largestLength = domains[i].end - domains[i].start;
+                }
+                
             }
         }
 
-        return domains[largestLengthIndex].name;
+        //taking the shortestByName
+        largestLengthIndexes.sort((indexA, indexB) => domains[indexA].name.length - domains[indexB].name.length);
+
+        return domains[largestLengthIndexes[0]].name;
     }
 
 

@@ -7,13 +7,13 @@
     <!-- modal creation -->
     <div id="BlackBackground"
         style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
-        ng-show="showWindow" ng-click="closeModalFromBackground($event)">
+        ng-show="specie1Display.modal.type" ng-click="specie1Display.modal.closeWindowFromTheSide($event)">
         <div id="myModal">
-            <div width="200" ng-click="showWindow=false" style="font-size: 25px; text-align: right;"><span
+            <div width="200" ng-click="specie1Display.modal.type=undefined" style="font-size: 25px; text-align: right;"><span
                     class="glyphicon glyphicon-remove-sign"></div>
             <br>
             <!--gene modal layout-->
-            <span ng-if="showWindow=='gene'">
+            <span ng-if="specie1Display.modal.type=='gene'">
                 <b>GeneID</b>: <a
                     href="https://www.ncbi.nlm.nih.gov/gene/{{compareSpeciesCtrl.currSpecies.gene_GeneID_id}}"
                     target="_blank">{{compareSpeciesCtrl.currSpecies.gene_GeneID_id}}</a><br>
@@ -30,7 +30,7 @@
                 <b>Strand</b>: {{compareSpeciesCtrl.currSpecies.strand}}<br>
             </span>
             <!--transcript modal layout-->
-            <span ng-show="showWindow=='transcript'">
+            <span ng-show="specie1Display.modal.type=='transcript'">
                 <b>RefSeq ID</b>: <a
                     href="https://www.ncbi.nlm.nih.gov/nuccore/{{compareSpeciesCtrl.currSpecies.currTranscript.transcript_refseq_id}}"
                     target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.transcript_refseq_id}}</a><br>
@@ -51,7 +51,7 @@
                 {{compareSpeciesCtrl.currSpecies.currTranscript.cds_start}}-{{compareSpeciesCtrl.currSpecies.currTranscript.cds_end}}<br>
             </span>
             <!--protein modal layout-->
-            <span ng-show="showWindow=='protein'">
+            <span ng-show="specie1Display.modal.type=='protein'">
                 <b>RefSeq ID</b>: <a
                     href=" https://www.ncbi.nlm.nih.gov/protein/{{compareSpeciesCtrl.currSpecies.currTranscript.proteinId}}"
                     target="_blank">{{compareSpeciesCtrl.currSpecies.currTranscript.protein_refseq_id}}</a><br>

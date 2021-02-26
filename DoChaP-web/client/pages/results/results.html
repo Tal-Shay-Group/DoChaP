@@ -9,12 +9,12 @@
     <!-- modal work class="modal"-->
     <div id="BlackBackground"
         style="position: fixed; z-index: 2; display: none; height: 100%; width: 100%; top: 0px; left: 0px;"
-        ng-show="showWindow" ng-click="closeModalFromBackground($event)">
+        ng-show="display.modal.type" ng-click="display.modal.closeWindowFromTheSide($event)">
         <div id="myModal">
-            <div width="200" ng-click="showWindow=false" style="font-size: 25px;text-align: right; padding: 0px;">
+            <div width="200" ng-click="display.modal.type=undefined" style="font-size: 25px;text-align: right; padding: 0px;">
                 <span class="glyphicon glyphicon-remove-sign"></span></div><br>
             <!--gene modal layout-->
-                <span ng-if="showWindow=='gene'">
+                <span ng-if="display.modal.type=='gene'">
                 <b>GeneID</b>: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_GeneID_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.gene_GeneID_id}}</a><br>
                 <b>Ensembl ID</b>:
@@ -27,7 +27,7 @@
                 
             </span>
             <!--transcript modal layout-->
-            <span ng-show="showWindow=='transcript'">
+            <span ng-show="display.modal.type=='transcript'">
                 <b>RefSeq ID</b>: <a
                     href="https://www.ncbi.nlm.nih.gov/nuccore/{{resultsCtrl.currTranscript.transcript_refseq_id}}"
                     target="_blank">{{resultsCtrl.currTranscript.transcript_refseq_id}}</a><br>
@@ -48,7 +48,7 @@
                 <b>CDS end</b>: {{resultsCtrl.currTranscript.cds_end}}
             </span>
             <!--protein modal layout-->
-            <span ng-show="showWindow=='protein'">
+            <span ng-show="display.modal.type=='protein'">
                 <b>RefSeq ID</b>: <a
                     href=" https://www.ncbi.nlm.nih.gov/protein/{{resultsCtrl.currTranscript.proteinId}}"
                     target="_blank">{{resultsCtrl.currTranscript.protein_refseq_id}}</a><br>
