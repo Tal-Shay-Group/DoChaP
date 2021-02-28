@@ -68,9 +68,8 @@ class DomainOrganizer:
             elif self.Interpro.AllDomains.loc[ind, "Type"] not in ("domain", "repeat"):
                 self.ignored_domains["family"].append(domain.extID)
                 return None  # only using "domain" and not "family"
-
-        if self.Interpro.AllDomains.loc[ind, "Type"] == "repeat":
-            repeat = True
+            if self.Interpro.AllDomains.loc[ind, "Type"] == "repeat":
+                repeat = True
 
         if domain.extID in self.allExt:
             currReg = self.allExt[domain.extID]
