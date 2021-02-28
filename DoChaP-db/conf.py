@@ -38,9 +38,9 @@ SpConvert_EnsBuilder = {'M_musculus': 'mus_musculus', 'H_sapiens': 'homo_sapiens
 SpConvert_EnsShort = {'M_musculus': 'MUSG', 'H_sapiens': 'G', 'R_norvegicus': 'RNOG',
                                       'D_rerio': 'DARG', 'X_tropicalis': 'XETG'}
 # Domains
-supported_Prefix = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
+supported_Prefix = {'cd': 'cd', 'pfam': 'pfam', 'pf': 'pfam',
                     'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
-                    'ipr': 'IPR', 'interpro': 'IPR'}
-pref2Types = {"cd": "cdd", "cl": "cdd", "IPR": "interpro", "tigr": "tigrfams",
-              "pfam": "pfam", "smart": "smart"}
+                    'ipr': 'IPR', 'interpro': 'IPR'}  # 'cl': 'cl',
+pref2Types = {"cd": "cdd", "IPR": "interpro", "tigr": "tigrfams",
+              "pfam": "pfam", "smart": "smart"}  # "cl": "cdd",
 external = ['cdd', 'pfam', 'smart', 'tigrfams', 'interpro']

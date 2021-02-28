@@ -208,7 +208,7 @@ class RefseqBuilder(SourceBuilder):
         for g in db.features_of_type("gene"):
             if g["gene_biotype"][0] != "protein_coding":  # "gene_biotype" in g.attributes and
                 continue  # only look at protein coding genes
-            elif g.chrom == "ALT_chr" or g.chrom == "Unknown":
+            elif self.regionChr[g.chrom] == "ALT_chr" or self.regionChr[g.chrom] == "Unknown":
                 continue  # ignoring alternative chromosomes and Unknown chromosomes
             splitGid = g["ID"][0].split("-")
             if len(splitGid) > 2 and splitGid[-1].isdigit() and len(splitGid[-1]) == 1:

@@ -58,16 +58,16 @@ class DomainOrganizer:
         identify = self.Interpro.AllDomains.loc[
             self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
         ind = identify.index.values[0] if len(identify) != 0 else None
-        if ind is None:
-            self.ignored_domains["nonInterpro"].append(domain.extID)
-            return None  # only using domains that are recorded in Interpro
-        elif domain.extType == "interpro" and \
-                [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
-            self.ignored_domains["onlyInterpro"].append(domain.extID)
-            return None  # interpro domains are only used when connected with other external source
-        elif self.Interpro.AllDomains.loc[ind, "Type"] not in ("domain", "repeat"):
-            self.ignored_domains["family"].append(domain.extID)
-            return None  # only using "domain" and not "family" or "Repeat"
+        if ind is not None:
+            # self.ignored_domains["nonInterpro"].append(domain.extID)
+            # return None  # only using domains that are recorded in Interpro
+            if domain.extType == "interpro" and \
+                    [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
+                self.ignored_domains["onlyInterpro"].append(domain.extID)
+                return None  # interpro domains are only used when connected with other external source
+            elif self.Interpro.AllDomains.loc[ind, "Type"] not in ("domain", "repeat"):
+                self.ignored_domains["family"].append(domain.extID)
+                return None  # only using "domain" and not "family"
 
         if self.Interpro.AllDomains.loc[ind, "Type"] == "repeat":
             repeat = True
