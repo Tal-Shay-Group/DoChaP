@@ -339,8 +339,8 @@ class dbBuilder:
                         complete = 1
                     # insert into domain event table
                     ldf = Domdf.shape[0]
-                    extWithInter = "; ".join([reg.extID, self.DomainOrg.allDomains[regID][-1]])  # this line merges interpro with the external ID. if replacing the typeID with interpro then change to only externalID
-                    #  TODO: when typeID be replaced with interpro, remove interpro id from "extWithInter" and only show the ext ID.
+                    extWithInter = "; ".join([reg.extID, self.DomainOrg.allDomains[regID][-1]]) if \
+                        self.DomainOrg.allDomains[regID][-1] is not None else reg.extID
                     values = (protein.refseq, protein.ensembl, regID,
                               reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
                               extWithInter, splice_junction, complete,)
