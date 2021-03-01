@@ -128,7 +128,6 @@ class Collector:
                         self.Genes[ensG] = self.ensembl.Genes[ensG]
                         genesIDs.add(ensG)
                     elif refG not in self.Genes:
-                        "here!!"
                         self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                         genesIDs.add(refG)
                         if ensG is not None:

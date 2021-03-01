@@ -1,7 +1,7 @@
 # this is a configuration file for DoChaP database builder and its modules
 
 # This are the species currently available by DoChaP:
-all_species = ('D_rerio', 'R_norvegicus',  'X_tropicalis', 'M_musculus', 'H_sapiens')
+all_species = ('H_sapiens', 'M_musculus', 'D_rerio', 'R_norvegicus',  'X_tropicalis')
 
 # for ID converter builder
 taxIDdict = {'M_musculus': 10090, 'H_sapiens': 9606, 'R_norvegicus': 10116, 'D_rerio': 7955,

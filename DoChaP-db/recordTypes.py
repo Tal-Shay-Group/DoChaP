@@ -164,9 +164,6 @@ class Transcript:
 class Domain:
 
     def __init__(self, ext_id, start=None, end=None, cddId=None, name=None, note=None):
-        # self.suppPref = {'cd': 'cd', 'cl': 'cl', 'pfam': 'pfam', 'pf': 'pfam',
-        #                  'smart': 'smart', 'sm': 'smart', 'tigr': 'tigr', 'tigrfams': 'tigr',
-        #                  'ipr': 'IPR', 'interpro': 'IPR'}
         self.aaStart = start
         self.aaEnd = end
         if self.aaStart is not None:
