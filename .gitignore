@@ -67,3 +67,6 @@ DoChaP-db/dbs/*
 
 #ignore log backups
 DoChaP-web/logs_backups
+
+# ignore stat script
+DoChaP-db/db_stats.py
