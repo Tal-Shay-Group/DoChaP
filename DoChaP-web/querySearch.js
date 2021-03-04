@@ -263,7 +263,7 @@ app.get('/getOrthologyGenes/:species/:gene', (req, res) => {
         }
     }
 
-    if (finalResults.length > 0) {
+    if (finalResults.length > 0 || similarGenes.length > 0 ) {
         res.status(200).send([finalResults,similarGenes]);
         db.close();
         return;
