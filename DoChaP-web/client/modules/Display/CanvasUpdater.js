@@ -3,7 +3,7 @@ class CanvasUpdater {
         this.isStart  = true;
     }
   
-    updateCanvas(gene, tooltipManager, idForCanvas, scope) {
+    updateCanvas(gene, tooltipManager, idForCanvas, $scope) {
             $(document).ready(function () {
                 //drawing all transcripts
                 for (var i = 0; i < gene.transcripts.length; i++) {
@@ -24,10 +24,24 @@ class CanvasUpdater {
                 //click for extended protein view
                 $("canvas")
                     .click(function (event) {
-                        Domain.domainClick(tooltipManager, event);
-                        scope.$apply();
+                        CanvasUpdater.onDomainClickEvent(tooltipManager, event);
+                        $scope.$apply();
                     });
-                scope.$apply();
+                $scope.$apply();
             });
         }
+    /**
+     * when click on domain opening/closing fourth view in the tooltipManager
+     * @param {tooltipManager} tooltipManager has values of each domain info and positions
+     * @param {event} event click-event
+     */
+    static onDomainClickEvent(tooltipManager, event){
+        var showTextValues = Transcript.showText(event, tooltipManager);
+        if (showTextValues[0]) {
+            if (showTextValues[2] == 'click' && tooltipManager[event.target.id + "object"] != undefined) { //if has a fourthview (means domains overlap enough)
+                tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
+            }
+
+        }
+    }
 }

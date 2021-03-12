@@ -415,20 +415,6 @@ class Domain {
         regulartooltip[3] = domainHeight;
         return [regulartooltip]; //saved in array because we take arrays of domains when it comes from domain group. here is a case where domain like a domainGroup of size 1
     }
-    /**
-     * when click on domain opening/closing fourth view in the tooltipManager
-     * @param {tooltipManager} tooltipManager has values of each domain info and positions
-     * @param {event} event click-event
-     */
-    static domainClick(tooltipManager, event) {
-        var showTextValues = Transcript.showText(event, tooltipManager);
-        if (showTextValues[0]) {
-            if (showTextValues[2] == 'click' && tooltipManager[event.target.id + "object"] != undefined) { //if has a fourthview (means domains overlap enough)
-                tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
-            }
-
-        }
-    }
 
     getName(dbDomain){
         if(dbDomain.domainType.name!=undefined){

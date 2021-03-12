@@ -112,30 +112,31 @@ angular.module("DoChaP")
         }
 
         function createRangeSliders() {
-            var onFinishWhenStrandPositive = function (data) {
-                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-                $scope.display.transcriptDisplayManager.addTranscripts($scope.transcripts);
+            
+            var updateWithGenomicInformationAfterFinish = function(gene){
+                $scope.display.transcriptDisplayManager.addTranscripts(self.geneInfo.transcripts);
                 $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+                $scope.transcripts = self.geneInfo.transcripts;
                 updateCanvases();
-
+            }
+            
+            var onFinishGenomicWithStrandPositive = function (data) {
+                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
             };
 
-            var onFinishWhenStrandNegative = function (data) {
+            var onFinishGenomicWithStrandNegative = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.maximumRange - data.to, self.maximumRange - data.from, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
-                $scope.display.transcriptDisplayManager.addTranscripts($scope.transcripts);
-                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
-                updateCanvases();
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
             }
 
             var OnFinishProtein = function (data) {
                 self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
-                $scope.display.transcriptDisplayManager.addTranscripts($scope.transcripts);
-                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);  
-                updateCanvases();
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
             };
 
             $scope.display.locationScopeChanger.updateGenomiclocationScopeChanger(
-                '#genomic_range', self.geneInfo.scale, $scope.strand, onFinishWhenStrandPositive, onFinishWhenStrandNegative,
+                '#genomic_range', self.geneInfo.scale, $scope.strand, onFinishGenomicWithStrandPositive, onFinishGenomicWithStrandNegative,
                 self.maximumRange, self.minimumRange);
 
             $scope.display.locationScopeChanger.updateProteinlocationScopeChanger(
