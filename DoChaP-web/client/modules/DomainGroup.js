@@ -8,9 +8,9 @@ class DomainGroup {
         // this.isExtend=isExtend;
 
         //init attributes
-        this.start = domains[0].start;
-        this.end = domains[0].end;
-
+        this.start = Math.min(...domains.map(domain => domain.start));
+        this.end = Math.max(...domains.map(domain => domain.end));
+        
         //finding largest domain of them all and add to name
         this.name = this.getName();
 
@@ -269,12 +269,6 @@ class DomainGroup {
         var largestLength = domains[0].end - domains[0].start;
         var largestLengthIndexes = [0];
         for (var i = 0; i < domains.length; i++) {
-            if (this.start > domains[i].start) {
-                this.start = domains[i].start;
-            }
-            if (this.end < domains[i].end) {
-                this.end = domains[i].end;
-            }
             if (largestLength <= domains[i].end - domains[i].start && (!Species.isID(domains[i].name))) {
                 if(largestLength == domains[i].end - domains[i].start){
                     largestLengthIndexes.push(i);
@@ -283,7 +277,6 @@ class DomainGroup {
                     largestLengthIndexes = [i];
                     largestLength = domains[i].end - domains[i].start;
                 }
-                
             }
         }
 
