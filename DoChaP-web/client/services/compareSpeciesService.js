@@ -13,8 +13,8 @@ angular.module("DoChaP").service("compareSpeciesService", function ($window, web
         }
         
         //searching for both searches
-        promiseGene1 = webService.queryHandler(gene1, specie1, false);
-        promiseGene2 = webService.queryHandler(gene2, specie2, false);
+        promiseGene1 = webService.queryHandler(gene1, specie1, true);
+        promiseGene2 = webService.queryHandler(gene2, specie2, true);
         var genes=await Promise.all([promiseGene1, promiseGene2]);
         
         //errors
