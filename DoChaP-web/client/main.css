@@ -139,16 +139,16 @@ text aligned to left
 
 .blackButton {
     background-color: rgb(46, 45, 45);
-    color: rgb(170, 169, 169);
+    color: white;
 
 }
 
 .blackButton:hover {
-    color: white;
+    color: rgb(82, 192, 255);;
 }
 
 .blackButton:focus {
-    color: white;
+    color: rgb(82, 192, 255);;
 }
 
 .chromosomeLocation {
