@@ -11,10 +11,11 @@
         style="position: fixed; z-index: 2; display: none; height: 100%; width: 100%; top: 0px; left: 0px;"
         ng-show="display.modal.type" ng-click="display.modal.closeWindowFromTheSide($event)">
         <div id="myModal">
-            <div width="200" ng-click="display.modal.type=undefined" style="font-size: 25px;text-align: right; padding: 0px;">
+            <div width="200" ng-click="display.modal.type=undefined"
+                style="font-size: 25px;text-align: right; padding: 0px;">
                 <span class="glyphicon glyphicon-remove-sign"></span></div><br>
             <!--gene modal layout-->
-                <span ng-if="display.modal.type=='gene'">
+            <span ng-if="display.modal.type=='gene'">
                 <b>GeneID</b>: <a href="https://www.ncbi.nlm.nih.gov/gene/{{::resultsCtrl.geneInfo.gene_GeneID_id}}"
                     target="_blank">{{::resultsCtrl.geneInfo.gene_GeneID_id}}</a><br>
                 <b>Ensembl ID</b>:
@@ -24,7 +25,7 @@
                 <b>Chromosome</b>: {{::resultsCtrl.geneInfo.chromosome}}<br>
                 <b>Synonyms</b>: {{::resultsCtrl.geneInfo.synonyms}}<br>
                 <b>Strand</b>: {{::resultsCtrl.geneInfo.strand}}<br>
-                
+
             </span>
             <!--transcript modal layout-->
             <span ng-show="display.modal.type=='transcript'">
@@ -113,7 +114,8 @@
                         </div>
 
                     </td>
-                    <td width="30"> <!--space between visualizations-->
+                    <td width="30">
+                        <!--space between visualizations-->
                     </td>
                     <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                         class="resultTitle">
@@ -136,6 +138,16 @@
                         <div style="width: {{canvasSize}}px;">
                             <input type="text" ng-class="genomicClass" id="genomic_range" value="" />
                         </div>
+                        <center>
+                            <button ng-click="onZoomButtonGenomicClick('In')" class="btn blackButton"
+                                style="width: auto;">
+                                <span class="glyphicon glyphicon-zoom-in"></span>
+                            </button>
+                            <button ng-click="onZoomButtonGenomicClick('Out')" class="btn blackButton"
+                                style="width: auto;">
+                                <span class="glyphicon glyphicon-zoom-out"></span>
+                            </button>
+                        </center>
                         <canvas id="canvas-scale" height="130" width="{{canvasSize}}">
                         </canvas>
                     </td>
@@ -146,6 +158,16 @@
                         <div style="width: {{canvasSize-50}}px;">
                             <input type="text" class="js-range-slider" id="protein_range" value="" />
                         </div>
+                        <center>
+                            <button ng-click="onZoomButtonProteinClick('In')" class="btn blackButton"
+                                style="width: auto;">
+                                <span class="glyphicon glyphicon-zoom-in"></span>
+                            </button>
+                            <button ng-click="onZoomButtonProteinClick('Out')" class="btn blackButton"
+                                style="width: auto;">
+                                <span class="glyphicon glyphicon-zoom-out"></span>
+                            </button>
+                        </center>
                         <canvas id="canvas-scale-protein" height="130" width="{{canvasSize}}">
                         </canvas>
                     </td>
@@ -163,7 +185,7 @@
                             ng-show="!(transcripts[$index].genomicView ||transcripts[$index].transcriptView||transcripts[$index].proteinView)">
                             <span class="glyphicon glyphicon-eye-open"></span>
                         </button>
-                        
+
                         <!-- genomic view -->
                         <a href="" ng-show="viewMode=='protein'"
                             ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a>
@@ -234,7 +256,7 @@
                 </table>
             </div>
         </center>
-    </div> 
+    </div>
     <!-- this is for when there is no search-->
     <div ng-show="{{::noSearch}}" style="background-color: white;">
         <center>

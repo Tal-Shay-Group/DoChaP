@@ -9,8 +9,8 @@
         style="background-color:rgba(0, 0, 0, 0);overflow:auto;height:100%;width:100%; position: fixed;"
         ng-show="specie1Display.modal.type" ng-click="specie1Display.modal.closeWindowFromTheSide($event)">
         <div id="myModal">
-            <div width="200" ng-click="specie1Display.modal.type=undefined" style="font-size: 25px; text-align: right;"><span
-                    class="glyphicon glyphicon-remove-sign"></div>
+            <div width="200" ng-click="specie1Display.modal.type=undefined" style="font-size: 25px; text-align: right;">
+                <span class="glyphicon glyphicon-remove-sign"></div>
             <br>
             <!--gene modal layout-->
             <span ng-if="specie1Display.modal.type=='gene'">
@@ -65,7 +65,7 @@
                     <b>Synonyms</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.synonyms}}<br>
                 </span>
                 <b>Length</b>: {{compareSpeciesCtrl.currSpecies.currTranscript.proteinLengthInAA}}aa<br>
-                
+
             </span>
         </div>
     </div>
@@ -82,7 +82,10 @@
                 <table>
                     <tr>
                         <td rowspan="5" style="width: 250px;">
-                            <iframe width="230" height="150" src="https://www.youtube.com/embed/DcwepXx0jS8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>   
+                            <iframe width="230" height="150" src="https://www.youtube.com/embed/DcwepXx0jS8"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
                         </td>
                         <td>Select species</td>
                         <td>
@@ -99,7 +102,8 @@
                         <td>
                             <select ng-disabled="orthologyList==undefined" id="specie2ComboBox"
                                 ng-click="compareSpeciesCtrl.fillOrthologyCombox()"
-                                class="compareSpeciesInput form-control"> <!-- ng-model="abcd"-->
+                                class="compareSpeciesInput form-control">
+                                <!-- ng-model="abcd"-->
                             </select>
                         </td>
                         <td rowspan="2">
@@ -176,7 +180,7 @@
             </div>
             <br>
             <!-- results graphics -->
-            <table  style="margin-left: 30px;">
+            <table style="margin-left: 30px;">
                 <tr>
                     <td style="padding-right: 50px;">
                         <table>
@@ -206,7 +210,8 @@
                                 </td>
                                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                                     class="resultTitle">
-                                    <span style="margin-right: 50px;" ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
+                                    <span style="margin-right: 50px;"
+                                        ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
                                         Protein</span>
                                     <span style="margin-right: 50px;" ng-show="viewMode=='transcript'">Transcript</span>
                                     <span style="margin-right: 50px;" ng-show="viewMode=='protein'">Protein</span>
@@ -225,7 +230,16 @@
                                     <div style="width: {{canvasSize}}px;">
                                         <input type="text" ng-class="genomicClass1" id="genomic_range1" value="" />
                                     </div>
-                                    <br>
+                                    <center>
+                                        <button ng-click="onZoomButtonGenomicClick('In',1)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-in"></span>
+                                        </button>
+                                        <button ng-click="onZoomButtonGenomicClick('Out',1)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-out"></span>
+                                        </button>
+                                    </center>
                                     <span class="chromosomeLocation">{{chromosomeLocation1}}</span>
                                     <br>
                                     <canvas id="canvas-scale1" height="130" width="{{canvasSize}}">
@@ -240,7 +254,16 @@
                                         <input type="text" class="js-range-slider" id="protein_range1" value="" />
                                     </div>
                                     <br>
-                                    <br>
+                                    <center>
+                                        <button ng-click="onZoomButtonProteinClick('In', 1)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-in"></span>
+                                        </button>
+                                        <button ng-click="onZoomButtonProteinClick('Out', 1)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-out"></span>
+                                        </button>
+                                    </center>
                                     <canvas id="canvas-scale-protein1" height="130" width="{{canvasSize}}">
                                     </canvas>
 
@@ -249,9 +272,10 @@
                             <tr id="fadeinDiv1{{$index}}"
                                 ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
 
-                              
-                                <td  width="{{canvasSize}}" style="height: {{(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView?'255':'34')}}px">
-                    
+
+                                <td width="{{canvasSize}}"
+                                    style="height: {{(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView?'255':'34')}}px">
+
                                     <!-- hide button -->
                                     <button ng-click="hideTranscriptView($index,1)" class="btn blackButton"
                                         style="width: auto;"
@@ -281,7 +305,7 @@
                                 <td width="30"
                                     ng-show="viewMode=='all'&&(compareSpeciesCtrl.specie1Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView)">
                                 </td>
-                                <td  width="{{canvasSize}}"
+                                <td width="{{canvasSize}}"
                                     ng-show="viewMode!='genomic'&&(compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie1Gene.transcripts[$index].proteinView)">
                                     <a href=""
                                         ng-show="compareSpeciesCtrl.specie1Gene.transcripts[$index].transcriptView &&  viewMode!='transcript'&&  viewMode!='transcript_protein'"
@@ -320,7 +344,7 @@
                                 <th></th>
                                 <th></th>
                             </tr>
-                           
+
                             <tr>
                                 <!--titles-->
                                 <td ng-show="viewMode=='all'|| viewMode=='genomic'" class="resultTitle">
@@ -336,7 +360,8 @@
                                 <td></td>
                                 <td ng-show="viewMode=='all'|| viewMode=='protein'|| viewMode=='transcript' ||viewMode=='transcript_protein'"
                                     class="resultTitle">
-                                    <span style="margin-right: 50px;" ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
+                                    <span style="margin-right: 50px;"
+                                        ng-show="viewMode=='all'||viewMode=='transcript_protein'">Transcript &
                                         Protein</span>
                                     <span style="margin-right: 50px;" ng-show="viewMode=='transcript'">Transcript</span>
                                     <span style="margin-right: 50px;" ng-show="viewMode=='protein'">Protein</span>
@@ -355,9 +380,19 @@
                                     <div style="width: {{canvasSize}}px;">
                                         <input type="text" ng-class="genomicClass2" id="genomic_range2" value="" />
                                     </div>
-                                    <br>
+                                    <center>
+                                        <button ng-click="onZoomButtonGenomicClick('In', 2)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-in"></span>
+                                        </button>
+                                        <button ng-click="onZoomButtonGenomicClick('Out', 2)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-out"></span>
+                                        </button>
+                                    </center>
                                     <span class="chromosomeLocation">{{chromosomeLocation2}}</span>
                                     <br>
+
                                     <canvas id="canvas-scale2" height="130" width="{{canvasSize}}">
                                     </canvas>
                                 </td>
@@ -368,15 +403,25 @@
                                         <input type="text" class="js-range-slider" id="protein_range2" value="" />
                                     </div>
                                     <br>
-                                    <br>
+                                    <center>
+                                        <button ng-click="onZoomButtonProteinClick('In', 2)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-in"></span>
+                                        </button>
+                                        <button ng-click="onZoomButtonProteinClick('Out', 2)" class="btn blackButton"
+                                            style="width: auto;">
+                                            <span class="glyphicon glyphicon-zoom-out"></span>
+                                        </button>
+                                    </center>
                                     <canvas id="canvas-scale-protein2" height="130" width="{{canvasSize}}">
                                     </canvas>
                                 </td>
                             </tr>
                             <tr id="fadeinDiv2{{$index}}"
                                 ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
-                                
-                                <td width="{{canvasSize}}" style="height: {{(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView?'255':'34')}}px">
+
+                                <td width="{{canvasSize}}"
+                                    style="height: {{(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView?'255':'34')}}px">
                                     <!--hide button-->
                                     <button ng-click="hideTranscriptView($index,2)" class="btn blackButton"
                                         style="width: auto;"
@@ -422,7 +467,7 @@
                                     <canvas id="canvas-protein-extend2{{$index}}" height="100" width="{{canvasSize}}"
                                         ng-show="compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinExtendView"></canvas>
                                 </td>
-                                
+
                             </tr>
                         </table>
                     </td>

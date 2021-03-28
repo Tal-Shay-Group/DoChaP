@@ -32,10 +32,13 @@ class Gene {
         this.maxProteinLength = this.findmaxProteinLength(dbGene.transcripts);
 
         //zoom in options (if given as arguments)
-        this.start = start ? start : this.findStartCoordinate(dbGene.transcripts);
-        this.end = end ? end : this.findEndCoordinate(dbGene.transcripts);
+        this.initStart = this.findStartCoordinate(dbGene.transcripts);
+        this.initEnd = this.findEndCoordinate(dbGene.transcripts);
+        this.start = start ? start : this.initStart;
+        this.end = end ? end : this.initEnd;
         this.proteinStart = proteinStart ? proteinStart : 0;
         this.proteinEnd = proteinEnd ? proteinEnd : this.findmaxProteinLength(dbGene.transcripts);
+        
 
         //for long introns. we find if we can cut them
         this.checkForLongIntronsToCut(dbGene.geneExons);

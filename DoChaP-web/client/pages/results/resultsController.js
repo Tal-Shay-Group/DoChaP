@@ -147,4 +147,42 @@ angular.module("DoChaP")
         $scope.downloadPDF = function () {
             $scope.display.pdfCreator.create(self.geneInfo, "");
         }
+
+        //zoom genomic via button, direction can be "In" or "Out"
+        $scope.onZoomButtonGenomicClick = function(direction){
+            var updateWithGenomicInformationAfterFinish = function(){
+                $scope.display.transcriptDisplayManager.addTranscripts(self.geneInfo.transcripts);
+                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+                $scope.transcripts = self.geneInfo.transcripts;
+                updateCanvases();
+            }
+            
+            var onFinishGenomicWithStrandPositive = function (data) {
+                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, data.from, data.to, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
+            };
+
+            var onFinishGenomicWithStrandNegative = function (data) {
+                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.maximumRange - data.to, self.maximumRange - data.from, self.geneInfo.proteinStart, self.geneInfo.proteinEnd);
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
+            }
+
+            $scope.display.locationScopeChanger.zoomGenomicWithButton( $scope.strand, self.geneInfo.scale, direction , onFinishGenomicWithStrandPositive, onFinishGenomicWithStrandNegative, "#genomic_range", self.geneInfo)
+        }
+
+        $scope.onZoomButtonProteinClick = function(direction){
+            var updateWithGenomicInformationAfterFinish = function(){
+                $scope.display.transcriptDisplayManager.addTranscripts(self.geneInfo.transcripts);
+                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+                $scope.transcripts = self.geneInfo.transcripts;
+                updateCanvases();
+            }
+
+            var OnFinishProtein = function (data) {
+                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
+            };
+
+            $scope.display.locationScopeChanger.zoomProteinWithButton(self.geneInfo.proteinScale, direction, OnFinishProtein, "#protein_range")
+        }
     });
