@@ -98,17 +98,18 @@ class DomainGroup {
             var lineheight = 15;
             var lines = domainName.split('\n');
             context.fillStyle = "black"; //for text
-            context.font = "20px Calibri"; //bold 
+            context.font = "16px Calibri"; //bold 
+            
             //adding shadow
-            context.shadowColor = "#898";
-            context.shadowBlur = 4;
-            context.shadowOffsetX = 2;
-            context.shadowOffsetY = 3;
+            // context.shadowColor = "#898";
+            // context.shadowBlur = 4;
+            // context.shadowOffsetX = 2;
+            // context.shadowOffsetY = 3;
 
             //we must draw each line saperatly because canvas can't draw '\n'
             context.textAlign = "left";
             for (var i = 0; i < lines.length; i++) {
-                context.fillText(lines[i], 0, 10 + (i * lineheight));
+                context.fillText(lines[i], 0, 8 + (i * lineheight));
             }
 
             //end shadow and rotate

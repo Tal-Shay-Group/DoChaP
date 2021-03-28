@@ -116,18 +116,18 @@ class Domain {
             var lineheight = 15;
             var lines = domainName.split('\n');
             context.fillStyle = "black";
-            context.font = "20px Calibri";
+            context.font = "16px Calibri";
 
             //text shadow
-            context.shadowColor = "#898";
-            context.shadowBlur = 4;
-            context.shadowOffsetX = 2;
-            context.shadowOffsetY = 3;
+            // context.shadowColor = "#898";
+            // context.shadowBlur = 4;
+            // context.shadowOffsetX = 2;
+            // context.shadowOffsetY = 3;
 
             //we must draw each line saperatly because canvas can't draw '\n'
             context.textAlign = "left";
             for (var i = 0; i < lines.length; i++) {
-                context.fillText(lines[i], 0, 10 + (i * lineheight));
+                context.fillText(lines[i], 0, 8 + (i * lineheight));
             }
 
             //finish rotate and shadow
