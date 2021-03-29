@@ -53,7 +53,7 @@ class Transcript {
             if (gene.cutOffStart != -1 && gene.cutOffLength != -1 && dbTranscript.transcriptExons[i].genomic_start_tx >= gene.cutOffStart) {
                 cutLength = gene.cutOffLength;
             }
-            this.exons[i] = new Exon(dbTranscript.transcriptExons[i], gene.geneExons, this.cds_start, this.cds_end, dbTranscript.transcriptExons.length, gene.start, gene.proteinStart, cutLength);
+            this.exons[i] = new Exon(dbTranscript.transcriptExons[i], gene.colors, this.cds_start, this.cds_end, dbTranscript.transcriptExons.length, gene.start, gene.proteinStart, cutLength);
         }
 
         //create domains for this transcript

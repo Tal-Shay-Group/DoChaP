@@ -14,7 +14,7 @@ function runGenesCreation(result, ignorePredictions, preferences) {
     proteinEnd=undefined;
 
     if (preferences != undefined ) {
-        colorByLength = preferences.colorByLength ? getColorForLength(result, ignorePredictions) : undefined;
+        colorByLength = preferences.colorByLength ? true : undefined;
         start = preferences.start;
         end = preferences.end;
         proteinStart = preferences.proteinStart;
@@ -149,54 +149,4 @@ function placeCorrolationColor(number) {
         placePicked = Math.floor(placePicked / 16);
     }
     return color;
-}
-
-/**
- * getting all length available and choosing unique colors
- * @param {server result} result what the db sends
- */
-function getColorForLength(result) {
-    //comapre function 
-    function compare(a, b) {
-        aLength = a.genomic_end_tx - a.genomic_start_tx;
-        bLength = b.genomic_end_tx - b.genomic_start_tx;
-        if (aLength > bLength) {
-            return 1;
-        }
-        if (aLength < bLength) {
-            return -1;
-        }
-        return 0;
-    }
-
-    //init attributes
-    var ans = {};
-    var exonList = [];
-    var colorArr = [];  //initialized with colors when used in function
-    var currSizeColor = 0;
-    var interval = 10;
-
-    //pushing all exons in different genes in the list
-    for (var i = 0; i < result.genes.length; i++) {
-        exonList.push.apply(exonList, result.genes[i].geneExons);
-    }
-    //sorting
-    exonList = exonList.sort(compare);
-    //getting first color
-    ans[currSizeColor] = getcolorFromList(colorArr);
-
-    //keep adding colors
-    for (var i = 0; i < exonList.length; i++) {
-        var currExonLength = exonList[i].genomic_end_tx - exonList[i].genomic_start_tx;
-        if (currExonLength > currSizeColor + interval) {
-            //new color
-            currSizeColor = currExonLength;
-            ans[currSizeColor] = getcolorFromList(colorArr);
-        } else {
-            //same color to last(same size)
-            ans[currExonLength] = ans[currSizeColor];
-        }
-    }
-    return ans;
-
 }

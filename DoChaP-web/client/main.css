@@ -25,7 +25,7 @@ html {
     align-self: center;
 }
 
-.logoText {
+/* .logoText {
     background: url(https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500) -80px -80px;
     color: red;
     -webkit-text-fill-color: transparent;
@@ -36,7 +36,7 @@ html {
     width: 600px;
     margin: 50px auto;
     text-align: center;
-  }
+  } */
 
 #myModal {
     background-color: rgba(245,245,245,1);
