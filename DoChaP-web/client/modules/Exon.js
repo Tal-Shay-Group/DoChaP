@@ -32,6 +32,8 @@ class Exon {
 		this.length = dbExon.abs_end_CDS - dbExon.abs_start_CDS + 1; //in nuc
 		this.genomic_start_tx = dbExon.genomic_start_tx;
 		this.genomic_end_tx = dbExon.genomic_end_tx;
+		this.abs_start_CDS = dbExon.abs_start_CDS;
+		this.abs_end_CDS = dbExon.abs_end_CDS;
 
 		//utr attributes
 		this.isUTRStart = undefined;
@@ -242,7 +244,7 @@ class Exon {
 			numberToTextWithCommas(this.genomic_start_tx) +
 			" - " +
 			numberToTextWithCommas(this.genomic_end_tx);
-		return [exonX, exonY, exonWidth, exonHeight, text, undefined];
+		return [exonX, exonY, exonWidth, exonHeight, text, undefined, this];
 	}
 
 	/**

@@ -271,7 +271,7 @@
                                 </td>
                             </tr>
                             <tr id="fadeinDiv1{{$index}}"
-                                ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index">
+                                ng-repeat="transcript in compareSpeciesCtrl.specie1Gene.transcripts track by $index"  class="bottomBorder">
 
 
                                 <td width="{{canvasSize}}"
@@ -419,7 +419,7 @@
                                 </td>
                             </tr>
                             <tr id="fadeinDiv2{{$index}}"
-                                ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index">
+                                ng-repeat="transcript in compareSpeciesCtrl.specie2Gene.transcripts track by $index"  class="bottomBorder">
 
                                 <td width="{{canvasSize}}"
                                     style="height: {{(compareSpeciesCtrl.specie2Gene.transcripts[$index].genomicView ||compareSpeciesCtrl.specie2Gene.transcripts[$index].transcriptView||compareSpeciesCtrl.specie2Gene.transcripts[$index].proteinView?'255':'34')}}px">

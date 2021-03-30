@@ -186,4 +186,27 @@ angular.module("DoChaP")
 
             $scope.display.locationScopeChanger.zoomProteinWithButton(self.geneInfo.proteinScale, direction, OnFinishProtein, "#protein_range")
         }
+
+        $scope.onExonClick = function(start, end){
+            var updateWithGenomicInformationAfterFinish = function(){
+                $scope.display.transcriptDisplayManager.addTranscripts(self.geneInfo.transcripts);
+                $scope.display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+                $scope.transcripts = self.geneInfo.transcripts;
+                updateCanvases();
+            }
+
+            var onFinishProtein = function (data) {
+                self.geneInfo = new Gene(loadedGene.genes[0], isReviewedCheckBox.checked, undefined, self.geneInfo.start, self.geneInfo.end, data.from, data.to);
+                updateWithGenomicInformationAfterFinish(self.geneInfo);
+            };
+
+            $("#protein_range").data("ionRangeSlider").update({
+                from: start,
+                to: end
+            });
+            onFinishProtein({
+                "from": start,
+                "to": end
+            });
+        }
     });

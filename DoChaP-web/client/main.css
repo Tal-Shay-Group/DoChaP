@@ -144,11 +144,11 @@ text aligned to left
 }
 
 .blackButton:hover {
-    color: rgb(82, 192, 255);;
+    color: rgb(82, 192, 255);
 }
 
 .blackButton:focus {
-    color: rgb(82, 192, 255);;
+    color: rgb(82, 192, 255);
 }
 
 .chromosomeLocation {
@@ -194,6 +194,12 @@ textarea {
 }
 .longerButtons{
     height: 78px;
+}
+
+.bottomBorder{
+    border-bottom: solid;
+     border-color: rgb(82, 192, 255);
+     border-width: 3px; 
 }
 
 .slide {

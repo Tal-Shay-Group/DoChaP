@@ -139,7 +139,7 @@ class Transcript {
             for (var i = 0; i < exon.length; i++) {
                 if (event.clientX - offset.left >= exon[i][0] && event.clientX - offset.left <= exon[i][0] + exon[i][2] &&
                     event.clientY - offset.top >= exon[i][1] && event.clientY - offset.top <= exon[i][1] + exon[i][3]) {
-                    return [true, exon[i][4], exon[i][5]];
+                    return [true, exon[i][4], exon[i][5], exon[i][6]];
                 }
             }
         }
