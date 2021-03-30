@@ -20,6 +20,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 	$scope.orthologyList = undefined;
 	$scope.viewMode = "all";
 	$scope.options = false;
+	$scope.speciesToCompareModel = "";
+	$scope.modeModel = "all";
 
 	//fill specie combobox
 	Species.fillSpecieComboBox("specie1ComboBox");

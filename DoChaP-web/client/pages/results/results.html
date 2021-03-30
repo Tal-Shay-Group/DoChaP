@@ -81,7 +81,7 @@
                 <!--display options-->
                 <i>Choose Display</i>
                 <br>
-                <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
+                <select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
                     <option value="all">All Views</option>
                     <option value="transcript_protein">Transcript & Protein Views</option>
                     <option value="genomic">Genomic View Only</option>

@@ -19,6 +19,7 @@ angular.module("DoChaP")
         $scope.viewMode = "all";
         self.toolTipManagerForCanvas = {};
         $scope.numberToTextWithCommas = numberToTextWithCommas;
+        $scope.modeModel = "all";
 
         //if input is in website path
         if ($routeParams.specie != undefined && $routeParams.query != undefined) {

@@ -101,9 +101,10 @@
                         <td>Species to compare</td>
                         <td>
                             <select ng-disabled="orthologyList==undefined" id="specie2ComboBox"
-                                ng-click="compareSpeciesCtrl.fillOrthologyCombox()"
+                                ng-change ="compareSpeciesCtrl.fillOrthologyCombox()"
+                                ng-model = "speciesToCompareModel"
                                 class="compareSpeciesInput form-control">
-                                <!-- ng-model="abcd"-->
+        
                             </select>
                         </td>
                         <td rowspan="2">
@@ -124,7 +125,7 @@
                                 id="compareGeneSearchTextField">
                         </td>
                         <td>Gene to compare</td>
-                        <td> <select ng-disabled="!options" ng-model="aaa" ng-change="" id="orthologyComboBox"
+                        <td> <select ng-disabled="!options" id="orthologyComboBox"
                                 class="compareSpeciesInput form-control">
                             </select></td>
                     </tr>
@@ -167,7 +168,7 @@
                 <div class="searchItems ">
                     <i>Choose display</i>
                     <br>
-                    <select id="selectModeComboBox" class="form-control selectMode" ng-click="checkboxChecked()">
+                    <select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
                         <option value="all">All Views</option>
                         <option value="transcript_protein">Transcript & Protein Views</option>
                         <option value="genomic">Genomic View Only</option>
