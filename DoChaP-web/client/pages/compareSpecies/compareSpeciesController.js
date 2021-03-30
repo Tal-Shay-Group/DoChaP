@@ -312,7 +312,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				"isExact": true,
 				"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
 			};
-			var colors = getColorForLength(results, isReviewedCheckBox.checked);
+			var colors = true;
 			var genes = results.genes;
 			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
 			$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
@@ -327,7 +327,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				"isExact": true,
 				"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
 			};
-			var colors = getColorForLength(results, isReviewedCheckBox.checked);
+			var colors = true;
 			var genes = results.genes;
 			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
 			$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
@@ -387,7 +387,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			};
 			return {
 				genes: results.genes,
-				colors: getColorForLength(results, isReviewedCheckBox.checked)
+				colors: true
 			}
 		}
 
@@ -448,7 +448,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			};
 			return {
 				genes: results.genes,
-				colors: getColorForLength(results, isReviewedCheckBox.checked)
+				colors: true
 			}
 		}
 
@@ -500,7 +500,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 					"isExact": true,
 					"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
 				};
-				var colors = getColorForLength(results, isReviewedCheckBox.checked);
+				var colors = true;
 				var genes = results.genes;
 				self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie1Gene.specie), isReviewedCheckBox.checked, colors, self.specie1Gene.start, self.specie1Gene.end, data.from, data.to);
 				$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
@@ -515,7 +515,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 					"isExact": true,
 					"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
 				};
-				var colors = getColorForLength(results, isReviewedCheckBox.checked);
+				var colors = true;
 				var genes = results.genes;
 				self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(genes, self.specie2Gene.specie), isReviewedCheckBox.checked, colors, self.specie2Gene.start, self.specie2Gene.end, data.from, data.to);
 				$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
