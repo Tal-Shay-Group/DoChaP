@@ -32,10 +32,12 @@
                         </button>
                         &nbsp;
                         <!--loading-->
+                        <br>
                         <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
                         <span ng-show="loading">This usually takes up to a minute</span>
                         <br>
-                        <br>
+                        <!--error message-->
+                        <span style="color:red"><span id="alertText"></span>{{alert}}</span>
                         <br>
                         <!--examples-->
                         <i>Examples&nbsp;&nbsp;</i>
@@ -48,8 +50,6 @@
                         <button class="btn blackButton" type="button"
                             ng-click="querySearchCtrl.exmaple('NP_001230673.1')">NP_001230673.1</button>
                         <br>
-                        <!--error message-->
-                        <span style="color:red"><span id="alertText"></span>{{alert}}</span>
                     </center>
                 </span>
             </td>

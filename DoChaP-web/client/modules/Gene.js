@@ -38,7 +38,7 @@ class Gene {
         this.end = end ? end : this.initEnd;
         this.proteinStart = proteinStart ? proteinStart : 0;
         this.proteinEnd = proteinEnd ? proteinEnd : this.findmaxProteinLength(dbGene.transcripts);
-        
+
 
         //for long introns. we find if we can cut them
         this.checkForLongIntronsToCut(dbGene.geneExons);
@@ -105,47 +105,48 @@ class Gene {
      * @param {Transcripts row from db} geneTranscripts all transcripts rows for gene
      * @param {list of colors and lengths or undefined} colorByLength if need to color by length then we havr list of colors for different locations 
      */
-     createColorDictionary(geneExons, geneTranscripts, colorByLength) {
+    createColorDictionary(geneExons, geneTranscripts, colorByLength) {
         //init variables
         var colors = {};
         var exonForTable = [];
         var colorArr = [];
         getcolorFromList(colorArr); //this will initialized with colors
-        getcolorFromList(colorArr);
-        var numberToColor={}; // needs for colorByLength
+        var numberToColor = {}; // needs for colorByLength
 
-        for (var i = 0; i<geneTranscripts.length; i++){
-            for(var j=0; j<geneTranscripts[i].transcriptExons.length; j++){
+        for (var i = 0; i < geneTranscripts.length; i++) {
+            for (var j = 0; j < geneTranscripts[i].transcriptExons.length; j++) {
                 let currentExon = geneTranscripts[i].transcriptExons[j];
                 let colorLimits = Exon.getExonLimitsForColoring(currentExon.genomic_start_tx, currentExon.genomic_end_tx,
                     currentExon.abs_start_CDS, geneTranscripts[i].cds_start, geneTranscripts[i].cds_end);
-    
+
                 //case where the exon is first seen
                 if (colors[colorLimits.start] == undefined) {
                     colors[colorLimits.start] = [];
                 }
-    
-    
+
+
                 if (colorByLength == true) {
                     //case where we have color by length
-                    var numberToColorBy = Math.round((colorLimits.end - colorLimits.start)/10);
-                    if(numberToColor[numberToColorBy] != undefined){
+                    var numberToColorBy = Math.round((colorLimits.end - colorLimits.start) / 10);
+                    if (numberToColor[numberToColorBy] != undefined) {
                         var chosenColor = numberToColor[numberToColorBy];
-                    }
-                    else{
-                        var chosenColor = colorArr[numberToColorBy%colorArr.length];
+                    } else {
+                        var chosenColor = colorArr[numberToColorBy % colorArr.length];
                         numberToColor[numberToColorBy] = chosenColor;
                     }
-                    
+
                 } else {
                     //case where the color is by start,end loaction(default)
                     var chosenColor = getcolorFromList(colorArr);
                 }
-    
-                //init exon color dictionary (dictionary with start/end)
-                colors[colorLimits.start][colorLimits.end] = {
-                    color: chosenColor
-                };
+
+                //init exon color dictionary (dictionary with start/end) if not exists
+                if (colors[colorLimits.start][colorLimits.end] == undefined) {
+                    colors[colorLimits.start][colorLimits.end] = {
+                        color: chosenColor
+                    };
+                }
+
             }
         }
 
@@ -159,8 +160,8 @@ class Gene {
 
             //add to exon-color table (list of information)
             if (exonTranscripts != "" &&
-             colors[geneExons[i].genomic_start_tx] != undefined &&
-             colors[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx] != undefined) {
+                colors[geneExons[i].genomic_start_tx] != undefined &&
+                colors[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx] != undefined) {
                 exonForTable.push({
                     'transcripts': exonTranscripts,
                     'startCoordinate': geneExons[i].genomic_start_tx,

@@ -199,7 +199,7 @@ textarea {
 .bottomBorder{
     border-bottom: solid;
      border-color: rgb(82, 192, 255);
-     border-width: 3px; 
+     border-width: 1px; 
 }
 
 .slide {
