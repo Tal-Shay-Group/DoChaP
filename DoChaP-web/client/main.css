@@ -198,7 +198,7 @@ textarea {
 
 .bottomBorder{
     border-bottom: solid;
-     border-color: rgb(82, 192, 255);
+     border-color: rgba(82, 192, 255,0.3);
      border-width: 1px; 
 }
 

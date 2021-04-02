@@ -110,7 +110,7 @@ class Gene {
         var colors = {};
         var exonForTable = [];
         var colorArr = [];
-        getcolorFromList(colorArr); //this will initialized with colors
+        getFirstColorFromList(colorArr); //this will initialized with colors
         var numberToColor = {}; // needs for colorByLength
 
         for (var i = 0; i < geneTranscripts.length; i++) {

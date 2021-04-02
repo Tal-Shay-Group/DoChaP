@@ -156,7 +156,7 @@ class Transcript {
         var tooltips = []; //we will fill now
 
         //for every exons
-        for (i = 0; i < this.exons.length; i++) {
+        for (var i = 0; i < this.exons.length; i++) {
             var position = this.exons[i].genomicViewPosition(
                 graphicLayout.coordinatesWidth,
                 graphicLayout.startHeight,

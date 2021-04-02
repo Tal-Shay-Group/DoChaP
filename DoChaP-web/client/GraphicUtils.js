@@ -110,17 +110,23 @@ function getcolorFromList(colorArr) {
     if (colorArr.length <= 1) {
         colorArr.push.apply(colorArr, newColors );
     }
-        i = colorArr.length % 4;
+        i = colorArr.length % 3;
         if (i == 0) {
             i = 0;
         } else if (i == 1) {
             i = colorArr.length - 1;
         } else if (i == 2) {
-            i = colorArr.length / 3;
-        } else if (i == 3) {
-            i = colorArr.length * 2 / 3;
+            i = colorArr.length / 2;
         }
+
     return colorArr.splice(i, 1)[0];
+}
+
+function getFirstColorFromList(colorArr) {
+    if (colorArr.length <= 1) {
+        colorArr.push.apply(colorArr, newColors );
+    }
+    return colorArr.splice(0, 1)[0];
 }
 
 /**
