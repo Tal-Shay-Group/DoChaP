@@ -73,28 +73,25 @@
         style="background-color: white;position: absolute;z-index: -3; width: 100%;">
         <br>
         <div class="greyArea searchItems">
-            <div class="searchItems">
+            <div class="searchItems form-inline">
                 <!--intro text-->
-                {{::transcripts.length}} transcripts found for gene <a href=""><b
-                        ng-click="openWindow('gene',undefined)">{{::resultsCtrl.geneInfo.gene_symbol}}</b></a> in
-                {{::resultsCtrl.geneInfo.specieName}} <br>
+                <center><a href=""><b
+                                                ng-click="openWindow('gene',undefined,1)">{{::resultsCtrl.geneInfo.gene_symbol}}</b></a>:
+                                        {{::transcripts.length}} transcripts
+                                        {{::resultsCtrl.geneInfo.specieName}}</center>
+
                 <!--display options-->
-                <i>Choose Display</i>
-                <br>
-                <select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
+                <center><i>Choose Display:  </i><select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
                     <option value="all">All Views</option>
                     <option value="transcript_protein">Transcript & Protein Views</option>
                     <option value="genomic">Genomic View Only</option>
                     <option value="transcript">Transcript View Only</option>
                     <option value="protein">Protein View Only</option>
-                </select>
-                <input type="checkbox" ng-click="filterUnreviewed()" ng-model="ignorePredictions"
+                </select>   <input type="checkbox" ng-click="filterUnreviewed()" ng-model="ignorePredictions"
                     id="isReviewedCheckBox"><i>hide predicted
-                    records</i>
-                <br>
-                <button ng-click="downloadPDF()" class="btn blackButton">
+                    records</i>   <button ng-click="downloadPDF()" class="btn blackButton">
                     <span class="glyphicon glyphicon-download-alt"></span> Save As PDF
-                </button>
+                </button></center>
             </div>
         </div>
         <br>
@@ -223,19 +220,20 @@
 
             <!-- exon positions for exons-->
             <div style="background-color: white;width: 100%;">
+                <p><strong>Exons color legend</strong></p>
                 <table class="exonColorTable">
                     <tr>
                         <th class="exonTableHeader">
-                            color
+                            Exon color
                         </th>
                         <th class="exonTableHeader">
-                            start coordinate
+                            Start coordinate
                         </th>
                         <th class="exonTableHeader">
-                            end coordinate
+                            End coordinate
                         </th>
                         <th class="exonTableHeader">
-                            transcripts
+                            Containing transcripts
                         </th>
                     </tr>
                     <tr class="exonTable" ng-repeat="exon in resultsCtrl.geneInfo.exonTable">
@@ -256,11 +254,14 @@
                 </table>
             </div>
         </center>
+        <br>
+        <br>
+        <br>
     </div>
     <!-- this is for when there is no search-->
     <div ng-show="{{::noSearch}}" style="background-color: white;">
         <center>
-            <h1>No Search has been found</h1>
+            <h1>No gene has been found</h1>
         </center>
     </div>
     </div>

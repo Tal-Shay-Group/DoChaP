@@ -13,59 +13,54 @@
 <p>More species might be added in the future. We invite users to <a href="mailto:galozs@post.bgu.ac.il">contact us</a> to request specific species of interest.</p>
 <p><em><u>B - Search by gene, transcript or protein:</u></em></p>
 <p>In the search box, type your gene of interest using one of the following identifiers: gene symbol, gene synonym, NCBI&rsquo;s Gene ID, RefSeq transcript or protein ID (starts with NM_ /XM_/NP_/XP_), ENSEMBL gene, transcript or protein ID (starts with ENS).</p>
-<p>Finally, click the &ldquo;Search&rdquo; button. Note, for genes with many transcript the search might take a while.</p>
-<p>Below, there are some examples of potential queries.</p>
+<p>Finally, click the &ldquo;Search&rdquo; button. Note, for genes with many transcripts the search might take longer.</p>
 <p><strong>How to interpret DoChaP results</strong><strong>?</strong></p>
-<p>After DoChaP has found your gene of interest, it will present a page similar to Figure 2. For information, follow the description below the Figure:</p>
+<p>After DoChaP has found your gene of interest, it will present a page similar to Figure 2.</p>
 <p><img src="resources/help_guide_fig2.png"  width="900"></p>
-<p><em><u>&nbsp;</u></em></p>
-<p><em><u>Panel A &ndash; Title and display:</u></em></p>
-<p>The title includes the number of isoforms, the gene symbol and the species and genome version presented in the results page.</p>
-<p>The display below the title can be adjusted by using the &ldquo;Choose Display&rdquo; to present:</p>
+<br>
+<p><em><u>Panel A &ndash; Display options:</u></em></p>
+<p>The display can be adjusted by using the &ldquo;Choose Display&rdquo; to present:</p>
 <ul>
 <li>All views (default) &ndash; Shows the genomic structure of the transcript (on the left) and the corresponding coding region of the transcript and the protein domain composition (on the right), for all transcripts</li>
 <li>Transcript &amp; Protein view &ndash; Shows the coding transcript and the protein domain composition (similar to the right side of the &ldquo;All views&rdquo; option), for all transcripts</li>
 <li>Genomic view &ndash; Shows only the transcript structure for all transcripts</li>
-<li>Transcript view &ndash; Shows only the coding regions of all transcripts colored by exons</li>
-<li>Protein view &ndash; Shows only the protein domain composition of the isoforms for all transcripts</li>
+<li>Transcript view &ndash; Shows only the coding regions for all transcripts</li>
+<li>Protein view &ndash; Shows only the protein domain composition for all transcripts</li>
 </ul>
 <p>&ldquo;Hide predicted records&rdquo;</p>
 <ul>
-<li>Predicted records are transcripts that have not yet been validated by the providers of the source information; for example: transcripts or proteins with a RefSeq ID that starts with XM_ or XP_ (respectively). By checking this check box, you will hide all the predictions from your results.</li>
+<li>Predicted records are transcripts that have not yet been validated by the providers of the source information; for example: transcripts or proteins with a RefSeq ID that starts with XM_ or XP_, respectively. By checking this check box, you will hide all the predictions from your results.</li>
 </ul>
 <p>&ldquo;Save as PDF&rdquo;</p>
 <ul>
 <li>Use this option to save the results of your gene of interest to a high-quality PDF file.</li>
 </ul>
-<p><em><u>&nbsp;</u></em></p>
-<p><em><u>&nbsp;</u></em></p>
-<p><em><u>Panel B &ndash; Range modification</u></em></p>
-<p>This panel enables you to control the genomic coordinates (left side) and the transcribed region coordinates (right side). The black slider represents the region displayed, with the diamond-shaped handles at the ends of the slider representing the start and end locations. The start and end locations can be moved along the slider by the user to zoom-in (adjust the visualization to different parts of the genome/ transcript and to enable magnification of particular regions if required).</p>
-<p>The loci of the gene of interest are shown above the slider in the Genomic Coordinates panel.</p>
-<p><em><u>Panel C &ndash; Genomic and transcript coordinates</u></em></p>
-<p>Left side: The black bar represents the axis of the genomic location, with specific location tick marks above the bar indicating genomic coordinates. Below the bar is an arrow representing the coding strand (left arrow for reverse and right arrow for forward). Note, when genes encoded on the reverse strand are shown, the axis is flipped to allow the first exon to be on the left and last exon to be on the right, in order to be consistent with the transcript and protein visualization.</p>
+<br>
+<p><em><u>Panel B &ndash; Displayed range adjustment</u></em></p>
+<p>This panel enables you to control the genomic coordinates (left side) and the coding region coordinates (right side). The black slider represents the region displayed, with the diamond-shaped handles at the ends of the slider representing the start and end locations shown. The buttons below the slider allow the zoom in and out. The start and end location handles can be moved along the slider by the user to adjust the visualization to different parts of the genome/ transcript.</p>
+<p>The loci of the gene of interest is shown above the slider in the Genome panel.</p>
+<br><p><em><u>Panel C &ndash; Genomic and transcript coordinates</u></em></p>
+<p>Left side: The black bar represents the axis of the genomic location, with specific location tick marks above the bar indicating genomic coordinates. Below the bar is an arrow representing the coding strand (left arrow for reverse and right arrow for forward). Note, when genes encoded on the reverse strand are shown, the axis is flipped to allow the first exon to be on the left and the last exon to be on the right, in order to be consistent with the transcript and protein visualization.</p>
 <p>Right side: The black bar represents the axis of the transcript and the protein length, starting at zero. Upper tick marks represent nucleotides, and lower tick marks represent amino acids. All transcripts and proteins in panels D-G are aligned to zero. Only the coding region of the transcripts is shown (no introns and no UTRs).</p>
-<p><em><u>Panel D &ndash; Genomic visualization of gene isoforms</u></em><em><u>:</u></em></p>
-<p>The genome is represented by a thin black line, and exons are marked in colored boxes. Untranslated regions are represented as thinner boxes at the edges of the transcript. Different colors represent different exons of the gene, and the colors are consistent across transcript and protein visualizations. The transcript ID is shown above each transcript (RefSeq and/or Ensembl, depending on availability), and clicking on it will show more information on the transcript and some external links. The 'Hide transcript' option (<button class="btn blackButton"><span class="glyphicon glyphicon-eye-close"></span></button> ) will hide the transcript from the visualization. Hovering over the exons will show the genomic position of the exon and its ordinal number in the transcript.</p>
-<p><em><u>Panel E &ndash; Coding mRNA visualization of gene isoforms:</u></em></p>
-<p>This panel shows the coding region of the mature mRNA that is edited from the pre-mRNA, without UTRs. All the exons (within the coding region) are joined; each color represents a different exon within the transcript and is consistent across all the transcripts of the same gene. The transcript ID is shown above the mRNA visualization (RefSeq and/or Ensembl, depending on availability), and clicking on it will show more information and external links. Hovering over the exons will show the ordinal number of the exon in the transcript and its length.</p>
-<p>&nbsp;</p>
-<p><em><u>Panel F &ndash; Visualization of the protein domains composition of gene isoforms:</u></em></p>
-<p>This panel shows the protein isoform encoded from the genomic structure of the transcript on the left and the corresponding coding region shown above. The thin black line represents the entire protein. Domains are shown in elliptical shapes and are colored according to the exons encoding them. A domain encoded from multiple exons will be colored in multiple colors according to the colors of the exons encoding it. Color changes within domains represent splice junctions. The protein ID is displayed above the domain visualization, and clicking on it will show more information and external links. Hovering over a domain will show its full name, position on the protein, length in amino acids, external ID and a link to the external source (Pfam, SMART, CDD, TIGRFAMs, and InterPro).</p>
+<br><p><em><u>Panel D &ndash; Genomic visualization of transcripts</u></em><em><u>:</u></em></p>
+<p>The genome is represented by a thin black line, and exons are marked in colored boxes. Untranslated regions are represented as thinner boxes at the edges of the transcript. Different colors represent different exons of the gene, and the colors are consistent across transcript and protein visualizations. The transcript ID is shown above each transcript, and clicking on it will show additional information on the transcript. The 'Hide transcript' option (<button class="btn blackButton"><span class="glyphicon glyphicon-eye-close"></span></button> ) will hide the transcript from the visualization. Hovering over the exons will show the genomic position of the exon and its ordinal number in the transcript.</p>
+<br><p><em><u>Panel E &ndash; Coding mRNA view:</u></em></p>
+<p>This panel shows the coding region of the mature mRNA, without UTRs. All the exons (within the coding region) are joined; each color represents a different exon within the transcript and is consistent across all the transcripts of the same gene. The transcript ID is shown above the mRNA visualization, and clicking on it will show additional information. Hovering over the exons will show the ordinal number of the exon in the transcript and its length.</p>
+<br><p><em><u>Panel F &ndash; Domain composition view:</u></em></p>
+<p>This panel shows the protein isoform encoded from the genomic region of the transcript on the left and the corresponding coding region shown above. The thin black line represents the entire protein. Domains are shown as elliptical shapes and are colored according to the exons encoding them. A domain encoded from multiple exons will be colored in multiple colors according to the colors of the exons encoding it. Color changes within domains represent splice junctions. The protein ID is displayed above the domain visualization, and clicking on it will show additional information and external links. Hovering over a domain will show its full name, position on the protein, length in amino acids, external ID and a link to the external source (Pfam, SMART, CDD, TIGRFAMs, and InterPro).</p>
 <p>In the case of overlapping domains, a single domain with a double frame is displayed. Hovering will show the number of overlapping domains, and clicking will open a detailed visualization showing all the domains (Figure 3).</p>
 <p><img src="resources/help_guide_fig3.png" width="600"></p>
 <p>&nbsp;</p>
-<p><em><u>Panel G &ndash; Scroll down for more&hellip;</u></em></p>
-<p>More transcripts (if exist) are shown below; scroll down to see them all. At the bottom of the page there is the exon color key, indicating for each exon color the genomic location of the exon and transcripts containing this exon.</p>
+<p>Panels D,E and F appear for each transcript of the gene. Different transcripts are separated by thin horizontal blue line.</p>
 <p>&nbsp;</p>
-<p><strong>Compare species transcripts with DoChaP:</strong></p>
-<p>The DoChaP "Compare Species" feature enables the user to visualize and compare orthologous genes from different species.</p>
+<p><strong>Compare species tab:</strong></p>
+<p>The &ldquo;Compare Species&ldquo; feature enables the user to visualize and compare orthologous genes from different species.</p>
 <p><img src="resources/help_guide_fig4.png" width="900"></p>
-<p>To compare transcripts, choose the first species you wish to compare and a gene of interest in a similar format to the DoChaP search for a single species (explained above), then click on  &ldquo;Find orthology&rdquo;. DoChaP will look for all the orthologues of your gene in the other available species. Then select the species for which the comparison is required and the relevant gene from the given options. Orthologues are defined by Ensembl Compara. Genes that were not found in Ensembl Compara but share the same gene symbol in a different species are also available for viewing.</p>
+<p>To compare transcripts, choose the first species you wish to compare and a gene of interest, then click &ldquo;Find orthology&ldquo;. DoChaP will look for all the orthologues of your gene in the other available species. Once completed, the &ldquo;Species to compare&ldquo; drop-down box will become enabled. Select the species for which the comparison is required and the relevant gene from the given options. Orthologues are defined by Ensembl Compara. Genes that were not found in Ensembl Compara but share the same gene symbol in a different species are also available for viewing.</p>
 <p>The results will be presented as all the transcripts of the gene in the first species on the left and all the transcripts of the gene in the second species on the right, shown in the same format as that described above for the DoChaP main page.</p>
 <p><strong>&nbsp;</strong></p>
 <p><strong>What are the sources of information in DoChaP</strong></p>
-<p>DoChaP integrates data from multiple sources, see <a href="#!about">About</a> page for more information.</p>
+<p>DoChaP integrates data from multiple sources, see <a href="#!about">About</a> page for additional information.</p>
 <p>&nbsp;</p>
 <p><strong>Browser Compatibility</strong></p>
 <table width="540">
