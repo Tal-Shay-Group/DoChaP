@@ -30,7 +30,7 @@ function runGenesCreation(result, ignorePredictions, preferences) {
 }
 
 /** 
- * selecting how musch is for skip. depends on proportions between the canvas size and protein size
+ * selecting how much is for skip. depends on proportions between the canvas size and protein size
  */
 function getSkipSize(coordinatesWidth) { ///length in base units, cw is the convertor
     var skip = 1000; //skip is in genomic units

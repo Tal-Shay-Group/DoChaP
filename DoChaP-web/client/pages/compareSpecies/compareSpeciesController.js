@@ -255,7 +255,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 		//adding ensembl compara options
 		if (options1.length > 0) {
 			options1.sort();
-			var option1tags = $('#orthologyComboBox').append($('<optgroup label="Ensembl compara"></optgroup>'));
+			var option1tags = $('#orthologyComboBox').append($('<optgroup label="Orthology by Ensembl compara"></optgroup>'));
 
 			$.each(options1, function (i, p) {
 				option1tags.append($('<option></option>').val(p).html(p));
@@ -277,7 +277,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			if (alreadyInOrthology) {
 				return;
 			}
-			var option2tags = $('#orthologyComboBox').append($('<optgroup label="Only gene symbol match"></optgroup>'));
+			var option2tags = $('#orthologyComboBox').append($('<optgroup label="Match by gene symbol"></optgroup>'));
 			$.each(options2, function (i, p) {
 				option2tags.append($('<option></option>').val(p).html(p));
 			});

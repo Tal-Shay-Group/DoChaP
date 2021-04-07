@@ -75,7 +75,7 @@
     <div class="searchItems greyArea">
         <center>
             <i>
-                <h2>Compare exon-domain association</h2>
+                <h2>Compare species</h2>
             </i>
             <!--form for search-->
             <div class="form-inline">
@@ -87,7 +87,7 @@
                                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </td>
-                        <td>Select species</td>
+                        <td>1. Species</td>
                         <td>
                             <select id="specie1ComboBox" class="compareSpeciesInput form-control">
                             </select>
@@ -98,33 +98,32 @@
                                     class="glyphicon glyphicon-circle-arrow-right"></span>
                             </button>
                         </td>
-                        <td>Species to compare</td>
+                        <td>3. Species to compare</td>
                         <td>
                             <select ng-disabled="orthologyList==undefined" id="specie2ComboBox"
-                                ng-change ="compareSpeciesCtrl.fillOrthologyCombox()"
                                 ng-model = "speciesToCompareModel"
+                                ng-click="compareSpeciesCtrl.fillOrthologyCombox()"
+                                ng-change = "compareSpeciesCtrl.fillOrthologyCombox()"
                                 class="compareSpeciesInput form-control">
-        
                             </select>
                         </td>
                         <td rowspan="2">
                             <button ng-disabled="!options"
                                 style="background-color: rgb(10, 103, 224);"
                                 class="btn blackButton longerButtons" id="submitSearchButton" type="button"
-                                ng-click="compareSpeciesCtrl.geneSearch()"><span
-                                    class="glyphicon glyphicon-search"></span>
-                                Search
+                                ng-click="compareSpeciesCtrl.geneSearch()">
+                                    Display
                             </button>
                             <img ng-src="/resources/loading_2.gif" width="38" height="38" ng-show="loading" />
                         </td>
                     </tr>
                     <tr>
-                        <td>Enter gene</td>
+                        <td>2. Gene</td>
                         <td>
-                            <input placeholder="Enter gene symbol" class="compareSpeciesInput form-control"
+                            <input placeholder="Search gene" class="compareSpeciesInput form-control"
                                 id="compareGeneSearchTextField">
                         </td>
-                        <td>Gene to compare</td>
+                        <td>4. Gene to compare</td>
                         <td> <select ng-disabled="!options" id="orthologyComboBox"
                                 class="compareSpeciesInput form-control">
                             </select></td>
@@ -166,7 +165,7 @@
             <!--display options-->
             <div class="searchItems greyArea">
                 <div class="searchItems ">
-                    <i>Choose display</i>
+                    <i>Display</i>
                     <br>
                     <select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
                         <option value="all">All Views</option>
