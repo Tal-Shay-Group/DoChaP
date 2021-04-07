@@ -1,36 +1,160 @@
 <html>
-<!--  about page with information on this project
+<!--  download page with information on this project
 -->
-<!-- about text -->
+<!-- download text -->
 
 <body ng-app="DoChaP" ng-controller="downloadsCtrl">
     <br>
     <div class="greyArea">
-        <p>Download DoChaP database (SQLite) to explore the association between alternative splicing and protein domains</p>
+        <h2>Download page</h2>
+        <p>Download DoChaP tables (csv) to explore the association between alternative splicing and protein domains</p>
 <table>
+<style>
+table, td, tr {
+  border: 1px solid black;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+</style>
 <tbody>
 <tr>
 <td width="156">
-<p>DB</p>
+<p><strong>Table</strong></p>
 </td>
-<td width="260">
-<p>Description</p>
+<td width="360">
+<p><strong>Description</strong></p>
 </td>
-<td width="123">
-<p>Date modified</p>
+<td width="156">
+<p><strong>Date modified</strong></p>
 </td>
 <td width="85">
-<p>Download</p>
+<p><strong>Download</strong></p>
+</td>
+</tr>
+<tr>
+<td width="156">
+<p>H_sapiens_transcript_domainInfo.csv</p>
+</td>
+<td width="360">
+<p>Protein domains info and architecture for all human transcripts</p>
+</td>
+<td width="156">
+<p>7 April 2021</p>
+</td>
+<td width="85">
+<p><a href="https://drive.google.com/uc?export=download&id=1OLG-3VcnsCYsqTU4AXmlE-SBjrGi9kx3"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+</td>
+</tr>
+<tr>
+<td width="156">
+<p>M_musculus_transcript_domainInfo.csv</p>
+</td>
+<td width="360">
+<p>Protein domains info and architecture for all mouse transcripts</p>
+</td>
+<td width="156">
+<p>7 April 2021</p>
+</td>
+<td width="85">
+<p><a href="https://drive.google.com/uc?export=download&id=1f2c1-qtKycBFejvtY5PoCZDDqbftYVZo"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+</td>
+</tr>
+<tr>
+<td width="156">
+<p>R_norvegicus_transcript_domainsInfo.csv</p>
+</td>
+<td width="360">
+<p>Protein domains info and architecture for all rat transcripts</p>
+</td>
+<td width="156">
+<p>7 April 2021</p>
+</td>
+<td width="85">
+<p><a href="https://drive.google.com/uc?export=download&id=1YXWPEdtF9LgegFxQL4JMPqEZmQ807Q5A"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+</td>
+</tr>
+<tr>
+<td width="156">
+<p>D_rerio_transcript_domainsInfo.csv</p>
+</td>
+<td width="360">
+<p>Protein domains info and architecture for all zebrafish transcripts</p>
+</td>
+<td width="156">
+<p>7 April 2021</p>
+</td>
+<td width="85">
+<p><a href="https://drive.google.com/uc?export=download&id=13SWZhcXzWF8k-SL4QYRvAgXGeLKTaQfV"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+</td>
+</tr>
+<tr>
+<td width="156">
+<p>X_tropicalis_transcript_domainsInfo.csv</p>
+</td>
+<td width="360">
+<p>Protein domains info and architecture for all frog transcripts</p>
+</td>
+<td width="156">
+<p>7 April 2021</p>
+</td>
+<td width="85">
+<p><a href="https://drive.google.com/uc?export=download&id=1Mjvwy5ureYfbO_YCRE8t6NJFQrcW4aVt"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+</td>
+</tr>
+<tr>
+<td width="156">
+<p>ReadMe_DoChaP_Tables.txt</p>
+</td>
+<td width="360">
+<p>Description of DoChaP tables</p>
+</td>
+<td width="156">
+<p>7 April 2021</p>
+</td>
+<td width="85">
+<p><a href="https://drive.google.com/uc?export=download&id=1mea38CK9Y3bVtlZSxwHlS6Ykka_9Hi2e"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+
+<p>&nbsp;</p>
+<p>Download DoChaP database (SQLite) to explore the association between alternative splicing and protein domains</p>
+<table>
+<style>
+table, td, tr {
+  border: 1px solid black;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+</style>
+<tbody>
+<tr>
+<td width="156">
+<p><strong>DB</strong></p>
+</td>
+<td width="360">
+<p><strong>Description</strong></p>
+</td>
+<td width="156">
+<p><strong>Date modified</strong></p>
+</td>
+<td width="85">
+<p><strong>Download</strong></p>
 </td>
 </tr>
 <tr>
 <td width="156">
 <p>DB_AllSpecies.sqlite</p>
 </td>
-<td width="260">
-<p>DoChaP db including 5 available species (human, Mouse, Rat, Zebrafish, Frog) and orthology connection</p>
+<td width="360">
+<p>DoChaP database of all species and gene orthologies</p>
 </td>
-<td width="123">
+<td width="156">
 <p>3 March 2021</p>
 </td>
 <td width="85">
@@ -41,10 +165,10 @@
 <td width="156">
 <p>DB_H_sapiens.sqlite</p>
 </td>
-<td width="260">
-<p>DoChaP-db for human only</p>
+<td width="360">
+<p>DoChaP human database</p>
 </td>
-<td width="123">
+<td width="156">
 <p>3 March 2021</p>
 </td>
 <td width="85">
@@ -55,10 +179,10 @@
 <td width="156">
 <p>DB_M_musculus.sqlite</p>
 </td>
-<td width="260">
-<p>DoChaP-db for mouse only</p>
+<td width="360">
+<p>DoChaP mouse database</p>
 </td>
-<td width="123">
+<td width="156">
 <p>3 March 2021</p>
 </td>
 <td width="85">
@@ -68,7 +192,7 @@
 </tbody>
 </table>
 <p>&nbsp;</p>
-<p>The code for the building of DoChaP-db and the DoChaP web server is available on Tal Shay&rsquo;s group GitHub repository: <a href="https://github.com/Tal-Shay-Group/DoChaP">https://github.com/Tal-Shay-Group/DoChaP</a></p>
+<p>The code for the building of DoChaP-db and the DoChaP web server is available on: <a href="https://github.com/Tal-Shay-Group/DoChaP">https://github.com/Tal-Shay-Group/DoChaP</a></p>
  </div>
 </body>
 
