@@ -81,7 +81,7 @@
                                         {{::resultsCtrl.geneInfo.specieName}}</center>
 
                 <!--display options-->
-                <center><i>Choose Display:  </i><select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
+                <center><i>Display:  </i><select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
                     <option value="all">All Views</option>
                     <option value="transcript_protein">Transcript & Protein Views</option>
                     <option value="genomic">Genomic View Only</option>
@@ -89,7 +89,8 @@
                     <option value="protein">Protein View Only</option>
                 </select>   <input type="checkbox" ng-click="filterUnreviewed()" ng-model="ignorePredictions"
                     id="isReviewedCheckBox"><i>hide predicted
-                    records</i>   <button ng-click="downloadPDF()" class="btn blackButton">
+                    records</i><br><br>
+                    <button ng-click="downloadPDF()" class="btn blackButton">
                     <span class="glyphicon glyphicon-download-alt"></span> Save As PDF
                 </button></center>
             </div>
