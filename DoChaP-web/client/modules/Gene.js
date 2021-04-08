@@ -112,6 +112,7 @@ class Gene {
         var colorArr = [];
         getFirstColorFromList(colorArr); //this will initialized with colors
         var numberToColor = {}; // needs for colorByLength
+        var colorToInfo = {};
 
         for (var i = 0; i < geneTranscripts.length; i++) {
             for (var j = 0; j < geneTranscripts[i].transcriptExons.length; j++) {
@@ -145,32 +146,41 @@ class Gene {
                     colors[colorLimits.start][colorLimits.end] = {
                         color: chosenColor
                     };
+                    colorToInfo[chosenColor] = {start:colorLimits.start,end:colorLimits.end,transcripts:[]}
                 }
-
+                var color = colors[colorLimits.start][colorLimits.end].color;
+                colorToInfo[color].transcripts.push(geneTranscripts[i].transcript_refseq_id?geneTranscripts[i].transcript_refseq_id:geneTranscripts[i].transcript_ensembl_id);
             }
         }
 
-
-
-        //picking colors and creating the exon table (shown below views)
+        Object.keys(colorToInfo).forEach(function(key) {
+            var value = colorToInfo[key];
+            exonForTable.push({
+                'transcripts': value.transcripts.join(","),
+                'startCoordinate': value.start,
+                'endCoordinate': value.end,
+                'color': key
+            });
+        });
+        // picking colors and creating the exon table (shown below views)
         // note that exons that have coding regions and non-coding regions will not be shown
-        for (var i = 0; i < geneExons.length; i++) {
-            //get list of transcripts for this exon
-            var exonTranscripts = this.getTranscriptsForExon(geneExons[i].genomic_start_tx, geneExons[i].genomic_end_tx, geneTranscripts);
+        // for (var i = 0; i < geneExons.length; i++) {
+        //     //get list of transcripts for this exon
+        //     var exonTranscripts = this.getTranscriptsForExon(geneExons[i].genomic_start_tx, geneExons[i].genomic_end_tx, geneTranscripts);
 
-            //add to exon-color table (list of information)
-            if (exonTranscripts != "" &&
-                colors[geneExons[i].genomic_start_tx] != undefined &&
-                colors[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx] != undefined) {
-                exonForTable.push({
-                    'transcripts': exonTranscripts,
-                    'startCoordinate': geneExons[i].genomic_start_tx,
-                    'endCoordinate': geneExons[i].genomic_end_tx,
-                    'color': colors[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx].color
-                });
-            }
+        //     //add to exon-color table (list of information)
+        //     if (exonTranscripts != "" &&
+        //         colors[geneExons[i].genomic_start_tx] != undefined &&
+        //         colors[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx] != undefined) {
+        //         exonForTable.push({
+        //             'transcripts': exonTranscripts,
+        //             'startCoordinate': geneExons[i].genomic_start_tx,
+        //             'endCoordinate': geneExons[i].genomic_end_tx,
+        //             'color': colors[geneExons[i].genomic_start_tx][geneExons[i].genomic_end_tx].color
+        //         });
+        //     }
 
-        }
+        // }
 
         //add to attributes
         this.exonTable = exonForTable;
