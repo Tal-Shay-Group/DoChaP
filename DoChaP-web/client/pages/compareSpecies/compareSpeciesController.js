@@ -20,17 +20,20 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 	$scope.orthologyList = undefined;
 	$scope.viewMode = "all";
 	$scope.options = false;
-	$scope.speciesToCompareModel = "";
+	// $scope.speciesToCompareModel = "";
+	$scope.selectedSpecies2 = '';
 	$scope.modeModel = "all";
 
 	//fill specie combobox
 	Species.fillSpecieComboBox("specie1ComboBox");
-	Species.fillSpecieComboBox("specie2ComboBox");
+	// Species.fillSpecieComboBox("specie2ComboBox");
 
 	//when click on search
 	self.geneSearch = async function () {
+		debugger
+
 		$scope.loading = true;
-		await compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, specie2ComboBox.value, orthologyComboBox.value)
+		await compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, $scope.selectedSpecies2, orthologyComboBox.value)
 			.then(function (response) {
 				$scope.loading = false;
 
@@ -216,27 +219,26 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			});
 	}
 
-	self.fillOrthologyCombox = function () {
-		//init attributes
+	$scope.fillOrthologyCombox = function () {
 		var options1 = [];
 		var options2 = [];
 		var ensemblMatch = $scope.orthologyList[0];
 		var geneSymbolMatch = $scope.orthologyList[1];
 
 		//looking for matches in A B rows of orthology table
-		if (specie1ComboBox.value != specie2ComboBox.value) {
+		if (specie1ComboBox.value != $scope.selectedSpecies2) {
 			for (var i = 0; i < ensemblMatch.length; i++) {
-				if (ensemblMatch[i].A_Species == specie2ComboBox.value) {
+				if (ensemblMatch[i].A_Species == $scope.selectedSpecies2) {
 					options1 = options1.concat(ensemblMatch[i].A_GeneSymb.split(", "));
 				}
-				if (ensemblMatch[i].B_Species == specie2ComboBox.value) {
+				if (ensemblMatch[i].B_Species == $scope.selectedSpecies2) {
 					options1 = options1.concat(ensemblMatch[i].B_GeneSymb.split(", "));
 				}
 			}
 
 			//looking for gene_symbol matches if exists
 			for (var i = 0; i < geneSymbolMatch.length; i++) {
-				if (geneSymbolMatch[i].specie == specie2ComboBox.value) {
+				if (geneSymbolMatch[i].specie == $scope.selectedSpecies2) {
 					options2.push(geneSymbolMatch[i].gene_symbol);
 				}
 			}
@@ -251,6 +253,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 		$scope.options = true;
 		$('#orthologyComboBox').empty();
+
 
 		//adding ensembl compara options
 		if (options1.length > 0) {
@@ -283,6 +286,77 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			});
 		}
 	}
+
+
+
+	// self.fillOrthologyCombox = function () {
+	// 	//init attributes
+	// 	var options1 = [];
+	// 	var options2 = [];
+	// 	var ensemblMatch = $scope.orthologyList[0];
+	// 	var geneSymbolMatch = $scope.orthologyList[1];
+	//
+	// 	//looking for matches in A B rows of orthology table
+	// 	if (specie1ComboBox.value != specie2ComboBox.value) {
+	// 		for (var i = 0; i < ensemblMatch.length; i++) {
+	// 			if (ensemblMatch[i].A_Species == specie2ComboBox.value) {
+	// 				options1 = options1.concat(ensemblMatch[i].A_GeneSymb.split(", "));
+	// 			}
+	// 			if (ensemblMatch[i].B_Species == specie2ComboBox.value) {
+	// 				options1 = options1.concat(ensemblMatch[i].B_GeneSymb.split(", "));
+	// 			}
+	// 		}
+	//
+	// 		//looking for gene_symbol matches if exists
+	// 		for (var i = 0; i < geneSymbolMatch.length; i++) {
+	// 			if (geneSymbolMatch[i].specie == specie2ComboBox.value) {
+	// 				options2.push(geneSymbolMatch[i].gene_symbol);
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	//if no results than block search button
+	// 	if (options1.length + options2.length == 0) {
+	// 		$scope.options = false;
+	// 		$('#orthologyComboBox').empty();
+	// 		return;
+	// 	}
+	//
+	// 	$scope.options = true;
+	// 	$('#orthologyComboBox').empty();
+	//
+	//
+	// 	//adding ensembl compara options
+	// 	if (options1.length > 0) {
+	// 		options1.sort();
+	// 		var option1tags = $('#orthologyComboBox').append($('<optgroup label="Orthology by Ensembl compara"></optgroup>'));
+	//
+	// 		$.each(options1, function (i, p) {
+	// 			option1tags.append($('<option></option>').val(p).html(p));
+	// 		});
+	// 	}
+	//
+	// 	//adding gene symbol options
+	// 	if (options2.length > 0) {
+	// 		options2 = options2.filter(function (item, pos) {
+	// 			return options2.indexOf(item) == pos;
+	// 		})
+	// 		options2.sort();
+	// 		var alreadyInOrthology = false;
+	// 		for (var i = 0; i < options1.length; i++) {
+	// 			if (options1[i].toUpperCase() == options2[0].toUpperCase()) {
+	// 				alreadyInOrthology = true;
+	// 			}
+	// 		}
+	// 		if (alreadyInOrthology) {
+	// 			return;
+	// 		}
+	// 		var option2tags = $('#orthologyComboBox').append($('<optgroup label="Match by gene symbol"></optgroup>'));
+	// 		$.each(options2, function (i, p) {
+	// 			option2tags.append($('<option></option>').val(p).html(p));
+	// 		});
+	// 	}
+	// }
 
 	//initializing scale when first showing results
 	self.createScales = function () {
