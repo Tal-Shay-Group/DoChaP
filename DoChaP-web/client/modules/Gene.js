@@ -156,7 +156,7 @@ class Gene {
         Object.keys(colorToInfo).forEach(function(key) {
             var value = colorToInfo[key];
             exonForTable.push({
-                'transcripts': value.transcripts.join(","),
+                'transcripts': value.transcripts.join(", "),
                 'startCoordinate': value.start,
                 'endCoordinate': value.end,
                 'color': key
