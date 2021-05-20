@@ -202,6 +202,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 	//searching in server for matches
 	self.searchForOrthology = function () {
+		$scope.selectedSpecies2 = '';
+		$('#orthologyComboBox').value = '';
 		compareSpeciesService.fillOrthologyCombox(specie1ComboBox.value, compareGeneSearchTextField.value)
 			.then(function (response) {
 				var results = response.data;
