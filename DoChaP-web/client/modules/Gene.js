@@ -125,21 +125,21 @@ class Gene {
                     colors[colorLimits.start] = [];
                 }
 
-
-                if (colorByLength == true) {
-                    //case where we have color by length
-                    var numberToColorBy = Math.round((colorLimits.end - colorLimits.start) / 10);
-                    if (numberToColor[numberToColorBy] != undefined) {
-                        var chosenColor = numberToColor[numberToColorBy];
-                    } else {
-                        var chosenColor = colorArr[numberToColorBy % colorArr.length];
-                        numberToColor[numberToColorBy] = chosenColor;
-                    }
-
-                } else {
+                // IGNORED SECTION - this section tried to color exons by length similarity in compare species
+                // if (colorByLength == true) {
+                //     //case where we have color by length
+                //     var numberToColorBy = Math.round((colorLimits.end - colorLimits.start) / 10);
+                //     if (numberToColor[numberToColorBy] != undefined) {
+                //         var chosenColor = numberToColor[numberToColorBy];
+                //     } else {
+                //         var chosenColor = colorArr[numberToColorBy % colorArr.length];
+                //         numberToColor[numberToColorBy] = chosenColor;
+                //     }
+                //
+                // } else {
                     //case where the color is by start,end loaction(default)
                     var chosenColor = getcolorFromList(colorArr);
-                }
+                // }
 
                 //init exon color dictionary (dictionary with start/end) if not exists
                 if (colors[colorLimits.start][colorLimits.end] == undefined) {
