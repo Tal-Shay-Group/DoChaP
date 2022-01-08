@@ -244,7 +244,7 @@ class Exon {
 			numberToTextWithCommas(this.genomic_start_tx) +
 			" - " +
 			numberToTextWithCommas(this.genomic_end_tx);
-		return [exonX, exonY, exonWidth, exonHeight, text, undefined, this];
+		return [exonX, exonY, exonWidth, exonHeight, text, 'clickable', this];
 	}
 
 	/**

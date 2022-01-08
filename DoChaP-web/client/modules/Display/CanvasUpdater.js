@@ -43,7 +43,7 @@ class CanvasUpdater {
     static onDomainClickEvent(tooltipManager, event) {
         var showTextValues = Transcript.showText(event, tooltipManager);
         if (showTextValues[0]) {
-            if (showTextValues[2] == 'click' && tooltipManager[event.target.id + "object"] != undefined) { //if has a fourthview (means domains overlap enough)
+            if (showTextValues[2] == 'clickable' && tooltipManager[event.target.id + "object"] != undefined) { //if has a fourthview (means domains overlap enough)
                 tooltipManager[event.target.id + "object"].proteinExtendView = !tooltipManager[event.target.id + "object"].proteinExtendView;
             }
 

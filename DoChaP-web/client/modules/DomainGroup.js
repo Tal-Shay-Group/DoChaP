@@ -215,7 +215,7 @@ class DomainGroup {
         var domainY = startHeight - domainHeight / 2;
         var text = this.domains.length + " Domains. Click to expand";
 
-        return [domainX, domainY, domainWidth, domainHeight, text, 'click'];
+        return [domainX, domainY, domainWidth, domainHeight, text, 'clickable'];
     }
 
     /**

@@ -114,7 +114,7 @@ class Transcript {
                     $("#myTooltip").css("top", event.pageY + 5);
                     $("#myTooltip").css("left", event.pageX + 5);
                     $("#myTooltip").html(showTextValues[1]);
-                    if (showTextValues[2] == 'click') {
+                    if (showTextValues[2] == 'clickable') {
                         $('canvas').css('cursor', 'pointer');
                     }
                 } else {
