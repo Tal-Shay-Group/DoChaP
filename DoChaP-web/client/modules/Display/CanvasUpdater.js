@@ -57,10 +57,11 @@ class CanvasUpdater {
             var proteinStart = showTextValues[3].abs_start_CDS;
             var proteinEnd = showTextValues[3].abs_end_CDS;
             var genomicStart = showTextValues[3].genomic_start_tx;
-            var genomicEnd = showTextValues[3].genomic_end_tx
+            var genomicEnd = showTextValues[3].genomic_end_tx;
+            var specieIndex = event.target.id.substring(14,15)=='1' ? 1: 2;
 
             if ($scope.onExonClick != undefined) {
-                $scope.onExonClick(proteinStart - 1, proteinEnd, genomicStart, genomicEnd);
+                $scope.onExonClick(proteinStart - 1, proteinEnd, genomicStart, genomicEnd, specieIndex);
             }
 
         }

@@ -30,8 +30,6 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 
 	//when click on search
 	self.geneSearch = async function () {
-		debugger
-
 		$scope.loading = true;
 		await compareSpeciesService.geneSearch(specie1ComboBox.value, compareGeneSearchTextField.value, $scope.selectedSpecies2, orthologyComboBox.value)
 			.then(function (response) {
@@ -511,9 +509,9 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 	$scope.onZoomButtonGenomicClick = function (direction, specieIndex) {
 		let display = self.GetSpecieDisplayBySpecieIndex(specieIndex);
 		let genomicScaleName = "#genomic_range" + specieIndex;
-		var gene = specieIndex == 1? self.specie1Gene : self.specie2Gene; 
+		var gene = specieIndex == 1 ? self.specie1Gene : self.specie2Gene;
 		var onFinishGenomicPositive = undefined;
-		var onFinisheGenomicNegative = undefined;
+		var onFinishGenomicNegative = undefined;
 
 		var getResultsFromSessionStorage = function () {
 			var results = $window.sessionStorage.getItem("currCompareSpecies");
@@ -528,7 +526,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			}
 		}
 
-		if(specieIndex == 1 ){
+		if (specieIndex == 1) {
 			onFinishGenomicPositive = function (data) {
 				var results = getResultsFromSessionStorage();
 				self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
@@ -536,14 +534,14 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 				updateCanvases();
 			};
-			onFinisheGenomicNegative = function (data) {
+			onFinishGenomicNegative = function (data) {
 				var results = getResultsFromSessionStorage();
 				self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
 				$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
 				$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 				updateCanvases();
 			};
-		}else{
+		} else {
 			onFinishGenomicPositive = function (data) {
 				var results = getResultsFromSessionStorage();
 				self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
@@ -551,7 +549,7 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 				updateCanvases();
 			};
-			onFinisheGenomicNegative = function (data) {
+			onFinishGenomicNegative = function (data) {
 				var results = getResultsFromSessionStorage();
 				self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
 				$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
@@ -560,16 +558,16 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 			};
 		}
 
-		display.locationScopeChanger.zoomGenomicWithButton(gene.strand, gene.scale, direction, onFinishGenomicPositive, onFinisheGenomicNegative, genomicScaleName, gene);
+		display.locationScopeChanger.zoomGenomicWithButton(gene.strand, gene.scale, direction, onFinishGenomicPositive, onFinishGenomicNegative, genomicScaleName, gene);
 	}
 
-	$scope.onZoomButtonProteinClick = function(direction, specieIndex){
+	$scope.onZoomButtonProteinClick = function (direction, specieIndex) {
 		var proteinScaleName = "#protein_range" + specieIndex;
-		var gene = specieIndex == 1? self.specie1Gene : self.specie2Gene;
-		var OnFinishProtein = undefined; 
+		var gene = specieIndex == 1 ? self.specie1Gene : self.specie2Gene;
+		var OnFinishProtein = undefined;
 
-		if(specieIndex == 1){
-			OnFinishProtein=function (data) {
+		if (specieIndex == 1) {
+			OnFinishProtein = function (data) {
 				var results = $window.sessionStorage.getItem("currCompareSpecies");
 				var genes = results.split("*");
 				results = {
@@ -583,8 +581,8 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
 				updateCanvases();
 			}
-		}else if (specieIndex == 2 ){
-			OnFinishProtein=function (data) {
+		} else if (specieIndex == 2) {
+			OnFinishProtein = function (data) {
 				var results = $window.sessionStorage.getItem("currCompareSpecies");
 				var genes = results.split("*");
 				results = {
@@ -599,8 +597,84 @@ angular.module("DoChaP").controller('compareSpeciesController', function ($windo
 				updateCanvases();
 			}
 		}
-		
+
 		let display = self.GetSpecieDisplayBySpecieIndex(specieIndex);
 		display.locationScopeChanger.zoomProteinWithButton(gene.proteinScale, direction, OnFinishProtein, proteinScaleName)
+	}
+
+	$scope.onExonClick = function (proteinStart, proteinEnd, genomicStart, genomicEnd, specieIndex) {
+		//prepare variables
+		var results = $scope.getResultsFromSessionStorage();
+		var onFinishGenomicPositive = undefined;
+		var onFinishGenomicNegative = undefined;
+
+		if (specieIndex == 1) {
+			self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, genomicStart, genomicEnd, proteinStart, proteinEnd);
+			$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+			$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+			updateCanvases();
+
+			//update scales
+			$("#protein_range" + specieIndex).data("ionRangeSlider").update({
+				from: proteinStart,
+				to: proteinEnd
+			});
+			onFinishGenomicPositive = function (data) {
+				var results = $scope.getResultsFromSessionStorage();
+				self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+				$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+				$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+				updateCanvases();
+			};
+			onFinishGenomicNegative = function (data) {
+				var results = $scope.getResultsFromSessionStorage();
+				self.specie1Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie1Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange1 - data.to, self.maximumRange1 - data.from, self.specie1Gene.proteinStart, self.specie1Gene.proteinEnd);
+				$scope.specie1Display.transcriptDisplayManager.addTranscripts(self.specie1Gene.transcripts);
+				$scope.specie1Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+				updateCanvases();
+			};
+			$scope.specie1Display.locationScopeChanger.moveToSelectedGenomicRange(self.specie1Gene.strand, "#genomic_range" + specieIndex, genomicStart, genomicEnd, onFinishGenomicPositive, onFinishGenomicNegative, self.specie1Gene)
+
+
+		} else if (specieIndex == 2) {
+			self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, genomicStart, genomicEnd, proteinStart, proteinEnd);
+			$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+			$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+			updateCanvases();
+
+			//update scales
+			$("#protein_range" + specieIndex).data("ionRangeSlider").update({
+				from: proteinStart,
+				to: proteinEnd
+			});
+			onFinishGenomicPositive = function (data) {
+				var results = $scope.getResultsFromSessionStorage();
+				self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, data.from, data.to, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+				$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+				$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+				updateCanvases();
+			};
+			onFinishGenomicNegative = function (data) {
+				var results = $scope.getResultsFromSessionStorage();
+				self.specie2Gene = new Gene(compareSpeciesService.getGeneForSpecie(results.genes, self.specie2Gene.specie), isReviewedCheckBox.checked, results.colors, self.maximumRange2 - data.to, self.maximumRange2 - data.from, self.specie2Gene.proteinStart, self.specie2Gene.proteinEnd);
+				$scope.specie2Display.transcriptDisplayManager.addTranscripts(self.specie2Gene.transcripts);
+				$scope.specie2Display.transcriptDisplayManager.changeViewMode($scope.viewMode);
+				updateCanvases();
+			};
+			$scope.specie2Display.locationScopeChanger.moveToSelectedGenomicRange(self.specie2Gene.strand, "#genomic_range" + specieIndex, genomicStart, genomicEnd, onFinishGenomicPositive, onFinishGenomicNegative, self.specie2Gene)
+		}
+	}
+
+	$scope.getResultsFromSessionStorage = function () {
+		var results = $window.sessionStorage.getItem("currCompareSpecies");
+		var genes = results.split("*");
+		results = {
+			"isExact": true,
+			"genes": [JSON.parse(genes[0]), JSON.parse(genes[1])]
+		};
+		return {
+			genes: results.genes,
+			colors: true
+		}
 	}
 });
