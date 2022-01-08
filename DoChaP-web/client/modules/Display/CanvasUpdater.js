@@ -24,13 +24,14 @@ class CanvasUpdater {
             //click for extended protein view
             $("canvas")
                 .click(function (event) {
-                    CanvasUpdater.onDomainClickEvent(tooltipManager, event);
-                    $scope.$apply();
-                })
-            .dblclick(function (event) {
-                CanvasUpdater.onExonZoomEvent(tooltipManager, event, $scope);
-                $scope.$apply();
-            });
+                    if (event.target.id.substring(0,14)==="canvas-protein") {
+                        CanvasUpdater.onDomainClickEvent(tooltipManager, event);
+                        $scope.$apply();
+                    } else if (event.target.id.substring(0,14)==="canvas-genomic") {
+                        CanvasUpdater.onExonZoomEvent(tooltipManager, event, $scope);
+                        $scope.$apply();
+                    }
+                });
             $scope.$apply();
         });
     }
@@ -51,15 +52,17 @@ class CanvasUpdater {
 
     static onExonZoomEvent(tooltipManager, event, $scope) {
         var showTextValues = Transcript.showText(event, tooltipManager);
-        
-        if (showTextValues[3] != undefined) {
-            var start=showTextValues[3].abs_start_CDS;
-            var end = showTextValues[3].abs_end_CDS;
 
-            if($scope.onExonClick != undefined){
-                $scope.onExonClick(start - 1, end);
+        if (showTextValues[3] != undefined) { // When does this happen? I think when it is genomic view?
+            var proteinStart = showTextValues[3].abs_start_CDS;
+            var proteinEnd = showTextValues[3].abs_end_CDS;
+            var genomicStart = showTextValues[3].genomic_start_tx;
+            var genomicEnd = showTextValues[3].genomic_end_tx
+
+            if ($scope.onExonClick != undefined) {
+                $scope.onExonClick(proteinStart - 1, proteinEnd, genomicStart, genomicEnd);
             }
-            
+
         }
     }
 }

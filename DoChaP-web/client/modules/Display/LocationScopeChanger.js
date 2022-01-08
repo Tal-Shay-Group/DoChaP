@@ -70,9 +70,14 @@ class LocationScopeChanger {
         if (zoomDirection == "Out") {
             zoomedAreaFromEachSide = -length * 0.1;
         }
-        
-        let start = Math.max(gene.initStart, scale.start + zoomedAreaFromEachSide);
-        let end = Math.min(gene.initEnd, scale.end - zoomedAreaFromEachSide);
+        let start =scale.start + zoomedAreaFromEachSide;
+        let end = scale.end - zoomedAreaFromEachSide;
+        this.moveToSelectedGenomicRange(strand, rangeSliderName, start, end, onFinishWhenStrandPositive, onFinishWhenStrandNegative, gene);
+    }
+
+    moveToSelectedGenomicRange(strand, rangeSliderName, start, end, onFinishWhenStrandPositive, onFinishWhenStrandNegative, gene){
+        start = Math.max(gene.initStart, start);
+        end = Math.min(gene.initEnd, end);
         
         if (strand == "+") {
             $(rangeSliderName).data("ionRangeSlider").update({
