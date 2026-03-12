@@ -1,9 +1,12 @@
+from concurrent.futures import process
 from sqlite3 import connect
 import pandas as pd
 import numpy as np
 import sys
 import os
 import time
+
+import psutil
 
 sys.path.append(os.getcwd())
 from Collector import Collector
@@ -21,7 +24,7 @@ class dbBuilder:
         self.data.collectAll(download=download, withEns=withEns)
         self.TranscriptNoProteinRec = {}
         self.DomainsSourceDB = 'DB_merged.sqlite'
-        self.DomainOrg = DomainOrganizer(download=download)
+        self.DomainOrg = DomainOrganizer(download=False)
 
     def create_tables_db(self, merged=True, dbName=None):
         """
@@ -206,8 +209,236 @@ class dbBuilder:
             cur.execute('''CREATE INDEX domainEventsTableIndexByEnsembl ON DomainEvent(protein_ensembl_id);''')
             cur.execute(
                 '''CREATE INDEX exonInTranscriptsTableIndexByEnsembl ON Transcript_Exon(transcript_ensembl_id);''')
+            cur.commit()
+            cur.execute("ANALYZE")
+            cur.commit()    
+
+    def get_memory_usage(self):
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 ** 3)  # Convert bytes to GB
+
+    def flush_buffers(self, cur, buffers, force=False, specific=None, BATCH_SIZE=5000):
+        """Helper to write lists to DB and clear them"""
+        queries = {
+            "Transcripts": "INSERT OR IGNORE INTO Transcripts (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start, cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+            "Genes": "INSERT OR IGNORE INTO Genes (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome, strand, specie) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "Transcript_Exon": "INSERT OR IGNORE INTO Transcript_Exon (transcript_refseq_id, transcript_ensembl_id, order_in_transcript, genomic_start_tx, genomic_end_tx, abs_start_CDS, abs_end_CDS) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "Exons": "INSERT OR IGNORE INTO Exons (gene_GeneID_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx) VALUES (?, ?, ?, ?)",
+            "Proteins": "INSERT OR IGNORE INTO Proteins (protein_refseq_id, protein_ensembl_id, description, length, synonyms, transcript_refseq_id, transcript_ensembl_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "SpliceInDomains": "INSERT OR IGNORE INTO SpliceInDomains (transcript_refseq_id, transcript_ensembl_id, exon_order_in_transcript, domain_nuc_start, type_id, total_length, included_len, exon_num_in_domain) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "DomainEvent": "INSERT OR IGNORE INTO DomainEvent (protein_refseq_id, protein_ensembl_id, type_id, AA_start, AA_end, nuc_start, nuc_end, total_length, ext_id, splice_junction, complete_exon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "DomainType": "INSERT INTO DomainType (type_id, name, other_name, description, CDD_id, cdd, pfam, smart, tigr, interpro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        }
+        if specific:
+            table = specific
+            data = buffers[table]
+            if len(data) >= BATCH_SIZE or (force and data):
+                cur.executemany(queries[table], data)
+                buffers[table] = []
+        else:
+            for table, data in buffers.items():
+                if len(data) >= BATCH_SIZE or (force and data):
+                    cur.executemany(queries[table], data)
+                    buffers[table] = []
 
     def fill_in_db(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
+        """
+        This is filling the database with the collected data for a single species.
+        if used db is "merged" than set True to the param. if False than a species unique db will be created.
+        """
+        if dbName is not None:
+            self.dbName = dbName
+        elif merged:
+            self.dbName = 'DB_merged'
+        else:
+            self.dbName = 'DB_' + self.species
+        if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
+            self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
+            preDomains = set(self.DomainOrg.allDomains.keys())
+        
+        with connect(self.dbName + '.sqlite') as con:
+            print(f"Connected to {self.dbName}...")
+            print("Filling in the tables with bulk inserts...")
+            cur = con.cursor()
+            cur.execute("PRAGMA journal_mode = MEMORY;") # Keep undo-logs in RAM, not disk
+            cur.execute("PRAGMA synchronous = OFF;")    # Don't wait for disk confirmation
+            cur.execute("PRAGMA cache_size = 100000;")  # Give SQLite 100MB of RAM for index caching
+            cur.execute("PRAGMA temp_store = MEMORY;")   # Use RAM for temporary tables/sorting
+            cur.execute("BEGIN TRANSACTION;")
+            # Configuration
+            BATCH_SIZE = 5000
+            
+            # Accumulators
+            buffers = {
+                "Transcripts": [], "Genes": [], "Transcript_Exon": [],
+                "Exons": [], "Proteins": [], "SpliceInDomains": [], "DomainEvent": [], "DomainType": []
+            }
+            
+            geneSet = set()
+            uExon = set()
+            relevantDomains = set()
+
+            print("Processing transcripts: {}".format(len(self.data.Transcripts)))
+            count = 0
+            for tID, transcript in self.data.Transcripts.items():
+                count += 1
+                if count % 5000 == 0:
+                    now = time.time()
+                    elapsed = now - bp # Uses the 'bp' start time you defined earlier
+                    tps = count / elapsed if elapsed > 0 else 0
+                    print(f"[{count}] Speed: {tps:.2f} t/s | RAM: {self.get_memory_usage():.2f} GB")
+                    print(f"\t--- uExon: {len(uExon)} items | geneSet: {len(geneSet)} items")
+                    self.flush_buffers(cur, buffers, force=False)
+                    print(f"\t--- RAM after flush: {self.get_memory_usage():.2f} GB")
+                gID = transcript.gene_GeneID
+                ensemblkey = tID.startswith("ENS")
+                e_counts = len(transcript.exon_starts)
+
+                # 1. Transcripts Buffer
+                if transcript.CDS is None:
+                    print("Transcript {} from {} has None in CDS".format(tID, self.species))
+                    transcript.CDS = transcript.tx
+                
+                buffers["Transcripts"].append(
+                    (transcript.refseq, transcript.ensembl) + transcript.tx + transcript.CDS + 
+                    (e_counts, gID, transcript.gene_ensembl, 
+                    transcript.protein_refseq, transcript.protein_ensembl)
+                )
+
+                # 2. Genes Buffer
+                gID_hash = hash(gID) if gID else None
+                ensID_hash = hash(transcript.gene_ensembl) if transcript.gene_ensembl else None
+                if gID_hash not in geneSet and ensID_hash not in geneSet:
+                    gene = self.data.Genes.get(gID or transcript.gene_ensembl, 
+                                            self.data.Genes.get(transcript.gene_ensembl))
+                    if gene is None:
+                        raise ValueError(f"No gene found for {tID}")
+                    
+                    buffers["Genes"].append((gene.GeneID, gene.ensembl, gene.symbol, gene.synonyms, 
+                                            gene.chromosome, gene.strand, self.species))
+                    if gID_hash: 
+                        geneSet.add(gID_hash)
+                    if ensID_hash: 
+                        geneSet.add(ensID_hash)
+                    
+
+                # 3. Exons Buffers
+                start_abs, stop_abs = transcript.exons2abs()
+                starts, ends = transcript.exon_starts, transcript.exon_ends
+                for i in range(e_counts):
+                    # Transcript_Exon
+                    buffers["Transcript_Exon"].append((transcript.refseq, transcript.ensembl, i+1, 
+                                                    starts[i], ends[i], start_abs[i], stop_abs[i]))
+                    # Unique Exons
+                    ex_val = (gID, transcript.gene_ensembl, starts[i], ends[i])
+                    hash_val = hash(ex_val) # use hash to avoid storing large exon tuples in memory for the set, but still ensure uniqueness
+                    if hash_val not in uExon:
+                        uExon.add(hash_val)
+                        buffers["Exons"].append(ex_val)
+
+                # 4. Proteins Buffer
+                protID = transcript.protein_ensembl if ensemblkey else transcript.protein_refseq
+                protein = self.data.Proteins[protID]
+                buffers["Proteins"].append((protein.refseq, protein.ensembl, protein.description, 
+                                            protein.length, protein.synonyms, transcript.refseq, transcript.ensembl))
+
+                # 5. Domains (Keep using DataFrame for logic, but move SpliceIn to buffer)
+                temp_dom_events = []
+                splicin_local = set()
+                temp_rows = []
+                for reg in self.data.Domains.get(protID, [None]):
+                    if reg is None: continue
+                    regID = self.DomainOrg.addDomain(reg)
+                    if regID is None: continue
+                    
+                    relevantDomains.add(regID)
+                    relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
+                    total_length = reg.nucEnd - reg.nucStart + 1
+                    
+                    splice_junction = 1 if relation == 'splice_junction' else 0
+                    complete = 1 if relation == 'complete_exon' else 0
+                    
+                    if splice_junction:
+                        for j in range(len(exon_list)):
+                            s_val = (transcript.refseq, transcript.ensembl, exon_list[j], 
+                                    reg.nucStart, regID, total_length, length[j], j + 1)
+                            if s_val not in splicin_local:
+                                buffers["SpliceInDomains"].append(s_val)
+                                splicin_local.add(s_val)
+
+                    extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
+                    # Collect as a simple tuple instead of a DataFrame row
+                    temp_rows.append((
+                        protein.refseq, protein.ensembl, regID,
+                        reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
+                        extWithInter, splice_junction, complete
+                    ))
+                    
+
+                # Process DomainEvent via Pandas
+                if temp_rows:
+                    # Grouping by all columns except ext_id (index 8)
+                    grouped = {}
+                    for row in temp_rows:
+                        key = row[:8] + row[9:] # All except ext_id
+                        ext_id = row[8]
+                        if key not in grouped:
+                            grouped[key] = set()
+                        grouped[key].add(str(ext_id))
+                    
+                    for key, ext_ids in grouped.items():
+                        final_ext_id = "; ".join(ext_ids)
+                        # Reconstruct full row: key[0:8] is first 8 cols, key[8:] is last 2
+                        final_row = key[:8] + (final_ext_id,) + key[8:]
+                        buffers["DomainEvent"].append(final_row)
+               
+
+            # Final flush for remaining records
+            self.flush_buffers(cur, buffers, force=True)
+            con.commit()
+            bp = time.time()
+
+            if merged:
+                relevantDomains = preDomains.union(relevantDomains)
+                print('Recreating the table: DomainType and update domains')
+                cur.executescript("DROP TABLE IF EXISTS DomainType;")
+                print('Creating the table: DomainType')
+                cur.execute('''
+                            CREATE TABLE DomainType(
+                                    type_id INTEGER NOT NULL PRIMARY KEY UNIQUE,
+                                    name TEXT,
+                                    other_name TEXT,
+                                    description TEXT,
+                                    CDD_id TEXT,
+                                    cdd TEXT,
+                                    pfam TEXT,
+                                    smart TEXT,
+                                    tigr TEXT,
+                                    interpro TEXT
+                                    );'''
+                            )
+            # insert into domain type table
+            postDomains = set(self.DomainOrg.allDomains.keys())
+            print("from all {} domains in organizer, {} not in relevant domains".format(len(postDomains),
+                                                                                        len(postDomains.difference(relevantDomains))))
+            cur.execute("BEGIN TRANSACTION;")
+            count = 0
+            for typeID in relevantDomains:
+                count += 1
+                if count % 5000 == 0:
+                    elapsed = time.time() - bp 
+                    tps = count / elapsed if elapsed > 0 else 0
+                    print(f"Processed {count} domains... Speed: {tps:.2f} domains/sec")
+                    self.flush_buffers(cur, buffers, specific="DomainType")
+                if typeID in self.DomainOrg.allDomains.keys():
+                    values = (typeID,) + self.DomainOrg.allDomains[typeID]
+                    buffers["DomainType"].append(values)
+            self.flush_buffers(cur, buffers, specific="DomainType", force=True)
+            con.commit() # Final commit for DomainType
+            print("#### Filling in domain type table: %s seconds" % (time.time() - bp))
+
+
+    def fill_in_db_org(self, CollectDomainsFromMerged=True, merged=True, dbName=None):
         """
         This is filling the database with the collected data for a single species.
         if used db is "merged" than set True to the param. if False than a species unique db will be created.
@@ -346,7 +577,7 @@ class dbBuilder:
                               extWithInter, splice_junction, complete,)
                     Domdf.loc[ldf] = list(values)
                 Domdf = Domdf.drop_duplicates()
-                Domdf = Domdf.fillna(-1)
+                Domdf.fillna(-1).infer_objects(copy=False)
                 Domdf = Domdf.groupby(["protein_refseq_id", "protein_ensembl_id", "type_id",
                                        "AA_start", "AA_end", "nuc_start", "nuc_end", "total_length",
                                        "splice_junction", "complete_exon"],

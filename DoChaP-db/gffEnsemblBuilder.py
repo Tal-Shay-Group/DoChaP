@@ -55,6 +55,7 @@ class EnsemblBuilder(SourceBuilder):
     def parser(self):
         self.parse_gff3()
         self.parse_domains()
+        countFoundTranscripts = 0
         countNotFoundTranscripts = 0
         for protein in self.pro2trans:
             trans = self.pro2trans[protein]
@@ -66,12 +67,15 @@ class EnsemblBuilder(SourceBuilder):
                 self.Transcripts[trans].protein_ensembl = protein
                 if '.' not in protein:
                     raise ValueError("protein {} has no version".format(protein))
+                countFoundTranscripts += 1
             else:
                 if protein in self.Domains:
                     del self.Domains[protein]
                 countNotFoundTranscripts += 1
                 # print(trans)
                 continue
+        print("\t{} transcripts (with protein products) were  found in gff3 file".format(
+            str(countFoundTranscripts)))
         print("\t{} transcripts (with protein products) were not found in gff3 file".format(
             str(countNotFoundTranscripts)))
         # for t in self.Transcripts.values():

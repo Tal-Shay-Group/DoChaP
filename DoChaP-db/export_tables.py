@@ -4,6 +4,8 @@ import numpy as np
 
 savingPath = r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\DoChaP-db\dbs\csv_tables'
 dbName = r'C:\Users\galozs\OneDrive\PhD\Projects\DoChaP\DoChaP\DoChaP-web\DB_merged.sqlite'
+savingPath = '/gpfs0/tals/projects/Analysis/ariel/DoChap/DoChaP-db/dbs/csv_tables'
+dbName = '/gpfs0/tals/projects/Analysis/ariel/DoChap/DoChaP-web/DB_merged.sqlite'
 with connect(dbName) as con:
     all_transcripts_genes = pd.read_sql('''SELECT Genes.gene_GeneID_id, Genes.gene_ensembl_id, gene_symbol, specie, 
     Transcripts.transcript_refseq_id, Transcripts.transcript_ensembl_id, Transcripts.protein_refseq_id, 

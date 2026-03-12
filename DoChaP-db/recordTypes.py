@@ -171,6 +171,10 @@ class Domain:
         if self.aaEnd is not None:
             self.nucEnd = self.aaEnd * 3  # end position, including!!!
         self.name = name
+        if (start is None) or (end is None):
+            self.name = 'Error_' + str(name)
+            self.nucStart = 0
+            self.nucEnd = 0
         self.note = note
         self.cdd = cddId
         if ext_id is not None:

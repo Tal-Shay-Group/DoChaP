@@ -49,7 +49,9 @@ class RefseqBuilder(SourceBuilder):
         def FindFile(listOfFiles):
             for file in listOfFiles:
                 if len(listOfFiles) > 1:
-                    raise ValueError("More than 1 file in dir")
+                    #raise ValueError("More than 1 file in dir")
+                    print(f'Error: More than 1 file in dir: {listOfFiles}. Using the first')
+                    genomeVersion = listOfFiles[0]
                 else:
                     genomeVersion = listOfFiles[0]
                 gff = [genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]
@@ -127,29 +129,32 @@ class RefseqBuilder(SourceBuilder):
         transcript2region = {}
 
         for t in db.features_of_type("mRNA"):
-            newT = Transcript()
-            spliTid = t["ID"][0].split("-")
-            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
-                # ignore alternative chromosomes
-                continue
-            # elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
-            #     continue
-            elif len(spliTid) > 2 and len(spliTid[-1]) == 1 and spliTid[-1].isdigit():
-                # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
-                continue
-            newT.chrom = self.regionChr[t.chrom]
-            newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
-            if newT.gene_GeneID not in curretGenes.keys():
-                continue  # ignore transcript of non-coding genes
-            elif newT.chrom != curretGenes[newT.gene_GeneID].chromosome:
-                continue  # genes that appear in several locations in the genome are only used from the first location
-            newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
-            newT.strand = t.strand
-            newT.refseq = t["transcript_id"][0]
-            newT.geneSymb = t["gene"][0]
-            self.Transcripts[newT.refseq] = newT
-            self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
-            transcript2region[newT.refseq] = t.chrom
+            try:
+                newT = Transcript()
+                spliTid = t["ID"][0].split("-")
+                if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
+                    # ignore alternative chromosomes
+                    continue
+                # elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
+                #     continue
+                elif len(spliTid) > 2 and len(spliTid[-1]) == 1 and spliTid[-1].isdigit():
+                    # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
+                    continue
+                newT.chrom = self.regionChr[t.chrom]
+                newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
+                if newT.gene_GeneID not in curretGenes.keys():
+                    continue  # ignore transcript of non-coding genes
+                elif newT.chrom != curretGenes[newT.gene_GeneID].chromosome:
+                    continue  # genes that appear in several locations in the genome are only used from the first location
+                newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
+                newT.strand = t.strand
+                newT.refseq = t["transcript_id"][0]
+                newT.geneSymb = t["gene"][0]
+                self.Transcripts[newT.refseq] = newT
+                self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
+                transcript2region[newT.refseq] = t.chrom
+            except:
+                print(f'Warning: Failed to read transcript: {t}')
 
         print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
@@ -267,41 +272,46 @@ class RefseqBuilder(SourceBuilder):
         regions = [feature for feature in record.features if feature.type == 'Region']
         parsed = []
         for reg in regions:
-            start = reg.location.start.position + 1  # convert domains to be 1-based-start
-            end = reg.location.end.position
-            if len(
-                    reg.qualifiers) > 1 and 'region_name' in reg.qualifiers and start != end:  # only looking at regions larger than 1
-                name = reg.qualifiers['region_name'][0]
-                if 'note' in reg.qualifiers:
-                    note = reg.qualifiers['note'][0]
-                else:
-                    note = None
-                if re.match(r"PRK\d+", name):
-                    ext_id = name
-                elif note is not None:
-                    if 'propagated from UniProtKB' in note:
-                        note = note
-                        ext_id = None
-                    elif ';' in note:
-                        noteSplit = note.split('; ')
-                        ext_id = noteSplit[-1]
-                        note = "; ".join(noteSplit[:-1])
+            try:
+                #start = reg.location.start.position + 1  # convert domains to be 1-based-start
+                #end = reg.location.end.position
+                start =  int(reg.location.start) + 1 if reg.location.start else None
+                end =  int(reg.location.end) if reg.location.end else None
+                if len(reg.qualifiers) > 1 and 'region_name' in reg.qualifiers and start != end:  # only looking at regions larger than 1
+                    name = reg.qualifiers['region_name'][0]
+                    if 'note' in reg.qualifiers:
+                        note = reg.qualifiers['note'][0]
+                    else:
+                        note = None
+                    if re.match(r"PRK\d+", name):
+                        ext_id = name
+                    elif note is not None:
+                        if 'propagated from UniProtKB' in note:
+                            note = note
+                            ext_id = None
+                        elif ';' in note:
+                            noteSplit = note.split('; ')
+                            ext_id = noteSplit[-1]
+                            note = "; ".join(noteSplit[:-1])
+                        else:
+                            ext_id = None
                     else:
                         ext_id = None
-                else:
-                    ext_id = None
-                if 'db_xref' not in reg.qualifiers:
-                    if ext_id is None:
-                        continue  # only records with external id
-                    cdId = None
-                else:
-                    xref = reg.qualifiers.get('db_xref', [])
-                    cdId = [i.split(':')[-1] for i in xref if i.startswith('CDD')][0]
-                try:
-                    newDomain = Domain(ext_id=ext_id, start=start, end=end, cddId=cdId, name=name, note=note)
-                    parsed.append(newDomain)
-                except ValueError:
-                    self.ignoredDomains.update({'extId': ext_id, 'CDD': cdId})
+                    if 'db_xref' not in reg.qualifiers:
+                        if ext_id is None:
+                            continue  # only records with external id
+                        cdId = None
+                    else:
+                        xref = reg.qualifiers.get('db_xref', [])
+                        cdId = [i.split(':')[-1] for i in xref if i.startswith('CDD')][0]
+                    try:
+                        newDomain = Domain(ext_id=ext_id, start=start, end=end, cddId=cdId, name=name, note=note)
+                        parsed.append(newDomain)
+                    except ValueError:
+                        self.ignoredDomains.update({'extId': ext_id, 'CDD': cdId})
+            except Exception as e:
+                print(f'Error reading region. e: {e}. region: {reg}')
+                exit(1)
         self.Domains[record.id] = tuple(parsed)
 
     def protein_info(self, record, TranscriptsDependent=True):
@@ -309,28 +319,34 @@ class RefseqBuilder(SourceBuilder):
         Update Proteins attr directly.
         @return True when finish, False if no matched transcript in Transcript attr and not adding this record
         """
-        withversion = record.id  # with version
-        # refseq_id = record.name  # without version
-        descr = record.description
-        pro = [p for p in record.features if p.type == 'Protein'][0]
-        length = pro.location.end.position  # length!!!
         try:
-            note = pro.qualifiers['note'][0]
-        except Exception:
-            note = None
-        cds = [c for c in record.features if c.type == 'CDS'][0]
-        transcript = cds.qualifiers['coded_by'][0].split(':')[0]
-        if TranscriptsDependent and transcript not in self.Transcripts:
+            withversion = record.id  # with version
+            # refseq_id = record.name  # without version
+            descr = record.description
+            pro = [p for p in record.features if p.type == 'Protein'][0]
+            #length = pro.location.end.position  # length!!!
+            length = len(record.seq)
+            try:
+                note = pro.qualifiers['note'][0]
+            except Exception:
+                note = None
+            cds = [c for c in record.features if c.type == 'CDS'][0]
+            transcript = cds.qualifiers['coded_by'][0].split(':')[0]
+            if TranscriptsDependent and transcript not in self.Transcripts:
+                return False
+            if transcript.startswith("join("):
+                transcript.strip("join(")
+            # xref = cds.qualifiers.get('db_xref', [])
+            protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, synonyms=note,
+                            transcript_refseq=transcript)
+            self.Proteins[protein.refseq] = protein
+            self.pro2trans[protein.refseq] = transcript
+            self.trans2pro[transcript] = protein.refseq
+            return True
+        except Exception as e:
+            print(f'Warning: Issue with protein info: {e}. {record}')
+            exit(1)
             return False
-        if transcript.startswith("join("):
-            transcript.strip("join(")
-        # xref = cds.qualifiers.get('db_xref', [])
-        protein = Protein(refseq=withversion, ensembl=None, descr=descr, length=length, synonyms=note,
-                          transcript_refseq=transcript)
-        self.Proteins[protein.refseq] = protein
-        self.pro2trans[protein.refseq] = transcript
-        self.trans2pro[transcript] = protein.refseq
-        return True
 
 
 if __name__ == '__main__':

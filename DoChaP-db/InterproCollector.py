@@ -20,7 +20,7 @@ class InterProBuilder(SourceBuilder):
         last_page = False
 
         f = open(self.outputFile, "w")
-        sys.stdout = f
+        #sys.stdout = f
 
         delimiter = "|"
         while next:
@@ -48,16 +48,16 @@ class InterProBuilder(SourceBuilder):
                     raise e
 
             for i, item in enumerate(payload["results"]):
-                sys.stdout.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + delimiter)
-                sys.stdout.write(parse_column(item["metadata"]["name"], 'metadata.name') + delimiter)
-                sys.stdout.write(
+                f.write(parse_column(item["metadata"]["accession"], 'metadata.accession') + delimiter)
+                f.write(parse_column(item["metadata"]["name"], 'metadata.name') + delimiter)
+                f.write(
                     parse_column(item["metadata"]["source_database"], 'metadata.source_database') + delimiter)
-                sys.stdout.write(parse_column(item["metadata"]["type"], 'metadata.type') + delimiter)
+                f.write(parse_column(item["metadata"]["type"], 'metadata.type') + delimiter)
                 # sys.stdout.write(parse_column(item["metadata"]["integrated"], 'metadata.integrated') + ",")
-                sys.stdout.write(
+                f.write(
                     parse_column(item["metadata"]["member_databases"], 'metadata.member_databases') + delimiter)
-                sys.stdout.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + delimiter)
-                sys.stdout.write("\n")
+                f.write(parse_column(item["metadata"]["go_terms"], 'metadata.go_terms') + delimiter)
+                f.write("\n")
 
                 # Don't overload the server, give it time before asking for more
             if next:
@@ -65,6 +65,7 @@ class InterProBuilder(SourceBuilder):
         f.close()
 
     def parser(self):
+        self.downloader()
         myf = self.outputFile
         fieldnames = ['Name', 'SourceDatabase', 'Type', 'IntegratedSignatures',
                       'GOTerms', "0"]
@@ -73,7 +74,7 @@ class InterProBuilder(SourceBuilder):
         refids = df["IntegratedSignatures"].str.split(";")
         newdf = pd.DataFrame(columns=["interpro", "pfam", "smart", "cdd", "tigrfams", "Type"])
         sourceDict = {"smart": "sm", "pfam": "pf", "cdd": ".", "tigrfams": "."}
-        for ind, row in refids.iteritems():
+        for ind, row in refids.items():
             for ext in row:
                 splitrow = ext.split(":")
                 splitrow[1] = splitrow[1].lower()

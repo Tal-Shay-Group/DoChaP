@@ -10,6 +10,7 @@ from SpeciesDB import *
 from conf import all_species
 
 
+
 # # # THIS SCRIPT SHOULD ONLY BE RUN AFTER THE RunAllDownloads.bash HAS SUCCESSFULLY FINISHED AND ALL DATA IS AVAILABLE!
 def timer(start, end):
     hours, rem = divmod(end - start, 3600)
@@ -28,21 +29,25 @@ if __name__ == "__main__":
 
     bp = time.time()
     director = Director()
-    orthologs = OrthologsBuilder(all_species=all_species)
-    director.setBuilder(orthologs)
-    director.collectFromSource(download=download)
-    print("#### Orthologs collection duration: " + timer(bp, time.time()))
-
+    #orthologs = OrthologsBuilder(all_species=all_species)
+    #director.setBuilder(orthologs)
+    #director.collectFromSource(download=download)
+    #print("#### Orthologs collection duration: " + timer(bp, time.time()))
     spl = len(all_species)
+    species = ['D_rerio', 'M_musculus', 'R_norvegicus', 'X_tropicalis'] # 'H_sapiens'
+    species = ['H_sapiens']
+    spl = len(species)
     spnum = 1
-    for sp in all_species:
+    #for sp in all_species:
+    for sp in species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
-        if sp == "X_tropicalis" or sp == "R_norvegicus":
-            #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
-            withEns = False
-        else:
-            withEns = True
+        #if sp == "X_tropicalis" or sp == "R_norvegicus":
+        #    #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
+        #    withEns = False
+        #else:
+        #    withEns = True
+        withEns = True
         dbBuild = dbBuilder(sp, download=download, withEns=withEns)
         print("#### Species data collect & merge duration: " + timer(bp, time.time()))
         if spnum == 1:
@@ -53,7 +58,7 @@ if __name__ == "__main__":
         print("#### Duration: " + timer(bp, time.time()))
         if spnum == spl:
             dbBuild.create_index()
-            dbBuild.AddOrthology(orthologs.AllSpeciesDF)
+            #dbBuild.AddOrthology(orthologs.AllSpeciesDF)
         if sp in ['M_musculus', 'H_sapiens']:
             dbBuild.create_tables_db(merged=False)
             bp = time.time()
@@ -61,4 +66,5 @@ if __name__ == "__main__":
             print("Filling {} completed!".format(dbBuild.dbName))
             print("#### Duration: " + timer(bp, time.time()))
         spnum += 1
+    
     print("#### Full run duration: " + timer(start_time, time.time()))

@@ -1,0 +1,96 @@
+<html>
+
+<head>
+  <title>Service unavailable</title>
+  <meta name="robots" content="noindex">
+  <base href="//status.ensembl.org">
+  <style>
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: [header] auto [main] 1fr [footer] auto;
+      font-family: Luxi Sans, Helvetica, Arial, Geneva, sans-serif;
+      font-size: 90%;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+    }
+
+    header {
+      grid-row: header;
+      padding: 5px;
+      height: 60px;
+      background-color: #333366;
+    }
+
+    header img {
+      width: 185px;
+      height: 45px
+    }
+
+    main {
+      grid-row: main;
+      padding: 20px;
+    }
+
+    .mirrors {
+      border: solid 1px #ccc;
+      margin-top: 20px;
+      padding: 10px;
+    }
+
+    footer {
+      grid-row: footer;
+      padding: 0 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="/e-ensembl.png" alt="ensembl-logo" />
+  </header>
+  <main>
+    <h1>Server Status</h1>
+
+    <p>
+      <img src="/exclamation_alert.png" alt="[!]" style="float:left;padding:0 10px;width:100px;height:89px" />
+      The Ensembl web service you requested is temporarily unavailable.
+      We are working to restore the service as soon as possible, and apologise for any inconvenience caused.
+    </p>
+
+    <p>For all enquiries, please <a href="https://www.ensembl.info/contact-us/">contact our HelpDesk</a>.</p>
+
+    <div class="mirrors">
+      <h3>Ensembl mirrors</h3>
+      We now also manage two mirrors of the Ensembl website, hosted in different regions of the Amazon cloud:
+      <ul>
+        <li><a href="https://useast.ensembl.org/index.html?redirect=no">useast.ensembl.org</a></li>
+        <li><a href="https://asia.ensembl.org/index.html?redirect=no">asia.ensembl.org</a></li>
+      </ul>
+      These will be available while the main service is unavailable, although please note that some of the 
+      facilities on these mirror may not be fully functional as they rely on resources hosted at our main 
+      data centre.
+    </div>
+  </main>
+  <footer>
+    <p>&copy; 2025 EMBL-EBI</p>
+  </footer>
+</body>
+
+</html>
