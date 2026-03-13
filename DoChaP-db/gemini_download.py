@@ -6,74 +6,93 @@ import gzip
 import shutil
 import time
 import sys
+import argparse
 from ftplib import FTP
 
+ROOT_DIR = Path("./genomic_data")
+BIOMART_URL = "http://www.ensembl.org/biomart/martservice"
+MAX_RETRIES = 5
+SpeciesConvention = {
+    'M_musculus': {'name': 'Mus_musculus', 'ncbi_tagid': '10090'},
+    'H_sapiens': {'name': 'Homo_sapiens', 'ncbi_tagid': '9606'},
+    'R_norvegicus': {'name': 'Rattus_norvegicus', 'ncbi_tagid': '10116'},
+    'D_rerio': {'name': 'Danio_rerio', 'ncbi_tagid': '7955'}, 
+    'X_tropicalis': {'name': 'Xenopus_tropicalis', 'ncbi_tagid': '8364'},
+}
 
-def get_ncbi_latest_release(species):
-    # 1. Clean the name for a broad search
-    species_query = species.replace("_", "+")
+ENSEMBL_SPECIES_INFO = {
+    "H_sapiens": {"name": "homo_sapiens"},
+    "M_musculus": {"name": "mus_musculus"},
+    "R_norvegicus": {"name": "rattus_norvegicus"},
+    "D_rerio": {"name": "danio_rerio"},
+    "X_tropicalis": {"name": "xenopus_tropicalis"}
+}
+
+# Species shortcuts mapping
+SPECIES_SHORTCUTS = {
+    'H': 'H_sapiens',
+    'M': 'M_musculus',
+    'R': 'R_norvegicus',
+    'D': 'D_rerio',
+    'X': 'X_tropicalis'
+}
+
+def get_ncbi_latest_release_by_tag(tagid):
+    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
     
-    # 2. Search for ANY assembly associated with this name (no filters yet)
-    # We remove [Organism] and [filter] to see what NCBI actually has
-    search_url = (
-        f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
-        f"db=assembly&term={species_query}&retmode=json&retmax=10"
-    )
+    # URL 1: ESearch - Find the latest RefSeq UID for the TaxID
+    search_params = {
+        "db": "assembly",
+        "term": f"txid{tagid}[Organism] AND latest_refseq[Property]",
+        "retmode": "json"
+    }
     
     try:
-        r = requests.get(search_url, timeout=30)
-        r.raise_for_status()
-        asm_ids = r.json().get('esearchresult', {}).get('idlist', [])
+        search_res = requests.get(base_url + "esearch.fcgi", params=search_params)
+        search_res.raise_for_status()
+        id_list = search_res.json().get('esearchresult', {}).get('idlist', [])
         
-        if not asm_ids:
-            raise Exception(f"NCBI found zero records for query: {species_query}")
+        if not id_list:
+            return f"No GCF release found for TaxID {tagid}."
         
-        # 3. Get summaries for all found IDs and look for the RefSeq (GCF) version
-        summary_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=assembly&id={','.join(asm_ids)}&retmode=json"
-        s_res = requests.get(summary_url).json()
+        # The first ID in the list is the most recent
+        uid = id_list[0]
         
-        for aid in asm_ids:
-            details = s_res['result'][aid]
-            accession = details.get('assemblyaccession', '')
-            
-            # We want the RefSeq version (starts with GCF)
-            if accession.startswith("GCF"):
-                official_name = details.get('speciesname', 'Unknown')
-                print(f"Match Found!")
-                print(f"  Input: {species}")
-                print(f"  Official Name: {official_name}")
-                print(f"  Accession: {accession}")
-                return accession
-                
-        raise Exception(f"Found assemblies for {species}, but none were RefSeq (GCF).")
+        # URL 2: ESummary - Get the metadata for that UID
+        summary_params = {
+            "db": "assembly",
+            "id": uid,
+            "retmode": "json"
+        }
+        
+        summary_res = requests.get(base_url + "esummary.fcgi", params=summary_params)
+        summary_res.raise_for_status()
+        
+        # Extract the assemblyaccession (the GCF string)
+        summary_data = summary_res.json()
+        release_string = summary_data['result'][uid]['assemblyaccession']
+        return release_string
 
     except Exception as e:
-        print(f"Search Error: {e}")
-        raise
+        return f"Error: {e}"
 
-
-def download_ncbi_gff(species, release='latest', output_dir="."):
-    """
-    Downloads GFF3 from NCBI RefSeq with robust search logic.
-    """
-    # 1. Clean the species name for NCBI (e.g., Xenopus_tropicalis -> "Xenopus tropicalis")
-    species_clean = species.replace("_", " ")
+def download_ncbi(specie, release='latest', output_dir="."):
+    """ Downloads GFF3 GPFF from NCBI RefSeq based on the latest assembly for the given specie.  """
+    print(f"\n[NCBI] Downloading {specie} (Release: {release}). Writing to: {output_dir}")
+    os.makedirs(output_dir, exist_ok=True)
+    # Clean the specie name for NCBI (e.g., Xenopus_tropicalis -> "Xenopus tropicalis")
+    specie_clean = specie.replace("_", " ")
+    txid = SpeciesConvention[specie]['ncbi_tagid']
     
-    if release == 'latest':
-        accession = get_ncbi_latest_release(species)
-    else:
-        # If user provided a specific GCF_... accession
-        accession = release
-
-    # 3. Construct the Triplet FTP Path
-    # GCF_000004195.4 -> parts: ['000', '000', '419', '5'] (example logic)
-    # Correct NCBI triplet logic:
+    accession = get_ncbi_latest_release_by_tag(txid) if release == 'latest' else release
+    print(f"\trelease: {accession}")
     acc_num = accession.split('_')[1].split('.')[0]
-    f1, f2, f3 = acc_num[0:3], acc_num[3:6], acc_num[6:9]
+    f1, f2, f3 = acc_num[0:3], acc_num[3:6], acc_num[6:9]  # GCF_000004195.4 -> parts: ['000', '000', '419', '5'] (example logic)
+    
     base_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/{f1}/{f2}/{f3}/"
-
-    # 4. Find the full folder name (it includes the assembly name)
+    
     try:
+        # Find the full folder name (it includes the assembly name)
         dir_listing = requests.get(base_url, timeout=30).text
         # Look for the folder starting with our accession
         folder_match = re.search(fr'({accession}[^/"]+)/', dir_listing)
@@ -81,77 +100,78 @@ def download_ncbi_gff(species, release='latest', output_dir="."):
             raise Exception(f"Could not find folder for {accession} at {base_url}")
         
         full_folder = folder_match.group(1)
-        file_name = f"{full_folder}_genomic.gff.gz"
-        file_url = f"{base_url}{full_folder}/{file_name}"
-        
-        # 5. Download the file
-        dest_path = os.path.join(output_dir, file_name)
-        print(f"NCBI Match: {accession}")
-        print(f"Downloading: {file_url}")
-        
-        with requests.get(file_url, stream=True, timeout=120) as r:
-            r.raise_for_status()
-            with open(dest_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024*1024):
-                    f.write(chunk)
-                    
-        print(f"Done: {dest_path}")
-        return dest_path
-
+        # Download GFF and protein GPFF files
+        files_to_download = {
+            "gff": f"{full_folder}_genomic.gff.gz",
+            "gpff": f"{full_folder}_protein.gpff.gz"
+        }        
+        downloaded_paths = {}
+        for file_type, file_name in files_to_download.items():
+            file_url = f"{base_url}{full_folder}/{file_name}"
+            dest_path = os.path.join(output_dir, file_name)      
+            print(f"\tDownloading {file_type}: {file_url}")
+            try:
+                with requests.get(file_url, stream=True, timeout=120) as r:
+                    r.raise_for_status()
+                    with open(dest_path, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024*1024):
+                            f.write(chunk)
+                print(f"\tDone {file_type}: {dest_path}")
+                downloaded_paths[file_type] = dest_path
+            except Exception as e:
+                print(f"\tWarning: Could not download {file_type}: {e}")       
+        print(f"\tNCBI Match: {accession}")
+        return downloaded_paths
     except Exception as e:
         print(f"Download error: {e}")
         return None
 
+def get_ensembl_latest_release():
+    try:
+        r_info = requests.get("https://rest.ensembl.org/info/software?content-type=application/json", timeout=30)
+        r_info.raise_for_status()
+        release_num = r_info.json()['release']
+    except:
+        print("Error: Could not retrieve latest Ensembl release. Defaulting to 110.")
+        raise
+    return release_num
 
-def download_ensembl_gff(species, release='latest', output_dir="."):
-    """
-    Downloads GFF3 from Ensembl. 
-    Fixes 404 errors by scraping the directory for the exact filename casing.
-    """
-    if species not in ENSEMBL_SPECIES_INFO:
-        print(f"  Error: Species {species} not configured for Ensembl download")
+def download_ensembl_gff(specie, release='latest', output_dir="."):
+    """ Downloads GFF3 from Ensembl. """
+    print(f"\n[Ensembl] Downloading {specie} (Release: {release}). Writing to: {output_dir}")
+    if specie not in ENSEMBL_SPECIES_INFO:
+        print(f"  Error: Species {specie} not configured for Ensembl download")
         return None
     
-    species_info = ENSEMBL_SPECIES_INFO[species]
-    species_name = species_info["name"]
+    release_num = get_ensembl_latest_release() if release == 'latest' else release
+    specie_info = ENSEMBL_SPECIES_INFO[specie]
+    specie_name = specie_info["name"]
     
-    local_dir = Path(ROOT_DIR) / species / "ensembl"
+    local_dir = Path(ROOT_DIR) / specie / "ensembl"
     local_dir.mkdir(parents=True, exist_ok=True)
-    # 1. Folder names in the URL path are ALWAYS lowercase
-    species_folder = species_name.lower()
+    # Folder names in the URL path are ALWAYS lowercase
+    specie_folder = specie_name.lower()
     
-    # 2. Determine the release number
-    if release == 'latest':
-        try:
-            r_info = requests.get("https://rest.ensembl.org/info/software?content-type=application/json", timeout=30)
-            r_info.raise_for_status()
-            release_num = r_info.json()['release']
-        except:
-            release_num = 115 # Fallback if API is down
-    else:
-        release_num = release
-
-    # 3. Define the directory URL
-    base_ftp = f"https://ftp.ensembl.org/pub/release-{release_num}/gff3/{species_folder}/"
+    # Define the directory URL
+    base_ftp = f"https://ftp.ensembl.org/pub/release-{release_num}/gff3/{specie_folder}/"
     
-    print(f"Connecting to Ensembl directory: {base_ftp}")
-    
+    print(f"\tConnecting to Ensembl directory: {base_ftp}")
     try:
         # Request the directory listing (the HTML page showing the list of files)
         response = requests.get(base_ftp, timeout=60)
         response.raise_for_status()
         
-        # 4. SCRAPE the actual filenames from the HTML
+        # SCRAPE the actual filenames from the HTML
         # This grabs the exact casing used on the server (e.g., lowercase 't' in tropicalis)
         links = re.findall(r'href="([^"]+\.gff3\.gz)"', response.text)
         
-        # 5. Filter for the "Primary" genomic file
+        # Filter for the "Primary" genomic file
         # We exclude 'chr' (individual chromosomes), 'abinitio', and 'semimanaged'
         target_file = None
         for link in links:
             # Must contain the release number and NOT contain specific keywords
             if str(release_num) in link:
-                if not any(x in link.lower() for x in ['chr.', 'abinitio', 'semimanaged', 'chr_patch']):
+                if not any(x in link.lower() for x in ['chr.', 'abinitio', 'semimanaged', 'chr_patch', 'chromosome']):
                     target_file = link
                     break
         
@@ -162,8 +182,8 @@ def download_ensembl_gff(species, release='latest', output_dir="."):
         file_url = base_ftp + target_file
         dest_path = os.path.join(output_dir, target_file)
 
-        print(f"Verified filename found: {target_file}")
-        print(f"Downloading from: {file_url}")
+        print(f"\tVerified filename found: {target_file}")
+        print(f"\tDownloading from: {file_url}")
         
         with requests.get(file_url, stream=True, timeout=120) as r:
             r.raise_for_status()
@@ -172,186 +192,14 @@ def download_ensembl_gff(species, release='latest', output_dir="."):
                     if chunk:
                         f.write(chunk)
                     
-        print(f"Successfully downloaded: {dest_path}")
+        print(f"\tSuccessfully downloaded: {dest_path}")
         return dest_path
 
     except requests.exceptions.HTTPError as e:
-        print(f"HTTP Error: {e}. Check if species '{species_folder}' exists in release {release_num}.")
+        print(f"\tHTTP Error: {e}. Check if specie {specie_folder}' exists in release {release_num}.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"\tAn unexpected error occurred: {e}")
         return None
-
-
-# --- CONFIGURATION ---
-# Update these GCF IDs manually as NCBI releases new patches
-ASSEMBLY_VERSIONS = {
-    "H_sapiens": "GCF_000001405.40",
-    "M_musculus": "GCF_000001635.27",
-    "R_norvegicus": "GCF_015227675.2",
-    "D_rerio": "GCF_000002035.6",
-    "X_tropicalis": "GCF_000004195.4"
-}
-
-ROOT_DIR = Path("./genomic_data")
-BIOMART_URL = "http://www.ensembl.org/biomart/martservice"
-MAX_RETRIES = 5
-ENSEMBL_RELEASE = "115"  # Update as Ensembl releases new versions
-
-# Ensembl species mapping with assembly versions
-ENSEMBL_SPECIES_INFO = {
-    "H_sapiens": {"name": "homo_sapiens", "assembly": "GRCh38"},
-    "M_musculus": {"name": "mus_musculus", "assembly": "GRCm39"},
-    "R_norvegicus": {"name": "rattus_norvegicus", "assembly": "mRatBN7.2"},
-    "D_rerio": {"name": "danio_rerio", "assembly": "GRCz11"},
-    "X_tropicalis": {"name": "xenopus_tropicalis", "assembly": "UCB_Xtro_10.0"}
-}
-
-def download_refseq(sp_key, gcf_id):
-    print(f"\n[NCBI] Processing {sp_key} ({gcf_id})...")
-    local_dir = ROOT_DIR / sp_key / "refseq"
-    local_dir.mkdir(parents=True, exist_ok=True)
-
-    # GCF_000001405.40 -> 000/001/405
-    num = gcf_id.split('_')[1].split('.')[0]
-    prefix = "/".join([num[i:i+3] for i in range(0, len(num), 3)])
-
-    for attempt in range(MAX_RETRIES):
-        try:
-            with FTP("ftp.ncbi.nlm.nih.gov", timeout=60) as ftp:
-                ftp.login()
-                ftp.set_pasv(True) # CRITICAL for Errno 111 fix
-
-                ftp.cwd(f"/genomes/all/GCF/{prefix}")
-                folders = [f for f in ftp.nlst() if f.startswith(gcf_id)]
-                if not folders: return
-
-                ftp.cwd(folders[0])
-                files = ftp.nlst()
-
-                targets = {
-                    "gff": [f for f in files if f.endswith("_genomic.gff.gz")][0],
-                    "gpff": [f for f in files if f.endswith("_protein.gpff.gz")][0]
-                }
-
-                for label, filename in targets.items():
-                    local_path = local_dir / filename
-                    print(f"  Downloading {label}: {filename}...")
-                    with open(local_path, "wb") as f:
-                        ftp.retrbinary(f"RETR {filename}", f.write)
-
-                    # Decompressing for DoChaPBuilder
-                    print(f"  Extracting {label}...")
-                    with gzip.open(local_path, 'rb') as f_in:
-                        with open(str(local_path).replace('.gz', ''), 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
-                    local_path.unlink()
-                break
-        except Exception as e:
-            print(f"  Attempt {attempt+1} failed: {e}")
-            if attempt < MAX_RETRIES:
-                time.sleep(10)
-            else:
-                raise
-
-def download_refseq_https(sp_key, gcf_id):
-    print(f"\n[NCBI-HTTPS] Processing {sp_key} ({gcf_id})...")
-    local_dir = Path(ROOT_DIR) / sp_key / "refseq"
-    local_dir.mkdir(parents=True, exist_ok=True)
-
-    # 1. Format the URL for the HTTPS mirror
-    # NCBI HTTPS mirror follows the same path structure as FTP
-    num = gcf_id.split('_')[1].split('.')[0]
-    prefix = "/".join([num[i:i+3] for i in range(0, len(num), 3)])
-
-    # Base URL for the assembly's parent folder
-    base_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/{prefix}"
-
-    # 2. Since we can't 'nlst' easily on HTTPS without parsing HTML,
-    # we use a trick: the 'latest_assembly_versions' or assembly reports.
-    # However, since you have the GCF ID, we can often predict the folder name
-    # OR use the 'all' directory search.
-
-    # Robust way: Get the directory listing via requests (NCBI provides an index page)
-    try:
-        r = requests.get(base_url, timeout=30)
-        r.raise_for_status()
-
-        # Use regex to find the specific folder matching your GCF ID
-        import re
-        folder_match = re.search(f'({gcf_id}_[^/"]+)', r.text)
-        if not folder_match:
-            print(f"  Error: Could not find folder for {gcf_id}")
-            return
-
-        full_folder_name = folder_match.group(1)
-        final_url = f"{base_url}/{full_folder_name}"
-        print(f"  Found folder: {full_folder_name}")
-
-        # 3. Define target files
-        # Files are named: {folder_name}_genomic.gff.gz
-        targets = {
-            "gff": f"{full_folder_name}_genomic.gff.gz",
-            "gpff": f"{full_folder_name}_protein.gpff.gz"
-        }
-
-        for label, filename in targets.items():
-            file_url = f"{final_url}/{filename}"
-            local_path = local_dir / filename
-
-            print(f"  Downloading {label} via HTTPS...")
-            with requests.get(file_url, stream=True, timeout=60) as stream_r:
-                stream_r.raise_for_status()
-                with open(local_path, 'wb') as f:
-                    for chunk in stream_r.iter_content(chunk_size=8192):
-                        f.write(chunk)
-
-            # Decompress
-            print(f"  Extracting {filename}...")
-            with gzip.open(local_path, 'rb') as f_in:
-                with open(str(local_path).replace('.gz', ''), 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            local_path.unlink()
-
-    except Exception as e:
-        print(f"  HTTPS Download Failed: {e}")
-        raise
-
-
-def download_ensembl_gff_wrapper(sp_key, release='latest'):
-    """
-    Wrapper function to download Ensembl GFF3 for a species key.
-    Uses the existing download_ensembl_gff function with proper parameters.
-    """
-    if sp_key not in ENSEMBL_SPECIES_INFO:
-        print(f"  Error: Species {sp_key} not configured for Ensembl download")
-        return None
-    
-    species_info = ENSEMBL_SPECIES_INFO[sp_key]
-    species_name = species_info["name"]
-    
-    local_dir = Path(ROOT_DIR) / sp_key / "ensembl"
-    local_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Call the existing robust download function
-    result = download_ensembl_gff(species_name, release=release, output_dir=str(local_dir))
-    
-    # Decompress if download was successful
-    if result and os.path.exists(result):
-        print(f"  Extracting GFF3...")
-        decompressed_path = result.replace('.gz', '')
-        try:
-            with gzip.open(result, 'rb') as f_in:
-                with open(decompressed_path, 'wb') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            os.remove(result)
-            print(f"  Completed: {sp_key} GFF3 extraction")
-            return decompressed_path
-        except Exception as e:
-            print(f"  Extraction failed: {e}")
-            return result
-    
-    return result
-
 
 def run_biomart_query(xml, out_file):
     for i in range(MAX_RETRIES): # Retry logic
@@ -466,17 +314,106 @@ def fetch_ensembl_domains(sp_key):
       
 
 
+def parse_species_args(species_str):
+    """Convert species arguments (including shortcuts) to full species keys.
+    
+    Args:
+        species_str: Comma-separated string of species (e.g., 'H,M,R' or 'H_sapiens,M_musculus')
+    """
+    # Split by comma and strip whitespace
+    species_list = [s.strip() for s in species_str.split(',')]
+    
+    if not species_list or 'all' in [s.lower() for s in species_list]:
+        return list(SpeciesConvention.keys())
+    
+    resolved = []
+    for s in species_list:
+        if not s:  # Skip empty strings
+            continue
+        # Check if it's a shortcut
+        if s.upper() in SPECIES_SHORTCUTS:
+            resolved.append(SPECIES_SHORTCUTS[s.upper()])
+        # Check if it's a full species key
+        elif s in SpeciesConvention:
+            resolved.append(s)
+        else:
+            print(f"Warning: Unknown species '{s}', skipping.")
+    
+    return resolved
+
+def setup_argument_parser():
+    """Setup and return the argument parser for the script."""
+    parser = argparse.ArgumentParser(
+        description='Download genomic data from NCBI and/or Ensembl',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Examples:
+  %(prog)s --species H,M                       # Download Human and Mouse, fetch orthology
+  %(prog)s --species all --source ncbi         # Download all species from NCBI only
+  %(prog)s -s H_sapiens -o ./data              # Download Human to ./data directory
+  %(prog)s -s H,M --no-orthology               # Download without orthology data
+        """)
+    
+    parser.add_argument('-o', '--output-dir', 
+                        default='./genomic_data',
+                        help='Output directory for downloaded files (default: ./genomic_data)')
+    
+    parser.add_argument('-s', '--species', 
+                        default='all',
+                        help='Comma-separated list of species to download. Use shortcuts (H, M, R, D, X) '
+                             'or full names (H_sapiens, M_musculus, R_norvegicus, D_rerio, X_tropicalis). '
+                             'Examples: "H,M" or "H_sapiens,M_musculus". Default: all')
+    
+    parser.add_argument('--source',
+                        choices=['ncbi', 'ensembl', 'both'],
+                        default='both',
+                        help='Data source to download from (default: both)')
+    
+    parser.add_argument('--no-orthology',
+                        dest='fetch_orthology',
+                        action='store_false',
+                        default=True,
+                        help='Skip orthology data fetching (default: fetch orthology when using Ensembl source with multiple species)')
+    
+    return parser
+
 def main():
-    path = ROOT_DIR
-    path.mkdir(parents=True, exist_ok=True)
-    download_ncbi_gff("Xenopus_tropicalis")
-    download_ensembl_gff("X_tropicalis")
-    return
-    #fetch_4_way_orthology()
-    for sp_key, gcf_id in ASSEMBLY_VERSIONS.items():
-        download_refseq_https(sp_key, gcf_id)
-        download_ensembl_gff_wrapper(sp_key)
-        fetch_ensembl_domains(sp_key)
+    parser = setup_argument_parser()
+    args = parser.parse_args()
+    
+    # Parse output directory
+    output_path = Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Parse species
+    species_to_process = parse_species_args(args.species)
+    
+    if not species_to_process:
+        print("Error: No valid species specified.")
+        return
+    
+    print(f"Processing species: {', '.join(species_to_process)}")
+    print(f"Sources: {args.source}")
+    print(f"Output directory: {output_path}\n")
+    
+    # Download data for each species
+    for species in species_to_process:
+        if args.source in ['ncbi', 'both']:
+            download_ncbi(species, output_dir=output_path / species / "refseq")
+        
+        if args.source in ['ensembl', 'both']:
+            download_ensembl_gff(species, output_dir=output_path / species / "ensembl")
+    
+    # Fetch orthology data
+    # Fetch if flag is True, Ensembl is a source, and multiple species
+    should_fetch_orthology = (
+        args.fetch_orthology and 
+        args.source in ['ensembl', 'both'] and 
+        len(species_to_process) > 1
+    )
+    
+    if should_fetch_orthology:
+        print("\nFetching orthology data...")
+        fetch_4_way_orthology()
 
 if __name__ == "__main__":
     main()
