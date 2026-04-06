@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 """
+todo:
+1. add loading cddid.tbl.gz and interpro.xml.gz
+2.DomainType: other_name: prefix must be: smart, pfam, cd, cl, IPR,TIGR
+2. Protein table synonyms   
+2. SpliceDomain: transcripts ids instead of protein
+3. addwarning on non matched proteins, and check them
+4. Add messages of matchin/non matching numbers for proteins, trasncripts, genes
 DoChaP Database Builder Runner
 Orchestrates the download and merge stages for building a unified genomic database.
 
@@ -21,16 +28,22 @@ import logging
 import sqlite3
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
+
+# Add current script directory to path to ensure local imports
+script_dir = Path(__file__).parent.absolute()
+if str(script_dir) not in sys.path:
+    sys.path.insert(0, str(script_dir))
+
 from dochap_download import (
     download_ncbi, 
     download_ensembl_gff, 
     fetch_4_way_orthology,
     parse_species_args,
     SpeciesConvention,
-    SPECIES_SHORTCUTS
+    SPECIES_SHORTCUTS,
 )
-from dochap_merge import run_merger
-from dochap_definition import DoChaPDB
+from dochap_build import run_build
+from dochap_db import DoChaPDB
 
 # Configure logging
 logging.basicConfig(
@@ -184,7 +197,7 @@ def _merge_single_species(args_tuple):
     """Helper function to merge a single species (for multiprocessing)."""
     input_path, species, db_name = args_tuple
     try:
-        run_merger(str(input_path), species, db_name)
+        run_build(str(input_path), species, db_name)
         return (species, db_name, None)  # success
     except Exception as e:
         return (species, db_name, str(e))  # failure
@@ -242,7 +255,7 @@ def run_merge_stage(args, species_list):
         # Run merges sequentially
         for input_path, species, db_name in merge_tasks:
             log_header(f"Merging {species}")
-            run_merger(str(input_path), species, db_name)
+            run_build(str(input_path), species, db_name)
             merged_databases.append(db_name)
             logger.info(f"✓ Successfully created database: {db_name}")
             '''

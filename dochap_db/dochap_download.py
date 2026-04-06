@@ -8,6 +8,9 @@ import time
 import sys
 import argparse
 from ftplib import FTP
+import pandas as pd
+from io import StringIO
+import mysql.connector
 
 ROOT_DIR = Path("./genomic_data")
 BIOMART_URL = "http://www.ensembl.org/biomart/martservice"
@@ -312,6 +315,99 @@ def fetch_ensembl_domains(sp_key):
 
         run_biomart_query(xml, os.path.join(local_dir, f"{sp_key}.Domains.{attr}.txt"))
       
+
+def query_ensembl_direct(species="homo_sapiens", chromosome="21"):
+    # Connection details for Ensembl Public MySQL
+    config = {
+        'host': 'ensembldb.ensembl.org',
+        'port': 3306,
+        'user': 'anonymous',
+        'database': f'{species}_core_115_38' # Adjust version as needed (115 is current)
+    }
+
+    # The SQL query to bridge Ensembl Protein to NCBI and Domains
+    sql = f"""
+    SELECT 
+        g.stable_id AS gene_id,
+        t.stable_id AS transcript_id,
+        p.stable_id AS protein_id,
+        sr.name AS chromosome,
+        x.display_label AS xref_id,
+        edb.db_name AS database_name
+    FROM 
+        gene g
+        JOIN seq_region sr ON g.seq_region_id = sr.seq_region_id
+        JOIN transcript t ON g.gene_id = t.gene_id
+        JOIN translation p ON t.transcript_id = p.transcript_id
+        LEFT JOIN object_xref ox ON p.translation_id = ox.ensembl_id AND ox.ensembl_object_type = 'Translation'
+        LEFT JOIN xref x ON ox.xref_id = x.xref_id
+        LEFT JOIN external_db edb ON x.external_db_id = edb.external_db_id
+    WHERE 
+        sr.name = '{chromosome}' 
+        AND edb.db_name IN ('RefSeq_peptide', 'Interpro', 'Pfam', 'Smart')
+    """
+
+    try:
+        print(f"Connecting to Ensembl for Chromosome {chromosome}...")
+        conn = mysql.connector.connect(**config)
+        df = pd.read_sql(sql, conn)
+        conn.close()
+        return df
+    except Exception as e:
+        print(f"SQL Error: {e}")
+        return None
+# both gett_human_mapping_local and download_ensembl_ncbi_mapping() fetches the Ensembl to NCBI mapping
+# one uses ftp and the other uses BioMart. The Ensembl FTP mapping is much faster to download and parse,
+#  so we use it as the default method. The BioMart method is kept as a backup in case the FTP file is unavailable or outdated.
+def get_human_mapping_local() -> pd.DataFrame:
+    # Ensembl 115 (Current for 2026) TSV mapping path
+    url = "https://ftp.ensembl.org/pub/current_tsv/homo_sapiens/Homo_sapiens.GRCh38.115.entrez.tsv.gz"
+    local_file = "human_map.tsv.gz"
+    
+    print("Downloading high-speed mapping file...")
+    with requests.get(url, stream=True) as r:
+        with open(local_file, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+            
+    # Load into Pandas (this will take ~2 seconds vs 10 mins for BioMart)
+    df = pd.read_csv(local_file, sep='\t', compression='gzip')
+    return df
+
+def download_ensembl_ncbi_mapping(species_name="xtropicalis", chromosome="1"):
+    """
+    Downloads a mapping table for a specific species.
+    Common names: 'hsapiens', 'mmusculus', 'rnorvegicus', 'drerio', 'xtropicalis'
+    """
+    print(f"Fetching mapping for {species_name}...")
+    
+    # The BioMart XML query: asking for Ensembl IDs + NCBI RefSeq IDs
+    xml_query = f"""<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE Query>
+    <Query virtualSchemaName="default" formatter="TSV" header="1" uniqueRows="1" count="" datasetConfigVersion="0.6">
+        <Dataset name="{species_name}_gene_ensembl" interface="default">
+            
+            <Filter name="chromosome_name" value="{chromosome}"/>
+            
+            <Attribute name="ensembl_gene_id" />
+            <Attribute name="ensembl_peptide_id" />
+            <Attribute name="refseq_peptide" />     
+        </Dataset>
+    </Query>""".strip()
+    # <Attribute name="interpro" />
+    #        <Attribute name="pfam" />
+    #        <Attribute name="smart" />
+    url = "http://www.ensembl.org/biomart/martservice"
+    response = requests.get(url, params={'query': xml_query})
+    
+    if response.status_code == 200:
+        df = pd.read_csv(StringIO(response.text), sep='\t')
+        # Clean up: Remove rows where no NCBI mapping exists
+        #df = df.dropna(subset=['RefSeq mRNA ID', 'RefSeq peptide ID'], how='all')
+        return df
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
 
 
 def parse_species_args(species_str):
