@@ -436,10 +436,10 @@ class Domain {
                 sourceName = "Source";
                 source = "unknown";
             }
-            if (source.substring(0, 5) == 'smart') {
+            if (source.substring(0, 5) == 'smart' || source.substring(0, 2) == 'SM') {
                 sourceName = "Smart";
             }
-            if (source.substring(0, 4) == 'pfam') {
+            if (source.substring(0, 4) == 'pfam' || source.substring(0, 2) == 'PF') {
                 sourceName = "Pfam";
             }
             if (source.substring(0, 2) == 'cd' || source.substring(0, 2) == 'cl') {
