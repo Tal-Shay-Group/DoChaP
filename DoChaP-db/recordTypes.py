@@ -46,7 +46,6 @@ class Gene:
                     self.synonyms = other.symbol
         return self
 
-
 class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,

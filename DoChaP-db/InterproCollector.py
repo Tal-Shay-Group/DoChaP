@@ -19,6 +19,8 @@ class InterProBuilder(SourceBuilder):
         next = self.BASE_URL
         last_page = False
 
+        if os.path.exists(self.outputFile):
+            return
         f = open(self.outputFile, "w")
         #sys.stdout = f
 

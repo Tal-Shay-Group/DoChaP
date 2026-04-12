@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os
 import re
+import numpy as np
 import pandas as pd
 
 sys.path.append(os.getcwd())
@@ -87,7 +88,8 @@ class OrthologsBuilder(SourceBuilder):
     def parser(self):
         conv = {'gene_stable_ID': 'ID', 'gene_name': 'name', 'homology_type': 'type',
                 'Human': 'H_sapiens', 'Rat': 'R_norvegicus', 'Mouse': 'M_musculus', 'Zebrafish': 'D_rerio',
-                'Tropical_clawed_frog': 'X_tropicalis'}
+                'Tropical_clawed_frog': 'X_tropicalis',
+                '-_BN/NHsdMcwi_' : '_', 'Norway_rat_': 'R_norvegicus'} # @@AM
         self.AllSpeciesDF = {}
         alltables = os.listdir(self.downloadPath)
         alltables = [table for table in alltables if table.endswith("orthology.txt")]

@@ -113,7 +113,7 @@ class RefseqBuilder(SourceBuilder):
         print("\tcreating temporary database from file: " + self.gff)
         fn = gffutils.example_filename(self.gff)
         db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
-        # #
+    # #
         # # # OPT2 - Use when running localy for the first time and need to create a local temporary database, must be used with OPT3
         # gffutils.create_db(fn, "DB.Refseq_" + self.species[0] +".db", merge_strategy="create_unique")
         # #
@@ -196,9 +196,9 @@ class RefseqBuilder(SourceBuilder):
             ref = e["ID"][0].split("-")
             if ref[1] not in self.Transcripts.keys():
                 continue
-            # if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
-            #         or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
-            #     continue  # ignore alternative chromosome and exons of duplicated genes
+            if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
+                    or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
+                continue  # ignore alternative chromosome and exons of duplicated genes
             ref = ref[1]
             orderInT = int(e["ID"][0].split("-")[2])
             l_orig = len(self.Transcripts[ref].exon_starts)

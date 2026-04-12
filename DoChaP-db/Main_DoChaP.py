@@ -1,6 +1,11 @@
 #!/usr/bin/python
 import sys
 import os
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import time
 
 sys.path.append(os.getcwd())
@@ -29,17 +34,18 @@ if __name__ == "__main__":
 
     bp = time.time()
     director = Director()
-    #orthologs = OrthologsBuilder(all_species=all_species)
-    #director.setBuilder(orthologs)
-    #director.collectFromSource(download=download)
-    #print("#### Orthologs collection duration: " + timer(bp, time.time()))
+    orthologs = OrthologsBuilder(all_species=all_species)
+    director.setBuilder(orthologs)
+    director.collectFromSource(download=download)
+    print("#### Orthologs collection duration: " + timer(bp, time.time()))
+    
     spl = len(all_species)
-    species = ['D_rerio', 'M_musculus', 'R_norvegicus', 'X_tropicalis'] # 'H_sapiens'
-    species = ['H_sapiens']
-    spl = len(species)
+    #species = ['R_norvegicus', 'X_tropicalis', 'D_rerio', 'H_sapiens', 'M_musculus'] 
+    #species = ['H_sapiens'] 
+    #spl = len(species) #
     spnum = 1
-    #for sp in all_species:
-    for sp in species:
+    #for sp in species:
+    for sp in all_species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
         #if sp == "X_tropicalis" or sp == "R_norvegicus":
@@ -52,13 +58,12 @@ if __name__ == "__main__":
         print("#### Species data collect & merge duration: " + timer(bp, time.time()))
         if spnum == 1:
             dbBuild.create_tables_db(merged=True)
-        bp = time.time()
         dbBuild.fill_in_db(merged=True)
         print("Adding species {} to DB {} completed!".format(sp, dbBuild.dbName))
         print("#### Duration: " + timer(bp, time.time()))
         if spnum == spl:
             dbBuild.create_index()
-            #dbBuild.AddOrthology(orthologs.AllSpeciesDF)
+            dbBuild.AddOrthology(orthologs.AllSpeciesDF)
         if sp in ['M_musculus', 'H_sapiens']:
             dbBuild.create_tables_db(merged=False)
             bp = time.time()
@@ -68,3 +73,4 @@ if __name__ == "__main__":
         spnum += 1
     
     print("#### Full run duration: " + timer(start_time, time.time()))
+

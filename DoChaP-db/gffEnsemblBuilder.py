@@ -33,6 +33,7 @@ class EnsemblBuilder(SourceBuilder):
         self.Genes = {}
         self.pro2trans = {}
         self.trans2pro = {}
+        self.trans2version = {} # D_rerio biomart files do not contain version
 
     def downloader(self):
         skey = self.SpeciesConvertor[self.species]
@@ -78,6 +79,7 @@ class EnsemblBuilder(SourceBuilder):
             str(countFoundTranscripts)))
         print("\t{} transcripts (with protein products) were not found in gff3 file".format(
             str(countNotFoundTranscripts)))
+
         # for t in self.Transcripts.values():
         #     if t.CDS is None or t.tx is None or t.exon_starts is None or t.exon_ends is None:
         #         print(t)
@@ -153,6 +155,7 @@ class EnsemblBuilder(SourceBuilder):
             self.Transcripts[ref].exon_ends = self.Transcripts[ref].exon_ends + [None] * (orderInT - l_orig)
             self.Transcripts[ref].exon_starts[orderInT - 1] = e.start - 1
             self.Transcripts[ref].exon_ends[orderInT - 1] = e.end
+        
         # for t in self.Transcripts.values():
         # if t.strand == "-":
         #    t.exon_starts = t.exon_starts[::-1]
@@ -161,6 +164,8 @@ class EnsemblBuilder(SourceBuilder):
     def parse_domains(self):
         print("\tCollecting domains from ensembl domains talbes:")
         for extDB in self.DomainsBuilder.ExternalDomains:
+            if self.species == 'R_norvegicus' and extDB == 'tigerfams': # ensembl dows not support tigrfam for R_norvegicus
+                continue
             print("\t - {}".format(extDB))
             df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
                                sep="\t", header=0)
@@ -168,14 +173,18 @@ class EnsemblBuilder(SourceBuilder):
             if extDB == "tigrfams":
                 df.columns = df.columns.str.replace("TIGRFAM", "tigrfams")
             df.columns = df.columns.str.lower().str.replace(extDB + "_", "")
+            if self.species == 'D_rerio': # does not have version protein_stable_id_version, transcript_stable_id_version
+                df['protein_stable_id_version'] = df['protein_stable_id'] + '.' + df['version_(protein)'].astype(str).replace('nan', '')
+                df['transcript_stable_id_version'] = df['transcript_stable_id'] + '.' + df['version_(transcript)'].astype(str).replace('nan', '')
+                df = df.drop(columns=['protein_stable_id', 'version_(protein)','transcript_stable_id', 'version_(transcript)'])
             if extDB == "interpro":
                 tdf = df.copy(deep=True)
-                tdf.index = tdf["transcript_stable_id_version"]
-                tdf = tdf["protein_stable_id_version"]
+                tdf.index = tdf.transcript_stable_id_version
+                tdf = tdf.protein_stable_id_version
                 self.trans2pro = tdf.to_dict()
                 tdf = df.copy(deep=True)
-                tdf.index = tdf["protein_stable_id_version"]
-                tdf = tdf["transcript_stable_id_version"]
+                tdf.index = tdf.protein_stable_id_version
+                tdf = tdf.transcript_stable_id_version
                 self.pro2trans = tdf.to_dict()
                 del tdf
             df = df.dropna()

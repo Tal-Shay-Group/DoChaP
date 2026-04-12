@@ -201,17 +201,17 @@ class dbBuilder:
         """ Creates index for for efficient searches"""
         with connect(self.dbName + '.sqlite') as con:
             cur = con.cursor()
-            cur.execute('''CREATE INDEX geneTableIndexBySpecies ON Genes(specie);''')
-            cur.execute('''CREATE INDEX transcriptTableIndexByGene ON Transcripts(gene_GeneID_id) ;''')
+            cur.execute('''CREATE INDEX IF NOT EXISTS geneTableIndexBySpecies ON Genes(specie);''')
+            cur.execute('''CREATE INDEX IF NOT EXISTS transcriptTableIndexByGene ON Transcripts(gene_GeneID_id) ;''')
             cur.execute(
-                '''CREATE INDEX exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
-            cur.execute('''CREATE INDEX domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
-            cur.execute('''CREATE INDEX domainEventsTableIndexByEnsembl ON DomainEvent(protein_ensembl_id);''')
+                '''CREATE INDEX IF NOT EXISTS exonsInTranscriptsTableIndexByTranscripts ON Transcript_Exon(transcript_refseq_id) ;''')
+            cur.execute('''CREATE INDEX IF NOT EXISTS domainEventsTableIndexByProtein ON DomainEvent(protein_refseq_id) ;''')
+            cur.execute('''CREATE INDEX IF NOT EXISTS domainEventsTableIndexByEnsembl ON DomainEvent(protein_ensembl_id);''')
             cur.execute(
-                '''CREATE INDEX exonInTranscriptsTableIndexByEnsembl ON Transcript_Exon(transcript_ensembl_id);''')
-            cur.commit()
+                '''CREATE INDEX IF NOT EXISTS exonInTranscriptsTableIndexByEnsembl ON Transcript_Exon(transcript_ensembl_id);''')
+            con.commit()
             cur.execute("ANALYZE")
-            cur.commit()    
+            con.commit()    
 
     def get_memory_usage(self):
         process = psutil.Process(os.getpid())
@@ -280,6 +280,7 @@ class dbBuilder:
 
             print("Processing transcripts: {}".format(len(self.data.Transcripts)))
             count = 0
+            bp = time.time()
             for tID, transcript in self.data.Transcripts.items():
                 count += 1
                 if count % 5000 == 0:
@@ -324,7 +325,9 @@ class dbBuilder:
 
                 # 3. Exons Buffers
                 start_abs, stop_abs = transcript.exons2abs()
-                starts, ends = transcript.exon_starts, transcript.exon_ends
+                #starts, ends = transcript.exon_starts, transcript.exon_ends
+                starts = transcript.exon_starts.copy()
+                ends = transcript.exon_ends.copy()
                 for i in range(e_counts):
                     # Transcript_Exon
                     buffers["Transcript_Exon"].append((transcript.refseq, transcript.ensembl, i+1, 
@@ -659,7 +662,8 @@ class dbBuilder:
                     merged_df.columns = merged_df.columns.str.replace(spec + "_ID", label + "_ensembl_id")
                     merged_df = merged_df.drop(spec + "_name", axis=1)
                     n += 1
-                MainOrtho = MainOrtho.append(merged_df, sort=False)
+                merged_df = merged_df.rename(columns={'A_Species': 'A_species', 'B_Species': 'B_species'})
+                MainOrtho = pd.concat([MainOrtho, merged_df], axis=0, sort=False, ignore_index=True)
             MainOrtho = MainOrtho.drop_duplicates()
             MainOrtho = MainOrtho.groupby(["A_ensembl_id", "B_ensembl_id"], as_index=False, sort=False).agg(
                 lambda col: ', '.join(set(col)))
