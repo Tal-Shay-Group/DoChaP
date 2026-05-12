@@ -122,6 +122,7 @@ class EnsemblBuilder(SourceBuilder):
             newT.gene_ensembl = t["Parent"][0].split(":")[1]
             newT.geneSymb = t["Name"][0].split("-")[0] if "Name" in list(t.attributes) else None
             newT.NMD = True if t["biotype"][0] == "nonsense_mediated_decay" else False
+            newT.canonical =  'Ensembl_canonical' in t.attributes.get('tag', [])
             self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
         print("\tCollecting CDS data from gff file...")

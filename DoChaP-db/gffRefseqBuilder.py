@@ -150,6 +150,7 @@ class RefseqBuilder(SourceBuilder):
                 newT.strand = t.strand
                 newT.refseq = t["transcript_id"][0]
                 newT.geneSymb = t["gene"][0]
+                newT.canonical = 'MANE Select' in t.attributes.get('tag', []) 
                 self.Transcripts[newT.refseq] = newT
                 self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
                 transcript2region[newT.refseq] = t.chrom

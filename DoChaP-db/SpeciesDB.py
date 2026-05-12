@@ -69,6 +69,7 @@ class dbBuilder:
                                 gene_ensembl_id TEXT,
                                 protein_refseq_id TEXT,
                                 protein_ensembl_id TEXT,
+                                canonical BOOLEAN,
                                 PRIMARY KEY (transcript_refseq_id, transcript_ensembl_id),
                                 FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id),
                                 FOREIGN KEY(protein_refseq_id,protein_ensembl_id) REFERENCES Proteins(protein_refseq_id,protein_ensembl_id)
@@ -220,7 +221,7 @@ class dbBuilder:
     def flush_buffers(self, cur, buffers, force=False, specific=None, BATCH_SIZE=5000):
         """Helper to write lists to DB and clear them"""
         queries = {
-            "Transcripts": "INSERT OR IGNORE INTO Transcripts (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start, cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+            "Transcripts": "INSERT OR IGNORE INTO Transcripts (transcript_refseq_id, transcript_ensembl_id, tx_start, tx_end, cds_start, cds_end, exon_count, gene_GeneID_id, gene_ensembl_id, protein_refseq_id, protein_ensembl_id, canonical) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
             "Genes": "INSERT OR IGNORE INTO Genes (gene_GeneID_id, gene_ensembl_id, gene_symbol, synonyms, chromosome, strand, specie) VALUES (?, ?, ?, ?, ?, ?, ?)",
             "Transcript_Exon": "INSERT OR IGNORE INTO Transcript_Exon (transcript_refseq_id, transcript_ensembl_id, order_in_transcript, genomic_start_tx, genomic_end_tx, abs_start_CDS, abs_end_CDS) VALUES (?, ?, ?, ?, ?, ?, ?)",
             "Exons": "INSERT OR IGNORE INTO Exons (gene_GeneID_id, gene_ensembl_id, genomic_start_tx, genomic_end_tx) VALUES (?, ?, ?, ?)",
@@ -303,7 +304,8 @@ class dbBuilder:
                 buffers["Transcripts"].append(
                     (transcript.refseq, transcript.ensembl) + transcript.tx + transcript.CDS + 
                     (e_counts, gID, transcript.gene_ensembl, 
-                    transcript.protein_refseq, transcript.protein_ensembl)
+                    transcript.protein_refseq, transcript.protein_ensembl,
+                    transcript.canonical)
                 )
 
                 # 2. Genes Buffer

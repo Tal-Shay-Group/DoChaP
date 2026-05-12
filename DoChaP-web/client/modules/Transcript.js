@@ -22,6 +22,7 @@ class Transcript {
         this.transcriptEnsemblLink = this.getEnsemblTranscriptLink(dbTranscript.transcript_ensembl_id, gene.specie);
         this.isStrandNegative = (gene.strand == '-');
         this.name = this.getName(dbTranscript.transcript_refseq_id, dbTranscript.transcript_ensembl_id)
+        this.canonical = dbTranscript.canonical;
 
         //protein attributes
         this.proteinId = dbTranscript.protein.protein_refseq_id != undefined ? dbTranscript.protein.protein_refseq_id : dbTranscript.protein.protein_ensembl_id;
@@ -443,6 +444,12 @@ class Transcript {
         if ( a.id.substring(0,2) > b.id.substring(0,2) ){
           return 1;
         }*/
+       if (a.canonical && !b.canonical) {
+            return -1;
+        }
+        if (!a.canonical && b.canonical) {
+            return 1;
+        }
         if (a.proteinLength < b.proteinLength) {
             return 1;
         }

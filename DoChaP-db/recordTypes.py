@@ -50,7 +50,7 @@ class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
                  GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None,
-                 exons_starts=[], exons_ends=[]):
+                 exons_starts=[], exons_ends=[], canonical=False):
         self.refseq = refseq
         self.ensembl = ensembl
         self.chrom = chrom
@@ -63,6 +63,7 @@ class Transcript:
         self.protein_refseq = protein_refseq
         self.protein_ensembl = protein_ensembl
         self.NMD = False
+        self.canonical = canonical
         if len(exons_starts) == len(exons_ends):
             self.exon_starts = exons_starts
             self.exon_ends = exons_ends
@@ -145,7 +146,7 @@ class Transcript:
 
     def mergeTranscripts(self, other):
         attr = ['refseq', 'ensembl', 'chrom', 'strand', 'tx', 'CDS', 'gene_GeneID', 'gene_ensembl',
-                'geneSymb', 'protein_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends']
+                'geneSymb', 'protein_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends', 'canonical']
         if (self.idVersion() is not None and other.idVersion() is not None) and \
                 (self.idVersion("ensembl") is not None and other.idVersion("ensembl") is not None):
             if self.idVersion() > other.idVersion() or self.idVersion("ensembl") > other.idVersion("ensembl"):
