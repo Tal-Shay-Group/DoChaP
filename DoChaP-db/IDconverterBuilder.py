@@ -27,6 +27,8 @@ class ConverterBuilder(SourceBuilder):
         self.idNov = {}
 
     def downloader(self):
+        if os.path.exists(self.savePath):
+            return
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
         ftp_path = '/gene/DATA/'
         filename = 'gene2ensembl'

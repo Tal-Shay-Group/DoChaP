@@ -54,6 +54,7 @@ class DomainsEnsemblBuilder(SourceBuilder):
         """
         self.createDownloadScripts()
         subprocess.Popen(['chmod', 'u+x', self.shellScript])
+        print(f"\t running script: {self.shellScript}")
         runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         output, err = runScript.communicate()
         print("poll(): " + str(runScript.poll()))

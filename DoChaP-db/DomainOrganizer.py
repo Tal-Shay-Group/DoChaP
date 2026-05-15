@@ -62,7 +62,7 @@ class DomainOrganizer:
             # self.ignored_domains["nonInterpro"].append(domain.extID)
             # return None  # only using domains that are recorded in Interpro
             if domain.extType == "interpro" and \
-                    [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0]] == [None] * 4:
+                    [identify["cdd"].iloc[0], identify["pfam"].iloc[0], identify["smart"].iloc[0], identify['tigrfams'].iloc[0]] == [None] * 4:
                 self.ignored_domains["onlyInterpro"].append(domain.extID)
                 return None  # interpro domains are only used when connected with other external source
             elif self.Interpro.AllDomains.loc[ind, "Type"] not in ("domain", "repeat"):
@@ -98,7 +98,7 @@ class DomainOrganizer:
                 ndesc = domain.note
                 ncdd = domain.cdd
         if ind is not None and ind not in self.allExt:
-            indExt = [identify["cdd"][0], identify["pfam"][0], identify["smart"][0], identify['tigrfams'][0], ind]
+            indExt = [identify["cdd"].iloc[0], identify["pfam"].iloc[0], identify["smart"].iloc[0], identify['tigrfams'].iloc[0], ind]
             existExt = tuple(map(self.addToExtID, list(existExt), indExt))
             self.allExt[ind] = currReg
         pos = external.index(domain.extType)

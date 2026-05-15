@@ -9,8 +9,14 @@ class Species {
         if (source.substring(0, 5) == 'smart') {
             return "http://smart.embl-heidelberg.de/smart/do_annotation.pl?DOMAIN=" + source.substring(5);
         }
+        if (source.substring(0, 2) == 'SM') {
+            return "http://smart.embl-heidelberg.de/smart/do_annotation.pl?DOMAIN=" + source.substring(2);
+        }
         if (source.substring(0, 4) == 'pfam') {
             return "https://pfam.xfam.org/family/" + 'PF' + source.substring(4);
+        }
+        if (source.substring(0, 2) == 'PF') {
+            return "https://pfam.xfam.org/family/" + 'PF' + source.substring(2);
         }
         if (source.substring(0, 2) == 'cd') {
             return "https://www.ncbi.nlm.nih.gov/Structure/cdd/cddsrv.cgi?uid=" + source;

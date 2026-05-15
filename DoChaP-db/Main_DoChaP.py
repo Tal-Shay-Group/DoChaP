@@ -1,6 +1,11 @@
 #!/usr/bin/python
 import sys
 import os
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import time
 
 sys.path.append(os.getcwd())
@@ -8,6 +13,7 @@ from Director import Director
 from OrthologsBuilder import *
 from SpeciesDB import *
 from conf import all_species
+
 
 
 # # # THIS SCRIPT SHOULD ONLY BE RUN AFTER THE RunAllDownloads.bash HAS SUCCESSFULLY FINISHED AND ALL DATA IS AVAILABLE!
@@ -32,22 +38,26 @@ if __name__ == "__main__":
     director.setBuilder(orthologs)
     director.collectFromSource(download=download)
     print("#### Orthologs collection duration: " + timer(bp, time.time()))
-
+    
     spl = len(all_species)
+    #species = ['R_norvegicus', 'X_tropicalis', 'D_rerio', 'H_sapiens', 'M_musculus'] 
+    #species = ['H_sapiens'] 
+    #spl = len(species) #
     spnum = 1
+    #for sp in species:
     for sp in all_species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
-        if sp == "X_tropicalis" or sp == "R_norvegicus":
-            #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
-            withEns = False
-        else:
-            withEns = True
+        #if sp == "X_tropicalis" or sp == "R_norvegicus":
+        #    #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
+        #    withEns = False
+        #else:
+        #    withEns = True
+        withEns = True
         dbBuild = dbBuilder(sp, download=download, withEns=withEns)
         print("#### Species data collect & merge duration: " + timer(bp, time.time()))
         if spnum == 1:
             dbBuild.create_tables_db(merged=True)
-        bp = time.time()
         dbBuild.fill_in_db(merged=True)
         print("Adding species {} to DB {} completed!".format(sp, dbBuild.dbName))
         print("#### Duration: " + timer(bp, time.time()))
@@ -61,4 +71,6 @@ if __name__ == "__main__":
             print("Filling {} completed!".format(dbBuild.dbName))
             print("#### Duration: " + timer(bp, time.time()))
         spnum += 1
+    
     print("#### Full run duration: " + timer(start_time, time.time()))
+
