@@ -24,7 +24,7 @@ In addition, there is documentation in each file.
 
 **Running Code Locally**
 
-1. Download Git and Node (if you don&#39;t already have them).
+1. Download Git and Node (if you don&#39;t already have them). Current version was tested on node v22.22.2.
 2. Open a folder to locate the code there.
 3. Open cmd in the location of this folder and write:
 git init

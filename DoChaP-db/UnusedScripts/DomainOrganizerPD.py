@@ -1,4 +1,4 @@
-import re
+import re 
 from sqlite3 import connect
 from Director import Director
 from InterproCollector import InterProBuilder
