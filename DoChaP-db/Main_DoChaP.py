@@ -40,9 +40,18 @@ if __name__ == "__main__":
     print("#### Orthologs collection duration: " + timer(bp, time.time()))
     
     spl = len(all_species)
+<<<<<<< Updated upstream
     #species = ['R_norvegicus', 'X_tropicalis', 'D_rerio', 'H_sapiens', 'M_musculus'] 
     #species = ['H_sapiens'] 
     #spl = len(species) #
+=======
+<<<<<<< Updated upstream
+=======
+    species = ['R_norvegicus', 'X_tropicalis', 'D_rerio', 'H_sapiens', 'M_musculus'] 
+    #species = ['H_sapiens'] 
+    spl = len(species) #
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     spnum = 1
     #for sp in species:
     for sp in all_species:

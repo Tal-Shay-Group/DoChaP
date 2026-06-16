@@ -9,6 +9,7 @@ from Director import Director
 from IDconverterBuilder import ConverterBuilder
 from gffRefseqBuilder import RefseqBuilder
 from gffEnsemblBuilder import EnsemblBuilder
+from recordTypes import CanonicalEnum
 
 
 class Collector:
@@ -56,6 +57,7 @@ class Collector:
         # ensembls = set()
         writtenIDs = set()
         genesIDs = set()
+<<<<<<< Updated upstream
         t_map = self.idConv.transcriptCon
         g_map = self.idConv.geneCon
         p_map = self.idConv.proteinCon
@@ -73,6 +75,10 @@ class Collector:
             count += 1
             if count % 1000 == 0:
                 print(f'\t #{count}')
+=======
+<<<<<<< Updated upstream
+        for refT, record in self.refseq.Transcripts.items():
+>>>>>>> Stashed changes
             if refT[1] == "R":  # only protein coding
                 continue
             ensT = t_map.get(refT, None)
@@ -82,15 +88,64 @@ class Collector:
             ensP = p_map.get(refP, None)
             if refP is None or refP not in ref_proteins:  # if no matching protein - ignore the transcript
                 continue
+<<<<<<< Updated upstream
             ensPflag = ensP in ens_proteins
             ensTflag = ensT in ens_transcripts
+=======
+            ensPflag = ensP in self.ensembl.Proteins
+            ensTflag = ensT in self.ensembl.Transcripts
+=======
+        t_map = self.idConv.transcriptCon
+        g_map = self.idConv.geneCon
+        p_map = self.idConv.proteinCon
+        ref_transcripts = self.refseq.Transcripts
+        ref_proteins = self.refseq.Proteins
+        ens_transcripts = self.ensembl.Transcripts
+        ens_proteins = self.ensembl.Proteins
+        # use local function instead of redicrect
+        merge_domains = self.CompMergeDomainLists
+        fill_trans = self.idConv.FillInMissingsTranscript
+        fill_prot = self.idConv.FillInMissingProteins
+        count = 0
+        transcripts_mismaches = 0
+        transcripts_matches = 0
+        print(f'Starting going over refseq transcripts: {len(ref_transcripts)}')
+        for refT, record in ref_transcripts.items():
+            count += 1
+            if count % 1000 == 0:
+                print(f'\t #{count}')
+            #if refT[1] == "R":  # only protein coding
+            #    continue
+            ensT = t_map.get(refT, None)
+            if ensT and record.ensembl:
+                if record.ensembl != ensT:
+                    print(f"Transcript ID mismatch for {refT}: refseq has {record.ensembl} and idConv has {ensT}")
+                    #raise ValueError(f"Transcript ID mismatch for {refT}: refseq has {record.ensembl} and idConv has {ensT}")
+                    transcripts_mismaches += 1
+                    ensT = record.ensembl
+                else:
+                    transcripts_matches += 1
+                    
+            elif ensT is None and record.ensembl:
+                ensT = record.ensembl
+                
+            if record.protein_refseq is None or record.protein_refseq == '-':
+                record.protein_refseq = self.refseq.trans2pro.get(refT, None)
+            refP = record.protein_refseq
+            ensP = p_map.get(refP, None)
+            #if refP is None or refP not in ref_proteins:  # if no matching protein - ignore the transcript @@AM
+            #    continue
+            ensPflag = ensP in ens_proteins
+            ensTflag = ensT in ens_transcripts
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             if not ensTflag and ensPflag:
                 tempensT = self.ensembl.pro2trans[ensP]
                 if ensT is None:
                     record.ensembl = tempensT
                 ensT = tempensT
             elif ensTflag and not ensPflag:
-                ensP = self.ensembl.trans2pro[ensT]
+                ensP = self.ensembl.trans2pro.get(ensT, None)
 
             refG = record.gene_GeneID
             ensG = g_map.get(refG, None)
@@ -102,12 +157,38 @@ class Collector:
                 if ensG is not None:
                     genesIDs.add(ensG)
 
+<<<<<<< Updated upstream
             if ensP in ens_proteins and abs(int(ref_proteins[refP].length) - int(ens_proteins[ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
                 self.mismatches_merged.append((ensP, refP,))
                 self.Transcripts[refT] = fill_trans(record)
                 self.Proteins[refP] = fill_prot(ref_proteins[refP])
                 self.Proteins[refP].mergeDescription(ens_proteins[ensP])
                 self.Domains[refP] = merge_domains(self.refseq.Domains.get(refP, []),
+=======
+<<<<<<< Updated upstream
+            if ensP in self.ensembl.Proteins and abs(int(self.refseq.Proteins[refP].length) - int(self.ensembl.Proteins[
+                                                                                                      ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
+                self.mismatches_merged.append((ensP, refP,))
+                self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
+                self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
+                self.Proteins[refP].mergeDescription(self.ensembl.Proteins[ensP])
+                self.Domains[refP] = self.CompMergeDomainLists(self.refseq.Domains.get(refP, []),
+=======
+            if ensP and ensP in ens_proteins and abs(int(ref_proteins[refP].length) - int(ens_proteins[ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
+                self.mismatches_merged.append((ensP, refP,))
+                self.Transcripts[refT] = fill_trans(record)
+                if ensT:
+                    ens_record  = ens_transcripts.get(ensT, None)
+                    if ens_record and ens_record.canonical == CanonicalEnum.ENSEMBL:
+                        if record.canonical == CanonicalEnum.REFSEQ:
+                            self.Transcripts[refT].canonical = CanonicalEnum.BOTH
+                        else:
+                            self.Transcripts[refT].canonical = CanonicalEnum.ENSEMBL
+                self.Proteins[refP] = fill_prot(ref_proteins[refP])
+                self.Proteins[refP].mergeDescription(ens_proteins[ensP])
+                self.Domains[refP] = merge_domains(self.refseq.Domains.get(refP, []),
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
                                                                self.ensembl.Domains.get(ensP, []))
                 writtenIDs.add(ensT)
                 writtenIDs.add(refT)
@@ -147,9 +228,22 @@ class Collector:
                         genesIDs.add(refG)
                         if ensG is not None:
                             genesIDs.add(ensG)
+<<<<<<< Updated upstream
                 elif ensT not in ens_transcripts:
                     self.Transcripts[refT] = fill_trans(record)
                     self.Proteins[refP] = fill_prot(ref_proteins[refP])
+=======
+<<<<<<< Updated upstream
+                elif ensT not in self.ensembl.Transcripts:
+                    self.Transcripts[refT] = self.idConv.FillInMissingsTranscript(record)
+                    self.Proteins[refP] = self.idConv.FillInMissingProteins(self.refseq.Proteins[refP])
+=======
+                elif ensT not in ens_transcripts:
+                    self.Transcripts[refT] = fill_trans(record)
+                    self.Proteins[refP] = fill_prot(ref_proteins[refP])
+        print(f'Total refseq transcripts {count} mismatches: {transcripts_mismaches}, matches: {transcripts_matches}')
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
         # ~~~~ End of RefSeq Loop ~~~~~
 
         count = 0
@@ -160,8 +254,14 @@ class Collector:
                 print(f'\t #{count}')
             if ensT not in writtenIDs:
                 ensP = record.protein_ensembl
+<<<<<<< Updated upstream
                 refT = t_map.get(ensT, None)
                 if ensP is None or ensP not in ens_proteins or (refT is not None and refT[1] == "R"):
+=======
+<<<<<<< Updated upstream
+                refT = self.idConv.findConversion(ensT, transcript=True)
+                if ensP is None or ensP not in self.ensembl.Proteins or (refT is not None and refT[1] == "R"):
+>>>>>>> Stashed changes
                     continue
                 self.Transcripts[ensT] = fill_trans(record)
                 # self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
@@ -171,6 +271,30 @@ class Collector:
                 self.Proteins[ensP].mergeDescription(ref_proteins.get(refP, None))
                 self.Domains[ensP] = merge_domains(self.refseq.Domains.get(refP, []),
                                                                self.ensembl.Domains.get(ensP, []))
+=======
+                refT = t_map.get(ensT, None)
+                #if ensP is None or ensP not in ens_proteins or (refT is not None and refT[1] == "R"): @@AM
+                #if (refT is not None and refT[1] == "R"):
+                #    continue
+                self.Transcripts[ensT] = fill_trans(record)
+                if refT:
+                    ref_record  = ref_transcripts.get(refT, None)
+                    if ref_record:
+                        if ref_record.canonical == CanonicalEnum.REFSEQ:
+                            if self.Transcripts[ensT].canonical == CanonicalEnum.ENSEMBL:
+                                self.Transcripts[ensT].canonical = CanonicalEnum.BOTH
+                            else:   
+                                 self.Transcripts[ensT].canonical = CanonicalEnum.REFSEQ
+                        self.Transcripts[ensT].canonical = ref_record.canonical
+                # self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
+                # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
+                refP = record.protein_refseq
+                if ensP:
+                    self.Proteins[ensP] = fill_prot(ens_proteins[ensP])
+                    self.Proteins[ensP].mergeDescription(ref_proteins.get(refP, None))
+                    self.Domains[ensP] = merge_domains(self.refseq.Domains.get(refP, []),
+                                                                self.ensembl.Domains.get(ensP, []))
+>>>>>>> Stashed changes
                 ensG = self.Transcripts[ensT].gene_ensembl
                 refG = self.Transcripts[ensT].gene_GeneID
                 if refG in self.Genes:

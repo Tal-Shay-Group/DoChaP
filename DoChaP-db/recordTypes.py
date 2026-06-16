@@ -1,5 +1,7 @@
 import re
 import copy
+
+from prometheus_client import Enum
 from conf import supported_Prefix, pref2Types, external
 
 
@@ -46,11 +48,31 @@ class Gene:
                     self.synonyms = other.symbol
         return self
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+class CanonicalEnum(Enum):
+    NONE = 0
+    REFSEQ = 1
+    ENSEMBL = 2
+    BOTH = 3
+>>>>>>> Stashed changes
+
+>>>>>>> Stashed changes
 class Transcript:
 
     def __init__(self, refseq=None, ensembl=None, chrom=None, strand=None, tx=None, CDS=None,
                  GeneID=None, gene_ensembl=None, geneSymb=None, protein_refseq=None, protein_ensembl=None,
+<<<<<<< Updated upstream
                  exons_starts=[], exons_ends=[], canonical=False):
+=======
+<<<<<<< Updated upstream
+                 exons_starts=[], exons_ends=[]):
+=======
+                 exons_starts=[], exons_ends=[], canonical=CanonicalEnum.NONE):
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
         self.refseq = refseq
         self.ensembl = ensembl
         self.chrom = chrom
@@ -146,7 +168,15 @@ class Transcript:
 
     def mergeTranscripts(self, other):
         attr = ['refseq', 'ensembl', 'chrom', 'strand', 'tx', 'CDS', 'gene_GeneID', 'gene_ensembl',
+<<<<<<< Updated upstream
                 'geneSymb', 'protein_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends', 'canonical']
+=======
+<<<<<<< Updated upstream
+                'geneSymb', 'protein_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends']
+=======
+                'geneSymb', 'protein_refseq', 'protein_ensembl', 'exon_starts', 'exon_ends', 'refseq_canonical', 'ensembl_canonical']
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
         if (self.idVersion() is not None and other.idVersion() is not None) and \
                 (self.idVersion("ensembl") is not None and other.idVersion("ensembl") is not None):
             if self.idVersion() > other.idVersion() or self.idVersion("ensembl") > other.idVersion("ensembl"):
