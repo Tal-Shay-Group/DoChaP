@@ -69,14 +69,7 @@ class dbBuilder:
                                 gene_ensembl_id TEXT,
                                 protein_refseq_id TEXT,
                                 protein_ensembl_id TEXT,
-<<<<<<< Updated upstream
-                                canonical BOOLEAN,
-=======
-<<<<<<< Updated upstream
-=======
                                 canonical INTEGER,
->>>>>>> Stashed changes
->>>>>>> Stashed changes
                                 PRIMARY KEY (transcript_refseq_id, transcript_ensembl_id),
                                 FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id),
                                 FOREIGN KEY(protein_refseq_id,protein_ensembl_id) REFERENCES Proteins(protein_refseq_id,protein_ensembl_id)
@@ -263,11 +256,6 @@ class dbBuilder:
         if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
             preDomains = set(self.DomainOrg.allDomains.keys())
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
         
         with connect(self.dbName + '.sqlite') as con:
             print(f"Connected to {self.dbName}...")
@@ -317,7 +305,7 @@ class dbBuilder:
                     (transcript.refseq, transcript.ensembl) + transcript.tx + transcript.CDS + 
                     (e_counts, gID, transcript.gene_ensembl, 
                     transcript.protein_refseq, transcript.protein_ensembl,
-                    transcript.canonical)
+                    transcript.canonical.value)
                 )
 
                 # 2. Genes Buffer
@@ -355,43 +343,6 @@ class dbBuilder:
 
                 # 4. Proteins Buffer
                 protID = transcript.protein_ensembl if ensemblkey else transcript.protein_refseq
-<<<<<<< Updated upstream
-                protein = self.data.Proteins[protID]
-                buffers["Proteins"].append((protein.refseq, protein.ensembl, protein.description, 
-                                            protein.length, protein.synonyms, transcript.refseq, transcript.ensembl))
-
-                # 5. Domains (Keep using DataFrame for logic, but move SpliceIn to buffer)
-                temp_dom_events = []
-                splicin_local = set()
-                temp_rows = []
-                for reg in self.data.Domains.get(protID, [None]):
-                    if reg is None: continue
-                    regID = self.DomainOrg.addDomain(reg)
-                    if regID is None: continue
-                    
-                    relevantDomains.add(regID)
-                    relation, exon_list, length = reg.domain_exon_relationship(start_abs, stop_abs)
-                    total_length = reg.nucEnd - reg.nucStart + 1
-                    
-                    splice_junction = 1 if relation == 'splice_junction' else 0
-                    complete = 1 if relation == 'complete_exon' else 0
-                    
-                    if splice_junction:
-                        for j in range(len(exon_list)):
-                            s_val = (transcript.refseq, transcript.ensembl, exon_list[j], 
-                                    reg.nucStart, regID, total_length, length[j], j + 1)
-                            if s_val not in splicin_local:
-                                buffers["SpliceInDomains"].append(s_val)
-                                splicin_local.add(s_val)
-
-                    extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
-                    # Collect as a simple tuple instead of a DataFrame row
-                    temp_rows.append((
-                        protein.refseq, protein.ensembl, regID,
-                        reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
-                        extWithInter, splice_junction, complete
-                    ))
-=======
                 protein = self.data.Proteins.get(protID, None) if protID else None
                 if protein is not None:
                     buffers["Proteins"].append((protein.refseq, protein.ensembl, protein.description, 
@@ -428,7 +379,6 @@ class dbBuilder:
                             reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
                             extWithInter, splice_junction, complete
                         ))
->>>>>>> Stashed changes
                     
 
                 # Process DomainEvent via Pandas
@@ -508,10 +458,6 @@ class dbBuilder:
         if CollectDomainsFromMerged:  # to keep domain ids consistent between the merged & single species db
             self.DomainOrg.collectDatafromDB(self.DomainsSourceDB)
             preDomains = set(self.DomainOrg.allDomains.keys())
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
         with connect(self.dbName + '.sqlite') as con:
             print("Connected to " + self.dbName + "...")

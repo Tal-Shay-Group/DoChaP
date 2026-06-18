@@ -111,14 +111,6 @@ class RefseqBuilder(SourceBuilder):
 
         # # # OPT1 - Use when running from cluster
         print("\tcreating temporary database from file: " + self.gff)
-<<<<<<< Updated upstream
-        fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
-<<<<<<< Updated upstream
-    # #
-=======
-        # #
-=======
         db_filename = self.gff + ".db"
         if not os.path.exists(db_filename):
             fn = gffutils.example_filename(self.gff)
@@ -127,10 +119,6 @@ class RefseqBuilder(SourceBuilder):
         else:
             db = gffutils.FeatureDB(db_filename)
         
-        
-    # #
->>>>>>> Stashed changes
->>>>>>> Stashed changes
         # # # OPT2 - Use when running localy for the first time and need to create a local temporary database, must be used with OPT3
         # gffutils.create_db(fn, "DB.Refseq_" + self.species[0] +".db", merge_strategy="create_unique")
         # #
@@ -144,37 +132,7 @@ class RefseqBuilder(SourceBuilder):
         print("\tCollecting Transcripts data from gff file...")
         self.Transcripts = {}
         transcript2region = {}
-<<<<<<< Updated upstream
-
-        for t in db.features_of_type("mRNA"):
-<<<<<<< Updated upstream
-=======
-            newT = Transcript()
-            spliTid = t["ID"][0].split("-")
-            if self.regionChr[t.chrom] == "ALT_chr" or self.regionChr[t.chrom] == "Unknown":
-                # ignore alternative chromosomes
-                continue
-            # elif "inference" in t.attributes and t["inference"][0].startswith("similar to RNA"):
-            #     continue
-            elif len(spliTid) > 2 and len(spliTid[-1]) == 1 and spliTid[-1].isdigit():
-                # remove duplicated records (PAR in taken only from X, autosomes will show only one record.)
-                continue
-            newT.chrom = self.regionChr[t.chrom]
-            newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
-            if newT.gene_GeneID not in curretGenes.keys():
-                continue  # ignore transcript of non-coding genes
-            elif newT.chrom != curretGenes[newT.gene_GeneID].chromosome:
-                continue  # genes that appear in several locations in the genome are only used from the first location
-            newT.tx = (t.start - 1, t.end,)  # gff format is 1 based start, change to 0-based-start
-            newT.strand = t.strand
-            newT.refseq = t["transcript_id"][0]
-            newT.geneSymb = t["gene"][0]
-            self.Transcripts[newT.refseq] = newT
-            self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
-            transcript2region[newT.refseq] = t.chrom
-=======
         for t in db.features_of_type(("mRNA", "lnc_RNA", "transcript")):
->>>>>>> Stashed changes
             try:
                 newT = Transcript()
                 spliTid = t["ID"][0].split("-")
@@ -188,10 +146,7 @@ class RefseqBuilder(SourceBuilder):
                     continue
                 newT.chrom = self.regionChr[t.chrom]
                 newT.gene_GeneID = [info for info in t["Dbxref"] if info.startswith("GeneID")][0].split(":")[1]
-<<<<<<< Updated upstream
-=======
                 newT.ensembl = next((x.split('Ensembl:', 1)[1] for x in t["Dbxref"] if x.startswith('Ensembl:')), None)
->>>>>>> Stashed changes
                 if newT.gene_GeneID not in curretGenes.keys():
                     continue  # ignore transcript of non-coding genes
                 elif newT.chrom != curretGenes[newT.gene_GeneID].chromosome:
@@ -200,22 +155,12 @@ class RefseqBuilder(SourceBuilder):
                 newT.strand = t.strand
                 newT.refseq = t["transcript_id"][0]
                 newT.geneSymb = t["gene"][0]
-<<<<<<< Updated upstream
-                newT.canonical = 'MANE Select' in t.attributes.get('tag', []) 
-                self.Transcripts[newT.refseq] = newT
-                self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
-                transcript2region[newT.refseq] = t.chrom
-            except:
-                print(f'Warning: Failed to read transcript: {t}')
-=======
                 newT.canonical = CanonicalEnum.REFSEQ if 'MANE Select' in t.attributes.get('tag', []) else CanonicalEnum.NONE
                 self.Transcripts[newT.refseq] = newT
                 self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
                 transcript2region[newT.refseq] = t.chrom
             except Exception as e:
-                print(f'Warning: Failed to read transcript: {t}. Exception: {e}')
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+                print(f'Warning: Failed to read transcript: {t.id}. Exception: {e}')
 
         print("\tCollecting CDS data from gff file...")
         for cds in db.features_of_type("CDS"):
