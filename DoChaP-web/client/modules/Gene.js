@@ -46,8 +46,11 @@ class Gene {
         //push transcripts
         this.transcripts = [];
         for (var i = 0; i < dbGene.transcripts.length; i++) {
-            if (ignorePredictions == false || dbGene.transcripts[i].transcript_refseq_id == undefined || (dbGene.transcripts[i].transcript_refseq_id != undefined && dbGene.transcripts[i].transcript_refseq_id.substring(0, 2) == "NM")) {
-                this.transcripts.push(new Transcript(dbGene.transcripts[i], this));
+            var t = dbGene.transcripts[i];
+            var isCoding = t.protein_refseq_id || t.protein_ensembl_id;
+            if (!isCoding) continue;
+            if (ignorePredictions == false || t.transcript_refseq_id == undefined || (t.transcript_refseq_id != undefined && t.transcript_refseq_id.substring(0, 2) == "NM")) {
+                this.transcripts.push(new Transcript(t, this));
             }
         }
         this.transcripts = this.transcripts.sort(Transcript.compare);
@@ -92,6 +95,7 @@ class Gene {
     findmaxProteinLength(transcripts) {
         var maxProtein = 0;
         for (var i = 0; i < transcripts.length; i++) {
+            if (!transcripts[i].protein) continue;
             if (transcripts[i].protein.length > maxProtein) {
                 maxProtein = transcripts[i].protein.length;
             }
@@ -115,6 +119,7 @@ class Gene {
         var colorToInfo = {};
 
         for (var i = 0; i < geneTranscripts.length; i++) {
+            if (!geneTranscripts[i].protein_refseq_id && !geneTranscripts[i].protein_ensembl_id) continue;
             for (var j = 0; j < geneTranscripts[i].transcriptExons.length; j++) {
                 let currentExon = geneTranscripts[i].transcriptExons[j];
                 let colorLimits = Exon.getExonLimitsForColoring(currentExon.genomic_start_tx, currentExon.genomic_end_tx,
