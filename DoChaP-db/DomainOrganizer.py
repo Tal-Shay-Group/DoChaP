@@ -55,20 +55,17 @@ class DomainOrganizer:
             return None
         elif domain.extType not in external:
             return None
-        identify = self.Interpro.AllDomains.loc[
-            self.Interpro.AllDomains[domain.extType].str.contains(domain.extID, na=False)]
-        ind = identify.index.values[0] if len(identify) != 0 else None
+        ind = self.Interpro._ext_index.get((domain.extType, domain.extID))
         if ind is not None:
-            # self.ignored_domains["nonInterpro"].append(domain.extID)
-            # return None  # only using domains that are recorded in Interpro
+            row = self.Interpro.AllDomains.loc[ind]
             if domain.extType == "interpro" and \
-                    [identify["cdd"].iloc[0], identify["pfam"].iloc[0], identify["smart"].iloc[0], identify['tigrfams'].iloc[0]] == [None] * 4:
+                    [row["cdd"], row["pfam"], row["smart"], row["tigrfams"]] == [None] * 4:
                 self.ignored_domains["onlyInterpro"].append(domain.extID)
                 return None  # interpro domains are only used when connected with other external source
-            elif self.Interpro.AllDomains.loc[ind, "Type"] not in ("domain", "repeat"):
+            elif row["Type"] not in ("domain", "repeat"):
                 self.ignored_domains["family"].append(domain.extID)
                 return None  # only using "domain" and not "family"
-            if self.Interpro.AllDomains.loc[ind, "Type"] == "repeat":
+            if row["Type"] == "repeat":
                 repeat = True
 
         if domain.extID in self.allExt:
@@ -98,7 +95,7 @@ class DomainOrganizer:
                 ndesc = domain.note
                 ncdd = domain.cdd
         if ind is not None and ind not in self.allExt:
-            indExt = [identify["cdd"].iloc[0], identify["pfam"].iloc[0], identify["smart"].iloc[0], identify['tigrfams'].iloc[0], ind]
+            indExt = [row["cdd"], row["pfam"], row["smart"], row["tigrfams"], ind]
             existExt = tuple(map(self.addToExtID, list(existExt), indExt))
             self.allExt[ind] = currReg
         pos = external.index(domain.extType)

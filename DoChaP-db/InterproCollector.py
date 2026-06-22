@@ -88,6 +88,18 @@ class InterProBuilder(SourceBuilder):
         newdf = newdf.where(pd.notnull(newdf), None)
         # newdf = newdf[newdf.Type != "family"]  # remove family records
         self.AllDomains = newdf
+        self._build_ext_index()
+
+    def _build_ext_index(self):
+        """Pre-build (extType, extID) -> interpro_accession dict for O(1) lookup."""
+        self._ext_index = {}
+        for col in ["pfam", "smart", "cdd", "tigrfams", "interpro"]:
+            for ind, val in self.AllDomains[col].items():
+                if val is not None:
+                    for ext_id in str(val).split("; "):
+                        ext_id = ext_id.strip()
+                        if ext_id:
+                            self._ext_index[(col, ext_id)] = ind
 
 
 def parse_items(items):

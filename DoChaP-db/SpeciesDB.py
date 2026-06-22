@@ -267,7 +267,7 @@ class dbBuilder:
             cur.execute("PRAGMA temp_store = MEMORY;")   # Use RAM for temporary tables/sorting
             cur.execute("BEGIN TRANSACTION;")
             # Configuration
-            BATCH_SIZE = 5000
+            BATCH_SIZE = 50000
             
             # Accumulators
             buffers = {
@@ -348,8 +348,6 @@ class dbBuilder:
                                             protein.length, protein.synonyms, transcript.refseq, transcript.ensembl))
 
                 # 5. Domains (Keep using DataFrame for logic, but move SpliceIn to buffer)
-                temp_dom_events = []
-                splicin_local = set()
                 temp_rows = []
                 for reg in self.data.Domains.get(protID, [None]):
                     if reg is None: continue
@@ -365,11 +363,10 @@ class dbBuilder:
                     
                     if splice_junction:
                         for j in range(len(exon_list)):
-                            s_val = (transcript.refseq, transcript.ensembl, exon_list[j], 
-                                    reg.nucStart, regID, total_length, length[j], j + 1)
-                            if s_val not in splicin_local:
-                                buffers["SpliceInDomains"].append(s_val)
-                                splicin_local.add(s_val)
+                            buffers["SpliceInDomains"].append(
+                                (transcript.refseq, transcript.ensembl, exon_list[j],
+                                 reg.nucStart, regID, total_length, length[j], j + 1)
+                            )
 
                     extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
                     # Collect as a simple tuple instead of a DataFrame row

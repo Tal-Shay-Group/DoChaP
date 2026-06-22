@@ -1,5 +1,6 @@
 import re
 import copy
+import numpy as np
 from conf import supported_Prefix, pref2Types, external
 
 
@@ -104,34 +105,16 @@ class Transcript:
             raise ValueError('Expected list of 2 values: CDS_start, CDS_end')
         elif self.strand != '-' and self.strand != '+':
             raise ValueError('Expected strand: + or -, for forward and reverse (respectively)')
-        transcript_len = 0
-        abs_start = []
-        abs_stop = []
-        # add_opt = 0
-        # if self.strand == '-':
-        #     stop_list = self.exon_ends.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_ends.copy()
-        #     start_list = self.exon_starts.copy()[::-1] #if self.exon_starts[0] > self.exon_starts[-1] else self.exon_starts.copy()
-        #     add_opt = 1
-        # else:
-        stop_list = self.exon_ends.copy()
-        start_list = self.exon_starts.copy()
-        for i in range(len(start_list)):
-            if stop_list[i] < self.CDS[0]:  # entire exon is before the CDS
-                abs_start.append(0)
-                abs_stop.append(0)
-                continue
-            elif start_list[i] < self.CDS[0] < stop_list[i]:  # the CDS starts within the exon
-                start_list[i] = self.CDS[0]
-            if start_list[i] > self.CDS[1]:  # entire exon is after the CDS
-                abs_start.append(0)
-                abs_stop.append(0)
-                continue
-            elif stop_list[i] > self.CDS[1] > start_list[i]:  # CDS ends within the exon
-                stop_list[i] = self.CDS[1]  # + add_opt
-            abs_start.append(transcript_len + 1)
-            curr_length = stop_list[i] - start_list[i]
-            abs_stop.append(transcript_len + curr_length)
-            transcript_len = transcript_len + curr_length
+        cds_start, cds_end = self.CDS
+        starts = np.array(self.exon_starts, dtype=np.int64)
+        ends = np.array(self.exon_ends, dtype=np.int64)
+        clipped_starts = np.maximum(starts, cds_start)
+        clipped_ends = np.minimum(ends, cds_end)
+        lengths = np.maximum(0, clipped_ends - clipped_starts)
+        cumlen = np.concatenate([[0], np.cumsum(lengths)])
+        valid = lengths > 0
+        abs_start = np.where(valid, cumlen[:-1] + 1, 0).tolist()
+        abs_stop = np.where(valid, cumlen[1:], 0).tolist()
         return abs_start, abs_stop
 
     def compare_transcript(self, other):

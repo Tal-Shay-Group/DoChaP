@@ -197,7 +197,7 @@ class RefseqBuilder(SourceBuilder):
             ref = e["ID"][0].split("-")
             if ref[1] not in self.Transcripts.keys():
                 continue
-            if self.regionChr[e.chrom] == "ALT_chr" or e["gbkey"][0] != "mRNA" \
+            if self.regionChr[e.chrom] == "ALT_chr" \
                     or transcript2region.get(ref[1], '') != e.chrom or len(ref) > 3:
                 continue  # ignore alternative chromosome and exons of duplicated genes
             ref = ref[1]
