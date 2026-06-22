@@ -78,7 +78,10 @@ class ConverterBuilder(SourceBuilder):
             return self.geneCon.get(inp,  None)
             # return self.geneCon.get(inp, self.geneCon.get(self.idNov.get(inp.split(".")[0], None), None))
         elif protein:
-            return self.proteinCon.get(inp, None)
+            result = self.proteinCon.get(inp, None)
+            if result == '-':
+                return None
+            return result
             # return self.proteinCon.get(inp, self.proteinCon.get(self.idNov.get(inp.split(".")[0], None), None))
         else:
             raise ValueError('Must declare input type transcript/gene/protein=True')
@@ -89,9 +92,15 @@ class ConverterBuilder(SourceBuilder):
         elif inp in self.p2t.keys():
             return self.p2t[inp]
         elif self.transcriptCon.get(inp, None) in self.t2p.keys():
-            return self.proteinCon.get(self.t2p[self.transcriptCon[inp]], None)
+            result = self.proteinCon.get(self.t2p[self.transcriptCon[inp]], None)
+            if result == '-':
+                return None
+            return result
         elif self.proteinCon.get(inp, None) in self.p2t.keys():
-            return self.transcriptCon.get(self.p2t[self.proteinCon[inp]], None)
+            result = self.transcriptCon.get(self.p2t[self.proteinCon[inp]], None)
+            if result == '-':
+                return None
+            return result
         else:
             return None
 

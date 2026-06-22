@@ -71,6 +71,9 @@ DoChaP-web/logs_backups
 # ignore stat script
 DoChaP-db/db_stats.py
 
+# ignore vscode configuration
+DoChaP-db/.vscode/*
+
 # ignore directories and files starting with (except .gitignore) .
 .*/
 .*

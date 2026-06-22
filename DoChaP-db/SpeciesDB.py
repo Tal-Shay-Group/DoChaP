@@ -69,7 +69,7 @@ class dbBuilder:
                                 gene_ensembl_id TEXT,
                                 protein_refseq_id TEXT,
                                 protein_ensembl_id TEXT,
-                                canonical BOOLEAN,
+                                canonical INTEGER,
                                 PRIMARY KEY (transcript_refseq_id, transcript_ensembl_id),
                                 FOREIGN KEY(gene_GeneID_id, gene_ensembl_id) REFERENCES Genes(gene_GeneID_id, gene_ensembl_id),
                                 FOREIGN KEY(protein_refseq_id,protein_ensembl_id) REFERENCES Proteins(protein_refseq_id,protein_ensembl_id)
@@ -305,7 +305,7 @@ class dbBuilder:
                     (transcript.refseq, transcript.ensembl) + transcript.tx + transcript.CDS + 
                     (e_counts, gID, transcript.gene_ensembl, 
                     transcript.protein_refseq, transcript.protein_ensembl,
-                    transcript.canonical)
+                    transcript.canonical.value)
                 )
 
                 # 2. Genes Buffer
@@ -343,8 +343,9 @@ class dbBuilder:
 
                 # 4. Proteins Buffer
                 protID = transcript.protein_ensembl if ensemblkey else transcript.protein_refseq
-                protein = self.data.Proteins[protID]
-                buffers["Proteins"].append((protein.refseq, protein.ensembl, protein.description, 
+                protein = self.data.Proteins.get(protID, None) if protID else None
+                if protein is not None:
+                    buffers["Proteins"].append((protein.refseq, protein.ensembl, protein.description, 
                                             protein.length, protein.synonyms, transcript.refseq, transcript.ensembl))
 
                 # 5. Domains (Keep using DataFrame for logic, but move SpliceIn to buffer)
@@ -368,13 +369,13 @@ class dbBuilder:
                                  reg.nucStart, regID, total_length, length[j], j + 1)
                             )
 
-                    extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
-                    # Collect as a simple tuple instead of a DataFrame row
-                    temp_rows.append((
-                        protein.refseq, protein.ensembl, regID,
-                        reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
-                        extWithInter, splice_junction, complete
-                    ))
+                        extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
+                        # Collect as a simple tuple instead of a DataFrame row
+                        temp_rows.append((
+                            protein.refseq, protein.ensembl, regID,
+                            reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
+                            extWithInter, splice_junction, complete
+                        ))
                     
 
                 # Process DomainEvent via Pandas

@@ -90,8 +90,14 @@ class EnsemblBuilder(SourceBuilder):
         print("-------- Ensembl data Parsing --------")
         print("\tParsing gff3 file...")
         print("\tcreating temporary database from file: " + self.gff)
-        fn = gffutils.example_filename(self.gff)
-        db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+        db_filename = self.gff + ".db"
+        if not os.path.exists(db_filename):
+            fn = gffutils.example_filename(self.gff)
+            db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+            db.conn.execute(f"VACUUM main INTO '{db_filename}'")
+        else:
+            db = gffutils.FeatureDB(db_filename)
+        
         # gffutils.create_db(fn, "DB.Ensembl_" + self.species[0] +".db", merge_strategy="create_unique")
         # db = gffutils.FeatureDB("DB.Ensembl_" + self.species[0] +".db")
         self.collect_genes(db)
@@ -111,7 +117,7 @@ class EnsemblBuilder(SourceBuilder):
         self.Transcripts = {}
         curretGenes = self.Genes.copy()
         self.Genes = {}
-        for t in db.features_of_type("mRNA"):
+        for t in db.features_of_type(("mRNA", "lnc_RNA", "transcript")):
             if not re.match(r"([\d]{1,2}|x|y|MT)", t.chrom, re.IGNORECASE):
                 continue
             newT = Transcript()
@@ -122,7 +128,9 @@ class EnsemblBuilder(SourceBuilder):
             newT.gene_ensembl = t["Parent"][0].split(":")[1]
             newT.geneSymb = t["Name"][0].split("-")[0] if "Name" in list(t.attributes) else None
             newT.NMD = True if t["biotype"][0] == "nonsense_mediated_decay" else False
-            newT.canonical =  'Ensembl_canonical' in t.attributes.get('tag', [])
+            newT.canonical =  CanonicalEnum.ENSEMBL if 'Ensembl_canonical' in t.attributes.get('tag', []) else CanonicalEnum.NONE
+            if newT.gene_ensembl not in curretGenes: # ignore non-coding genes that are not in the gene list (e.g. some lncRNAs)
+                continue
             self.Genes[newT.gene_ensembl] = curretGenes[newT.gene_ensembl]
             self.Transcripts[newT.ensembl] = newT
         print("\tCollecting CDS data from gff file...")
