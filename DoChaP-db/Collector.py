@@ -74,7 +74,7 @@ class Collector:
         print(f'Starting going over refseq transcripts: {len(ref_transcripts)}')
         for refT, record in ref_transcripts.items():
             count += 1
-            if count % 1000 == 0:
+            if count % 10000 == 0:
                 print(f'\t #{count}')
             #if refT[1] == "R":  # only protein coding
             #    continue
@@ -205,7 +205,7 @@ class Collector:
                     self.Proteins[ensP] = fill_prot(ens_proteins[ensP])
                     if refP:
                         self.Proteins[ensP].mergeDescription(ref_proteins.get(refP, None))
-                        self.Domains[ensP] = merge_domains(self.refseq.Domains.get(refP, []),
+                    self.Domains[ensP] = merge_domains(self.refseq.Domains.get(refP, []),
                                                                     self.ensembl.Domains.get(ensP, []))
                 
                 ensG = self.Transcripts[ensT].gene_ensembl
