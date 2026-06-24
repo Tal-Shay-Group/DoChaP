@@ -296,11 +296,6 @@ class Collector:
                             refG].ensembl
                         genesIDs.add(ensG)
                     elif ensG not in genesIDs and ensG in self.ensembl.Genes:
-                        # Conflict: refG exists but ensG doesn't match.
-                        # Use refG as key to match transcript reference, and set
-                        # the gene object's own .GeneID so the Genes row inserted
-                        # later actually carries gene_GeneID_id=refG (otherwise it
-                        # would be NULL, mismatching the Transcripts row).
                         if refG and refG not in self.Genes:
                             gene_obj = self.ensembl.Genes[ensG]
                             gene_obj.GeneID = refG
@@ -327,11 +322,6 @@ class Collector:
                 and seen_ensembl[transcript.ensembl] != key
 
             if refseq_dup and (ensembl_dup or not transcript.ensembl):
-                # Clearing refseq here would leave this transcript with no identifier
-                # at all (both refseq and ensembl None) - that doesn't dedup it, it just
-                # creates an unidentifiable phantom row (missing_transcript_ids) whose
-                # exons still collide with the original transcript's on (None, None,
-                # order_in_transcript) (duplicate_exon_order). Drop it instead.
                 print(f"  DUPLICATE: refseq id {transcript.refseq} already used by transcript "
                       f"{seen_refseq[transcript.refseq]}; dropping duplicate entry {key} "
                       f"(no remaining identifier after dedup)")
@@ -362,6 +352,21 @@ class Collector:
 
         for key in keys_to_drop:
             del self.Transcripts[key]
+
+        for transcript in self.Transcripts.values():
+            if not transcript.gene_ensembl:
+                continue
+            canonical_refG = ensembl_to_geneid_map.get(transcript.gene_ensembl)
+            if canonical_refG and transcript.gene_GeneID != canonical_refG:
+                transcript.gene_GeneID = canonical_refG
+                if canonical_refG not in self.Genes:
+                    if canonical_refG in self.refseq.Genes:
+                        self.Genes[canonical_refG] = self.refseq.Genes[canonical_refG].mergeGenes(
+                            self.ensembl.Genes.get(transcript.gene_ensembl, transcript.gene_ensembl))
+                    elif transcript.gene_ensembl in self.ensembl.Genes:
+                        gene_obj = self.ensembl.Genes[transcript.gene_ensembl]
+                        gene_obj.GeneID = canonical_refG
+                        self.Genes[canonical_refG] = gene_obj
 
     def CompMergeDomainLists(self, doms1, doms2):
         if len(doms1) == 0 or doms1 is None:
