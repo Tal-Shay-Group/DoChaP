@@ -31,10 +31,13 @@ class Gene:
     def mergeGenes(self, other):
         if other is None:
             return self
-        elif type(other) == str and self.ensembl is None:
-            self.ensembl = other if other.startswith("ENS") else None
-        elif type(other) == str and self.GeneID is None:
-            self.GeneID = other if not other.startswith("ENS") else None
+        elif type(other) == str:
+            if other.startswith("ENS"):
+                if self.ensembl is None:
+                    self.ensembl = other
+            elif self.GeneID is None:
+                self.GeneID = other
+            return self
         else:
             attr = ['GeneID', 'ensembl', 'symbol', 'synonyms', 'chromosome', 'strand']
             for at in attr:
