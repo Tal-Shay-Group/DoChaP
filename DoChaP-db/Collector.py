@@ -278,9 +278,11 @@ class Collector:
                         self.Genes[refG].ensembl = ensG if self.Genes[refG].ensembl is None else self.Genes[
                             refG].ensembl
                         genesIDs.add(ensG)
-                    elif ensG not in genesIDs:
-                        self.Genes[ensG] = self.ensembl.Genes[ensG]
-                        self.Transcripts[ensT].gene_GeneID = None
+                    elif ensG not in genesIDs and ensG in self.ensembl.Genes:
+                        # Conflict: refG exists but ensG doesn't match.
+                        # Use refG as key to match transcript reference
+                        if refG and refG not in self.Genes:
+                            self.Genes[refG] = self.ensembl.Genes[ensG]
                         genesIDs.add(ensG)
                 elif ensG not in genesIDs:
                     if refG is None:
