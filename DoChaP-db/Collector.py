@@ -105,11 +105,19 @@ class Collector:
             #if refT[1] == "R":  # only protein coding
             #    continue
             ensT = t_map.get(refT, None)
+            rejected_idconv_ensT = None
             if ensT and record.ensembl:
                 if record.ensembl != ensT:
                     print(f"Transcript ID mismatch for {refT}: refseq has {record.ensembl} and idConv has {ensT}")
                     #raise ValueError(f"Transcript ID mismatch for {refT}: refseq has {record.ensembl} and idConv has {ensT}")
                     transcripts_mismaches += 1
+                    # The idConv-suggested ID is being discarded in favor of refseq's own
+                    # ensembl field. Remember it so it isn't reprocessed as an unmerged
+                    # transcript in the Ensembl loop below - that would resolve back to
+                    # this same refT via ID conversion and collide on the UNIQUE
+                    # transcript_refseq_id constraint, silently dropping its Transcripts
+                    # row while its exons still get inserted (orphan exons).
+                    rejected_idconv_ensT = ensT
                     ensT = record.ensembl
                 else:
                     transcripts_matches += 1
@@ -216,8 +224,17 @@ class Collector:
                     genesIDs.add(refG)
                     # ensG already added to genesIDs right after _register_gene_id_mapping()
                 elif refG not in self.Genes and ensG and ensG in self.ensembl.Genes:
-                    self.Genes[refG] = self.ensembl.Genes[ensG]
+                    gene_obj = self.ensembl.Genes[ensG]
+                    gene_obj.GeneID = refG
+                    self.Genes[refG] = gene_obj
                     genesIDs.add(refG)
+
+            # The idConv-suggested Ensembl ID for this RefSeq transcript was rejected
+            # in favor of refseq's own ensembl field (see mismatch handling above).
+            # Mark it written so the Ensembl loop doesn't reprocess it as a separate,
+            # unmerged transcript that would collide on the refseq UNIQUE constraint.
+            if rejected_idconv_ensT and rejected_idconv_ensT != ensT:
+                writtenIDs.add(rejected_idconv_ensT)
         print(f'Total refseq transcripts {count} mismatches: {transcripts_mismaches}, matches: {transcripts_matches}')
         # ~~~~ End of RefSeq Loop ~~~~~
 
@@ -280,20 +297,45 @@ class Collector:
                         genesIDs.add(ensG)
                     elif ensG not in genesIDs and ensG in self.ensembl.Genes:
                         # Conflict: refG exists but ensG doesn't match.
-                        # Use refG as key to match transcript reference
+                        # Use refG as key to match transcript reference, and set
+                        # the gene object's own .GeneID so the Genes row inserted
+                        # later actually carries gene_GeneID_id=refG (otherwise it
+                        # would be NULL, mismatching the Transcripts row).
                         if refG and refG not in self.Genes:
-                            self.Genes[refG] = self.ensembl.Genes[ensG]
+                            gene_obj = self.ensembl.Genes[ensG]
+                            gene_obj.GeneID = refG
+                            self.Genes[refG] = gene_obj
                         genesIDs.add(ensG)
                 elif ensG not in genesIDs:
                     if refG is None:
                         self.Genes[ensG] = self.ensembl.Genes[ensG]
                         genesIDs.add(ensG)
                     else:
-                        self.ensembl.Genes[ensG].gene_GeneID = refG
+                        self.ensembl.Genes[ensG].GeneID = refG
                         self.Genes[refG] = self.ensembl.Genes[ensG].mergeGenes(self.refseq.Genes.get(refG, refG))
                         genesIDs.add(ensG)
                         genesIDs.add(refG)
         # ~~~~~ End of Ensmebl Loop ~~~~~
+
+        seen_refseq = {}
+        seen_ensembl = {}
+        for key, transcript in self.Transcripts.items():
+            if transcript.refseq:
+                if transcript.refseq in seen_refseq and seen_refseq[transcript.refseq] != key:
+                    print(f"  DUPLICATE: refseq id {transcript.refseq} already used by transcript "
+                          f"{seen_refseq[transcript.refseq]}; clearing it on {key} to avoid a "
+                          f"UNIQUE collision that would otherwise orphan its exons")
+                    transcript.refseq = None
+                else:
+                    seen_refseq[transcript.refseq] = key
+            if transcript.ensembl:
+                if transcript.ensembl in seen_ensembl and seen_ensembl[transcript.ensembl] != key:
+                    print(f"  DUPLICATE: ensembl id {transcript.ensembl} already used by transcript "
+                          f"{seen_ensembl[transcript.ensembl]}; clearing it on {key} to avoid a "
+                          f"UNIQUE collision that would otherwise orphan its exons")
+                    transcript.ensembl = None
+                else:
+                    seen_ensembl[transcript.ensembl] = key
 
     def CompMergeDomainLists(self, doms1, doms2):
         if len(doms1) == 0 or doms1 is None:
