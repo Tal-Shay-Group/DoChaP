@@ -144,7 +144,7 @@ class Collector:
             refG = record.gene_GeneID
             ensG = g_map.get(refG, None)
 
-            ensG = self._register_gene_id_mapping(ensG, refG, ensembl_to_geneid_map, verbose=False)
+            refG = self._register_gene_id_mapping(ensG, refG, ensembl_to_geneid_map, verbose=False)
 
             # Mark ensG as processed immediately after mapping, regardless of transcript outcome
             if ensG is not None:
