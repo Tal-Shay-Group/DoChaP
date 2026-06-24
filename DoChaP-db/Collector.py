@@ -211,10 +211,13 @@ class Collector:
 
             # Add gene ONLY if transcript was successfully added
             if transcript_will_be_added:
-                if refG not in self.Genes:
+                if refG not in self.Genes and refG in self.refseq.Genes:
                     self.Genes[refG] = self.refseq.Genes[refG].mergeGenes(self.ensembl.Genes.get(ensG, ensG))
                     genesIDs.add(refG)
                     # ensG already added to genesIDs right after _register_gene_id_mapping()
+                elif refG not in self.Genes and ensG and ensG in self.ensembl.Genes:
+                    self.Genes[refG] = self.ensembl.Genes[ensG]
+                    genesIDs.add(refG)
         print(f'Total refseq transcripts {count} mismatches: {transcripts_mismaches}, matches: {transcripts_matches}')
         # ~~~~ End of RefSeq Loop ~~~~~
 
