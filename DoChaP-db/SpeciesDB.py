@@ -301,9 +301,13 @@ class dbBuilder:
                     print("Transcript {} from {} has None in CDS".format(tID, self.species))
                     transcript.CDS = transcript.tx
                 
+                # Track exact transcript IDs being inserted to prevent orphan exons
+                tx_refseq_inserted = transcript.refseq
+                tx_ensembl_inserted = transcript.ensembl
+
                 buffers["Transcripts"].append(
-                    (transcript.refseq, transcript.ensembl) + transcript.tx + transcript.CDS + 
-                    (e_counts, gID, transcript.gene_ensembl, 
+                    (tx_refseq_inserted, tx_ensembl_inserted) + transcript.tx + transcript.CDS +
+                    (e_counts, gID, transcript.gene_ensembl,
                     transcript.protein_refseq, transcript.protein_ensembl,
                     transcript.canonical.value)
                 )
@@ -332,7 +336,9 @@ class dbBuilder:
                 ends = transcript.exon_ends.copy()
                 for i in range(e_counts):
                     # Transcript_Exon
-                    buffers["Transcript_Exon"].append((transcript.refseq, transcript.ensembl, i+1, 
+                    # Use the SAME transcript IDs that were inserted into Transcripts table
+                    # This prevents orphan exons when transcript IDs don't match exactly
+                    buffers["Transcript_Exon"].append((tx_refseq_inserted, tx_ensembl_inserted, i+1,
                                                     starts[i], ends[i], start_abs[i], stop_abs[i]))
                     # Unique Exons
                     ex_val = (gID, transcript.gene_ensembl, starts[i], ends[i])
