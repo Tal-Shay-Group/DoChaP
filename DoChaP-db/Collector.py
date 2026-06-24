@@ -319,23 +319,49 @@ class Collector:
 
         seen_refseq = {}
         seen_ensembl = {}
+        keys_to_drop = []
         for key, transcript in self.Transcripts.items():
-            if transcript.refseq:
-                if transcript.refseq in seen_refseq and seen_refseq[transcript.refseq] != key:
-                    print(f"  DUPLICATE: refseq id {transcript.refseq} already used by transcript "
-                          f"{seen_refseq[transcript.refseq]}; clearing it on {key} to avoid a "
-                          f"UNIQUE collision that would otherwise orphan its exons")
-                    transcript.refseq = None
-                else:
-                    seen_refseq[transcript.refseq] = key
-            if transcript.ensembl:
-                if transcript.ensembl in seen_ensembl and seen_ensembl[transcript.ensembl] != key:
-                    print(f"  DUPLICATE: ensembl id {transcript.ensembl} already used by transcript "
-                          f"{seen_ensembl[transcript.ensembl]}; clearing it on {key} to avoid a "
-                          f"UNIQUE collision that would otherwise orphan its exons")
-                    transcript.ensembl = None
-                else:
-                    seen_ensembl[transcript.ensembl] = key
+            refseq_dup = transcript.refseq and transcript.refseq in seen_refseq \
+                and seen_refseq[transcript.refseq] != key
+            ensembl_dup = transcript.ensembl and transcript.ensembl in seen_ensembl \
+                and seen_ensembl[transcript.ensembl] != key
+
+            if refseq_dup and (ensembl_dup or not transcript.ensembl):
+                # Clearing refseq here would leave this transcript with no identifier
+                # at all (both refseq and ensembl None) - that doesn't dedup it, it just
+                # creates an unidentifiable phantom row (missing_transcript_ids) whose
+                # exons still collide with the original transcript's on (None, None,
+                # order_in_transcript) (duplicate_exon_order). Drop it instead.
+                print(f"  DUPLICATE: refseq id {transcript.refseq} already used by transcript "
+                      f"{seen_refseq[transcript.refseq]}; dropping duplicate entry {key} "
+                      f"(no remaining identifier after dedup)")
+                keys_to_drop.append(key)
+                continue
+            if ensembl_dup and (refseq_dup or not transcript.refseq):
+                print(f"  DUPLICATE: ensembl id {transcript.ensembl} already used by transcript "
+                      f"{seen_ensembl[transcript.ensembl]}; dropping duplicate entry {key} "
+                      f"(no remaining identifier after dedup)")
+                keys_to_drop.append(key)
+                continue
+
+            if refseq_dup:
+                print(f"  DUPLICATE: refseq id {transcript.refseq} already used by transcript "
+                      f"{seen_refseq[transcript.refseq]}; clearing it on {key} to avoid a "
+                      f"UNIQUE collision that would otherwise orphan its exons")
+                transcript.refseq = None
+            elif transcript.refseq:
+                seen_refseq[transcript.refseq] = key
+
+            if ensembl_dup:
+                print(f"  DUPLICATE: ensembl id {transcript.ensembl} already used by transcript "
+                      f"{seen_ensembl[transcript.ensembl]}; clearing it on {key} to avoid a "
+                      f"UNIQUE collision that would otherwise orphan its exons")
+                transcript.ensembl = None
+            elif transcript.ensembl:
+                seen_ensembl[transcript.ensembl] = key
+
+        for key in keys_to_drop:
+            del self.Transcripts[key]
 
     def CompMergeDomainLists(self, doms1, doms2):
         if len(doms1) == 0 or doms1 is None:
