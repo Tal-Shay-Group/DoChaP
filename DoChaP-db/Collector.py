@@ -135,8 +135,6 @@ class Collector:
             ensTflag = ensT in ens_transcripts
             if not ensTflag and ensPflag:
                 tempensT = self.ensembl.pro2trans[ensP]
-                if ensT is None:
-                    record.ensembl = tempensT
                 ensT = tempensT
             elif ensTflag and not ensPflag:
                 ensP = self.ensembl.trans2pro.get(ensT, None)
@@ -155,6 +153,8 @@ class Collector:
 
             if ensP and ensP in ens_proteins and abs(int(ref_proteins[refP].length) - int(ens_proteins[ensP].length)) <= 1:  # if the diff between protein length is smaller than 1- ignore
                 self.mismatches_merged.append((ensP, refP,))
+                if ensT and record.ensembl is None:
+                    record.ensembl = ensT
                 self.Transcripts[refT] = fill_trans(record)
                 transcript_will_be_added = True
 
