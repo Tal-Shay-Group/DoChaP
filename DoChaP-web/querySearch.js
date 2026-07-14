@@ -165,7 +165,7 @@ function getDomainEventDomains(protein_refseq_id, protein_ensembl_id) {
 }
 
 // domains for a protein from the RepresentativeDomains table (populated by
-// DoChaP-db/InterProRepresentativeDomains.py), reshaped into the same
+// DoChaP-db/RepresentativeDomainsBuilder.py), reshaped into the same
 // {AA_start, AA_end, nuc_start, nuc_end, ext_id, domainType} shape as
 // getDomainEventDomains() so the rest of the client code doesn't need to change.
 // RepresentativeDomains only stores AA (protein) positions; nuc_start/nuc_end
@@ -176,7 +176,7 @@ function getRepresentativeDomains(protein_interpro_id) {
         return [];
     }
     try {
-        var rows = sql("SELECT domain_id, domain_name, start, end FROM RepresentativeDomains WHERE protein_id = ? ORDER BY start", [protein_interpro_id]);
+        var rows = sql("SELECT domain_id, domain_name, start, end FROM RepresentativeDomains WHERE protein_interpro_id = ? ORDER BY start", [protein_interpro_id]);
     } catch (err) {
         // RepresentativeDomains table not present in this DB - fall back to DomainEvent.
         return [];

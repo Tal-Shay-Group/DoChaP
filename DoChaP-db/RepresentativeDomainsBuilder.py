@@ -53,7 +53,7 @@ def create_representative_domains_table(cursor):
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS RepresentativeDomains (
-            protein_id TEXT,
+            protein_interpro_id TEXT,
             domain_id TEXT,
             domain_name TEXT,
             start INTEGER,
@@ -62,7 +62,7 @@ def create_representative_domains_table(cursor):
         );
     """)
     cursor.execute(
-        "CREATE INDEX IF NOT EXISTS idx_rep_domains_prot ON RepresentativeDomains(protein_id);"
+        "CREATE INDEX IF NOT EXISTS idx_rep_domains_prot ON RepresentativeDomains(protein_interpro_id);"
     )
 
     existing = {row[1] for row in cursor.execute("PRAGMA table_info(Proteins);")}
@@ -242,7 +242,7 @@ def populate_representative_domains(cursor, xml_filepath, batch_size=500000,
 
     insert_query = """
         INSERT INTO RepresentativeDomains
-               (protein_id, domain_id, domain_name, start, end, score)
+               (protein_interpro_id, domain_id, domain_name, start, end, score)
         VALUES (?, ?, ?, ?, ?, ?);
     """
 
