@@ -11,6 +11,7 @@ import time
 sys.path.append(os.getcwd())
 from Director import Director
 from OrthologsBuilder import *
+from RepresentativeDomainsBuilder import RepresentativeDomainsBuilder
 from SpeciesDB import *
 from conf import all_species
 
@@ -69,6 +70,13 @@ if __name__ == "__main__":
             print("Filling {} completed!".format(dbBuild.dbName))
             print("#### Duration: " + timer(bp, time.time()))
         spnum += 1
-    
+
+    print("===========Representative Domains (InterPro)===========")
+    bp = time.time()
+    repDomains = RepresentativeDomainsBuilder()
+    director.setBuilder(repDomains)
+    director.collectFromSource(download=download)
+    print("#### Representative domains build duration: " + timer(bp, time.time()))
+
     print("#### Full run duration: " + timer(start_time, time.time()))
 
