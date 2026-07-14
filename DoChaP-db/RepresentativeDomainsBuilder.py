@@ -27,9 +27,13 @@ UNIPROT_LOCAL_PATH = "data"
 UNIPROT_FILE_NAME  = "idmapping_selected.tab.gz"
 INTERPRO_LOCAL_PATH = "data"
 INTERPRO_FILE_NAME  = "match_complete.xml.gz"
+# Curated InterPro entry metadata (names + <abstract> descriptions), one entry
+# per InterPro accession. Lives next to match_complete.xml.gz on the same FTP.
+INTERPRO_ENTRIES_FILE_NAME = "interpro.xml.gz"
 
 UNIPROT_FILE  = f"{UNIPROT_LOCAL_PATH}/{UNIPROT_FILE_NAME}"
 INTERPRO_FILE = f"{INTERPRO_LOCAL_PATH}/{INTERPRO_FILE_NAME}"
+INTERPRO_ENTRIES_FILE = f"{INTERPRO_LOCAL_PATH}/{INTERPRO_ENTRIES_FILE_NAME}"
 
 COLLISION_STRATEGIES = ("ensembl", "refseq", "ignore")
 
@@ -58,12 +62,19 @@ def create_representative_domains_table(cursor):
             domain_name TEXT,
             start INTEGER,
             end INTEGER,
-            score REAL
+            score REAL,
+            description TEXT
         );
     """)
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_rep_domains_prot ON RepresentativeDomains(protein_interpro_id);"
     )
+
+    # Handle a RepresentativeDomains table created before the description column
+    # existed (mirrors the Proteins.protein_interpro_id guard below).
+    rep_cols = {row[1] for row in cursor.execute("PRAGMA table_info(RepresentativeDomains);")}
+    if "description" not in rep_cols:
+        cursor.execute("ALTER TABLE RepresentativeDomains ADD COLUMN description TEXT;")
 
     existing = {row[1] for row in cursor.execute("PRAGMA table_info(Proteins);")}
     if "protein_interpro_id" not in existing:
@@ -217,8 +228,42 @@ def populate_dochap_protein_mapping(cursor, mapping_filepath,
     print(f"   Proteins.protein_interpro_id populated for {len(resolved):,} proteins.")
 
 
-def populate_representative_domains(cursor, xml_filepath, batch_size=500000,
-                                    use_threading=True):
+def parse_interpro_descriptions(xml_filepath):
+    """Stream interpro.xml.gz into {InterPro accession: description text}.
+
+    Each <interpro> entry carries the curated description in an <abstract>
+    child, as mixed text and markup (<p>, <cite>, <db_xref>, ...). We flatten
+    it with itertext() and collapse whitespace so it stores as a single clean
+    string. Entries without an abstract are skipped (their description stays
+    NULL). Descriptions exist only for InterPro accessions, so member-database
+    signatures that never got an <ipr> in the match file simply won't match.
+    """
+    print("Parsing InterPro entry descriptions from interpro.xml.gz...")
+    t0 = time.time()
+
+    descriptions = {}
+    context = etree.iterparse(
+        gzip.open(xml_filepath, 'rb'), events=('end',), tag='interpro'
+    )
+    for _, entry in context:
+        ipr_id = entry.get('id')
+        abstract = entry.find('abstract')
+        if ipr_id and abstract is not None:
+            text = ' '.join(' '.join(abstract.itertext()).split())
+            if text:
+                descriptions[ipr_id] = text
+
+        entry.clear()
+        while entry.getprevious() is not None:
+            del entry.getparent()[0]
+
+    print(f"   Parsed {len(descriptions):,} InterPro descriptions "
+          f"({time.time()-t0:.0f}s).")
+    return descriptions
+
+
+def populate_representative_domains(cursor, xml_filepath, descriptions=None,
+                                    batch_size=500000, use_threading=True):
     """
     Streams InterPro XML into RepresentativeDomains.
 
@@ -240,10 +285,12 @@ def populate_representative_domains(cursor, xml_filepath, batch_size=500000,
     print("Step 2/2: Parsing InterPro match XML into RepresentativeDomains...")
     t0 = time.time()
 
+    descriptions = descriptions or {}
+
     insert_query = """
         INSERT INTO RepresentativeDomains
-               (protein_interpro_id, domain_id, domain_name, start, end, score)
-        VALUES (?, ?, ?, ?, ?, ?);
+               (protein_interpro_id, domain_id, domain_name, start, end, score, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
     """
 
     def parse_batches():
@@ -273,7 +320,8 @@ def populate_representative_domains(cursor, xml_filepath, batch_size=500000,
                         end    = int(lcn_elem.get('end'))
                         score_s = lcn_elem.get('score')
                         score  = float(score_s) if score_s else None
-                        batch.append((prot_id, ipr_id, ipr_name, start, end, score))
+                        description = descriptions.get(ipr_id)
+                        batch.append((prot_id, ipr_id, ipr_name, start, end, score, description))
 
             protein_elem.clear()
             while protein_elem.getprevious() is not None:
@@ -358,6 +406,7 @@ class RepresentativeDomainsBuilder(SourceBuilder):
 
     def downloader(self):
         download_file(INTERPRO_FTP_ADDRESS, INTERPRO_FTP_PATH, INTERPRO_LOCAL_PATH, INTERPRO_FILE_NAME)
+        download_file(INTERPRO_FTP_ADDRESS, INTERPRO_FTP_PATH, INTERPRO_LOCAL_PATH, INTERPRO_ENTRIES_FILE_NAME)
         download_file(UNIPROT_FTP_ADDRESS,  UNIPROT_FTP_PATH,  UNIPROT_LOCAL_PATH,  UNIPROT_FILE_NAME)
 
     def parser(self):
@@ -379,7 +428,9 @@ class RepresentativeDomainsBuilder(SourceBuilder):
                                             collision_strategy=self.collision_strategy)
             conn.commit()
 
+            descriptions = parse_interpro_descriptions(INTERPRO_ENTRIES_FILE)
             populate_representative_domains(cursor, INTERPRO_FILE,
+                                            descriptions=descriptions,
                                             use_threading=self.use_threading)
             conn.commit()
 
