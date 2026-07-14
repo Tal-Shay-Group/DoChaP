@@ -18,21 +18,30 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
          }
       });
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" && currAddress != "#!");
+      //pick up a checkbox change made on another page
+      $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
    });
 
    //fill specie combobox
    Species.fillSpecieComboBox("indexSpecies");
+
+   //use Interpro representative domains, on by default; shared across pages via sessionStorage (resets each session)
+   $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
+   $scope.$watch("useRepDomains", function (val) {
+      sessionStorage.setItem("useRepDomains", val);
+   });
 
    //searching for query using the navigation text field
    $rootScope.search = async function () {
       var query = indexTextField.value;
       var specie = indexSpecies.value;
       var isReviewed = true;
+      var useRepDomains = $scope.useRepDomains;
       if ($scope.loading == true) {
          return;
       }
       $scope.indexLoading = true;
-      var results = await querySearchService.queryHandler(query, specie, isReviewed);
+      var results = await querySearchService.queryHandler(query, specie, isReviewed, useRepDomains);
       $scope.indexLoading = false;
       $scope.$apply();
       if (results[0] == "error") {

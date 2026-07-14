@@ -8,11 +8,18 @@ angular.module("DoChaP")
         $scope.loading = false;
         $scope.alert = "";
 
+        //use Interpro representative domains, on by default; shared across pages via sessionStorage (resets each session)
+        $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
+        $scope.$watch("useRepDomains", function (val) {
+            sessionStorage.setItem("useRepDomains", val);
+        });
+
         //runs on 'analyze' button click. checks for input in text or file and sends the right request for the server.
         self.search = async function () {
             var query = searchTextField.value;
             var specie = searchBySpecie.value;
             var isReviewed = true;
+            var useRepDomains = $scope.useRepDomains;
 
             if($scope.loading==true){ //if we are already in a search
                 return;
@@ -20,7 +27,7 @@ angular.module("DoChaP")
 
             //start search
             $scope.loading = true;
-            var results=await querySearchService.queryHandler(query, specie, isReviewed);
+            var results=await querySearchService.queryHandler(query, specie, isReviewed, useRepDomains);
             $scope.loading = false;
 
             //parse results
@@ -64,10 +71,10 @@ angular.module("DoChaP")
 
             //fill specie combobox
             Species.fillSpecieComboBox("searchBySpecie");
-            
+
             //focus on text-field
             document.getElementById("searchTextField").focus();
-            
+
             //search on enter
             document.addEventListener("keypress", function (event) {
                 if (event.code == "Enter") {
@@ -77,7 +84,7 @@ angular.module("DoChaP")
                     catch(err){
 
                     }
-                    
+
                 }
             });
 

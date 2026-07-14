@@ -106,6 +106,11 @@ Logo and navigation bars will be declared here for example.
                     <input placeholder="  Enter gene symbol, geneID or RefSeq ID" class="searchTextFieldClass" id="indexTextField" ng-keydown="$event.which == 13 && search()">
                    &nbsp;<button class="btn blackButton" id="submitSearchButton" type="button" ng-click="search()">
                    <span class="glyphicon glyphicon-search"></span></button>
+                   &nbsp;
+                   <span style="color: white; display: inline-block; white-space: nowrap;" title="Use Interpro representative Domains">
+                       <input type="checkbox" id="indexUseRepDomainsCheckBox" ng-model="useRepDomains">
+                       <label for="indexUseRepDomainsCheckBox" style="display: inline; margin-left: 5px; margin-bottom: 0; font-size: 13px;">Interpro representative Domains</label>
+                   </span>
                    <span style="color: white;" ng-show="indexLoading">
                     <img ng-src="/resources/loading_2.gif" width="38" height="38" />
                   </span>

@@ -13,15 +13,14 @@ angular.module("DoChaP").service("webService", function ($http,$window) {
     // var urlAdress="https://dochap.bgu.ac.il/dochap";
 
 
-    this.queryHandler =function (query,specie,isReviewed) {
+    this.queryHandler =function (query,specie,isReviewed,useRepDomains){
         var req = {
             method: 'GET',
-            url: urlAdress+'/querySearch/' + query+"/"+specie+"/"+isReviewed , 
+            url: urlAdress+'/querySearch/' + query+"/"+specie+"/"+isReviewed+"/"+(useRepDomains===true),
         };
         return $http(req);
     }
 
- 
     this.sendMail = function(name,email,message){
         var req = {
             method: 'GET',

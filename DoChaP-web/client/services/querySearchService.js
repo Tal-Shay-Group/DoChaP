@@ -5,7 +5,7 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
     self = this;
 
     //in case of text this function runs. it checks for invalid input before sending it to the server
-    self.queryHandler =async function (query, specie, isReviewed) {
+    self.queryHandler =async function (query, specie, isReviewed, useRepDomains) {
         var re = new RegExp("^[a-zA-Z0-9]");
         query=query.trim(); //trim whitespaces from beginning or end
         if (!re.test(query)) {
@@ -13,7 +13,7 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
         }
 
         //returning server results
-        return await webService.queryHandler(query, specie, isReviewed)
+        return await webService.queryHandler(query, specie, isReviewed, useRepDomains)
             .then(function (response) {
                 var geneList = response.data.genes[0];
                 //case of error 
