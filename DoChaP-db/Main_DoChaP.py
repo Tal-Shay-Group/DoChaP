@@ -40,18 +40,13 @@ if __name__ == "__main__":
     director.collectFromSource(download=download)
     print("#### Orthologs collection duration: " + timer(bp, time.time()))
     
-    #species = ['R_norvegicus', 'X_tropicalis', 'D_rerio', 'H_sapiens', 'M_musculus'] 
+    species = ['R_norvegicus', 'X_tropicalis', 'D_rerio', 'H_sapiens', 'M_musculus'] 
     spl = len(all_species)
     spnum = 1
     #for sp in species:
     for sp in all_species:
         print("===========Current Species: {}===========".format(sp))
         bp = time.time()
-        #if sp == "X_tropicalis" or sp == "R_norvegicus":
-        #    #  18/2/21 - only use refseq data for Xenopus_tropicalis untill refseq and ensembl genome versions will match.
-        #    withEns = False
-        #else:
-        #    withEns = True
         withEns = True
         dbBuild = dbBuilder(sp, download=download, withEns=withEns)
         print("#### Species data collect & merge duration: " + timer(bp, time.time()))

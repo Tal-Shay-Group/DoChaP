@@ -10,7 +10,7 @@ import gffutils
 sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
-from ftpDownload import ftpDownload
+from httpsDownload import httpsDownload
 from DomainsEnsemblBuilder import *
 from conf import SpConvert_EnsBuilder
 
@@ -47,7 +47,7 @@ class EnsemblBuilder(SourceBuilder):
                     return out
 
         self.gff = self.savePath + "genomic.gff3"
-        down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
         down.Download()
         # Download Domains

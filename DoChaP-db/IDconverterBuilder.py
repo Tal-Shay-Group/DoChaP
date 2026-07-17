@@ -4,7 +4,7 @@ import os
 import sys
 
 sys.path.append(os.getcwd())
-from ftpDownload import ftpDownload
+from httpsDownload import httpsDownload
 from recordTypes import Transcript
 from Director import SourceBuilder
 from conf import taxIDdict
@@ -33,7 +33,7 @@ class ConverterBuilder(SourceBuilder):
         ftp_path = '/gene/DATA/'
         filename = 'gene2ensembl'
         files2down = [[filename, filename + ".txt"]]
-        down = ftpDownload(species=None, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        down = httpsDownload(species=None, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            files2Download=files2down)
         down.Download()
 

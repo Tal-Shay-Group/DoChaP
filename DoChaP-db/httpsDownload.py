@@ -43,43 +43,60 @@ class httpsDownload:
         exit(1)
 
     def _list_dir(self):
-        """Parses the Apache/nginx-style autoindex page for file names."""
+        """Parses the Apache/nginx-style autoindex page into bare entry names.
+
+        Mirrors ftplib's nlst(): returns file/directory names with no trailing
+        slash and without parent-directory ('../'), absolute, or column-sort
+        query links, so specifyPathFunc callers written for ftpDownload work
+        unchanged.
+        """
         with urllib.request.urlopen(self.base_url, timeout=600) as resp:
             html = resp.read().decode('utf-8', errors='replace')
-        names = re.findall(r'href="([^"/?][^"]*)"', html)
-        return [n for n in names if not n.startswith('?')]
+        names = []
+        for href in re.findall(r'href="([^"]+)"', html):
+            if href.startswith(('/', '?', '#')) or '://' in href or href.startswith('..'):
+                continue
+            name = href.rstrip('/')  # directory links carry a trailing slash
+            if name and name not in names:
+                names.append(name)
+        return names
 
     def Download_trial(self, extract=True, writeReadme=True):
+        # Kept byte-for-byte in step with ftpDownload.Download_trial: the caller
+        # passes the remote name WITHOUT the .gz suffix (appended here), and
+        # local_rel_path is the extracted name. Only the transport differs
+        # (HTTPS GET instead of FTP RETR).
         outlist = []
         try:
             print(f"Connecting to {self.ftp_address}...")
-            files_in_dir = self._list_dir()
-            downlist = self.files2Download if self.specifyPathFunc is None else self.specifyPathFunc(files_in_dir)
+            if self.specifyPathFunc is None:
+                downlist = self.files2Download
+            else:
+                downlist = self.specifyPathFunc(self._list_dir())
 
             for remote_name, local_rel_path in downlist:
                 local_path = Path(self.savePath) / local_rel_path
                 local_path.parent.mkdir(parents=True, exist_ok=True)
 
-                gz_path = local_path
+                gz_path = local_path.with_suffix(local_path.suffix + '.gz')
                 success = False
 
                 for attempt in range(1, 11):  # 10 retries
                     try:
-                        print(f"Downloading {remote_name} (Attempt {attempt})...")
-                        remote_url = self.base_url + remote_name
-                        urllib.request.urlretrieve(remote_url, gz_path)
+                        print(f"Downloading {remote_name}.gz (Attempt {attempt})...")
+                        remote_url = self.base_url + remote_name + '.gz'
+                        with urllib.request.urlopen(remote_url, timeout=600) as resp, \
+                                open(gz_path, 'wb') as f:
+                            shutil.copyfileobj(resp, f)
 
                         if extract:
                             print(f"Extracting to {local_path}...")
-                            extracted_path = local_path.with_suffix('')
                             with gzip.open(gz_path, 'rb') as f_in:
-                                with open(extracted_path, 'wb') as f_out:
+                                with open(local_path, 'wb') as f_out:
                                     shutil.copyfileobj(f_in, f_out)
                             gz_path.unlink()  # Delete .gz file
-                            outlist.append(str(extracted_path))
-                        else:
-                            outlist.append(str(local_path))
 
+                        outlist.append(str(local_path))
                         success = True
                         break
                     except Exception as e:

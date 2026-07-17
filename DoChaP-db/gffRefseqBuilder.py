@@ -10,7 +10,7 @@ import re
 sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
-from ftpDownload import ftpDownload
+from httpsDownload import httpsDownload
 from conf import SpeciesConvertor, speciesTaxonomy, RefSeqGenomicVersion, isSupressed
 
 
@@ -57,7 +57,7 @@ class RefseqBuilder(SourceBuilder):
                 gff = [genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]
                 return [gff]
 
-        down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
 
         # ~~~ If want to specify assembly version from conf - use this~~~
@@ -65,7 +65,7 @@ class RefseqBuilder(SourceBuilder):
         # genomeVersion = RefSeqGenomicVersion[skey]
         # gff2Download = [[genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]]
         # gff2Download[0][0] = "suppressed" + gff2Download[0][0] if isSupressed else gff2Download[0][0]
-        # down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        # down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
         #                    files2Download=gff2Download)
         filesDownloaded = down.Download()
         self.gff = filesDownloaded[0]
@@ -76,7 +76,7 @@ class RefseqBuilder(SourceBuilder):
         def FindFile(listOfFiles):
             return [[f[:-3], f[:-3]] for f in listOfFiles if "protein.gpff.gz" in f]
 
-        down = ftpDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
+        down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
         self.gpff = down.Download()
 

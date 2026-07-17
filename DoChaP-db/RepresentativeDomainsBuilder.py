@@ -39,8 +39,14 @@ COLLISION_STRATEGIES = ("ensembl", "refseq", "ignore")
 
 
 def download_file(ftp_address, ftp_path, local_dir, file_name):
+    # httpsDownload mirrors ftpDownload: it appends ".gz" to the remote name and,
+    # with extract=False, leaves the gzipped file on disk. So strip the ".gz"
+    # from the remote/local name we hand it - the file still lands at
+    # <local_dir>/<file_name> (e.g. data/match_complete.xml.gz), which is what
+    # the parser reads.
+    base_name = file_name[:-3] if file_name.endswith('.gz') else file_name
     http = httpsDownload('', ftp_address, ftp_path, savePath=local_dir,
-                         files2Download=[[file_name, file_name]])
+                         files2Download=[[base_name, base_name]])
     http.Download(extract=False)
 
 
