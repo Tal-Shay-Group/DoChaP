@@ -47,30 +47,56 @@ class DomainsEnsemblBuilder(SourceBuilder):
             with open(toFile, "a") as write:
                 write.write(self.shellScript + "\n")
 
-    def downloader(self):
-        """This function calls the createDownloadScripts and then tryes to Run it.
-        Currently this is not the best way of doing that, therefor the create download scripts is called from
-        the module CreatAllDownloadScripts and then RunAllDownloads.bash is running the scripts in parallel.
+    @staticmethod
+    def _isValidDomainFile(path):
+        """A valid BioMart domains TSV starts with the 'Transcript stable ID
+        version' header, not an HTML error/status page (e.g. Ensembl's
+        'Service unavailable' returned with HTTP 200, which wget saves as-is)."""
+        try:
+            with open(path, 'r') as f:
+                first = f.readline().lstrip()
+        except OSError:
+            return False
+        if first[:1] == '<':  # HTML error/redirect page
+            return False
+        return first.startswith("Transcript stable ID version")
+
+    def _expectedFiles(self):
+        return [self.downloadPath + self.species + ".Domains.{}.txt".format(extDB)
+                for extDB in self.ExternalDomains
+                if not (self.species == 'R_norvegicus' and extDB == 'tigrfams')]
+
+    def downloader(self, retries=5, backoff=15):
+        """Runs the per-species BioMart download script, then verifies every
+        expected domains file is real TSV (not an Ensembl error page). Bad
+        files are deleted and the whole script retried, so a transient outage
+        can't leave a corrupt file cached on disk for later parsing to trip on.
         """
+        import time
         self.createDownloadScripts()
-        subprocess.Popen(['chmod', 'u+x', self.shellScript])
-        print(f"\t running script: {self.shellScript}")
-        runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        output, err = runScript.communicate()
-        print("poll(): " + str(runScript.poll()))
-        check = None
-        e = str(err)
-        while check is None:
-            print("waiting for job to finish")
-            e = str(err)
-            check = runScript.wait()
-        print("Job has finished")
-        print("Validating successful downloads...")
-        if e == '':
-            print(e)
-        else:
-            print("script has finished running without errors")
-        # os.remove(self.shellScript)
+        subprocess.Popen(['chmod', 'u+x', self.shellScript]).wait()
+        for attempt in range(1, retries + 1):
+            print(f"\t running script (attempt {attempt}/{retries}): {self.shellScript}")
+            runScript = subprocess.Popen([self.shellScript], stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE, text=True)
+            output, err = runScript.communicate()
+            print("poll(): " + str(runScript.poll()))
+            bad = [p for p in self._expectedFiles() if not self._isValidDomainFile(p)]
+            if not bad:
+                print("Validating successful downloads... all domain tables are valid TSV.")
+                # os.remove(self.shellScript)
+                return
+            for p in bad:
+                print("\t invalid domain file (likely an Ensembl 'Service unavailable' "
+                      "page): {}".format(os.path.basename(p)))
+                if os.path.exists(p):
+                    os.remove(p)  # never leave a bad file cached
+            if attempt < retries:
+                print("\t retrying in {}s...".format(backoff))
+                time.sleep(backoff)
+        raise RuntimeError(
+            "Failed to download valid Ensembl domain tables for {} after {} attempts. "
+            "BioMart returned an error page each time.".format(self.species, retries))
 
     # def Parser(self):
     #     for extDB in self.ExternalDomains:

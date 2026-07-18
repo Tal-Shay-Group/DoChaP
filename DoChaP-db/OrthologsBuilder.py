@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os
 import re
+import time
 import numpy as np
 import pandas as pd
 
@@ -56,27 +57,46 @@ class OrthologsBuilder(SourceBuilder):
                 for shell in AllCommands:
                     write.write(shell + "\n")
 
-    def downloader(self):
+    @staticmethod
+    def _isValidOrthologyFile(path):
+        """A valid BioMart TSV starts with the 'Gene stable ID' header, not an
+        HTML error/status page (e.g. Ensembl's 'Service unavailable' returned
+        with HTTP 200, which wget saves without complaint)."""
+        try:
+            with open(path, 'r') as f:
+                first = f.readline().lstrip()
+        except OSError:
+            return False
+        if first[:1] == '<':  # HTML error/redirect page
+            return False
+        return first.startswith("Gene stable ID")
+
+    def downloader(self, retries=5, backoff=15):
         output = dict()
         err = dict()
-        scriptsCalc = int((len(self.all_species) ** 2 - len(self.all_species)) / 2)
-        n = 0
         for i in range(len(self.all_species)):
             for j in range(i, len(self.all_species)):
                 if self.all_species[i] != self.all_species[j]:
-                    n += 1
                     shellCommand = self.createDownloadScripts(self.all_species[i], self.all_species[j])
-                    subprocess.Popen(['chmod', 'u+x', shellCommand])
-                    runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                                 text=True)
-                    output[shellCommand], err[shellCommand] = runScript.communicate()
-                    print("poll(): " + str(runScript.poll()))
-                    if n == scriptsCalc:
-                        check = None
-                        while check is None:
-                            print("waiting for last job to finish")
-                            check = runScript.wait()
-                        print("last job has finished")
+                    outPath = self.downloadPath + "{}.{}.orthology.txt".format(
+                        self.all_species[i], self.all_species[j])
+                    subprocess.Popen(['chmod', 'u+x', shellCommand]).wait()
+                    for attempt in range(1, retries + 1):
+                        runScript = subprocess.Popen([shellCommand], stdout=subprocess.PIPE,
+                                                     stderr=subprocess.PIPE, text=True)
+                        output[shellCommand], err[shellCommand] = runScript.communicate()
+                        print("poll(): " + str(runScript.poll()))
+                        if self._isValidOrthologyFile(outPath):
+                            break
+                        print("Attempt {}/{}: {} is not valid BioMart TSV (likely an "
+                              "Ensembl 'Service unavailable' page). Retrying in {}s...".format(
+                                  attempt, retries, os.path.basename(outPath), backoff))
+                        time.sleep(backoff)
+                    else:
+                        raise RuntimeError(
+                            "Failed to download a valid orthology table for {} after {} attempts. "
+                            "Ensembl BioMart returned an error page each time (see {}).".format(
+                                os.path.basename(outPath), retries, outPath))
         print("Validating successful downloads...")
         for key in err.keys():
             if err[key] != '':

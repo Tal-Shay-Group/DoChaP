@@ -8,6 +8,38 @@ import urllib.error
 from pathlib import Path
 
 
+def validate_downloaded_file(path, valid_prefixes, label="file"):
+    """Guard against silently-saved error pages.
+
+    A download that returns HTTP 200 with an error/redirect body (e.g. an HTML
+    'Service unavailable' page) is written to disk like a normal file and only
+    blows up later during parsing. This checks the first non-empty line of a
+    downloaded file against the prefix(es) a valid file must start with, and
+    deletes + raises on a mismatch so the failure is loud and no bad file is
+    left cached on disk.
+
+    @param valid_prefixes: a string or iterable of strings; the file is valid
+                           if its first line starts with any of them.
+    """
+    if isinstance(valid_prefixes, str):
+        valid_prefixes = (valid_prefixes,)
+    try:
+        with open(path, 'r', errors='replace') as f:
+            first = f.readline().lstrip()
+    except OSError as e:
+        raise RuntimeError("Expected downloaded {} not found at {}: {}".format(label, path, e))
+    if not any(first.startswith(p) for p in valid_prefixes):
+        preview = first[:120].rstrip()
+        try:
+            Path(path).unlink()  # never leave a bad file cached
+        except OSError:
+            pass
+        raise RuntimeError(
+            "Downloaded {} at {} is not valid (starts with {!r}, expected one of {}). "
+            "It is most likely an error/redirect page saved during a download outage; "
+            "the bad file was deleted, please re-run.".format(label, path, preview, list(valid_prefixes)))
+
+
 class httpsDownload:
     """HTTPS counterpart to ftpDownload, kept API-compatible.
 

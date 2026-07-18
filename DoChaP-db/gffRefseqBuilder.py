@@ -10,7 +10,7 @@ import re
 sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
-from httpsDownload import httpsDownload
+from httpsDownload import httpsDownload, validate_downloaded_file
 from conf import SpeciesConvertor, speciesTaxonomy, RefSeqGenomicVersion, isSupressed
 
 
@@ -69,6 +69,7 @@ class RefseqBuilder(SourceBuilder):
         #                    files2Download=gff2Download)
         filesDownloaded = down.Download()
         self.gff = filesDownloaded[0]
+        validate_downloaded_file(self.gff, "##gff-version", label="RefSeq gff")
 
         # Downloading gpff files (protein data):
         ftp_path = '/refseq/{}/mRNA_Prot/'.format(self.species)
@@ -79,6 +80,7 @@ class RefseqBuilder(SourceBuilder):
         down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
         self.gpff = down.Download()
+        validate_downloaded_file(self.gpff[0], "LOCUS", label="RefSeq gpff")
 
     def FilesNoDownload(self, suffix):
         """ When running RefseqBuilder without re-downloading the data,

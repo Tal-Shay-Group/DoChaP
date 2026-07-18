@@ -10,7 +10,7 @@ import gffutils
 sys.path.append(os.getcwd())
 from recordTypes import *
 from Director import SourceBuilder
-from httpsDownload import httpsDownload
+from httpsDownload import httpsDownload, validate_downloaded_file
 from DomainsEnsemblBuilder import *
 from conf import SpConvert_EnsBuilder
 
@@ -50,6 +50,7 @@ class EnsemblBuilder(SourceBuilder):
         down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
                            specifyPathFunc=FindFile)
         down.Download()
+        validate_downloaded_file(self.gff, "##gff-version", label="Ensembl gff3")
         # Download Domains
         self.DomainsBuilder.downloader()
 
@@ -173,11 +174,16 @@ class EnsemblBuilder(SourceBuilder):
     def parse_domains(self):
         print("\tCollecting domains from ensembl domains talbes:")
         for extDB in self.DomainsBuilder.ExternalDomains:
-            if self.species == 'R_norvegicus' and extDB == 'tigerfams': # ensembl dows not support tigrfam for R_norvegicus
+            if self.species == 'R_norvegicus' and extDB == 'tigrfams': # ensembl dows not support tigrfam for R_norvegicus
                 continue
             print("\t - {}".format(extDB))
-            df = pd.read_table(self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB),
-                               sep="\t", header=0)
+            domainFile = self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB)
+            df = pd.read_table(domainFile, sep="\t", header=0)
+            if "Transcript stable ID version" not in df.columns:
+                raise RuntimeError(
+                    "{} is not a valid BioMart domains table (columns: {}). It is most "
+                    "likely an Ensembl error page saved during a download outage. Delete it "
+                    "and re-download.".format(domainFile, list(df.columns)))
             df.columns = df.columns.str.replace(" ", "_")
             if extDB == "tigrfams":
                 df.columns = df.columns.str.replace("TIGRFAM", "tigrfams")
