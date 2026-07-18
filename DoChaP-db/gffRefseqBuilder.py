@@ -134,10 +134,9 @@ class RefseqBuilder(SourceBuilder):
             # Parent attribute, not db.children()/db.parents(). gffutils'
             # gene/transcript *inference* pass is the most expensive part of
             # create_db and produces nothing used here, so disable it - the main
-            # speed-up. The pragmas only affect the on-disk copy of the build.
+            # speed-up.
             db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique",
-                                    disable_infer_genes=True, disable_infer_transcripts=True,
-                                    pragma_kwargs={"synchronous": "OFF", "journal_mode": "MEMORY"})
+                                    disable_infer_genes=True, disable_infer_transcripts=True)
             db.conn.execute(f"VACUUM main INTO '{db_filename}'")
         else:
             db = gffutils.FeatureDB(db_filename)

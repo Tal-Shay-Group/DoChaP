@@ -98,11 +98,9 @@ class EnsemblBuilder(SourceBuilder):
             # straight from the Parent attribute rather than db.children()/
             # db.parents(). So gffutils' gene/transcript *inference* pass - by
             # far the most expensive part of create_db - is pure overhead here.
-            # Disabling it is the main speed-up. synchronous=OFF/journal=MEMORY
-            # only affect the on-disk copy; the build itself is in :memory:.
+            # Disabling it is the main speed-up.
             db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique",
-                                    disable_infer_genes=True, disable_infer_transcripts=True,
-                                    pragma_kwargs={"synchronous": "OFF", "journal_mode": "MEMORY"})
+                                    disable_infer_genes=True, disable_infer_transcripts=True)
             db.conn.execute(f"VACUUM main INTO '{db_filename}'")
         else:
             db = gffutils.FeatureDB(db_filename)
