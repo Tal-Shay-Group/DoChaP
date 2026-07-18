@@ -93,8 +93,16 @@ class EnsemblBuilder(SourceBuilder):
         print("\tcreating temporary database from file: " + self.gff)
         db_filename = self.gff + ".db"
         if not os.path.exists(db_filename):
-            fn = gffutils.example_filename(self.gff)
-            db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+            # The gff3 already contains explicit gene and transcript features
+            # (queried below via features_of_type), and relationships are read
+            # straight from the Parent attribute rather than db.children()/
+            # db.parents(). So gffutils' gene/transcript *inference* pass - by
+            # far the most expensive part of create_db - is pure overhead here.
+            # Disabling it is the main speed-up. synchronous=OFF/journal=MEMORY
+            # only affect the on-disk copy; the build itself is in :memory:.
+            db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique",
+                                    disable_infer_genes=True, disable_infer_transcripts=True,
+                                    pragma_kwargs={"synchronous": "OFF", "journal_mode": "MEMORY"})
             db.conn.execute(f"VACUUM main INTO '{db_filename}'")
         else:
             db = gffutils.FeatureDB(db_filename)

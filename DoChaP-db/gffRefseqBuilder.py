@@ -6,6 +6,9 @@ import sys
 import gffutils
 from Bio import SeqIO
 import re
+import urllib.request
+import urllib.error
+from urllib.parse import urlsplit
 
 sys.path.append(os.getcwd())
 from recordTypes import *
@@ -38,35 +41,46 @@ class RefseqBuilder(SourceBuilder):
         self.pro2trans = {}
         self.trans2pro = {}
 
+    def _latestAssemblyDir(self, skey, ftp_address):
+        """Return (relative_dir_path, assembly_name) for the current assembly,
+        using NCBI's own authority: the row flagged version_status == 'latest'
+        in the species assembly_summary.txt. This is what 'latest_assembly_versions/'
+        is derived from, and it keeps working across assembly transitions where
+        that convenience directory is temporarily removed (e.g. Danio_rerio ->
+        GRCz12tu). A 'reference genome' is preferred if several rows are latest.
+        """
+        summary_url = 'https://{}/genomes/refseq/{}/{}/assembly_summary.txt'.format(
+            ftp_address, self.speciesTaxonomy[skey], skey)
+        with urllib.request.urlopen(summary_url, timeout=600) as resp:
+            text = resp.read().decode('utf-8', errors='replace')
+        candidates = []  # (is_reference, ftp_path)
+        for line in text.splitlines():
+            if line.startswith('#') or not line.strip():
+                continue
+            cols = line.split('\t')
+            if len(cols) <= 19:
+                continue
+            refseq_category, version_status, ftp_path = cols[4], cols[10], cols[19]
+            if version_status == 'latest' and ftp_path and ftp_path != 'na':
+                candidates.append((refseq_category != 'reference genome', ftp_path))
+        if not candidates:
+            raise ValueError("No assembly flagged version_status='latest' in " + summary_url)
+        candidates.sort()  # reference genome (False) sorts before others
+        asm_ftp = candidates[0][1]
+        asm_dir = asm_ftp.rstrip('/').rsplit('/', 1)[-1]          # e.g. GCF_049306965.1_GRCz12tu
+        rel_path = urlsplit(asm_ftp).path.rstrip('/')             # scheme/host-agnostic
+        return rel_path, asm_dir
+
     def downloader(self):
         """ This method is downloading the required data files directly from ftp site"""
         skey = self.SpeciesConvertor[self.species]
         ftp_address = 'ftp.ncbi.nlm.nih.gov'
 
-        # ~~~ For latest assembly version - use this~~~
-        ftp_path = '/genomes/refseq/{}/{}/latest_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
-
-        def FindFile(listOfFiles):
-            for file in listOfFiles:
-                if len(listOfFiles) > 1:
-                    #raise ValueError("More than 1 file in dir")
-                    print(f'Error: More than 1 file in dir: {listOfFiles}. Using the first')
-                    genomeVersion = listOfFiles[0]
-                else:
-                    genomeVersion = listOfFiles[0]
-                gff = [genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]
-                return [gff]
-
+        ftp_path, genomeVersion = self._latestAssemblyDir(skey, ftp_address)
+        print(f"\tUsing latest RefSeq assembly for {skey}: {genomeVersion}")
+        gff2Download = [[genomeVersion + "_genomic.gff", "genomic.gff"]]
         down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
-                           specifyPathFunc=FindFile)
-
-        # ~~~ If want to specify assembly version from conf - use this~~~
-        # ftp_path = '/genomes/refseq/{}/{}/all_assembly_versions/'.format(self.speciesTaxonomy[skey], skey)
-        # genomeVersion = RefSeqGenomicVersion[skey]
-        # gff2Download = [[genomeVersion + "/" + genomeVersion + "_genomic.gff", "genomic.gff"]]
-        # gff2Download[0][0] = "suppressed" + gff2Download[0][0] if isSupressed else gff2Download[0][0]
-        # down = httpsDownload(species=skey, ftp_adress=ftp_address, ftp_path=ftp_path, savePath=self.savePath,
-        #                    files2Download=gff2Download)
+                           files2Download=gff2Download)
         filesDownloaded = down.Download()
         self.gff = filesDownloaded[0]
         validate_downloaded_file(self.gff, "##gff-version", label="RefSeq gff")
@@ -115,8 +129,15 @@ class RefseqBuilder(SourceBuilder):
         print("\tcreating temporary database from file: " + self.gff)
         db_filename = self.gff + ".db"
         if not os.path.exists(db_filename):
-            fn = gffutils.example_filename(self.gff)
-            db = gffutils.create_db(fn, ":memory:", merge_strategy="create_unique")
+            # genomic.gff already has explicit gene/transcript features (queried
+            # below via features_of_type) and relationships are read from the
+            # Parent attribute, not db.children()/db.parents(). gffutils'
+            # gene/transcript *inference* pass is the most expensive part of
+            # create_db and produces nothing used here, so disable it - the main
+            # speed-up. The pragmas only affect the on-disk copy of the build.
+            db = gffutils.create_db(self.gff, ":memory:", merge_strategy="create_unique",
+                                    disable_infer_genes=True, disable_infer_transcripts=True,
+                                    pragma_kwargs={"synchronous": "OFF", "journal_mode": "MEMORY"})
             db.conn.execute(f"VACUUM main INTO '{db_filename}'")
         else:
             db = gffutils.FeatureDB(db_filename)
