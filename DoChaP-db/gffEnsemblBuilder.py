@@ -194,10 +194,6 @@ class EnsemblBuilder(SourceBuilder):
             if extDB == "tigrfams":
                 df.columns = df.columns.str.replace("TIGRFAM", "tigrfams")
             df.columns = df.columns.str.lower().str.replace(extDB + "_", "")
-            if self.species == 'D_rerio': # does not have version protein_stable_id_version, transcript_stable_id_version
-                df['protein_stable_id_version'] = df['protein_stable_id'] + '.' + df['version_(protein)'].astype(str).replace('nan', '')
-                df['transcript_stable_id_version'] = df['transcript_stable_id'] + '.' + df['version_(transcript)'].astype(str).replace('nan', '')
-                df = df.drop(columns=['protein_stable_id', 'version_(protein)','transcript_stable_id', 'version_(transcript)'])
             if extDB == "interpro":
                 tdf = df.copy(deep=True)
                 tdf.index = tdf.transcript_stable_id_version
