@@ -92,6 +92,12 @@ class EnsemblBuilder(SourceBuilder):
         print("\tParsing gff3 file...")
         print("\tcreating temporary database from file: " + self.gff)
         db_filename = self.gff + ".db"
+        # Invalidate a stale cache: if genomic.gff3 was re-downloaded (e.g. an
+        # assembly change) it will be newer than a .db built from the previous
+        # file. Reusing that old .db silently parses the OLD annotation.
+        if os.path.exists(db_filename) and os.path.getmtime(self.gff) > os.path.getmtime(db_filename):
+            print("\tsource gff3 is newer than cached DB - rebuilding " + db_filename)
+            os.remove(db_filename)
         if not os.path.exists(db_filename):
             # The gff3 already contains explicit gene and transcript features
             # (queried below via features_of_type), and relationships are read
