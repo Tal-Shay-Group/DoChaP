@@ -41,35 +41,75 @@ class RefseqBuilder(SourceBuilder):
         self.pro2trans = {}
         self.trans2pro = {}
 
+    @staticmethod
+    def _listRemoteDir(url):
+        """List bare entry names from an Apache/nginx autoindex page (no
+        trailing slash, no parent/sort/absolute links)."""
+        with urllib.request.urlopen(url, timeout=600) as resp:
+            html = resp.read().decode('utf-8', errors='replace')
+        names = []
+        for href in re.findall(r'href="([^"]+)"', html):
+            if href.startswith(('/', '?', '#')) or '://' in href or href.startswith('..'):
+                continue
+            name = href.rstrip('/')
+            if name and name not in names:
+                names.append(name)
+        return names
+
     def _latestAssemblyDir(self, skey, ftp_address):
-        """Return (relative_dir_path, assembly_name) for the current assembly,
-        using NCBI's own authority: the row flagged version_status == 'latest'
-        in the species assembly_summary.txt. This is what 'latest_assembly_versions/'
-        is derived from, and it keeps working across assembly transitions where
-        that convenience directory is temporarily removed (e.g. Danio_rerio ->
-        GRCz12tu). A 'reference genome' is preferred if several rows are latest.
+        """Return (relative_dir_path, assembly_name) for the assembly to download,
+        using NCBI's own authority: the row flagged version_status == 'latest' in
+        the species assembly_summary.txt (this is what 'latest_assembly_versions/'
+        is derived from, and keeps working when that convenience dir is removed
+        during a transition). A 'reference genome' is preferred if several rows
+        are latest.
+
+        Mid-transition, NCBI may flag a new accession as latest before staging its
+        files to FTP (ftp_path == 'na'); in that case fall back to the newest
+        already-published sub-version of that accession under all_assembly_versions/.
         """
+        taxdir = self.speciesTaxonomy[skey]
         summary_url = 'https://{}/genomes/refseq/{}/{}/assembly_summary.txt'.format(
-            ftp_address, self.speciesTaxonomy[skey], skey)
+            ftp_address, taxdir, skey)
         with urllib.request.urlopen(summary_url, timeout=600) as resp:
             text = resp.read().decode('utf-8', errors='replace')
-        candidates = []  # (is_reference, ftp_path)
+        published = []       # (is_not_reference, ftp_path) for latest rows with staged files
+        latest_acc = None    # accession flagged latest, even if not yet published
         for line in text.splitlines():
             if line.startswith('#') or not line.strip():
                 continue
             cols = line.split('\t')
             if len(cols) <= 19:
                 continue
-            refseq_category, version_status, ftp_path = cols[4], cols[10], cols[19]
-            if version_status == 'latest' and ftp_path and ftp_path != 'na':
-                candidates.append((refseq_category != 'reference genome', ftp_path))
-        if not candidates:
+            accession, refseq_category, version_status, ftp_path = cols[0], cols[4], cols[10], cols[19]
+            if version_status != 'latest':
+                continue
+            if latest_acc is None or refseq_category == 'reference genome':
+                latest_acc = accession
+            if ftp_path and ftp_path != 'na':
+                published.append((refseq_category != 'reference genome', ftp_path))
+        if published:
+            published.sort()  # reference genome (False) sorts before others
+            asm_ftp = published[0][1]
+            asm_dir = asm_ftp.rstrip('/').rsplit('/', 1)[-1]     # e.g. GCF_049306965.1_GRCz12tu
+            rel_path = urlsplit(asm_ftp).path.rstrip('/')        # scheme/host-agnostic
+            return rel_path, asm_dir
+        if latest_acc is None:
             raise ValueError("No assembly flagged version_status='latest' in " + summary_url)
-        candidates.sort()  # reference genome (False) sorts before others
-        asm_ftp = candidates[0][1]
-        asm_dir = asm_ftp.rstrip('/').rsplit('/', 1)[-1]          # e.g. GCF_049306965.1_GRCz12tu
-        rel_path = urlsplit(asm_ftp).path.rstrip('/')             # scheme/host-agnostic
-        return rel_path, asm_dir
+
+        # Latest accession is flagged but its files are not on FTP yet.
+        print(f"\tLatest {skey} assembly {latest_acc} not yet published to FTP; "
+              f"falling back to newest staged version under all_assembly_versions/.")
+        all_path = '/genomes/refseq/{}/{}/all_assembly_versions/'.format(taxdir, skey)
+        names = self._listRemoteDir('https://' + ftp_address + all_path)
+        stem = latest_acc.rsplit('.', 1)[0]                      # GCF_049306965
+        staged = sorted(n for n in names if n.startswith(stem))
+        if not staged:                                           # no sub-version staged; take newest GCF present
+            staged = sorted(n for n in names if n.startswith('GCF_'))
+        if not staged:
+            raise ValueError("No downloadable assembly staged for {} under {}".format(skey, all_path))
+        genomeVersion = staged[-1]
+        return all_path.rstrip('/') + '/' + genomeVersion, genomeVersion
 
     def downloader(self):
         """ This method is downloading the required data files directly from ftp site"""
