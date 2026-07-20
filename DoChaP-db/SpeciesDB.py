@@ -316,11 +316,27 @@ class dbBuilder:
                 gID_hash = hash(gID) if gID else None
                 ensID_hash = hash(transcript.gene_ensembl) if transcript.gene_ensembl else None
                 if gID_hash not in geneSet and ensID_hash not in geneSet:
-                    gene = self.data.Genes.get(gID or transcript.gene_ensembl, 
+                    gene = self.data.Genes.get(gID or transcript.gene_ensembl,
                                             self.data.Genes.get(transcript.gene_ensembl))
                     if gene is None:
-                        raise ValueError(f"No gene found for {tID}")
-                    
+                        # The merge can drop a gene from self.data.Genes when NCBI's own
+                        # sources disagree on a transcript's gene - e.g. rat XM_063273719.1,
+                        # assigned to protein_coding LOC134481691 by the gff but to lncRNA
+                        # Tug1 (GeneID 100125371) by gene2ensembl. The gene the transcript
+                        # points to still exists in the source builders, so recover it from
+                        # there before giving up. This resolves the gene the transcript
+                        # already references; it does not reassign it to a different gene.
+                        gene = (self.data.refseq.Genes.get(gID)
+                                or (self.data.ensembl.Genes.get(transcript.gene_ensembl)
+                                    if transcript.gene_ensembl else None))
+                        if gene is not None:
+                            print("\tRecovered gene {} for transcript {} from source builders "
+                                  "(missing from merged Genes)".format(gene.GeneID or transcript.gene_ensembl, tID))
+                            # keep the merged dict consistent for later lookups/inserts
+                            self.data.Genes[gID or transcript.gene_ensembl] = gene
+                    if gene is None:
+                        raise ValueError(f"No gene found for {tID} (gID={gID}, gene_ensembl={transcript.gene_ensembl})")
+
                     buffers["Genes"].append((gene.GeneID, gene.ensembl, gene.symbol, gene.synonyms, 
                                             gene.chromosome, gene.strand, self.species))
                     if gID_hash: 
