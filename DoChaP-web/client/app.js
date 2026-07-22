@@ -38,6 +38,10 @@ app.config(function ($routeProvider) {
             templateUrl: 'pages/compareSpecies/compareSpecies.html',
             controller: 'compareSpeciesController as compareSpeciesCtrl'
         })
+        .when('/domas',{
+            templateUrl: 'pages/domas/domas.html',
+            controller: 'domasController as domasCtrl'
+        })
         .when('/about',{
             templateUrl: 'pages/about/about.html',
             controller: 'aboutController as aboutCtrl'

@@ -41,7 +41,17 @@ angular.module("DoChaP").service("webService", function ($http,$window) {
      this.getNewSessionID=function(){
         var req = {
             method: 'GET',
-            url: urlAdress+'/getNewSessionID',    
+            url: urlAdress+'/getNewSessionID',
+        };
+        return $http(req);
+    }
+
+    //DOMAS: upload input file(s) and run domas.py on the server
+    this.runDomas = function(payload){
+        var req = {
+            method: 'POST',
+            url: urlAdress+'/domas/process',
+            data: payload
         };
         return $http(req);
     }

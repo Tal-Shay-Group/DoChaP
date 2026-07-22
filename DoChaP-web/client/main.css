@@ -226,3 +226,33 @@ textarea {
 .slide.ng-leave-active {
     left: -100%;
 }
+/* DOMAS page */
+.domasHint {
+    color: #777;
+    font-weight: normal;
+    font-size: 13px;
+}
+
+/* DOMAS results table: vertical lines between columns */
+.domasResults th,
+.domasResults td {
+    border-left: 1px solid #bbb;
+}
+.domasResults th:first-child,
+.domasResults td:first-child {
+    border-left: none;
+}
+
+/* DOMAS results: narrow columns for short-valued fields.
+   min-width holds the floor so auto table-layout can't collapse them to a
+   near-zero width (which would stack the long header names vertically). */
+.domasResults th.domasNarrow,
+.domasResults td.domasNarrow {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}

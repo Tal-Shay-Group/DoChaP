@@ -18,9 +18,11 @@ var transporter = nodemailer.createTransport({
 const express = require("express");
 const app = express();
 var bodyParser = require('body-parser');
-app.use(bodyParser.json());       
-app.use(bodyParser.urlencoded({     
-    extended: true
+// Large limit so the DOMAS page can upload input files (base64) in the JSON body.
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({
+    extended: true,
+    limit: '100mb'
 }));
 var cors = require("cors");
 app.use(cors());
@@ -89,6 +91,10 @@ app.get('/getNewSessionID', (req, res) => {
 //querySearch module constructor
 const querySearch = require("./querySearch");
 app.use('/', querySearch);
+
+//DOMAS module: runs domas.py on uploaded splicing-tool output
+const domas = require("./domas");
+app.use('/', domas);
 
 //server starts listening to requests
  const port = process.env.PORT || 3000; 

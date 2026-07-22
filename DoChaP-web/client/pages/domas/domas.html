@@ -1,0 +1,127 @@
+<html>
+
+<!-- DOMAS page: upload alternative-splicing tool output, run DOMAS on the
+     server (first 100 clusters), and show/download the results CSV. -->
+
+<body ng-app="DoChaP" ng-controller="domasCtrl as domasCtrl">
+    <br>
+    <div class="greyArea" style="max-width: 1100px; margin: 0 auto;">
+
+        <h2 style="margin-top: 0;">DOMAS</h2>
+        <p style="color: #444;">
+            Domain Oriented Mapping of Alternative Splicing &mdash; map differential
+            splicing events onto protein domain architectures. Choose your input format,
+            select the file(s), and press <b>Process</b>. The first 100 clusters are analyzed.
+        </p>
+
+        <!-- 1. Input format -->
+        <div class="formgroup" style="margin-bottom: 15px;">
+            <label for="domasFormat"><b>Input format</b></label>
+            <br>
+            <select class="form-control" id="domasFormat" ng-model="format"
+                    style="max-width: 320px; display: inline-block;">
+                <option ng-repeat="f in formats" value="{{f.value}}">{{f.label}}</option>
+            </select>
+        </div>
+
+        <!-- 2. File selectors (per format) -->
+        <div class="formgroup" style="margin-bottom: 15px;">
+
+            <!-- leafcutter: two files -->
+            <div ng-if="format === 'leafcutter'">
+                <label for="lc_sig_file">Cluster significance file
+                    <span class="domasHint">(leafcutter_ds_cluster_significance.txt)</span></label>
+                <br>
+                <input type="file" id="lc_sig_file" accept=".txt,.tsv,.gz">
+                <br><br>
+                <label for="lc_effect_file">Effect sizes file
+                    <span class="domasHint">(leafcutter_ds_effect_sizes.txt)</span></label>
+                <br>
+                <input type="file" id="lc_effect_file" accept=".txt,.tsv,.gz">
+            </div>
+
+            <!-- rmats: the five MATS.JC.txt files -->
+            <div ng-if="format === 'rmats'">
+                <label for="rmats_files">rMATS output files
+                    <span class="domasHint">(select the five *.MATS.JC.txt files: SE, A3SS, A5SS, MXE, RI)</span></label>
+                <br>
+                <input type="file" id="rmats_files" multiple accept=".txt">
+            </div>
+
+            <!-- majiq -->
+            <div ng-if="format === 'majiq'">
+                <label for="single_file">MAJIQ voila TSV
+                    <span class="domasHint">(the `voila tsv` output, e.g. NveB_Mono_voila.txt)</span></label>
+                <br>
+                <input type="file" id="single_file" accept=".txt,.tsv">
+            </div>
+
+            <!-- hadas -->
+            <div ng-if="format === 'hadas'">
+                <label for="single_file">hadas comparison table
+                    <span class="domasHint">(Excel .xlsx, human-vs-mouse splicing table)</span></label>
+                <br>
+                <input type="file" id="single_file" accept=".xlsx">
+            </div>
+
+            <!-- ioe -->
+            <div ng-if="format === 'ioe'">
+                <label for="single_file">SUPPA .ioe file
+                    <span class="domasHint">(a single events .ioe file)</span></label>
+                <br>
+                <input type="file" id="single_file" accept=".ioe,.txt">
+            </div>
+        </div>
+
+        <!-- (the 'Interpro representative domains' checkbox in the top bar controls that option) -->
+
+        <!-- 3. Options -->
+        <div class="formgroup" style="margin-bottom: 15px;">
+            <input type="checkbox" id="domasFilterNonComparable" ng-model="filterNonComparable">
+            <label for="domasFilterNonComparable" style="display: inline; font-weight: normal; margin-left: 4px;">
+                Only comparable transcripts
+                <span class="domasHint">(hide transcripts not compared to the canonical)</span>
+            </label>
+        </div>
+
+        <!-- 4. Process -->
+        <button class="btn blackButton" ng-click="domasCtrl.process()" ng-disabled="loading">
+            Process
+        </button>
+        <span ng-show="loading" style="margin-left: 12px;">
+            <img ng-src="/resources/loading_2.gif" width="34" height="34" />
+            <span style="color: #555;">Running DOMAS&hellip; this can take a little while.</span>
+        </span>
+
+        <!-- error alert -->
+        <div ng-show="alert" style="color: #b00; margin-top: 15px; white-space: pre-wrap;">{{alert}}</div>
+
+        <!-- 5. Results -->
+        <div ng-show="columns.length > 0" style="margin-top: 25px;">
+            <b>Results</b>
+            <span style="color: #555;">&nbsp;{{clusterCount}} clusters, {{totalRows}} rows.</span>
+            <button class="btn blackButton" style="margin-left: 12px; padding: 3px 12px;"
+                    ng-click="domasCtrl.download()">Download CSV</button>
+            <div ng-show="truncated" style="color: #777; margin: 6px 0;">
+                Showing the first {{rows.length}} rows &mdash; download the CSV for the full table.
+            </div>
+            <div style="overflow: auto; max-height: 500px; border: 1px solid #ccc; margin-top: 8px;">
+                <table class="table table-striped table-condensed domasResults" style="margin: 0; font-size: 12px;">
+                    <thead>
+                        <tr><th ng-repeat="col in columns" ng-class="{domasNarrow: isNarrow(col)}" style="position: sticky; top: 0; background: #eee;">{{col}}</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in rows">
+                            <td ng-repeat="col in columns track by $index" ng-class="{domasNarrow: isNarrow(col)}">{{row[$index]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <br>
+
+</body>
+
+</html>

@@ -20,6 +20,10 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" && currAddress != "#!");
       //pick up a checkbox change made on another page
       $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
+      //gene search (specie + gene text + button) doesn't apply on the DOMAS page - disable it there,
+      //but keep the representative-domains checkbox usable
+      var onDomasPage = (currAddress == "#!domas");
+      $('#indexSpecies, #indexTextField, #submitSearchButton').prop('disabled', onDomasPage);
    });
 
    //fill specie combobox
