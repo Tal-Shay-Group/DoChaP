@@ -69,18 +69,21 @@ def create_representative_domains_table(cursor):
             start INTEGER,
             end INTEGER,
             score REAL,
-            description TEXT
+            description TEXT,
+            type TEXT
         );
     """)
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_rep_domains_prot ON RepresentativeDomains(protein_interpro_id);"
     )
 
-    # Handle a RepresentativeDomains table created before the description column
-    # existed (mirrors the Proteins.protein_interpro_id guard below).
+    # Handle a RepresentativeDomains table created before the description/type
+    # columns existed (mirrors the Proteins.protein_interpro_id guard below).
     rep_cols = {row[1] for row in cursor.execute("PRAGMA table_info(RepresentativeDomains);")}
     if "description" not in rep_cols:
         cursor.execute("ALTER TABLE RepresentativeDomains ADD COLUMN description TEXT;")
+    if "type" not in rep_cols:
+        cursor.execute("ALTER TABLE RepresentativeDomains ADD COLUMN type TEXT;")
 
     existing = {row[1] for row in cursor.execute("PRAGMA table_info(Proteins);")}
     if "protein_interpro_id" not in existing:
@@ -234,41 +237,47 @@ def populate_dochap_protein_mapping(cursor, mapping_filepath,
     print(f"   Proteins.protein_interpro_id populated for {len(resolved):,} proteins.")
 
 
-def parse_interpro_descriptions(xml_filepath):
-    """Stream interpro.xml.gz into {InterPro accession: description text}.
+def parse_interpro_entries(xml_filepath):
+    """Stream interpro.xml.gz into {InterPro accession: (type, description)}.
 
-    Each <interpro> entry carries the curated description in an <abstract>
-    child, as mixed text and markup (<p>, <cite>, <db_xref>, ...). We flatten
-    it with itertext() and collapse whitespace so it stores as a single clean
-    string. Entries without an abstract are skipped (their description stays
-    NULL). Descriptions exist only for InterPro accessions, so member-database
-    signatures that never got an <ipr> in the match file simply won't match.
+    Each <interpro> entry carries its curated `type` attribute (Domain,
+    Family, Homologous_superfamily, Repeat, Conserved_site, Active_site,
+    Binding_site, PTM) and, in an <abstract> child, its description as mixed
+    text and markup (<p>, <cite>, <db_xref>, ...). The type comes free from the
+    same element we already visit for the description, so both are captured in
+    one pass. We flatten the abstract with itertext() and collapse whitespace.
+    An entry with no abstract still yields its type (description stays None).
+    Both exist only for InterPro accessions, so member-database signatures that
+    never got an <ipr> in the match file simply won't match.
     """
-    print("Parsing InterPro entry descriptions from interpro.xml.gz...")
+    print("Parsing InterPro entry types + descriptions from interpro.xml.gz...")
     t0 = time.time()
 
-    descriptions = {}
+    entries = {}
     context = etree.iterparse(
         gzip.open(xml_filepath, 'rb'), events=('end',), tag='interpro'
     )
     for _, entry in context:
         ipr_id = entry.get('id')
-        abstract = entry.find('abstract')
-        if ipr_id and abstract is not None:
-            text = ' '.join(' '.join(abstract.itertext()).split())
-            if text:
-                descriptions[ipr_id] = text
+        if ipr_id:
+            etype = entry.get('type')
+            abstract = entry.find('abstract')
+            text = None
+            if abstract is not None:
+                flat = ' '.join(' '.join(abstract.itertext()).split())
+                text = flat or None
+            entries[ipr_id] = (etype, text)
 
         entry.clear()
         while entry.getprevious() is not None:
             del entry.getparent()[0]
 
-    print(f"   Parsed {len(descriptions):,} InterPro descriptions "
+    print(f"   Parsed {len(entries):,} InterPro entries "
           f"({time.time()-t0:.0f}s).")
-    return descriptions
+    return entries
 
 
-def populate_representative_domains(cursor, xml_filepath, descriptions=None,
+def populate_representative_domains(cursor, xml_filepath, entry_meta=None,
                                     batch_size=500000, use_threading=True):
     """
     Streams InterPro XML into RepresentativeDomains.
@@ -291,12 +300,12 @@ def populate_representative_domains(cursor, xml_filepath, descriptions=None,
     print("Step 2/2: Parsing InterPro match XML into RepresentativeDomains...")
     t0 = time.time()
 
-    descriptions = descriptions or {}
+    entry_meta = entry_meta or {}
 
     insert_query = """
         INSERT INTO RepresentativeDomains
-               (protein_interpro_id, domain_id, domain_name, start, end, score, description)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
+               (protein_interpro_id, domain_id, domain_name, start, end, score, description, type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     """
 
     def parse_batches():
@@ -326,8 +335,8 @@ def populate_representative_domains(cursor, xml_filepath, descriptions=None,
                         end    = int(lcn_elem.get('end'))
                         score_s = lcn_elem.get('score')
                         score  = float(score_s) if score_s else None
-                        description = descriptions.get(ipr_id)
-                        batch.append((prot_id, ipr_id, ipr_name, start, end, score, description))
+                        etype, description = entry_meta.get(ipr_id, (None, None))
+                        batch.append((prot_id, ipr_id, ipr_name, start, end, score, description, etype))
 
             protein_elem.clear()
             while protein_elem.getprevious() is not None:
@@ -434,9 +443,9 @@ class RepresentativeDomainsBuilder(SourceBuilder):
                                             collision_strategy=self.collision_strategy)
             conn.commit()
 
-            descriptions = parse_interpro_descriptions(INTERPRO_ENTRIES_FILE)
+            entry_meta = parse_interpro_entries(INTERPRO_ENTRIES_FILE)
             populate_representative_domains(cursor, INTERPRO_FILE,
-                                            descriptions=descriptions,
+                                            entry_meta=entry_meta,
                                             use_threading=self.use_threading)
             conn.commit()
 
