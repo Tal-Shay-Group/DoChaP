@@ -257,9 +257,8 @@ class Collector:
                         if ref_record.canonical == CanonicalEnum.REFSEQ:
                             if self.Transcripts[ensT].canonical == CanonicalEnum.ENSEMBL:
                                 self.Transcripts[ensT].canonical = CanonicalEnum.BOTH
-                            else:   
+                            else:
                                  self.Transcripts[ensT].canonical = CanonicalEnum.REFSEQ
-                        self.Transcripts[ensT].canonical = ref_record.canonical
                 # self.Transcripts[ensT] = self.ensembl.Transcripts[ensT]
                 # self.Proteins[ensP] = self.ensembl.Proteins[ensP]
                 refP = record.protein_refseq

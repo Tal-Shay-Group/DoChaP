@@ -223,7 +223,14 @@ class RefseqBuilder(SourceBuilder):
                 newT.strand = t.strand
                 newT.refseq = t["transcript_id"][0]
                 newT.geneSymb = t["gene"][0]
-                newT.canonical = CanonicalEnum.REFSEQ if 'MANE Select' in t.attributes.get('tag', []) else CanonicalEnum.NONE
+                # 'RefSeq Select' is the representative-transcript tag NCBI emits for
+                # organisms outside MANE (and for a handful of human genes MANE skips).
+                # Without it, species other than human get no RefSeq-side canonical at
+                # all, so any gene lacking an Ensembl counterpart can never be canonical.
+                refseq_tags = t.attributes.get('tag', [])
+                newT.canonical = CanonicalEnum.REFSEQ \
+                    if ('MANE Select' in refseq_tags or 'RefSeq Select' in refseq_tags) \
+                    else CanonicalEnum.NONE
                 self.Transcripts[newT.refseq] = newT
                 self.Genes[newT.gene_GeneID] = curretGenes[newT.gene_GeneID]
                 transcript2region[newT.refseq] = t.chrom
