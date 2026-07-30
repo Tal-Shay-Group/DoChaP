@@ -191,11 +191,7 @@ class EnsemblBuilder(SourceBuilder):
             print("\t - {}".format(extDB))
             domainFile = self.DomainsBuilder.downloadPath + self.species + ".Domains.{}.txt".format(extDB)
             df = pd.read_table(domainFile, sep="\t", header=0)
-            if "Transcript stable ID version" not in df.columns:
-                raise RuntimeError(
-                    "{} is not a valid BioMart domains table (columns: {}). It is most "
-                    "likely an Ensembl error page saved during a download outage. Delete it "
-                    "and re-download.".format(domainFile, list(df.columns)))
+            df = normalizeDomainColumns(df, domainFile)
             df.columns = df.columns.str.replace(" ", "_")
             if extDB == "tigrfams":
                 df.columns = df.columns.str.replace("TIGRFAM", "tigrfams")

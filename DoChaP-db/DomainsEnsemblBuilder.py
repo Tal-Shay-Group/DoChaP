@@ -10,6 +10,52 @@ from recordTypes import *
 from conf import SpConvert_EnsDomains, external
 
 
+# BioMart serves these attributes under two header layouts. Newer marts return
+# the accession and its version pre-joined in a single "<X> stable ID version"
+# column; older ones return them split across "<X> stable ID" and
+# "Version (<x>)". Both are valid downloads - only the layout differs - so the
+# split form is joined back together and the rest of the pipeline sees one shape.
+DOMAIN_ID_COLUMNS = (
+    ("Transcript stable ID version", "Transcript stable ID", "Version (transcript)"),
+    ("Protein stable ID version", "Protein stable ID", "Version (protein)"),
+)
+
+
+def isDomainsHeader(line):
+    """True if `line` is a BioMart domains-table header, in either layout."""
+    first = line.lstrip()
+    if first[:1] == '<':  # HTML error/redirect page
+        return False
+    return first.startswith("Transcript stable ID")
+
+
+def normalizeDomainColumns(df, path=""):
+    """Ensure the joined '<X> stable ID version' columns exist on `df`.
+
+    Tables in the split layout are joined here; tables already in the joined
+    layout pass through untouched. Rows whose accession or version is missing
+    get NaN, so the caller's dropna() discards them as before.
+    """
+    for joined, accession, version in DOMAIN_ID_COLUMNS:
+        if joined in df.columns:
+            continue
+        if accession not in df.columns or version not in df.columns:
+            raise RuntimeError(
+                "{} is not a valid BioMart domains table (columns: {}). Expected "
+                "either a '{}' column or the '{}' + '{}' pair. A table with neither "
+                "is most likely an Ensembl error page saved during a download "
+                "outage - delete it and re-download.".format(
+                    path, list(df.columns), joined, accession, version))
+        acc = df[accession]
+        ver = pd.to_numeric(df[version], errors="coerce")
+        usable = acc.notna() & ver.notna()
+        df[joined] = None
+        df.loc[usable, joined] = acc[usable].astype(str) + "." + \
+            ver[usable].astype(int).astype(str)
+        df = df.drop(columns=[accession, version])
+    return df
+
+
 class DomainsEnsemblBuilder(SourceBuilder):
     """
     Download and parse Domains tables
@@ -49,17 +95,17 @@ class DomainsEnsemblBuilder(SourceBuilder):
 
     @staticmethod
     def _isValidDomainFile(path):
-        """A valid BioMart domains TSV starts with the 'Transcript stable ID
-        version' header, not an HTML error/status page (e.g. Ensembl's
-        'Service unavailable' returned with HTTP 200, which wget saves as-is)."""
+        """A valid BioMart domains TSV starts with a 'Transcript stable ID'
+        header (either layout, see isDomainsHeader), not an HTML error/status
+        page (e.g. Ensembl's 'Service unavailable' returned with HTTP 200,
+        which wget saves as-is). Files failing this check get deleted and
+        re-downloaded, so it must not reject a merely older layout."""
         try:
             with open(path, 'r') as f:
-                first = f.readline().lstrip()
+                first = f.readline()
         except OSError:
             return False
-        if first[:1] == '<':  # HTML error/redirect page
-            return False
-        return first.startswith("Transcript stable ID version")
+        return isDomainsHeader(first)
 
     def _expectedFiles(self):
         return [self.downloadPath + self.species + ".Domains.{}.txt".format(extDB)
