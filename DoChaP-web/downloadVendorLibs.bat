@@ -7,6 +7,24 @@ setlocal
 
 set LIB=client\lib
 
+REM Always fetch through :fetch. Plain `curl -L -o` exits 0 on an HTTP error
+REM and writes the error body to the target file, so a CDN hiccup silently
+REM installs a 404 page named jquery.min.js. -f makes curl fail on 4xx/5xx,
+REM and the bad file is deleted rather than left in place. client\lib\ is
+REM gitignored and refetched on every deploy, so it would otherwise ship
+REM straight to users.
+goto :main
+
+:fetch
+curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 -o %1 %2
+if errorlevel 1 (
+    del %1 2>nul
+    echo ERROR: failed to download %2 1>&2
+    exit /b 1
+)
+exit /b 0
+
+:main
 echo Creating directory structure...
 mkdir "%LIB%\bootstrap\css" 2>nul
 mkdir "%LIB%\bootstrap\js" 2>nul
@@ -18,35 +36,49 @@ mkdir "%LIB%\jspdf" 2>nul
 
 echo.
 echo Downloading Bootstrap 3.4.1...
-curl -L -o "%LIB%\bootstrap\css\bootstrap.min.css" "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-curl -L -o "%LIB%\bootstrap\js\bootstrap.min.js" "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+call :fetch "%LIB%\bootstrap\css\bootstrap.min.css" "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\bootstrap\js\bootstrap.min.js" "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+if errorlevel 1 exit /b 1
 
 echo.
 echo Downloading Bootstrap glyphicon fonts...
-curl -L -o "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.eot"   "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.eot"
-curl -L -o "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.svg"   "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.svg"
-curl -L -o "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.ttf"   "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.ttf"
-curl -L -o "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.woff"  "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.woff"
-curl -L -o "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.woff2" "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.woff2"
+call :fetch "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.eot"   "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.eot"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.svg"   "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.svg"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.ttf"   "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.ttf"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.woff"  "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.woff"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\bootstrap\fonts\glyphicons-halflings-regular.woff2" "https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/fonts/glyphicons-halflings-regular.woff2"
+if errorlevel 1 exit /b 1
 
 echo.
-echo Downloading jQuery 3.4.1...
-curl -L -o "%LIB%\jquery\jquery.min.js" "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+echo Downloading jQuery 3.5.1...
+call :fetch "%LIB%\jquery\jquery.min.js" "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+if errorlevel 1 exit /b 1
 
 echo.
 echo Downloading AngularJS 1.7.8 (core, route, animate)...
-curl -L -o "%LIB%\angular\angular.js"         "https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.js"
-curl -L -o "%LIB%\angular\angular-route.js"   "https://code.angularjs.org/1.7.8/angular-route.js"
-curl -L -o "%LIB%\angular\angular-animate.js" "https://code.angularjs.org/1.7.8/angular-animate.js"
+call :fetch "%LIB%\angular\angular.js"         "https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.js"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\angular\angular-route.js"   "https://code.angularjs.org/1.7.8/angular-route.js"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\angular\angular-animate.js" "https://code.angularjs.org/1.7.8/angular-animate.js"
+if errorlevel 1 exit /b 1
 
 echo.
 echo Downloading ion-rangeslider 2.3.1...
-curl -L -o "%LIB%\ion-rangeslider\ion.rangeSlider.min.css" "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"
-curl -L -o "%LIB%\ion-rangeslider\ion.rangeSlider.min.js"  "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"
+call :fetch "%LIB%\ion-rangeslider\ion.rangeSlider.min.css" "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"
+if errorlevel 1 exit /b 1
+call :fetch "%LIB%\ion-rangeslider\ion.rangeSlider.min.js"  "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"
+if errorlevel 1 exit /b 1
 
 echo.
 echo Downloading jsPDF 1.5.3...
-curl -L -o "%LIB%\jspdf\jspdf.debug.js" "https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"
+call :fetch "%LIB%\jspdf\jspdf.debug.js" "https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"
+if errorlevel 1 exit /b 1
 
 echo.
 echo Done. All vendor libraries placed under %LIB%\
