@@ -39,16 +39,68 @@ var currSessionID=0;
 //site files
 app.use(express.static('client'));
 
+// Contact-form fields arrive as URL path segments, so they are entirely
+// attacker-controlled. Validate before they reach a mail header or the log
+// file: a CR/LF in the name or address is the classic way to inject extra
+// mail headers, and an unescaped comma or newline forges fields and records
+// in messages.txt.
+var MAX_NAME = 100;
+var MAX_MAIL = 254;  // RFC 5321 maximum address length
+var MAX_MSG = 5000;
+var EMAIL_RE = /^[^\s@,;:<>"()\[\]\\]+@[^\s@,;:<>"()\[\]\\]+\.[A-Za-z]{2,}$/;
+
+// Returns an error string, or null when the submission is acceptable.
+function validateContact(name, mail, msg) {
+    if (!name || !mail || !msg) {
+        return "name, e-mail and message are all required";
+    }
+    if (/[\r\n]/.test(name) || /[\r\n]/.test(mail)) {
+        return "line breaks are not allowed in the name or e-mail address";
+    }
+    if (name.length > MAX_NAME) {
+        return "name is longer than " + MAX_NAME + " characters";
+    }
+    if (mail.length > MAX_MAIL) {
+        return "e-mail address is longer than " + MAX_MAIL + " characters";
+    }
+    if (msg.length > MAX_MSG) {
+        return "message is longer than " + MAX_MSG + " characters";
+    }
+    if (!EMAIL_RE.test(mail)) {
+        return "e-mail address is not valid";
+    }
+    return null;
+}
+
+// Quote one field of the messages.txt line so a comma, quote or newline in
+// the input cannot forge extra columns or extra rows. Note the timestamp
+// needs this too - toLocaleString() itself contains a comma.
+function csvField(value) {
+    return '"' + String(value).replace(/"/g, '""') + '"';
+}
+
 //mail sender for contact us requests
 app.get('/sendMail/:name/:mail/:msg', (req, res) => {
+    var name = req.params.name.trim();
+    var mail = req.params.mail.trim();
+    var msg = req.params.msg.trim();
+
+    var invalid = validateContact(name, mail, msg);
+    if (invalid) {
+        res.status(400).send(invalid);
+        return;
+    }
+
     var mailOptions = {
       from: 'dochapmail@gmail.com',
       to: 'galozs@post.bgu.ac.il', //add on server the e-mail
-      subject: 'new Message via DoChaP. From '+req.params.name,
-      text: "reply to:\n"+req.params.mail +"\nmessage: \n"+req.params.msg
+      subject: 'new Message via DoChaP. From '+name,
+      text: "reply to:\n"+mail +"\nmessage: \n"+msg
     };
     transporter.sendMail(mailOptions, function(error, info){});
-    fs.writeFile("messages.txt", req.params.name+","+req.params.mail+","+req.params.msg+","+new Date().toLocaleString() + "\r\n", {
+    var logLine = [csvField(name), csvField(mail), csvField(msg),
+                   csvField(new Date().toLocaleString())].join(",");
+    fs.writeFile("messages.txt", logLine + "\r\n", {
         flag: 'a'
     }, function (err) {
     });
