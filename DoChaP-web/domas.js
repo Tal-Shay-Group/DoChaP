@@ -39,9 +39,11 @@ function resolveDomasPy(p) {
 const DOCHAP_DB = path.resolve(__dirname, "DB_merged.sqlite");
 const MAX_CLUSTERS = 100;
 const NUM_WORKERS = 2;
-const VALID_FORMATS = ["leafcutter", "rmats", "majiq", "hadas", "ioe"];
-// domas.py requires -specie for every format except hadas, which is a
-// human/mouse comparison carrying the species per row (and rejects -specie).
+// domas.py also accepts 'hadas', but that is a bulk human/mouse comparison
+// table driven from the CLI, not something this page offers.
+const VALID_FORMATS = ["leafcutter", "rmats", "majiq", "ioe"];
+// domas.py requires -specie for all of these: none of the formats above carry
+// a species field.
 const VALID_SPECIES = ["human", "mouse", "rat"];
 
 router.post("/domas/process", (req, res) => {
@@ -51,7 +53,7 @@ router.post("/domas/process", (req, res) => {
     if (!VALID_FORMATS.includes(format)) {
         return res.status(400).json({ error: "Invalid or missing format." });
     }
-    if (format !== "hadas" && !VALID_SPECIES.includes(specie)) {
+    if (!VALID_SPECIES.includes(specie)) {
         return res.status(400).json({
             error: "Please choose a species (" + VALID_SPECIES.join(", ") + ") for format " + format + ".",
         });
@@ -99,7 +101,7 @@ router.post("/domas/process", (req, res) => {
         "-num_workers", String(NUM_WORKERS),
         "-output_csv", path.join(workDir, "results.csv"),
     ];
-    if (format !== "hadas") args.push("-specie", specie);
+    args.push("-specie", specie);
     if (!useRepDomains) args.push("-no_representative_domains");
     if (!filterNonComparable) args.push("-keep_non_comparable");
 
@@ -113,7 +115,7 @@ router.post("/domas/process", (req, res) => {
             // the (up to five) MATS.JC.txt files all live in workDir
             args.push("-format", "rmats", "-input", workDir);
         } else {
-            // majiq / hadas / ioe: a single input file
+            // majiq / ioe: a single input file
             const only = byRole.input || Object.values(byRole)[0];
             if (!only) throw new Error("No input file found for format " + format + ".");
             args.push("-format", format, "-input", only);

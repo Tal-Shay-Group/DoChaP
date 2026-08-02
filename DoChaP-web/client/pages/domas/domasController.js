@@ -13,15 +13,12 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
         { value: 'leafcutter', label: 'LeafCutter' },
         { value: 'rmats', label: 'rMATS' },
         { value: 'majiq', label: 'MAJIQ' },
-        { value: 'hadas', label: 'Hadas' },
         { value: 'ioe', label: 'SUPPA (ioe)' }
     ];
     $scope.format = 'leafcutter';
 
-    // Species the input was produced from. rMATS/MAJIQ/SUPPA files carry no
-    // species field, so it has to be stated; hadas is a human/mouse comparison
-    // that states it per row, and DOMAS rejects -specie for that format (the
-    // dropdown is hidden there, and the value is not sent).
+    // Species the input was produced from. None of the supported files carry a
+    // species field, so it always has to be stated.
     $scope.species = [
         { value: 'human', label: 'Human' },
         { value: 'mouse', label: 'Mouse' },
@@ -85,7 +82,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
             if (reads.length === 0) throw new Error("Please select the rMATS *.MATS.JC.txt files.");
             return reads;
         }
-        // majiq / hadas / ioe: single file
+        // majiq / ioe: single file
         el = document.getElementById('single_file');
         var f = el.files[0];
         if (!f) throw new Error("Please select an input file.");
@@ -111,8 +108,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
         Promise.all(reads).then(function (files) {
             return webService.runDomas({
                 format: $scope.format,
-                // omitted for hadas: DOMAS errors out if -specie is given there
-                specie: $scope.format === 'hadas' ? null : $scope.specie,
+                specie: $scope.specie,
                 useRepDomains: useRepDomains,
                 filterNonComparable: $scope.filterNonComparable === true,
                 files: files

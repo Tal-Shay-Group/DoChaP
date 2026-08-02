@@ -24,10 +24,9 @@
             </select>
         </div>
 
-        <!-- 1b. Species. hadas is a human/mouse comparison that carries the species
-             per row, so DOMAS rejects -specie for it; every other format needs it
-             stated, as none of those files contain a species field. -->
-        <div class="formgroup" style="margin-bottom: 15px;" ng-if="format !== 'hadas'">
+        <!-- 1b. Species. None of the supported input files contain a species
+             field, so it has to be stated here. -->
+        <div class="formgroup" style="margin-bottom: 15px;">
             <label for="domasSpecie"><b>Species</b></label>
             <br>
             <select class="form-control" id="domasSpecie" ng-model="specie"
@@ -66,14 +65,6 @@
                     <span class="domasHint">(the `voila tsv` output, e.g. NveB_Mono_voila.txt)</span></label>
                 <br>
                 <input type="file" id="single_file" accept=".txt,.tsv">
-            </div>
-
-            <!-- hadas -->
-            <div ng-if="format === 'hadas'">
-                <label for="single_file">hadas comparison table
-                    <span class="domasHint">(Excel .xlsx, human-vs-mouse splicing table)</span></label>
-                <br>
-                <input type="file" id="single_file" accept=".xlsx">
             </div>
 
             <!-- ioe -->
