@@ -17,6 +17,18 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
         { value: 'ioe', label: 'SUPPA (ioe)' }
     ];
     $scope.format = 'leafcutter';
+
+    // Species the input was produced from. rMATS/MAJIQ/SUPPA files carry no
+    // species field, so it has to be stated; hadas is a human/mouse comparison
+    // that states it per row, and DOMAS rejects -specie for that format (the
+    // dropdown is hidden there, and the value is not sent).
+    $scope.species = [
+        { value: 'human', label: 'Human' },
+        { value: 'mouse', label: 'Mouse' },
+        { value: 'rat', label: 'Rat' }
+    ];
+    $scope.specie = 'human';
+
     $scope.filterNonComparable = true;   // only comparable transcripts, on by default
 
     $scope.loading = false;
@@ -99,6 +111,8 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
         Promise.all(reads).then(function (files) {
             return webService.runDomas({
                 format: $scope.format,
+                // omitted for hadas: DOMAS errors out if -specie is given there
+                specie: $scope.format === 'hadas' ? null : $scope.specie,
                 useRepDomains: useRepDomains,
                 filterNonComparable: $scope.filterNonComparable === true,
                 files: files

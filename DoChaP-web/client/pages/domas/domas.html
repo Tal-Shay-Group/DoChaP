@@ -24,6 +24,18 @@
             </select>
         </div>
 
+        <!-- 1b. Species. hadas is a human/mouse comparison that carries the species
+             per row, so DOMAS rejects -specie for it; every other format needs it
+             stated, as none of those files contain a species field. -->
+        <div class="formgroup" style="margin-bottom: 15px;" ng-if="format !== 'hadas'">
+            <label for="domasSpecie"><b>Species</b></label>
+            <br>
+            <select class="form-control" id="domasSpecie" ng-model="specie"
+                    style="max-width: 320px; display: inline-block;">
+                <option ng-repeat="s in species" value="{{s.value}}">{{s.label}}</option>
+            </select>
+        </div>
+
         <!-- 2. File selectors (per format) -->
         <div class="formgroup" style="margin-bottom: 15px;">
 

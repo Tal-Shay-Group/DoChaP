@@ -16,24 +16,54 @@ const { spawn } = require("child_process");
 
 // --- configuration ---------------------------------------------------------
 // Absolute path to domas.py and the python interpreter that has DOMAS's deps
-// (pandas, openpyxl, numpy, sqlite3). Adjust here if the layout changes.
-const DOMAS_PY = "/Users/arielmelchior/Documents/projects/DOMAS/code/domas.py";
+// (pandas, openpyxl, numpy, sqlite3). DOMAS lives outside this repo and its
+// location differs per install, so it comes from the environment: DOMAS_PATH
+// is either domas.py itself or the directory holding it. The default below is
+// only the development layout.
+const DOMAS_PATH = process.env.DOMAS_PATH ||
+    "/Users/arielmelchior/Documents/projects/DOMAS/code/domas.py";
+const DOMAS_PY = resolveDomasPy(DOMAS_PATH);
 const PYTHON = process.env.DOMAS_PYTHON || "python3";
+
+// Accept a directory for DOMAS_PATH too - pointing at the DOMAS checkout or its
+// code/ dir is the natural mistake, and failing on it would only surface later
+// as a python "can't open file" error.
+function resolveDomasPy(p) {
+    let stat;
+    try { stat = fs.statSync(p); } catch (e) { return p; }  // reported at run time
+    if (!stat.isDirectory()) return p;
+    const candidates = [path.join(p, "domas.py"), path.join(p, "code", "domas.py")];
+    return candidates.find((c) => fs.existsSync(c)) || path.join(p, "domas.py");
+}
 // DoChaP DB lives alongside this server file.
 const DOCHAP_DB = path.resolve(__dirname, "DB_merged.sqlite");
 const MAX_CLUSTERS = 100;
 const NUM_WORKERS = 2;
 const VALID_FORMATS = ["leafcutter", "rmats", "majiq", "hadas", "ioe"];
+// domas.py requires -specie for every format except hadas, which is a
+// human/mouse comparison carrying the species per row (and rejects -specie).
+const VALID_SPECIES = ["human", "mouse", "rat"];
 
 router.post("/domas/process", (req, res) => {
-    const { format, files, useRepDomains, filterNonComparable } = req.body || {};
+    const { format, specie, files, useRepDomains, filterNonComparable } = req.body || {};
 
     // --- validate ---
     if (!VALID_FORMATS.includes(format)) {
         return res.status(400).json({ error: "Invalid or missing format." });
     }
+    if (format !== "hadas" && !VALID_SPECIES.includes(specie)) {
+        return res.status(400).json({
+            error: "Please choose a species (" + VALID_SPECIES.join(", ") + ") for format " + format + ".",
+        });
+    }
     if (!Array.isArray(files) || files.length === 0) {
         return res.status(400).json({ error: "No input files were provided." });
+    }
+    if (!fs.existsSync(DOMAS_PY)) {
+        return res.status(500).json({
+            error: "DOMAS is not installed at " + DOMAS_PY +
+                   ". Set the DOMAS_PATH environment variable to domas.py (or the directory holding it).",
+        });
     }
 
     // --- write uploaded files into a private temp dir ---
@@ -59,16 +89,19 @@ router.post("/domas/process", (req, res) => {
     }
 
     // --- build domas.py arguments per format ---
+    // PDFs are opt-in on domas.py's side (-pdf), so nothing is needed to
+    // suppress them here. Representative domains and the non-comparable filter
+    // are both on by default there, so only the "off" case is passed on.
     const args = [
         DOMAS_PY,
         "-dochap", DOCHAP_DB,
         "-max_clusters", String(MAX_CLUSTERS),
         "-num_workers", String(NUM_WORKERS),
-        "-no_pdf",
         "-output_csv", path.join(workDir, "results.csv"),
     ];
-    if (useRepDomains) args.push("-use_representative_domains");
-    if (filterNonComparable) args.push("-filter_non_comparable");
+    if (format !== "hadas") args.push("-specie", specie);
+    if (!useRepDomains) args.push("-no_representative_domains");
+    if (!filterNonComparable) args.push("-keep_non_comparable");
 
     try {
         if (format === "leafcutter") {
