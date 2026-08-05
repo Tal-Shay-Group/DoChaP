@@ -92,8 +92,10 @@ router.post("/domas/process", (req, res) => {
 
     // --- build domas.py arguments per format ---
     // PDFs are opt-in on domas.py's side (-pdf), so nothing is needed to
-    // suppress them here. Representative domains and the non-comparable filter
-    // are both on by default there, so only the "off" case is passed on.
+    // suppress them here. Representative domains are on by default there, so
+    // only their "off" case is passed on. Non-comparable transcripts are
+    // written by default, so it is the page's "Only comparable transcripts"
+    // box that has to be passed on, as -omit_non_comparable.
     const args = [
         DOMAS_PY,
         "-dochap", DOCHAP_DB,
@@ -103,7 +105,7 @@ router.post("/domas/process", (req, res) => {
     ];
     args.push("-specie", specie);
     if (!useRepDomains) args.push("-no_representative_domains");
-    if (!filterNonComparable) args.push("-keep_non_comparable");
+    if (filterNonComparable) args.push("-omit_non_comparable");
 
     try {
         if (format === "leafcutter") {
