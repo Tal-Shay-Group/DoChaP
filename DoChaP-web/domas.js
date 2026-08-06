@@ -42,7 +42,7 @@ const NUM_WORKERS = 2;
 // domas.py also accepts 'hadas', but that is a bulk human/mouse comparison
 // table driven from the CLI, not something this page offers.
 const VALID_FORMATS = ["leafcutter", "rmats", "majiq", "ioe"];
-// domas.py requires -specie for all of these: none of the formats above carry
+// domas.py requires -species for all of these: none of the formats above carry
 // a species field.
 const VALID_SPECIES = ["human", "mouse", "rat"];
 
@@ -103,7 +103,7 @@ router.post("/domas/process", (req, res) => {
         "-num_workers", String(NUM_WORKERS),
         "-output_csv", path.join(workDir, "results.csv"),
     ];
-    args.push("-specie", specie);
+    args.push("-species", specie);
     if (!useRepDomains) args.push("-no_representative_domains");
     if (filterNonComparable) args.push("-omit_non_comparable");
 
