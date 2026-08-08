@@ -165,8 +165,10 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
         $scope.truncated = body.length > MAX_DISPLAY_ROWS;
         $scope.rows = body.slice(0, MAX_DISPLAY_ROWS);
 
-        // count distinct clusters (the 'cluster' column, if present)
-        var cidx = $scope.columns.indexOf('cluster');
+        // count distinct clusters (the 'event' column, if present - it holds the
+        // cluster id; 'cluster' is the name results produced before the rename)
+        var cidx = $scope.columns.indexOf('event');
+        if (cidx === -1) cidx = $scope.columns.indexOf('cluster');
         if (cidx === -1) cidx = $scope.columns.indexOf('cluster_name');
         if (cidx !== -1) {
             var seen = {};
