@@ -391,13 +391,13 @@ class dbBuilder:
                                  reg.nucStart, regID, total_length, length[j], j + 1)
                             )
 
-                        extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
-                        # Collect as a simple tuple instead of a DataFrame row
-                        temp_rows.append((
-                            protein.refseq, protein.ensembl, regID,
-                            reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
-                            extWithInter, splice_junction, complete
-                        ))
+                    extWithInter = "; ".join(filter(None, [reg.extID, self.DomainOrg.allDomains[regID][-1]]))
+                    # Collect as a simple tuple instead of a DataFrame row
+                    temp_rows.append((
+                        protein.refseq, protein.ensembl, regID,
+                        reg.aaStart, reg.aaEnd, reg.nucStart, reg.nucEnd, total_length,
+                        extWithInter, splice_junction, complete
+                    ))
                     
 
                 # Process DomainEvent via Pandas
