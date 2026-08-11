@@ -25,7 +25,10 @@ class DomainOrganizer:
         """collect domains data from existing SQLite database to keep the same TypeID for the same domains"""
         con = connect(dbname)
         cur = con.cursor()
-        self.internalID = list(cur.execute("SELECT COUNT(*) FROM DomainType"))[0][0]
+        # High-water mark, not the row count: only the type ids actually used get written
+        # to DomainType, so COUNT(*) sits below MAX(type_id) and new ids minted from it
+        # land on records that are already there and already referenced by DomainEvent.
+        self.internalID = list(cur.execute("SELECT COALESCE(MAX(type_id), 0) FROM DomainType"))[0][0]
         cur.execute('SELECT * FROM DomainType')
         for ud in cur.fetchall():
             c_ud = tuple(ud)
