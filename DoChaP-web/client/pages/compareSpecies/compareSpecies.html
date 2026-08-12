@@ -83,10 +83,13 @@
                 <table>
                     <tr>
                         <td rowspan="5" style="width: 250px;">
-                            <iframe width="230" height="150" src="https://www.youtube.com/embed/u44uWgL5fD4"
-                                frameborder="0"
-                                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen></iframe>
+                            <!-- Served from client/resources so the page works on a network with no
+                                 outbound internet access; the link is the fallback if the file is missing. -->
+                            <video width="230" height="150" controls preload="metadata">
+                                <source src="/resources/tutorial_compare_species.mp4" type="video/mp4">
+                                <a href="https://www.youtube.com/watch?v=u44uWgL5fD4">Watch the DoChaP compare-species
+                                    guide on YouTube</a>
+                            </video>
                         </td>
                         <td>1. Species</td>
                         <td>

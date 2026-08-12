@@ -84,9 +84,13 @@
         <table>
             <tr>
                 <td>
-                    <iframe width="270" height="150" src="https://www.youtube.com/embed/Sy-SkHGTvb0" frameborder="0"
-                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
+                    <!-- Served from client/resources so the page works on a network with no
+                         outbound internet access; the link is the fallback if the file is missing. -->
+                    <video width="270" height="150" controls preload="metadata">
+                        <source src="/resources/tutorial_search.mp4" type="video/mp4">
+                        <a href="https://www.youtube.com/watch?v=Sy-SkHGTvb0">Watch the DoChaP search guide on
+                            YouTube</a>
+                    </video>
                 </td>
                 <td>
                     &nbsp;<strong>Search DoChaP:</strong><br>
