@@ -41,8 +41,8 @@ angular.module("DoChaP").controller('domasController', function ($scope, webServ
 
     // columns whose values are always short - render them narrow
     var NARROW_COLUMNS = {
-        c_domain_length: true, t_domain_length: true,
-        c_domains_number: true, t_domains_number: true,
+        canonical_domain_length: true, alternative_domain_length: true,
+        canonical_domains_number: true, alternative_domains_number: true,
         is_longest_cds: true, is_most_like_canonical: true
     };
     $scope.isNarrow = function (col) { return NARROW_COLUMNS[col] === true; };
