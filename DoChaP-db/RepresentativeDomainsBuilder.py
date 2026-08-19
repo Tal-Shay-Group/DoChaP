@@ -2,6 +2,7 @@ import os
 os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
 os.environ.setdefault('OMP_NUM_THREADS', '1')
 
+import collections
 import gzip
 import sqlite3
 import sys
@@ -118,19 +119,58 @@ def clean_representative_domains(cursor):
         cursor.execute("UPDATE Proteins SET protein_interpro_id = NULL WHERE protein_interpro_id IS NOT NULL;")
 
 
+def _split_ids(field):
+    """idmapping's RefSeq and Ensembl columns hold "; "-separated lists. Reading
+    such a field as one value is what UNIPROT_MAPPING_LOSES_CANONICALS.md
+    describes; splitting is the whole point of this helper."""
+    if not field:
+        return ()
+    return tuple(part.strip() for part in field.split(';') if part.strip())
+
+
+def _claim(hits, pair, uniprot_acc, reviewed):
+    """Record `uniprot_acc` for `pair`, preferring a reviewed entry.
+
+    Values are (accession, reviewed). A reviewed entry displaces an unreviewed
+    one; between two of equal status the first seen wins, so the result does not
+    depend on where pandas happens to split its chunks.
+    """
+    previous = hits.get(pair)
+    if previous is None or (reviewed and not previous[1]):
+        hits[pair] = (uniprot_acc, reviewed)
+
+
 def populate_dochap_protein_mapping(cursor, mapping_filepath,
                                     collision_strategy="ensembl", batch_size=500000):
     """
-    Reads idmapping_selected.tab.gz via pandas (only 3 columns) and updates
+    Reads idmapping_selected.tab.gz via pandas and updates
     Proteins.protein_interpro_id.
 
     Column layout (0-indexed):
       0  = UniProt accession
-      3  = RefSeq protein accession (NP_...)
-      19 = Ensembl transcript ID (ENST...) — col 18 is gene ID (ENSG/ENSMUSG)
+      1  = UniProtKB-ID (mnemonic for reviewed entries, e.g. PTPRC_HUMAN;
+           for unreviewed entries it is the accession itself, A0A2R8Y5B1_HUMAN)
+      3  = RefSeq protein accessions (NP_.../XP_...)
+      19 = Ensembl transcript IDs — col 18 is the gene ID (ENSG/ENSMUSG)
 
-    Proteins stores versioned IDs (ENST00000641515.2); idmapping omits the
-    version suffix → both sides strip .N before comparison.
+    Columns 3 and 19 are "; "-SEPARATED LISTS, not single values. One accession
+    routinely names many transcripts: P08575 (CD45) lists 16 RefSeq proteins and
+    9 Ensembl transcripts on one line. Reading either column as a single value
+    silently drops every id but one - see
+    DoChaP-db/UNIPROT_MAPPING_LOSES_CANONICALS.md. That defect left 31% of
+    canonical transcripts with no accession, and therefore no domains at all,
+    because populate_representative_domains() gates on membership of this column.
+
+    Proteins stores versioned IDs (ENST00000641515.2) and idmapping may or may
+    not carry the version, so each id is tried versioned first, then bare.
+
+    Where two accessions name the same protein, a REVIEWED (Swiss-Prot) entry
+    wins over an unreviewed (TrEMBL) one. Reviewed entries are identified from
+    column 1: their mnemonic does not begin with the accession. This matters
+    because TrEMBL entries are usually isoform-specific and so map 1:1, while
+    the reviewed entry for a gene is exactly the one that lists many transcripts
+    - so without this preference the fix above would hand canonical transcripts
+    a fragment's accession instead of the gene's real one.
     """
     if collision_strategy not in COLLISION_STRATEGIES:
         raise ValueError(f"collision_strategy must be one of {COLLISION_STRATEGIES}")
@@ -164,12 +204,12 @@ def populate_dochap_protein_mapping(cursor, mapping_filepath,
     ensembl_hits = {}
     records_scanned = 0
 
-    # pandas reads only the 3 needed columns at C speed; chunksize keeps RAM flat
+    # pandas reads only the needed columns at C speed; chunksize keeps RAM flat
     reader = pd.read_csv(
         mapping_filepath,
         sep='\t',
         header=None,
-        usecols=[0, 3, 19],
+        usecols=[0, 1, 3, 19],
         dtype=str,
         na_filter=False,   # keep empty strings as '', not NaN
         chunksize=1_000_000,
@@ -182,16 +222,23 @@ def populate_dochap_protein_mapping(cursor, mapping_filepath,
             print(f"   Scanned {records_scanned:,} mapping lines "
                   f"({time.time()-t0:.0f}s)...")
 
-        for uniprot_acc, refseq_id, enst_id in chunk.itertuples(index=False, name=None):
-            if refseq_id and refseq_id in refseq_to_pair:
-                refseq_hits[refseq_to_pair[refseq_id]] = uniprot_acc
+        for uniprot_acc, uniprot_id, refseq_field, enst_field in chunk.itertuples(index=False, name=None):
+            # A reviewed entry carries a mnemonic (PTPRC_HUMAN); an unreviewed
+            # one repeats its accession (A0A2R8Y5B1_HUMAN).
+            reviewed = bool(uniprot_id) and not uniprot_id.startswith(uniprot_acc)
 
-            if enst_id:
-                enst_bare = enst_id.split('.')[0]
-                for key in (enst_id, enst_bare):
-                    if key in transcript_ensembl_to_pair:
-                        ensembl_hits[transcript_ensembl_to_pair[key]] = uniprot_acc
-                        break
+            for refseq_id in _split_ids(refseq_field):
+                pair = refseq_to_pair.get(refseq_id)
+                if pair is not None:
+                    _claim(refseq_hits, pair, uniprot_acc, reviewed)
+
+            for enst_id in _split_ids(enst_field):
+                # versioned first, then bare - a fallback for ONE id, which is
+                # why it must not also terminate the loop over the list.
+                pair = (transcript_ensembl_to_pair.get(enst_id)
+                        or transcript_ensembl_to_pair.get(enst_id.split('.')[0]))
+                if pair is not None:
+                    _claim(ensembl_hits, pair, uniprot_acc, reviewed)
 
     print(f"   Scan complete in {time.time()-t0:.0f}s. "
           f"{len(refseq_hits):,} refseq hits, {len(ensembl_hits):,} ensembl hits.")
@@ -201,11 +248,22 @@ def populate_dochap_protein_mapping(cursor, mapping_filepath,
     resolved   = {}
     collisions = 0
 
+    reviewed_wins = 0
     for pair in all_pairs:
-        r_id = refseq_hits.get(pair)
-        e_id = ensembl_hits.get(pair)
+        r = refseq_hits.get(pair)
+        e = ensembl_hits.get(pair)
+        r_id, r_rev = r if r else (None, False)
+        e_id, e_rev = e if e else (None, False)
 
         if r_id and e_id and r_id != e_id:
+            # A reviewed entry settles it before the configured strategy does:
+            # the two branches disagreeing usually means one of them found the
+            # gene's Swiss-Prot entry and the other an isoform-specific TrEMBL
+            # one, and the strategy has no way to tell those apart.
+            if r_rev != e_rev:
+                reviewed_wins += 1
+                resolved[pair] = r_id if r_rev else e_id
+                continue
             collisions += 1
             print(f"   WARNING: collision for protein "
                   f"(refseq={pair[0]}, ensembl={pair[1]}): "
@@ -217,8 +275,19 @@ def populate_dochap_protein_mapping(cursor, mapping_filepath,
         else:
             resolved[pair] = r_id or e_id
 
+    if reviewed_wins:
+        print(f"   {reviewed_wins:,} branch disagreements settled by preferring "
+              f"the reviewed entry.")
     if collisions:
-        print(f"   Total collisions: {collisions:,} (strategy='{collision_strategy}').")
+        print(f"   Total collisions: {collisions:,} (strategy='{collision_strategy}')."
+              f" These are same-status disagreements only.")
+
+    n_reviewed = sum(1 for v in resolved.values() if v)
+    per_acc = collections.Counter(resolved.values())
+    shared = sum(1 for n in per_acc.values() if n > 1)
+    print(f"   {len(per_acc):,} distinct accessions over {n_reviewed:,} proteins; "
+          f"{shared:,} accessions cover more than one transcript "
+          f"(this was ~0 before the multi-value fix).")
 
     print(f"   Updating Proteins table with {len(resolved):,} interpro mappings...")
     update_query = """
