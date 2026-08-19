@@ -51,22 +51,38 @@ Run --step mapping first if you want to check the coverage numbers before
 committing to the long InterPro pass; --step domains reads the accessions back
 out of the database, so the two can be run in separate sessions.
 
-Requires: pandas, lxml.
+Requires: lxml. pandas is used if present but is not required (--no-pandas).
 """
+import os
+# MUST run before anything imports numpy. On a cluster node OpenBLAS sizes its
+# thread pool from the machine's core count (72 here) while the per-user process
+# limit applies, and numpy dies at import with "blas_thread_init: pthread_create
+# failed". This script does no linear algebra at all, so one thread is plenty.
+# RepresentativeDomainsBuilder.py carries the same guard for the same reason.
+for _var in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS",
+             "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
 import argparse
 import collections
 import gzip
-import os
 import shutil
 import sqlite3
 import sys
 import time
 
 try:
-    import pandas as pd
     from lxml import etree
 except ImportError as exc:                                    # pragma: no cover
-    sys.exit(f"missing dependency: {exc}. Needs pandas and lxml.")
+    sys.exit(f"missing dependency: {exc}. lxml is required.")
+
+# pandas is optional: it only ever reads the TSV. If it is missing - or if numpy
+# cannot start on this node despite the guard above - fall back to plain gzip.
+try:
+    import pandas as pd
+except Exception as _exc:                                     # noqa: BLE001
+    pd = None
+    _PANDAS_ERROR = _exc
 
 COLLISION_STRATEGIES = ("ensembl", "refseq", "ignore")
 # A known case used as a self-check: this transcript is SECOND in P08575's list
@@ -93,9 +109,38 @@ def claim(hits, pair, accession, reviewed):
         hits[pair] = (accession, reviewed)
 
 
+# ── reading the mapping file ──────────────────────────────────────────────────
+# Only lines naming a RefSeq protein or an Ensembl transcript can match anything
+# in Proteins, and most of UniProt names neither. Checking that as a substring
+# before splitting 22 columns skips the majority for the cost of a few memchrs.
+# Prefixes taken from the database itself: NP_/XP_/YP_ and ENS*T.
+_INTERESTING = ("ENS", "NP_", "XP_", "YP_")
+
+
+def _rows_plain(path):
+    """(accession, uniprot_id, refseq_field, enst_field) with no numpy anywhere."""
+    with gzip.open(path, 'rt', encoding='utf-8', errors='replace') as fh:
+        for line in fh:
+            if not any(tag in line for tag in _INTERESTING):
+                continue
+            f = line.rstrip('\n').split('\t', 20)
+            if len(f) <= 19:
+                continue
+            yield f[0], f[1], f[3], f[19]
+
+
+def _rows_pandas(path, chunksize):
+    reader = pd.read_csv(path, sep='\t', header=None, usecols=[0, 1, 3, 19],
+                         dtype=str, na_filter=False, chunksize=chunksize,
+                         compression='gzip', engine='c')
+    for chunk in reader:
+        for row in chunk.itertuples(index=False, name=None):
+            yield row
+
+
 # ── step 1: Proteins.protein_interpro_id ──────────────────────────────────────
 def rewrite_protein_mapping(cur, mapping_path, collision_strategy="ensembl",
-                            chunksize=1_000_000):
+                            chunksize=1_000_000, force_plain=False):
     print("\n=== STEP 1: Proteins.protein_interpro_id ===", flush=True)
     rows = cur.execute("SELECT protein_refseq_id, protein_ensembl_id, "
                        "transcript_ensembl_id FROM Proteins;").fetchall()
@@ -115,15 +160,20 @@ def rewrite_protein_mapping(cur, mapping_path, collision_strategy="ensembl",
 
     refseq_hits, ensembl_hits, scanned = {}, {}, 0
     t0 = time.time()
-    reader = pd.read_csv(mapping_path, sep='\t', header=None, usecols=[0, 1, 3, 19],
-                         dtype=str, na_filter=False, chunksize=chunksize,
-                         compression='gzip', engine='c')
-    for chunk in reader:
-        scanned += len(chunk)
+    if pd is not None and not force_plain:
+        print("  reading with pandas", flush=True)
+        source = _rows_pandas(mapping_path, chunksize)
+    else:
+        why = "forced" if force_plain else f"pandas unavailable ({_PANDAS_ERROR})"
+        print(f"  reading with the plain gzip reader ({why})", flush=True)
+        source = _rows_plain(mapping_path)
+
+    for accession, uniprot_id, refseq_field, enst_field in source:
+        scanned += 1
         if scanned % 10_000_000 == 0:
             print(f"  scanned {scanned:,} lines ({time.time()-t0:.0f}s), "
                   f"{len(ensembl_hits):,} transcripts matched", flush=True)
-        for accession, uniprot_id, refseq_field, enst_field in chunk.itertuples(index=False, name=None):
+        if True:
             # reviewed entries carry a mnemonic (PTPRC_HUMAN); unreviewed ones
             # repeat their accession (A0A2R8Y5B1_HUMAN).
             reviewed = bool(uniprot_id) and not uniprot_id.startswith(accession)
@@ -287,6 +337,10 @@ def main():
     p.add_argument('--fast', action='store_true',
                    help='synchronous=OFF and an in-memory journal: faster, but a crash '
                         'or power loss can corrupt the database. Use only with --backup.')
+    p.add_argument('--no-pandas', action='store_true',
+                   help='read the mapping file with plain gzip instead of pandas. '
+                        'Use on a node where numpy will not import; it is a little '
+                        'slower but needs no numpy at all.')
     p.add_argument('--yes', action='store_true', help='required to write anything')
     a = p.parse_args()
 
@@ -327,7 +381,8 @@ def main():
 
     started = time.time()
     if a.step in ('mapping', 'both'):
-        rewrite_protein_mapping(cur, a.idmapping, a.collision_strategy)
+        rewrite_protein_mapping(cur, a.idmapping, a.collision_strategy,
+                                force_plain=a.no_pandas)
         con.commit()
     if a.step in ('domains', 'both'):
         rebuild_domains(cur, a.matches, a.entries)
