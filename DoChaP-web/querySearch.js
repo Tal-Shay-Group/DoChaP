@@ -212,7 +212,25 @@ async function findTranscriptInfo(transcript, useRepDomains) {
     transcript.protein = protein[0];
 
     var domains = undefined;
-    if (useRepDomains && transcript.protein != undefined) {
+    // RepresentativeDomains is keyed on protein_interpro_id and nothing else, so
+    // every isoform sharing a UniProt accession reads back ONE domain list, at
+    // the coordinates of whichever sequence UniProt displays. For an isoform
+    // that is not that sequence those coordinates are not its own: ARAP1's
+    // 1205 aa isoform came back carrying a SAM domain at aa 3-70, encoded by an
+    // exon it does not contain, and a PH domain at 1277-1432 that does not fit
+    // inside it at all.
+    //
+    // Proteins.interpro_domains_are_own (written by DoChaP-db's
+    // RepresentativeDomainsBuilder from the Swiss-Prot isoform tags) is 0 for
+    // exactly those. Skipping them here falls through to the DomainEvent branch
+    // below, which is keyed on the PROTEIN rather than the accession and so is
+    // already isoform-specific - for that same ARAP1 isoform it reports no SAM
+    // and puts PH1_ARAP at 84-176 instead of the canonical's 329-421.
+    //
+    // `!== 0` rather than a truthiness test on purpose: a database built before
+    // this column existed yields undefined, and must keep its old behaviour.
+    if (useRepDomains && transcript.protein != undefined
+            && transcript.protein.interpro_domains_are_own !== 0) {
         domains = getRepresentativeDomains(transcript.protein.protein_interpro_id);
     }
     if (domains == undefined || domains.length == 0) {
