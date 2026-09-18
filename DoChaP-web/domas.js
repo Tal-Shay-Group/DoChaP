@@ -17,13 +17,21 @@ const { spawn } = require("child_process");
 // --- configuration ---------------------------------------------------------
 // Absolute path to domas.py and the python interpreter that has DOMAS's deps
 // (pandas, openpyxl, numpy, sqlite3). DOMAS lives outside this repo and its
-// location differs per install, so it comes from the environment: DOMAS_PATH
-// is either domas.py itself or the directory holding it. The default below is
-// only the development layout.
-const DOMAS_PATH = process.env.DOMAS_PATH ||
-    "/Users/arielmelchior/Documents/projects/DOMAS/code/domas.py";
+// location differs per install, so it comes from the environment when
+// possible. The default below is a sibling checkout layout and intentionally
+// avoids a developer-specific machine path.
+const DEFAULT_DOMAS_PATH = path.resolve(__dirname, "..", "DOMAS", "code", "domas.py");
+const DOMAS_PATH = process.env.DOMAS_PATH || DEFAULT_DOMAS_PATH;
 const DOMAS_PY = resolveDomasPy(DOMAS_PATH);
-const PYTHON = process.env.DOMAS_PYTHON || "python3";
+
+function resolvePythonExecutable() {
+    if (process.env.DOMAS_PYTHON) {
+        return process.env.DOMAS_PYTHON;
+    }
+    return process.platform === "win32" ? "py" : "python3";
+}
+
+const PYTHON = resolvePythonExecutable();
 
 // Accept a directory for DOMAS_PATH too - pointing at the DOMAS checkout or its
 // code/ dir is the natural mistake, and failing on it would only surface later
@@ -139,7 +147,7 @@ router.post("/domas/process", (req, res) => {
     const py = spawn(PYTHON, args, { cwd: workDir });
     py.stderr.on("data", (d) => { stderr += d.toString(); });
     py.on("error", (err) => {
-        finish(500, { error: "Failed to start python3: " + err.message });
+        finish(500, { error: "Failed to start " + PYTHON + ": " + err.message });
     });
     py.on("close", (code) => {
         if (code !== 0 || !fs.existsSync(csvPath)) {

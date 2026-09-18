@@ -7,7 +7,8 @@ angular.module("DoChaP").service("webService", function ($http,$window) {
 
     /**NOTICE: one urlAdress should be uncommented according to wanted use **/
     //for running locally uncomment this:
-    var urlAdress="http://localhost:3000";
+    //var urlAdress="http://localhost:3000";
+    var urlAdress = window.location.origin;
 
     //for running on server uncomment this:
     // var urlAdress="https://dochap.bgu.ac.il/dochap";

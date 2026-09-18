@@ -16,7 +16,7 @@ REM straight to users.
 goto :main
 
 :fetch
-curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 -o %1 %2
+curl --ssl-no-revoke -fL --retry 3 --retry-delay 2 --connect-timeout 20 -o %1 %2
 if errorlevel 1 (
     del %1 2>nul
     echo ERROR: failed to download %2 1>&2
