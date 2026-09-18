@@ -8,11 +8,10 @@ angular.module("DoChaP")
         $scope.loading = false;
         $scope.alert = "";
 
-        //use Interpro representative domains, on by default; shared across pages via sessionStorage (resets each session)
-        $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
-        $scope.$watch("useRepDomains", function (val) {
-            sessionStorage.setItem("useRepDomains", val);
-        });
+        //The transcript view shows every domain type DoChaP holds, straight
+        //from DomainEvent/DomainType - not the InterPro representative subset.
+        //The checkbox that used to switch between them is gone.
+        $scope.useRepDomains = false;
 
         //runs on 'analyze' button click. checks for input in text or file and sends the right request for the server.
         self.search = async function () {

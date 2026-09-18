@@ -47,7 +47,7 @@ const VALID_FORMATS = ["leafcutter", "rmats", "majiq", "ioe"];
 const VALID_SPECIES = ["human", "mouse", "rat"];
 
 router.post("/domas/process", (req, res) => {
-    const { format, specie, files, useRepDomains, filterNonComparable } = req.body || {};
+    const { format, specie, files } = req.body || {};
 
     // --- validate ---
     if (!VALID_FORMATS.includes(format)) {
@@ -91,11 +91,11 @@ router.post("/domas/process", (req, res) => {
     }
 
     // --- build domas.py arguments per format ---
-    // PDFs are opt-in on domas.py's side (-pdf), so nothing is needed to
-    // suppress them here. Representative domains are on by default there, so
-    // only their "off" case is passed on. Non-comparable transcripts are
-    // written by default, so it is the page's "Only comparable transcripts"
-    // box that has to be passed on, as -omit_non_comparable.
+    // The page runs domas.py with its OWN defaults: no option that changes what
+    // the analysis does is passed from here. Everything below is plumbing the
+    // CLI cannot infer - where the database is, which species, which format,
+    // where to write - plus two server-side resource limits. PDFs are opt-in on
+    // domas.py's side (-pdf), so nothing is needed to suppress them.
     const args = [
         DOMAS_PY,
         "-dochap", DOCHAP_DB,
@@ -104,8 +104,6 @@ router.post("/domas/process", (req, res) => {
         "-output_csv", path.join(workDir, "results.csv"),
     ];
     args.push("-species", specie);
-    if (!useRepDomains) args.push("-no_representative_domains");
-    if (filterNonComparable) args.push("-omit_non_comparable");
 
     try {
         if (format === "leafcutter") {

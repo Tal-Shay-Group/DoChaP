@@ -139,16 +139,7 @@
             </div>
         </div>
 
-        <!-- (the 'Interpro representative domains' checkbox in the top bar controls that option) -->
-
-        <!-- 3. Options -->
-        <div class="formgroup" style="margin-bottom: 15px;">
-            <input type="checkbox" id="domasFilterNonComparable" ng-model="filterNonComparable">
-            <label for="domasFilterNonComparable" style="display: inline; font-weight: normal; margin-left: 4px;">
-                Only comparable transcripts
-                <span class="domasHint">(hide transcripts not compared to the canonical)</span>
-            </label>
-        </div>
+        <!-- The analysis runs with domas.py's own defaults; there are no options to set here. -->
 
         <!-- 4. Process -->
         <button class="btn blackButton" ng-click="domasCtrl.process()" ng-disabled="loading">

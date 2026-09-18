@@ -34,8 +34,6 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
     ];
     $scope.specie = 'human';
 
-    $scope.filterNonComparable = true;   // only comparable transcripts, on by default
-
     $scope.loading = false;
     $scope.alert = '';
     $scope.columns = [];
@@ -171,16 +169,11 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
             return;
         }
 
-        // read the shared 'representative domains' checkbox from the top bar
-        var useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
-
         $scope.loading = true;
         Promise.all(reads).then(function (files) {
             return webService.runDomas({
                 format: $scope.format,
                 specie: $scope.specie,
-                useRepDomains: useRepDomains,
-                filterNonComparable: $scope.filterNonComparable === true,
                 files: files
             });
         }).then(function (response) {
@@ -292,12 +285,9 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
             var files = results.map(function (r) {
                 return { name: r.spec.filename, role: r.spec.role, content: utf8ToBase64(r.text) };
             });
-            var useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
             return webService.runDomas({
                 format: $scope.exampleFormat,
                 specie: 'human',   // every bundled example is real human data
-                useRepDomains: useRepDomains,
-                filterNonComparable: true,
                 files: files
             });
         }).then(function (response) {

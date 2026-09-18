@@ -18,10 +18,7 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
          }
       });
       $scope.showQuickSearch = (currAddress != "#!querySearch" && currAddress != "#!compareSpecies" && currAddress != "#!");
-      //pick up a checkbox change made on another page
-      $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
-      //gene search (specie + gene text + button) doesn't apply on the DOMAS page - disable it there,
-      //but keep the representative-domains checkbox usable
+      //gene search (specie + gene text + button) doesn't apply on the DOMAS page - disable it there
       var onDomasPage = (currAddress == "#!domas");
       $('#indexSpecies, #indexTextField, #submitSearchButton').prop('disabled', onDomasPage);
    });
@@ -29,11 +26,12 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
    //fill specie combobox
    Species.fillSpecieComboBox("indexSpecies");
 
-   //use Interpro representative domains, on by default; shared across pages via sessionStorage (resets each session)
-   $scope.useRepDomains = sessionStorage.getItem("useRepDomains") !== "false";
-   $scope.$watch("useRepDomains", function (val) {
-      sessionStorage.setItem("useRepDomains", val);
-   });
+   //The transcript view shows every domain type DoChaP holds, straight from
+   //DomainEvent/DomainType - not the InterPro representative subset. The
+   //checkbox that used to switch between them is gone; the value is kept
+   //because search() still passes it to the query endpoint, where false is
+   //also the server's own default.
+   $scope.useRepDomains = false;
 
    //searching for query using the navigation text field
    $rootScope.search = async function () {

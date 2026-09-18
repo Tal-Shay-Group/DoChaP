@@ -740,6 +740,46 @@ def populate_isoform_flags(cursor, flatfile_path, batch_size=500000):
         "      GROUP BY protein_interpro_id HAVING COUNT(*) = 1);"
     )
 
+    # Second structural rule, for accessions held by several proteins. Sharing
+    # is only a problem when the sharers are DIFFERENT proteins; where every
+    # protein filed under an accession has the same length they are one protein
+    # under several transcript models, differing in UTR alone, and the domain
+    # coordinates are equally correct for all of them. That is the benign case
+    # the ARAP1 example describes for its three -6 transcripts.
+    #
+    # Equal length is an inference, not evidence - two mutually-exclusive-exon
+    # isoforms can coincide in length - so it carries a guard: a domain that
+    # does not fit inside the shared length was demonstrably computed on some
+    # other sequence, and such an accession stays unknown. An accession with no
+    # domain rows at all passes vacuously; there is no annotation to misplace.
+    #
+    # A length is only usable if every protein has one, hence
+    # COUNT(*) = COUNT(length): a single NULL length makes the group
+    # unverifiable and it is left alone.
+    cursor.execute("DROP TABLE IF EXISTS temp._accession_max_domain_end;")
+    cursor.execute(
+        "CREATE TEMP TABLE _accession_max_domain_end AS "
+        "SELECT protein_interpro_id AS accession, MAX(\"end\") AS max_end "
+        "FROM RepresentativeDomains WHERE protein_interpro_id IS NOT NULL "
+        "GROUP BY protein_interpro_id;"
+    )
+    cursor.execute("CREATE INDEX temp.ix_accession_max_domain_end "
+                   "ON _accession_max_domain_end(accession);")
+    cursor.execute(
+        "UPDATE Proteins SET interpro_domains_are_own = 1 "
+        "WHERE interpro_domains_are_own IS NULL AND protein_interpro_id IS NOT NULL "
+        "  AND protein_interpro_id IN ("
+        "      SELECT p.protein_interpro_id FROM Proteins p "
+        "      LEFT JOIN _accession_max_domain_end m "
+        "             ON m.accession = p.protein_interpro_id "
+        "      WHERE p.protein_interpro_id IS NOT NULL "
+        "      GROUP BY p.protein_interpro_id "
+        "      HAVING COUNT(*) = COUNT(p.length) "
+        "         AND COUNT(DISTINCT p.length) = 1 "
+        "         AND MAX(COALESCE(m.max_end, 0)) <= MIN(p.length));"
+    )
+    cursor.execute("DROP TABLE temp._accession_max_domain_end;")
+
     update_query = ("UPDATE Proteins SET protein_uniprot_isoform = ?, "
                     "interpro_domains_are_own = ? WHERE rowid = ?;")
     for start in range(0, len(updates), batch_size):
