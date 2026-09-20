@@ -6,13 +6,39 @@ this controller for the result page should handle different view options
 angular.module("DoChaP")
     .controller("resultsController", function ($scope, $window, $route, $routeParams, webService, querySearchService) {
 
-        //needed in case of failure css wont show. if not fail it will reach here
-        $('#searchExists').css("display", "block");
-
         //init attributes
         $scope.display = new Display();
         self = this;
         $scope.noSearch = false;
+        $scope.searching = false;
+        $scope.searchError = undefined;
+
+        //A deep link - /results/:specie/:query - carries nothing in sessionStorage
+        //but a PREVIOUS search's gene, so nothing may be drawn from it on this pass:
+        //the page would paint the old gene (or "No gene has been found") and correct
+        //itself a moment later. Run the query, show the spinner, and stop here. On
+        //success queryHandler redirects to #!/results, which runs this controller
+        //again - and by then currGene is the gene that was actually asked for.
+        if ($routeParams.specie != undefined && $routeParams.query != undefined) {
+            $scope.searching = true;
+            $scope.query = $routeParams.query;
+            querySearchService.queryHandler($routeParams.query, $routeParams.specie, true)
+                .then(function (result) {
+                    //Only a failure lands here - success has already redirected.
+                    //Without this a mistyped gene in a URL would spin for ever.
+                    if (result != undefined && result[0] == "error") {
+                        $scope.searching = false;
+                        $scope.noSearch = true;
+                        $scope.searchError = result[1];
+                        $scope.$applyAsync();
+                    }
+                });
+            return;
+        }
+
+        //needed in case of failure css wont show. if not fail it will reach here
+        $('#searchExists').css("display", "block");
+
         var loadedGene = JSON.parse($window.sessionStorage.getItem("currGene"));
         $scope.ignorePredictions = JSON.parse($window.sessionStorage.getItem("ignorePredictions"));
         $scope.canvasSize = 550;
@@ -20,12 +46,6 @@ angular.module("DoChaP")
         self.toolTipManagerForCanvas = {};
         $scope.numberToTextWithCommas = numberToTextWithCommas;
         $scope.modeModel = "all";
-
-        //if input is in website path
-        if ($routeParams.specie != undefined && $routeParams.query != undefined) {
-            isReviewed = true;
-            querySearchService.queryHandler($routeParams.query, $routeParams.specie, isReviewed);
-        }
 
         //if no search found
         if (loadedGene == undefined) {

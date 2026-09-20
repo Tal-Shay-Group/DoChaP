@@ -68,8 +68,19 @@
     </div>
     <!--end of modal work-->
 
+    <!--deep link: the query is still running, nothing may be drawn yet-->
+    <div ng-show="searching" style="background-color: white;">
+        <center>
+            <br><br>
+            <img ng-src="/resources/loading_2.gif" width="38" height="38" />
+            <h3>Looking up {{query}} in DoChaP</h3>
+            <span>This usually takes up to a minute</span>
+            <br><br>
+        </center>
+    </div>
+
     <!--actual gene results-->
-    <div id="searchExists" ng-show="!{{::noSearch}}"
+    <div id="searchExists" ng-show="!noSearch && !searching"
         style="background-color: white;position: absolute;z-index: -3; width: 100%;">
         <br>
         <div class="greyArea searchItems">
@@ -261,9 +272,10 @@
         <br>
     </div>
     <!-- this is for when there is no search-->
-    <div ng-show="{{::noSearch}}" style="background-color: white;">
+    <div ng-show="noSearch" style="background-color: white;">
         <center>
             <h1>No gene has been found</h1>
+            <p ng-show="searchError">{{searchError}}</p>
         </center>
     </div>
     </div>
