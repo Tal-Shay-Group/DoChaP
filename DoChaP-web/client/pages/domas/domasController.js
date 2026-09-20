@@ -13,7 +13,7 @@
  * change needed for this. The example files are plain static assets under
  * client/resources/domas_examples/.
  */
-angular.module("DoChaP").controller('domasController', function ($scope, $http, webService) {
+angular.module("DoChaP").controller('domasController', function ($scope, $http, $window, webService) {
     var self = this;
 
     // dropdown options; leafcutter is the default
@@ -52,6 +52,22 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         is_longest_cds: true, is_most_like_canonical: true
     };
     $scope.isNarrow = function (col) { return NARROW_COLUMNS[col] === true; };
+
+    // ---- gene_symbol -> the DoChaP page for that gene ---------------------
+    // The /results/:specie/:query route filters Genes.specie on the database
+    // spelling of the species (see querySearch.js), while the DOMAS CSV carries
+    // the common name. Anything not in this map falls back to 'all', which the
+    // server reads as "do not filter by species".
+    var DB_SPECIE = { human: 'H_sapiens', mouse: 'M_musculus', rat: 'R_norvegicus' };
+
+    // Absolute, because the link is opened in a new tab.
+    function geneHref(gene, specie) {
+        gene = (gene || '').trim();
+        if (!gene) return null;
+        return $window.location.origin + $window.location.pathname + '#!/results/' +
+               (DB_SPECIE[(specie || '').trim().toLowerCase()] || 'all') + '/' +
+               encodeURIComponent(gene);
+    }
 
     function utf8ToBase64(str) {
         return btoa(unescape(encodeURIComponent(str)));
@@ -92,6 +108,18 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         var columns = parsed[0];
         var body = parsed.slice(1);
         var rows = body.slice(0, MAX_DISPLAY_ROWS);
+
+        // Resolved once per row here rather than from the template, which would
+        // re-evaluate it for every cell on every digest.
+        var gIdx = columns.indexOf('gene_symbol');
+        // domas.py writes this column as 'species'; older results say 'specie'.
+        var sIdx = columns.indexOf('species');
+        if (sIdx === -1) sIdx = columns.indexOf('specie');
+        if (gIdx !== -1) {
+            rows.forEach(function (r) {
+                r.geneHref = geneHref(r[gIdx], sIdx === -1 ? '' : r[sIdx]);
+            });
+        }
 
         // count distinct clusters (the 'event' column, if present - it holds the
         // cluster id; 'cluster' is the name results produced before the rename)

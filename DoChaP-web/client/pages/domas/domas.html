@@ -64,7 +64,12 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="row in exampleRows">
-                                <td ng-repeat="col in exampleColumns track by $index" ng-class="{domasNarrow: isNarrow(col)}">{{row[$index]}}</td>
+                                <td ng-repeat="col in exampleColumns track by $index" ng-class="{domasNarrow: isNarrow(col)}">
+                                    <a ng-if="col === 'gene_symbol' && row.geneHref" ng-href="{{row.geneHref}}"
+                                       target="_blank" rel="noopener"
+                                       title="Open {{row[$index]}} in DoChaP">{{row[$index]}}</a>
+                                    <span ng-if="!(col === 'gene_symbol' && row.geneHref)">{{row[$index]}}</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -169,7 +174,12 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat="row in rows">
-                            <td ng-repeat="col in columns track by $index" ng-class="{domasNarrow: isNarrow(col)}">{{row[$index]}}</td>
+                            <td ng-repeat="col in columns track by $index" ng-class="{domasNarrow: isNarrow(col)}">
+                                <a ng-if="col === 'gene_symbol' && row.geneHref" ng-href="{{row.geneHref}}"
+                                   target="_blank" rel="noopener"
+                                   title="Open {{row[$index]}} in DoChaP">{{row[$index]}}</a>
+                                <span ng-if="!(col === 'gene_symbol' && row.geneHref)">{{row[$index]}}</span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
