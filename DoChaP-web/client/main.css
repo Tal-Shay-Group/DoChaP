@@ -233,6 +233,80 @@ textarea {
     font-size: 13px;
 }
 
+/* DOMAS help / about: plain text buttons beside the page heading, and the
+   panels they toggle. The panels sit in the page rather than over it - the
+   form below stays where it was, so closing one does not lose your place. */
+.domasIconBtn {
+    background: none;
+    border: none;
+    padding: 0 10px 0 0;
+    color: #337ab7;
+    font-size: 14px;
+    vertical-align: 6px;
+}
+.domasIconBtn:hover,
+.domasIconBtn:focus {
+    color: #23527c;
+    text-decoration: underline;
+}
+
+.domasPanel {
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fafafa;
+    padding: 18px 20px;
+    margin-bottom: 25px;
+}
+.domasPanel h4 {
+    margin-top: 22px;
+}
+.domasPanelClose {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 22px;
+    line-height: 1;
+}
+.domasPanelClose:hover {
+    color: #333;
+}
+
+/* The run summary: preformatted text from DOMAS, shown as it was written.
+   Capped in height so it cannot push the results table off the screen. */
+.domasSummary {
+    max-height: 340px;
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+/* The two reference tables in the help panel. Fixed layout so a long
+   description cannot squeeze the column-name cell down to nothing. */
+.domasGlossary {
+    background: #fff;
+    table-layout: fixed;
+    font-size: 13px;
+}
+.domasGlossary td,
+.domasGlossary th {
+    vertical-align: top;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.domasGlossary code {
+    background: none;
+    color: #333;
+    padding: 0;
+    font-size: 12px;
+}
+
 /* DOMAS results table: vertical lines between columns */
 .domasResults th,
 .domasResults td {

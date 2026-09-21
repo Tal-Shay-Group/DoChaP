@@ -43,6 +43,15 @@ function resolveDomasPy(p) {
     const candidates = [path.join(p, "domas.py"), path.join(p, "code", "domas.py")];
     return candidates.find((c) => fs.existsSync(c)) || path.join(p, "domas.py");
 }
+// The summary names the input file it was given, which here is a path inside
+// this request's private temp directory - a detail of how the server works and
+// nothing the browser should be shown. Reduced to the bare filenames, which is
+// what the user recognises anyway.
+function stripWorkDir(text, workDir) {
+    if (!text) return "";
+    return text.split(workDir + path.sep).join("").split(workDir).join("");
+}
+
 // DoChaP DB lives alongside this server file.
 const DOCHAP_DB = path.resolve(__dirname, "DB_merged.sqlite");
 const MAX_CLUSTERS = 100;
@@ -135,6 +144,13 @@ router.post("/domas/process", (req, res) => {
 
     // --- run domas.py (async, so we don't block the event loop) ---
     const csvPath = path.join(workDir, "results.csv");
+    // domas.py writes two more files beside the results CSV, both named after
+    // it (see junction_analisys.summary_path / non_compared_path): a run
+    // summary - what the input held, how much of it reached a comparison, and
+    // why the rest did not - and the rows that never reached a comparison,
+    // each naming its reason. The browser offers all three as one download.
+    const summaryPath = path.join(workDir, "results_summary.txt");
+    const nonComparedPath = path.join(workDir, "non_results.csv");
     let stderr = "";
     let responded = false;
     const finish = (status, body) => {
@@ -162,7 +178,17 @@ router.post("/domas/process", (req, res) => {
         } catch (e) {
             return finish(500, { error: "Could not read results: " + e.message });
         }
-        finish(200, { csv: csv });
+        // Both companions are nice-to-haves: a run that produced a CSV
+        // succeeded, so either one missing is reported as absent rather than
+        // failing the request.
+        const optional = (p) => {
+            try { return fs.readFileSync(p, "utf-8"); } catch (e) { return ""; }
+        };
+        finish(200, {
+            csv: csv,
+            summary: stripWorkDir(optional(summaryPath), workDir),
+            nonCompared: optional(nonComparedPath),
+        });
     });
 });
 
