@@ -289,16 +289,61 @@ textarea {
 
 /* The two reference tables in the help panel. Fixed layout so a long
    description cannot squeeze the column-name cell down to nothing. */
+/* The Help panel's two reference tables - input formats, and the meaning of
+   each output column. A glossary is read by looking one thing up, so every cell
+   is ruled and the rows alternate: the eye has to find its row and stay on it
+   across a wide panel. White cells against the panel's grey lift the table off
+   the page as one block. */
 .domasGlossary {
     background: #fff;
     table-layout: fixed;
     font-size: 13px;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #c3ccd6;
+    border-collapse: collapse;
 }
-.domasGlossary td,
-.domasGlossary th {
+.domasGlossary > thead > tr > th {
+    background: #e9eff5;
+    color: #2b4d70;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 9px 11px;
+    border: 1px solid #c3ccd6;
+    border-bottom-width: 2px;
+}
+.domasGlossary > tbody > tr > td,
+.domasGlossary > tbody > tr > th {
     vertical-align: top;
     overflow-wrap: break-word;
     word-break: break-word;
+    padding: 8px 11px;
+    border: 1px solid #dde3e9;
+    line-height: 1.5;
+}
+/* Banded rows, so a long row's second line is not read as the next row. */
+.domasGlossary > tbody > tr:nth-child(even) > td {
+    background: #f6f9fb;
+}
+.domasGlossary > tbody > tr:hover > td {
+    background: #eaf2f9;
+}
+/* The left column names the thing being defined - a format or a column - so it
+   is set apart from the prose beside it. */
+.domasGlossary > tbody > tr > td:first-child {
+    color: #2b4d70;
+    font-weight: 600;
+    background: #fbfcfd;
+}
+.domasGlossary > tbody > tr:nth-child(even) > td:first-child {
+    background: #f2f6f9;
+}
+/* The left column holds one identifier per row. Breaking inside it would split
+   a column name across two lines mid-word, so it wraps only at the spaces it
+   has - the column is sized to hold the longest name instead. */
+.domasGlossary > tbody > tr > td:first-child {
+    word-break: normal;
+    overflow-wrap: normal;
 }
 .domasGlossary code {
     background: none;

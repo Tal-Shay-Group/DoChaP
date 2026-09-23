@@ -2,7 +2,7 @@
 
 <!-- DOMAS page: upload alternative-splicing tool output, run DOMAS on the
      server (first 100 alternative splicing events), and show/download the
-     results CSV. Help and About open as panels on this page - the icons beside
+     results Excel file. Help and About open as panels on this page - the icons beside
      the heading toggle them, and opening one closes the other. -->
 
 <body ng-app="DoChaP" ng-controller="domasCtrl as domasCtrl">
@@ -31,21 +31,27 @@
             <h3 style="margin-top: 0;">Help</h3>
 
             <p>
-                DOMAS takes the output of a differential splicing tool and maps each
-                alternative splicing event onto the protein domains it affects. For every
-                event it finds the domains lying in the affected region, and classifies
-                what the alternative transcript does to them compared with the protein
-                encoded by the canonical transcript: a domain lost, gained, lengthened or
-                shortened, left unchanged, or a transcript that codes for no protein at
-                all. The result is one row per affected domain, which you can read in the
-                table below or download as a CSV.
+                DOMAS maps alternative splicing events to the protein domains they affect, 
+                defines the type of the effect, and ranks the events according to their 
+                predicted functional effect.
+
+                DOMAS takes the output of a differential splicing tool and maps each 
+                alternative splicing event onto the protein domains it affects. For every 
+                event it finds the domains lying in the affected region, and classifies 
+                what the alternative transcript does to them compared with the protein 
+                encoded by the canonical transcript: a domain lost, gained, lengthened or 
+                shortened, left unchanged, or a transcript that codes for no protein at all.
+                The result is one row per affected domain, which you can read in the table 
+                below or download as an Excel file.
+
             </p>
 
             <h4>Input formats</h4>
             <p style="color: #444;">
-                Choose the tool your file came from, then select the file(s) it needs.
-                None of these formats records which species the data came from, so choose
-                that as well.
+                DOMAS accepts as input the output format of several differential splicing 
+                analysis tools. Choose the tool that produced your file, then select the 
+                file(s). As none of these file formats records which species the data came 
+                from, choose the relevant species as well.
             </p>
             <table class="table table-condensed domasGlossary">
                 <thead>
@@ -86,8 +92,7 @@
                     <tr>
                         <td>MAJIQ</td>
                         <td>
-                            A single <code>voila tsv</code> file, e.g.
-                            <code>NveB_Mono_voila.txt</code>.
+                            A single <code>voila tsv</code> file.
                             <br>
                             <a href="resources/domas_examples/majiq/NveB_Mono_voila.example.txt"
                                target="_blank" rel="noopener">sample file</a>
@@ -102,10 +107,15 @@
 
             <h4>Output</h4>
             <p style="color: #444;">
-                One row per affected domain. The rows are ordered by the effect on the
-                domain, most consequential first: lost protein, domain gain, domain loss,
-                longer domain, shorter domain, no domain change. The two length changes
-                are ordered within themselves by the size of the change, largest first.
+                Each DOMAS run outputs two tables, one for the mapped alternative splicing 
+                events (compared.xlsx) and one for the events that cannot be mapped to 
+                domains (non_compared.xlsx). In the 'compared.xlsx'., there is one row for 
+                each domain in the region affected by the alternative splicing event. The 
+                rows are ordered by the type of the effect on the domain, most consequential 
+                first: lost protein, domain gain, domain loss, longer domain, shorter domain, 
+                and no domain change. The longer domain and shorter domain instances are 
+                sorted by descending order of length change, in percentage.
+                The columns of the file are detailed below:
             </p>
             <p style="color: #444;">
                 <b>Download results</b> gives a zip of Excel workbooks plus the run summary
@@ -116,7 +126,7 @@
             </p>
             <table class="table table-condensed domasGlossary">
                 <thead>
-                    <tr><th style="width: 230px;">Column</th><th>Meaning</th></tr>
+                    <tr><th style="width: 265px;">Column</th><th>Meaning</th></tr>
                 </thead>
                 <tbody>
                     <tr><td><code>event</code></td>
@@ -156,11 +166,13 @@
                     <tr><td><code>domain_name</code></td>
                         <td>From the DoChaP database.</td></tr>
                     <tr><td><code>canonical_domain_length</code></td>
-                        <td>Length of the domain in the protein encoded by the canonical
-                            transcript &mdash; the total if there is more than one instance.</td></tr>
+                        <td>Length of the domain in the protein encoded by the canonical transcript.
+                            If there is more than one domain instance of the same domain type in the 
+                            affected region (Pass 2 window), the total length of the instances.</td></tr>
                     <tr><td><code>alternative_domain_length</code></td>
-                        <td>Length of the domain in the protein encoded by the alternative
-                            transcript &mdash; the total if there is more than one instance.</td></tr>
+                        <td>Length of the domain in the protein encoded by the alternative transcript. 
+                            If there is more than one domain instance of the same domain type in the 
+                            affected region (Pass 2 window), the total length of the instances.</td></tr>
                     <tr><td><code>length_change_pct</code></td>
                         <td>How much the domain's length changed, as a percentage of its
                             length in the canonical transcript: the absolute difference
@@ -195,19 +207,19 @@
             <h3 style="margin-top: 0;">About DOMAS</h3>
 
             <p>
-                Domain Oriented Mapping of Alternative Splicing (DOMAS) bridges the gap
-                between a differential splicing event and its effect on the protein. It
-                takes a list of differential splicing events, maps them onto protein
-                domain architectures in a coordinate-aware way, and annotates each event
-                with the domains it affects and the class of that effect compared with the
-                protein encoded by the canonical transcript.
-            </p>
+                Domain Oriented Mapping of Alternative Splicing (DOMAS) bridges the gap between 
+                differential splicing event lists and their effect on proteins. DOMAS receives 
+                a list of differential splicing events, maps them onto protein domain architectures 
+                in a coordinate-aware way, and annotates each event with the domains it affects and 
+                the class of that effect compared with the protein encoded by the canonical 
+                transcript.
+           </p>
 
-            <p><strong>Input:</strong> the output of several differential splicing tools
+            <p><strong>Input:</strong> the output of several differential splicing analysis tools
                 &mdash; LeafCutter (Li et al., 2016), rMATS-turbo (Wang et al., 2024),
-                MAJIQ (Vaquero-Garcia et al., 2023) and SUPPA <code>.ioe</code> files. To
+                MAJIQ (Vaquero-Garcia et al., 2023) and SUPPA files (Trincado et al., 2018). To
                 ask for another input format, please
-                <a href="mailto:galozs@post.bgu.ac.il">write to us</a>.</p>
+                <a href="mailto:talshay@bgu.ac.il">write to us</a>.</p>
 
             <p><strong>Output:</strong> a table listing the domains affected by each
                 alternative splicing event and the class of the effect, downloadable as an
@@ -218,17 +230,37 @@
                 database, which integrates domain annotation from several sources. Domains
                 reported here come from Pfam.</p>
 
-            <p>This page runs DOMAS on the first 100 alternative splicing events of the
-                file you upload. For a full dataset, DOMAS is also available as a
-                command-line tool.</p>
+            <p>The WebServer of DOMAS runs on the first 100 alternative splicing events of the file
+               you upload. For longer lists, DOMAS is also available as a command-line tool at
+               <a href="https://github.com/Tal-Shay-Group/DOMAS" target="_blank"
+                  rel="noopener">github.com/Tal-Shay-Group/DOMAS</a>.</p>
 
-            <p><strong>Publication:</strong> Shani T Gal-Oz, Nimrod Haiat, Dana Eliyahu,
-                Guy Shani, Tal Shay,
-                <a href="https://doi.org/10.1093/nar/gkab357">DoChaP: the domain change
-                presenter</a>, Nucleic Acids Research, 2021, gkab357.</p>
+            <p><strong>Publication:</strong> We are working on that ...</p>
 
             <p><strong>Contact:</strong>
-                <a href="mailto:galozs@post.bgu.ac.il">galozs@post.bgu.ac.il</a></p>
+                <a href="mailto:talshay@bgu.ac.il">talshay@bgu.ac.il</a></p>
+
+            <p><strong>Tools mentioned:</strong>
+            <ul>
+	        <li>Gal-Oz, S., Haiat, N., Eliyahu, D., Shani, G., & Shay, T. (2021). DoChaP: the domain 
+                    change presenter. Nucleic Acids Research, 49, W162–W168. 10.1093/nar/gkab357</li>
+                <li>Li, Y. I., Knowles, D. A., Humphrey, J., Barbeira, A. N., Dickinson, S. P., Im, 
+                    H. K., & Pritchard, J. K. (2018). Annotation-free quantification of RNA splicing 
+                    using LeafCutter. Nature Genetics, 50(1), 151–158. 10.1038/s41588-017-0004-9</li>
+	        <li>Trincado, J. L., Entizne, J. C., Hysenaj, G., Singh, B., Skalic, M., Elliott, D. J., 
+                    & Eyras, E. (2018). SUPPA2: fast, accurate, and uncertainty-aware differential 
+                    splicing analysis across multiple conditions. Genome Biology, 19(1), 
+                    40. 10.1186/s13059-018-1417-1</li>
+                <li>Vaquero-Garcia, J., Aicher, J. K., Jewell, S., Gazzara, M. R., Radens, C. M., Jha, 
+                    A., Norton, S. S., Lahens, N. F., Grant, G. R., & Barash, Y. (2023). RNA splicing 
+                    analysis using heterogeneous and large RNA-seq datasets. Nature Communications, 
+                    14(1), 1230. 10.1038/s41467-023-36585-y </li>
+                <li>Wang, Y., Xie, Z., Kutschera, E., Adams, J. I., Kadash-Edmondson, K., & Xing, 
+                    Y. (2024). rMATS-turbo: an efficient and flexible computational tool for alternative 
+                    splicing analysis of large-scale RNA-seq data. Nature Protocols, 19(4), 
+                    1083–1104. 10.1038/s41596-023-00944-2</li>
+           </ul>
+           </p>
         </div>
 
         <!-- Try it: run a built-in example. Self-contained - its own format
@@ -269,7 +301,7 @@
                 <span style="color: #555;">&nbsp;{{exampleClusterCount}} alternative splicing events, {{exampleTotalRows}} rows.</span>
                 <button class="btn blackButton" style="margin-left: 12px; padding: 3px 12px;"
                         ng-click="domasCtrl.downloadExampleResults()"
-                        title="compared.csv, non_compared.csv and the run summary">
+                        title="compared.xlsx, non_compared.xlsx and the run summary">
                     Download results (.zip)</button>
                 <button class="btn blackButton" style="margin-left: 6px; padding: 3px 12px;"
                         ng-show="exampleSummaryText"
@@ -388,7 +420,7 @@
             <span style="color: #555;">&nbsp;{{clusterCount}} alternative splicing events, {{totalRows}} rows.</span>
             <button class="btn blackButton" style="margin-left: 12px; padding: 3px 12px;"
                     ng-click="domasCtrl.downloadResults()"
-                    title="compared.csv, non_compared.csv and the run summary">
+                    title="compared.xlsx, non_compared.xlsx and the run summary">
                 Download results (.zip)</button>
             <button class="btn blackButton" style="margin-left: 6px; padding: 3px 12px;"
                     ng-show="summaryText"

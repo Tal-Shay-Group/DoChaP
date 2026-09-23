@@ -93,7 +93,7 @@ app.get('/sendMail/:name/:mail/:msg', (req, res) => {
 
     var mailOptions = {
       from: 'dochapmail@gmail.com',
-      to: 'galozs@post.bgu.ac.il', //add on server the e-mail
+      to: 'talshay@bgu.ac.il', //add on server the e-mail
       subject: 'new Message via DoChaP. From '+name,
       text: "reply to:\n"+mail +"\nmessage: \n"+msg
     };
@@ -114,7 +114,7 @@ app.get('/sendAlert', (req, res) => {
     if (Math.round((today-lastAlert)/(1000*60*60*24))>90){
         var mailOptions = {
             from: 'dochapmail@gmail.com',
-            to: 'galozs@post.bgu.ac.il', //add on server the e-mail
+            to: 'talshay@bgu.ac.il', //add on server the e-mail
             subject: "DoChaP alert. Update the database",
             text: "The last update was before 90 days."
           };
