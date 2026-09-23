@@ -107,6 +107,13 @@
                 longer domain, shorter domain, no domain change. The two length changes
                 are ordered within themselves by the size of the change, largest first.
             </p>
+            <p style="color: #444;">
+                <b>Download results</b> gives a zip of Excel workbooks plus the run summary
+                as a text file: <code>compared.xlsx</code>, one row per affected domain, and
+                <code>non_compared.xlsx</code>, one row per event that reached no domain
+                comparison, each naming why. The rows are the ones shown above, in the same
+                order.
+            </p>
             <table class="table table-condensed domasGlossary">
                 <thead>
                     <tr><th style="width: 230px;">Column</th><th>Meaning</th></tr>
@@ -154,6 +161,21 @@
                     <tr><td><code>alternative_domain_length</code></td>
                         <td>Length of the domain in the protein encoded by the alternative
                             transcript &mdash; the total if there is more than one instance.</td></tr>
+                    <tr><td><code>length_change_pct</code></td>
+                        <td>How much the domain's length changed, as a percentage of its
+                            length in the canonical transcript: the absolute difference
+                            between the two lengths divided by the canonical one. A
+                            magnitude, so a domain cut in half and one grown by half both
+                            read 50 &mdash; the outcome column says which. Empty where the
+                            change cannot be measured: rows with no domain lengths at all
+                            (<code>Lost protein</code>), and any row whose canonical domain
+                            length is zero &mdash; a <code>Domain gain</code> where the
+                            canonical side holds no instance of the domain at all. A gain
+                            from one instance to two does have a canonical length, and so
+                            does get a percentage. The
+                            results are ordered by this number within the
+                            <code>Longer domain</code> and <code>Shorter domain</code>
+                            blocks, largest change first.</td></tr>
                     <tr><td><code>canonical_domains_number</code></td>
                         <td>Number of instances of the domain in the affected region in the
                             protein encoded by the canonical transcript.</td></tr>
@@ -187,9 +209,10 @@
                 ask for another input format, please
                 <a href="mailto:galozs@post.bgu.ac.il">write to us</a>.</p>
 
-            <p><strong>Output:</strong> a CSV listing the domains affected by each
-                alternative splicing event and the class of the effect. Each gene links
-                to its visualization in DoChaP.</p>
+            <p><strong>Output:</strong> a table listing the domains affected by each
+                alternative splicing event and the class of the effect, downloadable as an
+                Excel workbook. Each gene links to its visualization in DoChaP, showing the
+                canonical and the compared transcript.</p>
 
             <p><strong>Protein domain annotation:</strong> DOMAS builds on the DoChaP
                 database, which integrates domain annotation from several sources. Domains

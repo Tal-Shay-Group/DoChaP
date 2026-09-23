@@ -37,7 +37,7 @@ class PdfCreator {
             var canvasProtein = document.getElementById("canvas-protein" + idForCanvas + i);
             var imgProtein = canvasProtein.toDataURL("image/png");
             doc.setFontSize(10);
-            doc.text(3 * space, startY + rowHeight * (i % transcriptsPerPage), "Transcript: " + gene.transcripts[i].name + " Protein: " + gene.transcripts[i].protein_name);
+            doc.text(3 * space, startY + rowHeight * (i % transcriptsPerPage), "Transcript: " + gene.transcripts[i].name + " Protein: " + (gene.transcripts[i].hasProtein ? gene.transcripts[i].protein_name : "none"));
 
             //drawing. parameters:x,y,width,height
             doc.addImage(imgGenomic, 3 * space, startY + space + rowHeight * (i % transcriptsPerPage), width, height);

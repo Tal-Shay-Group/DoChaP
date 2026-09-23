@@ -47,9 +47,13 @@ class Gene {
         this.transcripts = [];
         for (var i = 0; i < dbGene.transcripts.length; i++) {
             var t = dbGene.transcripts[i];
+            //Named by a DOMAS result row, so it is shown whatever the two filters
+            //below would say: the transcript the row is ABOUT is the one thing the
+            //page must not drop. Empty on every other page.
+            var wanted = Gene.isAlwaysShown(t);
             var isCoding = t.protein_refseq_id || t.protein_ensembl_id;
-            if (!isCoding) continue;
-            if (ignorePredictions == false || t.transcript_refseq_id == undefined || (t.transcript_refseq_id != undefined && t.transcript_refseq_id.substring(0, 2) == "NM")) {
+            if (!isCoding && !wanted) continue;
+            if (wanted || ignorePredictions == false || t.transcript_refseq_id == undefined || (t.transcript_refseq_id != undefined && t.transcript_refseq_id.substring(0, 2) == "NM")) {
                 this.transcripts.push(new Transcript(t, this));
             }
         }
@@ -58,6 +62,25 @@ class Gene {
         //scales
         this.scale = new GenomicScale(this);
         this.proteinScale = new ProteinScale(this.maxProteinLength, this.proteinStart, this.proteinEnd);
+    }
+
+    /**
+     * Transcripts a DOMAS result row named. Set on the class by resultsController
+     * before the Gene is built (and reset to [] when the page was not reached from
+     * DOMAS), so nothing else on the site changes behaviour.
+     *
+     * Matched against BOTH id columns: DOMAS names a transcript by its ensembl id
+     * and falls back to refseq, so either spelling can arrive here.
+     * @param {Transcript row from db} t
+     */
+    static isAlwaysShown(t) {
+        var ids = Gene.alwaysShow || [];
+        for (var i = 0; i < ids.length; i++) {
+            if (t.transcript_refseq_id === ids[i] || t.transcript_ensembl_id === ids[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -119,7 +142,12 @@ class Gene {
         var colorToInfo = {};
 
         for (var i = 0; i < geneTranscripts.length; i++) {
-            if (!geneTranscripts[i].protein_refseq_id && !geneTranscripts[i].protein_ensembl_id) continue;
+            //The same protein-coding gate as the transcript loop, and it needs the
+            //same exemption: an exon with no entry here has no colour, and Exon's
+            //constructor reads colors[start][end].color straight out - so a drawn
+            //transcript whose exons were skipped here throws and the page stays blank.
+            if (!geneTranscripts[i].protein_refseq_id && !geneTranscripts[i].protein_ensembl_id
+                    && !Gene.isAlwaysShown(geneTranscripts[i])) continue;
             for (var j = 0; j < geneTranscripts[i].transcriptExons.length; j++) {
                 let currentExon = geneTranscripts[i].transcriptExons[j];
                 let colorLimits = Exon.getExonLimitsForColoring(currentExon.genomic_start_tx, currentExon.genomic_end_tx,
@@ -203,8 +231,11 @@ class Gene {
         var ans = ""
 
         for (var i = 0; i < transcripts.length; i++) {
-            //if predicted not hown then skip
-            if (this.ignorePredictions == true && transcripts[i].transcript_refseq_id != undefined && transcripts[i].transcript_refseq_id.substring(0, 2) == "XM") {
+            //if predicted not hown then skip - unless a DOMAS row named it, in
+            //which case it is drawn above and must be listed here to match
+            if (this.ignorePredictions == true && transcripts[i].transcript_refseq_id != undefined
+                    && transcripts[i].transcript_refseq_id.substring(0, 2) == "XM"
+                    && !Gene.isAlwaysShown(transcripts[i])) {
                 continue;
             }
             //iterate through transcripts to look if exon is present

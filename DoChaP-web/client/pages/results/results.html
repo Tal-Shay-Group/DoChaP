@@ -91,6 +91,39 @@
                                         {{::transcripts.length}} protein coding transcripts
                                         {{::resultsCtrl.geneInfo.specieName}}</center>
 
+                <!--A DOMAS result row was followed here, so only the two transcripts it
+                    compared are shown. Said out loud: a gene page silently missing most
+                    of its transcripts reads as a broken page.-->
+                <center ng-if="domasFilter" style="margin-top:6px; color:#31708f;">
+                    <span ng-if="domasFilter.applied">
+                        Showing only the transcripts compared by DOMAS<span
+                            ng-if="hiddenTranscripts"> &mdash; {{hiddenTranscripts}} other
+                            transcript<span ng-if="hiddenTranscripts != 1">s</span> hidden</span>.
+                    </span>
+                    <span ng-if="!domasFilter.applied">
+                        No transcript compared by DOMAS is in this view, so all transcripts are shown.
+                    </span>
+                    <!--Name the reason. "Not shown" on its own reads as a broken page,
+                        when the commonest reason is the row's own finding: a
+                        non_coding_alternative row names a transcript with no protein,
+                        and this page draws protein-coding transcripts only.-->
+                    <span ng-repeat="p in domasFilter.noProtein">
+                        {{p}} codes for no protein, so its protein track is empty &mdash;
+                        that is what this row reports.
+                    </span>
+                    <span ng-repeat="m in domasFilter.missingReasons">
+                        {{m.id}}
+                        <span ng-if="m.reason == 'noProtein'">has no annotated protein, so it is
+                            not drawn here &mdash; this page shows protein-coding transcripts only.
+                            That absence is what the row reports.</span>
+                        <span ng-if="m.reason == 'predicted'">is a predicted (XM_) record; untick
+                            <i>hide predicted records</i> to include it.</span>
+                        <span ng-if="m.reason == 'absent'">is not in this DoChaP database.</span>
+                        <span ng-if="m.reason == 'unknown'">is not shown on this page.</span>
+                    </span>
+                    <a href="" ng-click="showAllTranscripts()">Show all transcripts</a>
+                </center>
+
                 <!--display options-->
                 <center><i>Display:  </i><select id="selectModeComboBox" class="form-control selectMode" ng-change="checkboxChecked()" ng-model="modeModel">
                     <option value="all">All Views</option>
@@ -196,8 +229,10 @@
                         </button>
 
                         <!-- genomic view -->
-                        <a href="" ng-show="viewMode=='protein'"
+                        <a href="" ng-show="viewMode=='protein' && transcript.hasProtein"
                             ng-click="openWindow('protein',$index)">{{transcript.proteinId}}</a>
+                        <span ng-show="viewMode=='protein' && !transcript.hasProtein"
+                            title="{{transcript.name}}">{{transcript.name}} (no protein)</span>
                         <a href=""
                             ng-show="viewMode=='genomic'||viewMode=='transcript'||viewMode=='all'||viewMode=='transcript_protein'"
                             ng-click="openWindow('transcript',$index)">{{transcript.name}}</a>

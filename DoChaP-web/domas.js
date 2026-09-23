@@ -119,6 +119,11 @@ router.post("/domas/process", (req, res) => {
         "-max_clusters", String(MAX_CLUSTERS),
         "-num_workers", String(NUM_WORKERS),
         "-output_csv", path.join(workDir, "results.csv"),
+        // domas.py saves its results as .xlsx by default. This server reads the
+        // result back and sends it to the page as text, so it asks for the CSV
+        // instead - the browser builds the workbook the Download button hands
+        // over, from the same rows it is already displaying.
+        "-no_excel",
     ];
     args.push("-species", specie);
 

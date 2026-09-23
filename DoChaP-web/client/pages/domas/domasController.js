@@ -67,13 +67,21 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
     // server reads as "do not filter by species".
     var DB_SPECIE = { human: 'H_sapiens', mouse: 'M_musculus', rat: 'R_norvegicus' };
 
-    // Absolute, because the link is opened in a new tab.
-    function geneHref(gene, specie) {
+    // Absolute, because the link is opened in a new tab. The two transcripts the
+    // row compared ride along so the gene page can show only those; they are
+    // passed exactly as the CSV spells them, and DoChaP matches each against
+    // both transcript_refseq_id and transcript_ensembl_id (see resultsController).
+    function geneHref(gene, specie, canonical, alternative) {
         gene = (gene || '').trim();
         if (!gene) return null;
-        return $window.location.origin + $window.location.pathname + '#!/results/' +
+        var href = $window.location.origin + $window.location.pathname + '#!/results/' +
                (DB_SPECIE[(specie || '').trim().toLowerCase()] || 'all') + '/' +
                encodeURIComponent(gene);
+        var ids = [canonical, alternative]
+            .map(function (t) { return (t || '').trim(); })
+            .filter(function (t) { return t !== ''; });
+        if (ids.length) href += '/' + encodeURIComponent(ids.join(','));
+        return href;
     }
 
     function utf8ToBase64(str) {
@@ -122,9 +130,15 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         // domas.py writes this column as 'species'; older results say 'specie'.
         var sIdx = columns.indexOf('species');
         if (sIdx === -1) sIdx = columns.indexOf('specie');
+        // Absent from a non_compared.csv row, which names no pair - the link then
+        // carries no transcripts and the gene page shows everything, as before.
+        var cIdx = columns.indexOf('canonical_transcript_id');
+        var aIdx = columns.indexOf('alternative_transcript_id');
         if (gIdx !== -1) {
             rows.forEach(function (r) {
-                r.geneHref = geneHref(r[gIdx], sIdx === -1 ? '' : r[sIdx]);
+                r.geneHref = geneHref(r[gIdx], sIdx === -1 ? '' : r[sIdx],
+                                      cIdx === -1 ? '' : r[cIdx],
+                                      aIdx === -1 ? '' : r[aIdx]);
             });
         }
 
@@ -266,7 +280,9 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         return (c ^ 0xFFFFFFFF) >>> 0;
     }
 
-    // entries: [{name, text}] -> the parts of a .zip, in order.
+    // entries: [{name, text}] or [{name, bytes}] -> the parts of a .zip, in
+    // order. `bytes` carries a file that is not text - a .xlsx, which is itself
+    // a zip - and must not go through the UTF-8 encoder.
     function makeZip(entries) {
         var encoder = new TextEncoder();      // the flag bit below says UTF-8
         var parts = [], central = [], offset = 0;
@@ -276,7 +292,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
 
         entries.forEach(function (entry) {
             var name = encoder.encode(entry.name);
-            var data = encoder.encode(entry.text);
+            var data = entry.bytes || encoder.encode(entry.text);
             var sum = crc32(data);
             // local file header: version 10, UTF-8 flag, method 0 (stored),
             // no modification time, then the sizes - equal, being uncompressed.
@@ -306,6 +322,110 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         return parts;
     }
 
+    // ------------------------------------------------------------------
+    // .xlsx, written here rather than fetched: a workbook is a zip of XML
+    // parts, and the zip writer above already exists. Strings are written
+    // inline (t="inlineStr") so there is no shared-string table to build, and
+    // the columns a reader sorts on are written as numbers so that sorting one
+    // orders it 2, 10, 100 rather than "10", "100", "2".
+    // ------------------------------------------------------------------
+
+    // Excel's own ceiling, the header row included.
+    var EXCEL_MAX_ROWS = 1048576;
+
+    var EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+    // The columns to write as numbers. Same list as DOMAS's own Excel writer.
+    var NUMERIC_COLUMNS = {
+        canonical_domain_length: true, alternative_domain_length: true,
+        canonical_domains_number: true, alternative_domains_number: true,
+        length_change_pct: true
+    };
+
+    function columnLetter(index) {           // 0 -> A, 25 -> Z, 26 -> AA
+        var name = '';
+        for (index += 1; index > 0; index = Math.floor((index - 1) / 26)) {
+            name = String.fromCharCode(65 + (index - 1) % 26) + name;
+        }
+        return name;
+    }
+
+    // XML 1.0 forbids most control characters outright - no escape exists for
+    // them - and a domain description copied out of InterPro can carry one.
+    // They are dropped rather than escaped, which would produce a workbook
+    // Excel refuses to open at all.
+    function xmlText(value) {
+        return String(value)
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function sheetCell(ref, value, numeric) {
+        if (value === undefined || value === null || value === '') return '';
+        if (numeric && value !== '' && isFinite(value)) {
+            return '<c r="' + ref + '"><v>' + Number(value) + '</v></c>';
+        }
+        return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' +
+               xmlText(value) + '</t></is></c>';
+    }
+
+    // A results CSV as a one-sheet workbook, or null when it has more rows than
+    // a sheet holds - in which case the caller keeps the CSV and says so, rather
+    // than handing over a workbook silently missing its tail.
+    function makeXlsx(csvText, sheetName) {
+        var table = parseCsv(csvText || '').filter(function (r) {
+            return r.length > 1 || (r.length === 1 && r[0] !== '');
+        });
+        if (!table.length || table.length > EXCEL_MAX_ROWS) return null;
+
+        var header = table[0];
+        var numeric = header.map(function (name) { return NUMERIC_COLUMNS[name] === true; });
+        var rows = table.map(function (cells, rowIndex) {
+            var body = cells.map(function (value, col) {
+                // Row 1 is the header, always text however its column is typed.
+                return sheetCell(columnLetter(col) + (rowIndex + 1), value,
+                                 rowIndex > 0 && numeric[col]);
+            }).join('');
+            return '<row r="' + (rowIndex + 1) + '">' + body + '</row>';
+        }).join('');
+
+        var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+        return makeZip([
+            { name: '[Content_Types].xml', text: X +
+              '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+              '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+              '<Default Extension="xml" ContentType="application/xml"/>' +
+              '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+              '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+              '</Types>' },
+            { name: '_rels/.rels', text: X +
+              '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+              '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+              '</Relationships>' },
+            { name: 'xl/workbook.xml', text: X +
+              '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
+              'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+              '<sheets><sheet name="' + xmlText(sheetName || 'Sheet1') +
+              '" sheetId="1" r:id="rId1"/></sheets></workbook>' },
+            { name: 'xl/_rels/workbook.xml.rels', text: X +
+              '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+              '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+              '</Relationships>' },
+            { name: 'xl/worksheets/sheet1.xml', text: X +
+              '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+              '<sheetData>' + rows + '</sheetData></worksheet>' }
+        ]);
+    }
+
+    // The zip parts makeZip returns, flattened into the single byte array a
+    // nested entry needs.
+    function concatParts(parts) {
+        var total = parts.reduce(function (n, p) { return n + p.length; }, 0);
+        var out = new Uint8Array(total), at = 0;
+        parts.forEach(function (p) { out.set(p, at); at += p.length; });
+        return out;
+    }
+
     function downloadBlob(blob, filename) {
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
@@ -317,10 +437,20 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         URL.revokeObjectURL(url);
     }
 
-    // The run's files, skipping any the server did not send.
+    // The run's files, skipping any the server did not send. Each table goes in
+    // as .xlsx, matching what domas.py itself now saves - this page runs a
+    // capped example, so no table here comes near the size at which a sheet
+    // stops being the right format. A table too large for one falls back to its
+    // CSV rather than going missing. The summary is prose and has only the one
+    // form.
     function resultEntries(csv, nonCompared, summary) {
-        var entries = [{ name: 'compared.csv', text: csv }];
-        if (nonCompared) entries.push({ name: 'non_compared.csv', text: nonCompared });
+        var entries = [];
+        [['compared', csv], ['non_compared', nonCompared]].forEach(function (pair) {
+            if (!pair[1]) return;
+            var book = makeXlsx(pair[1], pair[0]);
+            if (book) entries.push({ name: pair[0] + '.xlsx', bytes: concatParts(book) });
+            else entries.push({ name: pair[0] + '.csv', text: pair[1] });
+        });
         if (summary) entries.push({ name: 'run_summary.txt', text: summary });
         return entries;
     }
@@ -328,8 +458,10 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
     function downloadResults(csv, nonCompared, summary, filename) {
         var entries = resultEntries(csv, nonCompared, summary);
         if (entries.length === 1) {          // nothing to bundle with it
-            downloadBlob(new Blob([csv], { type: 'text/csv' }),
-                         filename.replace(/\.zip$/, '.csv'));
+            var only = entries[0];
+            downloadBlob(new Blob([only.bytes || only.text],
+                                  { type: only.bytes ? EXCEL_MIME : 'text/csv' }),
+                         filename.replace(/\.zip$/, only.bytes ? '.xlsx' : '.csv'));
             return;
         }
         downloadBlob(new Blob(makeZip(entries), { type: 'application/zip' }), filename);

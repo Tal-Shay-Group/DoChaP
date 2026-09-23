@@ -5,7 +5,7 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
     self = this;
 
     //in case of text this function runs. it checks for invalid input before sending it to the server
-    self.queryHandler =async function (query, specie, isReviewed, useRepDomains) {
+    self.queryHandler =async function (query, specie, isReviewed, useRepDomains, domasTranscripts) {
         var re = new RegExp("^[a-zA-Z0-9]");
         query=query.trim(); //trim whitespaces from beginning or end
         if (!re.test(query)) {
@@ -24,6 +24,19 @@ angular.module("DoChaP").service("querySearchService", function ($window,webServ
                     if (response.data.isExact == true || response.data.genes.length == 1) {
                         $window.sessionStorage.setItem("currGene", JSON.stringify(response.data));
                         $window.sessionStorage.setItem("ignorePredictions", "false");
+                        //A DOMAS deep link names the two transcripts its row compared, and
+                        //the results page then shows only those. The list has to travel in
+                        //sessionStorage because the redirect below drops the route params.
+                        //
+                        //This function is the single funnel for EVERY search on the site, so
+                        //a search from the header box arrives with nothing and clears the key.
+                        //Without that, the next gene anyone looked up would inherit the
+                        //previous filter and paint a near-empty page.
+                        if (domasTranscripts) {
+                            $window.sessionStorage.setItem("domasTranscripts", domasTranscripts);
+                        } else {
+                            $window.sessionStorage.removeItem("domasTranscripts");
+                        }
                         $window.location = "#!/results";
                         return ["success"];
                     } else {

@@ -63,10 +63,12 @@ class Exon {
 
 		let colorLimits = Exon.getExonLimitsForColoring(dbExon.genomic_start_tx, dbExon.genomic_end_tx,
 			dbExon.abs_start_CDS, cdsStart, cdsEnd);
-		this.color =
-			colors[colorLimits.start]
-			[colorLimits.end]
-			.color;
+		//Gene.createColorDictionary() covers every exon of every transcript this gene
+		//draws, so a miss means the two have gone out of step. Falling back to grey
+		//keeps the page up: reading .color off undefined throws inside the Gene
+		//constructor, which leaves the whole results page blank, not just this exon.
+		let colorEntry = colors[colorLimits.start] && colors[colorLimits.start][colorLimits.end];
+		this.color = colorEntry ? colorEntry.color : "#cccccc";
 	}
 
 	/**

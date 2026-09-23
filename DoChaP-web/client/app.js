@@ -18,6 +18,13 @@ app.config(function ($routeProvider) {
             templateUrl: 'pages/results/results.html',
             controller: 'resultsController as resultsCtrl'
         })
+        // Same page, plus the transcripts a DOMAS result row compared, as a
+        // comma-separated list. Transcript ids never contain '/', so they sit in
+        // one route segment.
+        .when('/results/:specie/:query/:transcripts', {
+            templateUrl: 'pages/results/results.html',
+            controller: 'resultsController as resultsCtrl'
+        })
         .when('/querySearch',{
             templateUrl: 'pages/home/querySearch.html',
             controller: 'querySearchController as querySearchCtrl'

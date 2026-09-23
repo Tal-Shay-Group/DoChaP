@@ -25,16 +25,23 @@ class Transcript {
         this.canonical = dbTranscript.canonical;
 
         //protein attributes
-        this.proteinId = dbTranscript.protein.protein_refseq_id != undefined ? dbTranscript.protein.protein_refseq_id : dbTranscript.protein.protein_ensembl_id;
-        this.protein_refseq_id = dbTranscript.protein.protein_refseq_id;
-        this.proteinLength = dbTranscript.protein.length * 3; // in base units
-        this.proteinLengthInAA = dbTranscript.protein.length;
-        this.description = dbTranscript.protein.description;
-        this.proteinSynonyms = dbTranscript.protein.synonyms;
-        this.protein_ensembl_id = dbTranscript.protein.protein_ensembl_id;
-        // this.proteinUniprotID = dbTranscript.protein.uniprot_id;
-        this.proteinEnsemblLink = this.getEnsemblProteinLink(dbTranscript.protein.protein_ensembl_id, gene.specie);
-        this.protein_name = this.getName(dbTranscript.protein.protein_refseq_id, dbTranscript.protein.protein_ensembl_id)
+        //A transcript with no protein has no row in Proteins, so querySearch.js
+        //sends `protein: undefined` and every read below would throw. Only a
+        //transcript a DOMAS row named arrives in that state - Gene.js filters the
+        //rest out - and it is exactly what a non_coding_alternative row reports,
+        //so it is drawn with an empty protein track rather than dropped.
+        var protein = dbTranscript.protein || {};
+        this.hasProtein = dbTranscript.protein != undefined;
+        this.proteinId = protein.protein_refseq_id != undefined ? protein.protein_refseq_id : protein.protein_ensembl_id;
+        this.protein_refseq_id = protein.protein_refseq_id;
+        this.proteinLength = this.hasProtein ? protein.length * 3 : 0; // in base units
+        this.proteinLengthInAA = this.hasProtein ? protein.length : 0;
+        this.description = protein.description;
+        this.proteinSynonyms = protein.synonyms;
+        this.protein_ensembl_id = protein.protein_ensembl_id;
+        // this.proteinUniprotID = protein.uniprot_id;
+        this.proteinEnsemblLink = this.getEnsemblProteinLink(protein.protein_ensembl_id, gene.specie);
+        this.protein_name = this.getName(protein.protein_refseq_id, protein.protein_ensembl_id)
 
         // show or hide mode attributes
         this.genomicView = true;
@@ -61,6 +68,18 @@ class Transcript {
         this.domains = [];
         for (var i = 0; i < dbTranscript.domains.length; i++) {
             this.domains[i] = new Domain(dbTranscript.domains[i], gene.proteinStart);
+        }
+
+        //DoChaP records cds_start/cds_end for a non-coding transcript as its whole
+        //transcription span, and its exons carry a non-zero abs_start_CDS (475,765
+        //such exons in the database), so Exon reads every base as coding and the
+        //transcript would be drawn as one uninterrupted CDS. It has no CDS at all.
+        if (!this.hasProtein) {
+            for (var i = 0; i < this.exons.length; i++) {
+                this.exons[i].isUTRAll = true;
+                this.exons[i].isUTRStart = undefined;
+                this.exons[i].isUTREnd = undefined;
+            }
         }
 
         //domain sorts and attribute edits

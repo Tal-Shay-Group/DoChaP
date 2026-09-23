@@ -8,6 +8,16 @@ angular.module("DoChaP").controller('indexController', function ($scope, $locati
 
    //changing text in page name to white if we are on the current page
    $scope.$on('$locationChangeSuccess', function () {
+      //The DOMAS transcript exemption belongs to the results page that asked for
+      //it. Gene.alwaysShow is a static on the class, so without this it survives
+      //navigation - and Compare species builds its Genes at some twenty call
+      //sites, none of which reset it. Cleared centrally here rather than at each
+      //of those sites, so a page added later cannot inherit it by omission.
+      //resultsController assigns it again, from sessionStorage, on every load.
+      if (typeof Gene !== 'undefined' && $location.path().indexOf('/results') !== 0) {
+         Gene.alwaysShow = [];
+      }
+
       var headers = $('li');
       var currAddress = "#!" + $location.path().substring(1);
       $('li a').each(function (i) {
