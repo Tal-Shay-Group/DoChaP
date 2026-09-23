@@ -5,7 +5,8 @@
  * The browser can't hand the server a filesystem path, so the client uploads
  * each file's contents (base64) in the POST body; we write them to a private
  * temp directory, run domas.py pointed at that directory, read results.csv,
- * and clean up. Only the first MAX_CLUSTERS clusters are processed.
+ * and clean up. Only MAX_CLUSTERS clusters are processed - the most significant
+ * ones the input names; see -max_clusters in domas.py.
  */
 const express = require("express");
 const router = express.Router();

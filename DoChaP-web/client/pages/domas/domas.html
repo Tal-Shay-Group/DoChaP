@@ -1,7 +1,7 @@
 <html>
 
 <!-- DOMAS page: upload alternative-splicing tool output, run DOMAS on the
-     server (first 100 alternative splicing events), and show/download the
+     server (the 100 most significant alternative splicing events), and show/download the
      results Excel file. Help and About open as panels on this page - the icons beside
      the heading toggle them, and opening one closes the other. -->
 
@@ -20,8 +20,8 @@
         <p style="color: #444;">
             Domain Oriented Mapping of Alternative Splicing &mdash; map differential
             splicing events onto protein domain architectures. Choose your input format,
-            select the file(s), and press <b>Process</b>. The first 100 alternative
-            splicing events are analyzed.
+            select the file(s), and press <b>Process</b>. The 100 most significant
+            alternative splicing events are analyzed.
         </p>
 
         <!-- Help ------------------------------------------------------------>
@@ -230,8 +230,14 @@
                 database, which integrates domain annotation from several sources. Domains
                 reported here come from Pfam.</p>
 
-            <p>The WebServer of DOMAS runs on the first 100 alternative splicing events of the file
-               you upload. For longer lists, DOMAS is also available as a command-line tool at
+            <p><strong>Size limit:</strong> the WebServer analyzes 100 alternative splicing
+               events per upload &mdash; the 100 most significant ones, ranked by the statistic
+               your input already carries (LeafCutter <code>p.adjust</code>, rMATS
+               <code>FDR</code>, MAJIQ changing-probability). A format that reports no
+               statistic, such as a SUPPA <code>.ioe</code> file, is instead taken in cluster-name
+               order, so for those it is worth uploading only the events you care about.
+               Either way the WebServer sees a fraction of a genome-wide run: to analyze a
+               whole file, use the command-line tool at
                <a href="https://github.com/Tal-Shay-Group/DOMAS" target="_blank"
                   rel="noopener">github.com/Tal-Shay-Group/DOMAS</a>.</p>
 

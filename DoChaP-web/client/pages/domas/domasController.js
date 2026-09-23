@@ -2,7 +2,7 @@
  * DOMAS page controller.
  *
  * Reads the user-selected input file(s), base64-encodes them in the browser,
- * POSTs them to the server (which runs domas.py on the first 100 events),
+ * POSTs them to the server (which runs domas.py on the 100 most significant events),
  * then renders the returned results CSV as a table and offers it for download.
  *
  * Both runs also show the run summary the server returns beside the CSV.
