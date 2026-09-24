@@ -336,6 +336,9 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
     var EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
     // The columns to write as numbers. Same list as DOMAS's own Excel writer.
+    // alternative_transcripts_group is NOT among them and must not be added: it
+    // reads "2/3" - which group of the cluster, of how many - and Excel left to
+    // guess at that reads it as a date.
     var NUMERIC_COLUMNS = {
         canonical_domain_length: true, alternative_domain_length: true,
         canonical_domains_number: true, alternative_domains_number: true,

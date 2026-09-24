@@ -132,9 +132,12 @@
                     <tr><td><code>event</code></td>
                         <td>Name of the alternative splicing event, as the input file identifies it.</td></tr>
                     <tr><td><code>alternative_transcripts_group</code></td>
-                        <td>The group of alternative transcripts this row describes. Transcripts
-                            sharing the same junctions across the event form one group, and one
-                            representative of the group is compared to the canonical transcript.</td></tr>
+                        <td>Which group of alternative transcripts this row describes, of how many
+                            the event holds &mdash; <code>2/3</code> is the second of three.
+                            Transcripts sharing the same junctions across the event form one group,
+                            and one representative of the group is compared to the canonical
+                            transcript. Empty where the row describes the event as a whole rather
+                            than one group.</td></tr>
                     <tr><td><code>gene_symbol</code></td>
                         <td>The gene the event falls in. Links to the gene in DoChaP.</td></tr>
                     <tr><td><code>species</code></td>
