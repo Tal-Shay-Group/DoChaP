@@ -47,7 +47,10 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
     $scope.truncated = false;
     $scope.summaryText = '';          // the run summary, '' when there is none
     $scope.nonComparedText = '';      // the rows that reached no comparison
-    $scope.showSummary = false;
+    // Open by default. The summary says how much of the input was analysed and
+    // how much of it reached a comparison - worth reading before the table, not
+    // after noticing there is a button for it.
+    $scope.showSummary = true;
 
     var csvText = '';                 // full CSV, kept for download
     var MAX_DISPLAY_ROWS = 500;       // cap table rows for responsiveness
@@ -230,7 +233,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
             csvText = response.data.csv || '';
             $scope.summaryText = response.data.summary || '';
             $scope.nonComparedText = response.data.nonCompared || '';
-            $scope.showSummary = false;
+            $scope.showSummary = true;
             var summary = summarizeCsv(csvText);
             if (!summary) {
                 $scope.alert = "DOMAS produced no results for this input.";
@@ -542,7 +545,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
     $scope.exampleTruncated = false;
     $scope.exampleSummaryText = '';
     $scope.exampleNonComparedText = '';
-    $scope.exampleShowSummary = false;
+    $scope.exampleShowSummary = true;
 
     var exampleCsvText = '';
 
@@ -553,7 +556,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         $scope.exampleAlert = '';
         $scope.exampleColumns = [];
         $scope.exampleRows = [];
-        $scope.exampleShowSummary = false;
+        $scope.exampleShowSummary = true;
         $scope.exampleLoading = true;
 
         var fetches = specs.map(function (spec) {
