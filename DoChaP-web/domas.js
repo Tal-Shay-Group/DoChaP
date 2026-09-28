@@ -117,6 +117,9 @@ router.post("/domas/process", (req, res) => {
     const args = [
         DOMAS_PY,
         "-dochap", DOCHAP_DB,
+        // The summary would otherwise list this run's input by its path inside
+        // workDir, a temporary directory that names nothing the user uploaded.
+        "-gui",
         "-max_clusters", String(MAX_CLUSTERS),
         "-num_workers", String(NUM_WORKERS),
         "-output_csv", path.join(workDir, "results.csv"),
