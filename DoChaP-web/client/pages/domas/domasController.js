@@ -366,14 +366,61 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    function sheetCell(ref, value, numeric) {
+    // As xmlText, plus the double quote, because this goes in an attribute value.
+    // A gene symbol cannot carry one, but the hyperlink Target is built from
+    // window.location and must not be able to close the attribute early.
+    function xmlAttr(value) {
+        return xmlText(value).replace(/"/g, '&quot;');
+    }
+
+    // Excel's own ceiling on links in one worksheet. Mirrors
+    // junction_analisys.EXCEL_MAX_HYPERLINKS: past it the workbook is written
+    // without links rather than written broken. A web run is capped at 100
+    // events so this is unreachable here, and is kept so the two writers cannot
+    // disagree about the limit.
+    var EXCEL_MAX_HYPERLINKS = 65530;
+
+    // Style 1 of the styles part below: the gene cell of a linked row.
+    var XLSX_HYPERLINK_STYLE = 1;
+
+    function sheetCell(ref, value, numeric, styleIndex) {
         if (value === undefined || value === null || value === '') return '';
+        var style = styleIndex ? ' s="' + styleIndex + '"' : '';
         if (numeric && value !== '' && isFinite(value)) {
-            return '<c r="' + ref + '"><v>' + Number(value) + '</v></c>';
+            return '<c r="' + ref + '"' + style + '><v>' + Number(value) + '</v></c>';
         }
-        return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' +
+        return '<c r="' + ref + '"' + style + ' t="inlineStr"><is><t xml:space="preserve">' +
                xmlText(value) + '</t></is></c>';
     }
+
+    // The smallest styles part Excel accepts, holding two cell formats: 0 is the
+    // default and 1 is the gene link - underlined and in 0563C1, the hyperlink
+    // colour of Excel's default theme. Written as an explicit rgb rather than a
+    // theme reference for the reason given in junction_analisys: Numbers and
+    // Google Sheets do not reliably resolve the theme's hyperlink slot.
+    // The empty fills and border are not padding - Excel rejects a styles part
+    // that declares fewer than two fills or no border at all.
+    var XLSX_STYLES =
+        '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+        '<fonts count="2">' +
+          '<font><sz val="11"/><name val="Calibri"/></font>' +
+          '<font><u/><color rgb="FF0563C1"/><sz val="11"/><name val="Calibri"/></font>' +
+        '</fonts>' +
+        '<fills count="2">' +
+          '<fill><patternFill patternType="none"/></fill>' +
+          '<fill><patternFill patternType="gray125"/></fill>' +
+        '</fills>' +
+        '<borders count="1"><border/></borders>' +
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+        '<cellXfs count="2">' +
+          '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+          '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
+        '</cellXfs>' +
+        // Naming the default style is not decoration: a reader that does not find
+        // a 'Normal' entry here substitutes a default of its own and warns, and
+        // the schema puts cellStyles after cellXfs.
+        '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+        '</styleSheet>';
 
     // A results CSV as a one-sheet workbook, or null when it has more rows than
     // a sheet holds - in which case the caller keeps the CSV and says so, rather
@@ -384,18 +431,68 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
         });
         if (!table.length || table.length > EXCEL_MAX_ROWS) return null;
 
+        var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
         var header = table[0];
         var numeric = header.map(function (name) { return NUMERIC_COLUMNS[name] === true; });
+
+        // The gene cell links to the same DoChaP page the on-page table links to
+        // - geneHref() is the one source of the URL, so the workbook and the
+        // table can never point at different places. Without this the download
+        // lost the link the page had just shown: the server runs domas.py with
+        // -no_excel, so the Python writer's _link_gene_cells() never runs and
+        // this is the only writer in the web path.
+        var gene = header.indexOf('gene_symbol');
+        var specie = header.indexOf('species');
+        if (specie === -1) specie = header.indexOf('specie');
+        // Absent from non_compared rows, which name no pair; the link then
+        // carries no transcripts and the gene page shows everything.
+        var canon = header.indexOf('canonical_transcript_id');
+        var alt = header.indexOf('alternative_transcript_id');
+        var links = [];
+        if (gene !== -1 && table.length - 1 <= EXCEL_MAX_HYPERLINKS) {
+            table.forEach(function (cells, rowIndex) {
+                if (rowIndex === 0) return;                  // the header carries no link
+                var href = geneHref(cells[gene],
+                                    specie === -1 ? '' : cells[specie],
+                                    canon === -1 ? '' : cells[canon],
+                                    alt === -1 ? '' : cells[alt]);
+                if (href) {
+                    links.push({ ref: columnLetter(gene) + (rowIndex + 1), href: href });
+                }
+            });
+        }
+        // Which cells to draw as links, by cell reference - the style has to be
+        // set on the cell itself, while <hyperlink> only names the target.
+        var linkedRefs = {};
+        links.forEach(function (link) { linkedRefs[link.ref] = true; });
+
         var rows = table.map(function (cells, rowIndex) {
             var body = cells.map(function (value, col) {
+                var ref = columnLetter(col) + (rowIndex + 1);
                 // Row 1 is the header, always text however its column is typed.
-                return sheetCell(columnLetter(col) + (rowIndex + 1), value,
-                                 rowIndex > 0 && numeric[col]);
+                return sheetCell(ref, value, rowIndex > 0 && numeric[col],
+                                 linkedRefs[ref] ? XLSX_HYPERLINK_STYLE : 0);
             }).join('');
             return '<row r="' + (rowIndex + 1) + '">' + body + '</row>';
         }).join('');
 
-        var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+        // <hyperlinks> names cells and relationship ids; the ids resolve to URLs
+        // in the sheet's own rels part, which is why an external link needs both.
+        // It follows </sheetData>, where the schema puts it.
+        var hyperlinks = links.length
+            ? '<hyperlinks>' + links.map(function (link, i) {
+                  return '<hyperlink ref="' + link.ref + '" r:id="rId' + (i + 1) + '"/>';
+              }).join('') + '</hyperlinks>'
+            : '';
+        var sheetRels = links.length
+            ? [{ name: 'xl/worksheets/_rels/sheet1.xml.rels', text: X +
+                 '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                 links.map(function (link, i) {
+                     return '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="' +
+                            xmlAttr(link.href) + '" TargetMode="External"/>';
+                 }).join('') + '</Relationships>' }]
+            : [];
+
         return makeZip([
             { name: '[Content_Types].xml', text: X +
               '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
@@ -403,6 +500,7 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
               '<Default Extension="xml" ContentType="application/xml"/>' +
               '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
               '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+              '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
               '</Types>' },
             { name: '_rels/.rels', text: X +
               '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
@@ -416,11 +514,14 @@ angular.module("DoChaP").controller('domasController', function ($scope, $http, 
             { name: 'xl/_rels/workbook.xml.rels', text: X +
               '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
               '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+              '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
               '</Relationships>' },
+            { name: 'xl/styles.xml', text: X + XLSX_STYLES },
             { name: 'xl/worksheets/sheet1.xml', text: X +
-              '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
-              '<sheetData>' + rows + '</sheetData></worksheet>' }
-        ]);
+              '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
+              'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+              '<sheetData>' + rows + '</sheetData>' + hyperlinks + '</worksheet>' }
+        ].concat(sheetRels));
     }
 
     // The zip parts makeZip returns, flattened into the single byte array a
