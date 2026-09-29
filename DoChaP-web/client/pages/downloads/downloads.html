@@ -1,5 +1,9 @@
 <html>
 <!--  download page with information on this project
+      The database is hosted as a GitHub release asset, not served from this
+      host: the network path in front of this server truncates HTTPS responses
+      at ~27 MB, so a ~1 GB download from here always fails part way through.
+      See readMe.md, "Publishing the database".
 -->
 <!-- download text -->
 
@@ -7,9 +11,9 @@
     <br>
     <div class="greyArea">
         <h2>DoChaP's download center</h2>
-        <p><strong>Files in two formats enabling genomewide exploration of the association between alternative splicing and protein domains</strong></p>
+        <p><strong>The DoChaP database, for genomewide exploration of the association
+           between alternative splicing and protein domains</strong></p>
         <br>
-        <p>Tables (CSV file format)</p>
 
 <table>
 <style>
@@ -23,13 +27,16 @@ table {
 </style>
 <tbody>
 <tr>
-<td width="156">
+<td width="220">
 <p><strong>File name</strong></p>
 </td>
-<td width="360">
+<td width="330">
 <p><strong>Description</strong></p>
 </td>
-<td width="156">
+<td width="110">
+<p><strong>Size</strong></p>
+</td>
+<td width="130">
 <p><strong>Date modified</strong></p>
 </td>
 <td width="85">
@@ -37,164 +44,62 @@ table {
 </td>
 </tr>
 <tr>
-<td width="156">
-<p>H_sapiens_transcript_domainInfo.csv</p>
+<td width="220">
+<p>DB_merged.sqlite.tar.gz</p>
 </td>
-<td width="360">
-<p>Protein domains information for all human transcripts</p>
+<td width="330">
+<p>The complete DoChaP database: genes, transcripts, exons, proteins and
+   domain annotation for human, mouse, rat, zebrafish and frog, with gene
+   orthologies. This is the database the web server itself queries.</p>
 </td>
-<td width="156">
-<p>7 April 2021</p>
+<td width="110">
+<p>933 MB compressed<br>(3.9 GB unpacked)</p>
 </td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1OLG-3VcnsCYsqTU4AXmlE-SBjrGi9kx3"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>M_musculus_transcript_domainInfo.csv</p>
-</td>
-<td width="360">
-<p>Protein domains information for all mouse transcripts</p>
-</td>
-<td width="156">
-<p>7 April 2021</p>
+<td width="130">
+<p>17 September 2026</p>
 </td>
 <td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1f2c1-qtKycBFejvtY5PoCZDDqbftYVZo"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>R_norvegicus_transcript_domainsInfo.csv</p>
-</td>
-<td width="360">
-<p>Protein domains information for all rat transcripts</p>
-</td>
-<td width="156">
-<p>7 April 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1YXWPEdtF9LgegFxQL4JMPqEZmQ807Q5A"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>D_rerio_transcript_domainsInfo.csv</p>
-</td>
-<td width="360">
-<p>Protein domains information for all zebrafish transcripts</p>
-</td>
-<td width="156">
-<p>7 April 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=13SWZhcXzWF8k-SL4QYRvAgXGeLKTaQfV"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>X_tropicalis_transcript_domainsInfo.csv</p>
-</td>
-<td width="360">
-<p>Protein domains information for all frog transcripts</p>
-</td>
-<td width="156">
-<p>7 April 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1Mjvwy5ureYfbO_YCRE8t6NJFQrcW4aVt"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>ReadMe_DoChaP_Tables.txt</p>
-</td>
-<td width="360">
-<p>Description of DoChaP tables</p>
-</td>
-<td width="156">
-<p>7 April 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1KU2nzZNzGixbSMgSWu_XxiLtiDyQ--vO"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
+<p><a href="https://github.com/Tal-Shay-Group/DOMAS/releases/download/db-v1/DB_merged.sqlite.tar.gz"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
 </td>
 </tr>
 </tbody>
 </table>
+<p>&nbsp;</p>
 
+<p>The database is hosted on GitHub, alongside the DOMAS source:
+   <a href="https://github.com/Tal-Shay-Group/DOMAS/releases/tag/db-v1">github.com/Tal-Shay-Group/DOMAS/releases/tag/db-v1</a>.
+   Downloads from GitHub resume if interrupted, which matters for a file this size.</p>
+<p>The archive is 978,165,954 bytes. To check that it arrived intact:</p>
+<pre>shasum -a 256 DB_merged.sqlite.tar.gz          # Linux, macOS
+certutil -hashfile DB_merged.sqlite.tar.gz SHA256   # Windows</pre>
+<p>which should print
+   <code>f16675ec6bfcfbe906a36251058095bff27886e43e83db251d1ff032f08146bc</code>.</p>
 <p>&nbsp;</p>
-<p>Database (SQLite file format)</p>
-<table>
-<style>
-table, td, tr {
-  border: 1px solid black;
-}
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-</style>
-<tbody>
-<tr>
-<td width="156">
-<p><strong>File name</strong></p>
-</td>
-<td width="360">
-<p><strong>Description</strong></p>
-</td>
-<td width="156">
-<p><strong>Date modified</strong></p>
-</td>
-<td width="85">
-<p><strong>Download</strong></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>DB_AllSpecies.sqlite</p>
-</td>
-<td width="360">
-<p>DoChaP database of all species and gene orthologies</p>
-</td>
-<td width="156">
-<p>3 March 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1ZqiGVmzNCZzOREttqfzy9CmT6yOzItlv"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>DB_H_sapiens.sqlite</p>
-</td>
-<td width="360">
-<p>DoChaP human database</p>
-</td>
-<td width="156">
-<p>3 March 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=1QHMHBg7di58FR2aIa1SE55gXCwrBoRcV"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-<tr>
-<td width="156">
-<p>DB_M_musculus.sqlite</p>
-</td>
-<td width="360">
-<p>DoChaP mouse database</p>
-</td>
-<td width="156">
-<p>3 March 2021</p>
-</td>
-<td width="85">
-<p><a href="https://drive.google.com/uc?export=download&id=16TleMmmSoLVpim8gim9e6VQJcHOegwZK"><span style="font-size: 16px;" class="glyphicon glyphicon-download-alt"></span></a></p>
-</td>
-</tr>
-</tbody>
-</table>
+
+<p><strong>Unpacking it</strong></p>
+<p>The download is a gzip-compressed tar archive holding a single file,
+   <code>DB_merged.sqlite</code>. On Linux, macOS, and Windows 10 or later
+   (<code>tar</code> is built in on all three):</p>
+<pre>tar -xzf DB_merged.sqlite.tar.gz</pre>
+<p>The result is an ordinary SQLite database. Open it with the
+   <a href="https://sqlite.org/cli.html">sqlite3</a> command line, with any SQLite
+   browser, or from Python with the standard library:</p>
+<pre>import sqlite3
+con = sqlite3.connect('DB_merged.sqlite')
+con.execute("SELECT COUNT(*) FROM Genes WHERE specie='H_sapiens'").fetchone()</pre>
+<p>It is also the database DOMAS reads: pass it to
+   <code>domas.py -dochap /path/to/DB_merged.sqlite</code>.</p>
 <p>&nbsp;</p>
+
+<p><strong>How it was built</strong></p>
+<p>Gene, transcript, exon and domain annotation is integrated from Ensembl and
+   NCBI, with protein domains from PFAM, as described in
+   <a href="https://doi.org/10.1093/nar/gkab357">Gal-Oz et al., Nucleic Acids
+   Research, 2021</a>.
+   The per-species and per-table files offered here previously were built in 2021
+   and have been withdrawn; this single database supersedes all of them.</p>
+<p>&nbsp;</p>
+
 <p>The code for the building of DoChaP-db and the DoChaP web server is available on: <a href="https://github.com/Tal-Shay-Group/DoChaP">https://github.com/Tal-Shay-Group/DoChaP</a></p>
  </div>
 </body>
